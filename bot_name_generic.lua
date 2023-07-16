@@ -2,11 +2,10 @@
 _G._savedEnv = getfenv()
 module("bot_name_generic", package.seeall)
 
-
 function GetBotName()
     if (GetTeam() == TEAM_RADIANT) then
         name =
-        { "DeVoDeAL",
+        { "DevoDeAL",
             "Murdage",
             "Vilverin-Talekon",
             "Barracuda",
@@ -19,7 +18,7 @@ function GetBotName()
             "Gwinblade",
             "Spartacus",
             "Bortel",
-            "NeBeyteYaDevochkaKoshechka",
+            "iadmireyou",
         }
     end
     return name;

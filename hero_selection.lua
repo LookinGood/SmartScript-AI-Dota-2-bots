@@ -81,6 +81,7 @@ hero_pool_my =
 	"npc_dota_hero_enchantress",
 	"npc_dota_hero_lion",
 	"npc_dota_hero_leshrac",
+	"npc_dota_hero_lina",
 }
 
 
@@ -134,7 +135,7 @@ function Think()
 	end
 
 	-- Insert here hero hame and set "testmode = true" if you want the bot to choose a specific hero
-	testmode = true;
+	testmode = false;
 	testHero = "npc_dota_hero_lina"
 
 	if testmode

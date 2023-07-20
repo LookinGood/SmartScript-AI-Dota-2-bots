@@ -12,32 +12,8 @@ function BuybackUsageThink()
 end
 
 -- Ability learn
-local Talents = {}
-local Abilities = {}
-local npcBot = GetBot()
-
-for i = 0, 23, 1 do
-    local ability = npcBot:GetAbilityInSlot(i)
-    if (ability ~= nil)
-    then
-        if (ability:IsTalent() == true)
-        then
-            table.insert(Talents, ability:GetName())
-        else
-            table.insert(Abilities, ability:GetName())
-        end
-    end
-end
-
-local AbilitiesReal =
-{
-    npcBot:GetAbilityByName(Abilities[1]),
-    npcBot:GetAbilityByName(Abilities[2]),
-    npcBot:GetAbilityByName(Abilities[3]),
-    npcBot:GetAbilityByName(Abilities[4]),
-    npcBot:GetAbilityByName(Abilities[5]),
-    npcBot:GetAbilityByName(Abilities[6]),
-}
+local npcBot = GetBot();
+local Abilities, Talents, AbilitiesReal = ability_levelup_generic.GetHeroAbilities(npcBot)
 
 local AbilityToLevelUp =
 {
@@ -118,9 +94,9 @@ function ConsiderStormHammer()
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if utility.CanCastOnMagicImmuneTarget(enemy) and utility.SafeCast(enemy, true)
+            if (utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and not utility.TargetCantDie(enemy)) or enemy:IsChanneling()
             then
-                if utility.CanAbilityKillTarget(enemy, damageAbility, DAMAGE_TYPE_MAGICAL) or enemy:IsChanneling()
+                if utility.CanCastSpellOnTarget(ability, enemy) and utility.SafeCast(enemy, true)
                 then
                     --npcBot:ActionImmediate_Chat("Использую StormHammer что бы сбить заклинание или убить цель!",true);
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy;
@@ -132,9 +108,9 @@ function ConsiderStormHammer()
     -- Attack use
     if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
     then
-        if botTarget ~= nil and (utility.IsHero(botTarget) or utility.IsRoshan(botTarget))
+        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
         then
-            if utility.CanCastOnInvulnerableTarget(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
                 and not utility.IsDisabled(botTarget) and utility.SafeCast(botTarget, true)
             then
                 return BOT_MODE_DESIRE_HIGH, botTarget;
@@ -146,7 +122,7 @@ function ConsiderStormHammer()
         if (#enemyAbility > 0)
         then
             for _, enemy in pairs(enemyAbility) do
-                if utility.CanCastOnMagicImmuneTarget(enemy) and not utility.IsDisabled(enemy) and utility.SafeCast(enemy, true)
+                if utility.CanCastSpellOnTarget(ability, enemy) and not utility.IsDisabled(enemy) and utility.SafeCast(enemy, true)
                 then
                     --npcBot:ActionImmediate_Chat("Использую StormHammer что бы оторваться от врага",true);
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy;
@@ -159,7 +135,7 @@ function ConsiderStormHammer()
     then
         if utility.PvPMode(npcBot)
         then
-            if botTarget ~= nil and utility.IsHero(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) > attackRange
+            if tility.IsHero(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) > attackRange
             then
                 if ability:GetAutoCastState()
                 then
@@ -185,7 +161,7 @@ function ConsiderWarcry()
     if not utility.IsAbilityAvailable(ability) then
         return;
     end
-    local radiusAbility = (ability:GetSpecialValueInt("radius"));
+    local radiusAbility = ability:GetSpecialValueInt("radius");
     local allyAbility = npcBot:GetNearbyHeroes(radiusAbility, false, BOT_MODE_NONE);
 
     -- Use to buff damaged ally
@@ -207,8 +183,7 @@ function ConsiderWarcry()
     -- Attack use
     if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
     then
-        if botTarget ~= nil and (utility.IsHero(botTarget) or utility.IsRoshan(botTarget))
-            and GetUnitToUnitDistance(npcBot, botTarget) <= npcBot:GetAttackRange() * 4
+        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= npcBot:GetAttackRange() * 4
         then
             --npcBot:ActionImmediate_Chat("Использую Warcry для нападения!", true);
             return BOT_ACTION_DESIRE_HIGH;
@@ -225,7 +200,7 @@ function ConsiderGodsStrength()
     -- Attack use
     if utility.PvPMode(npcBot) and not npcBot:IsDisarmed()
     then
-        if botTarget ~= nil and utility.CanCastOnInvulnerableTarget(botTarget) and utility.IsHero(botTarget)
+        if utility.IsHero(botTarget) and utility.CanCastOnInvulnerableTarget(botTarget)
             and GetUnitToUnitDistance(npcBot, botTarget) <= npcBot:GetAttackRange() * 4
         then
             --npcBot:ActionImmediate_Chat("Использую GodsStrength для нападения!", true);

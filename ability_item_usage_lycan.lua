@@ -12,32 +12,8 @@ function BuybackUsageThink()
 end
 
 -- Ability learn
-local Talents = {}
-local Abilities = {}
-local npcBot = GetBot()
-
-for i = 0, 23, 1 do
-    local ability = npcBot:GetAbilityInSlot(i)
-    if (ability ~= nil)
-    then
-        if (ability:IsTalent() == true)
-        then
-            table.insert(Talents, ability:GetName())
-        else
-            table.insert(Abilities, ability:GetName())
-        end
-    end
-end
-
-local AbilitiesReal =
-{
-    npcBot:GetAbilityByName(Abilities[1]),
-    npcBot:GetAbilityByName(Abilities[2]),
-    npcBot:GetAbilityByName(Abilities[3]),
-    npcBot:GetAbilityByName(Abilities[4]),
-    npcBot:GetAbilityByName(Abilities[5]),
-    npcBot:GetAbilityByName(Abilities[6]),
-}
+local npcBot = GetBot();
+local Abilities, Talents, AbilitiesReal = ability_levelup_generic.GetHeroAbilities(npcBot)
 
 local AbilityToLevelUp =
 {
@@ -86,12 +62,6 @@ function AbilityUsageThink()
     castWolfBiteDesire, castWolfBiteTarget = ConsiderWolfBite();
     castShapeshiftDesire = ConsiderShapeshift();
 
-    if (castShapeshiftDesire ~= nil)
-    then
-        npcBot:Action_UseAbility(Shapeshift);
-        return;
-    end
-
     if (castSummonWolvesDesire ~= nil)
     then
         npcBot:Action_UseAbility(SummonWolves);
@@ -109,6 +79,12 @@ function AbilityUsageThink()
         npcBot:Action_UseAbilityOnEntity(WolfBite, castWolfBiteTarget);
         return;
     end
+
+    if (castShapeshiftDesire ~= nil)
+    then
+        npcBot:Action_UseAbility(Shapeshift);
+        return;
+    end
 end
 
 function ConsiderSummonWolves()
@@ -118,18 +94,20 @@ function ConsiderSummonWolves()
     end
 
     -- Attack use
-    if utility.PvPMode(npcBot)
+    if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
     then
-        if botTarget ~= nil and (utility.CanCastOnInvulnerableTarget(botTarget))
+        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
         then
-            --npcBot:ActionImmediate_Chat("Использую Summon Wolves для нападения!", true);
-            return BOT_ACTION_DESIRE_HIGH;
+            if utility.CanCastOnInvulnerableTarget(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= 2000
+            then
+                return BOT_ACTION_DESIRE_VERYHIGH;
+            end
         end
         -- Retreat use
-    elseif botMode == BOT_MODE_RETREAT and (HealthPercentage < 0.7) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
+    elseif botMode == BOT_MODE_RETREAT
     then
         local enemyAbility = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
-        if (#enemyAbility > 0)
+        if (#enemyAbility > 0) and (HealthPercentage < 0.7) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
         then
             --npcBot:ActionImmediate_Chat("Использую Summon Wolves для отступления!", true);
             return BOT_ACTION_DESIRE_HIGH;
@@ -149,7 +127,7 @@ function ConsiderHowl()
     end
 
     local attackRange = npcBot:GetAttackRange();
-    local radiusAbility = (ability:GetSpecialValueInt("radius"));
+    local radiusAbility = ability:GetSpecialValueInt("radius");
 
     -- General use
     if utility.PvPMode(npcBot) or botMode == BOT_MODE_RETREAT
@@ -159,7 +137,7 @@ function ConsiderHowl()
         then
             for _, enemy in pairs(enemyAbility)
             do
-                if (utility.CanCastOnMagicImmuneTarget(enemy))
+                if utility.CanCastOnMagicImmuneTarget(enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую Howl против врага в радиусе действия!",true);
                     return BOT_ACTION_DESIRE_HIGH;
@@ -183,16 +161,16 @@ function ConsiderWolfBite()
     end
 
     local castRangeAbility = ability:GetCastRange();
-    local allyAbility = npcBot:GetNearbyHeroes(castRangeAbility, false, BOT_MODE_NONE);
 
     -- General use
-    if utility.PvPMode(npcBot) or (botMode == BOT_MODE_RETREAT)
+    if utility.PvPMode(npcBot) or botMode == BOT_MODE_RETREAT
     then
+        local allyAbility = npcBot:GetNearbyHeroes(castRangeAbility, false, BOT_MODE_NONE);
         if (#allyAbility > 1)
         then
             for _, ally in pairs(allyAbility)
             do
-                if utility.IsHero(ally) and (ally ~= npcBot) and not ally:HasModifier("modifier_lycan_shapeshift_aura")
+                if ally ~= npcBot and utility.IsHero(ally) and not ally:HasModifier("modifier_lycan_shapeshift_aura")
                 then
                     --npcBot:ActionImmediate_Chat("Использую Wolf Bite на союзного героя!", true);
                     return BOT_ACTION_DESIRE_VERYLOW, ally;
@@ -211,17 +189,17 @@ function ConsiderShapeshift()
     -- Attack use
     if utility.PvPMode(npcBot)
     then
-        if botTarget ~= nil and utility.CanCastOnInvulnerableTarget(botTarget) and utility.IsHero(botTarget)
+        if utility.CanCastOnInvulnerableTarget(botTarget) and utility.IsHero(botTarget)
             and GetUnitToUnitDistance(npcBot, botTarget) <= 3000
         then
             --npcBot:ActionImmediate_Chat("Использую Shapeshift для нападения!", true);
             return BOT_ACTION_DESIRE_HIGH;
         end
         -- Retreat use
-    elseif botMode == BOT_MODE_RETREAT and (HealthPercentage < 0.5)
+    elseif botMode == BOT_MODE_RETREAT
     then
         local enemyAbility = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
-        if (#enemyAbility > 0)
+        if (#enemyAbility > 0) and (HealthPercentage < 0.5)
         then
             --npcBot:ActionImmediate_Chat("Использую Shapeshift для отступления!", true);
             return BOT_ACTION_DESIRE_HIGH;

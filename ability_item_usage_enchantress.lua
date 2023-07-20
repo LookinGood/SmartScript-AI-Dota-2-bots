@@ -12,32 +12,8 @@ function BuybackUsageThink()
 end
 
 -- Ability learn
-local Talents = {}
-local Abilities = {}
-local npcBot = GetBot()
-
-for i = 0, 23, 1 do
-    local ability = npcBot:GetAbilityInSlot(i)
-    if (ability ~= nil)
-    then
-        if (ability:IsTalent() == true)
-        then
-            table.insert(Talents, ability:GetName())
-        else
-            table.insert(Abilities, ability:GetName())
-        end
-    end
-end
-
-local AbilitiesReal =
-{
-    npcBot:GetAbilityByName(Abilities[1]),
-    npcBot:GetAbilityByName(Abilities[2]),
-    npcBot:GetAbilityByName(Abilities[3]),
-    npcBot:GetAbilityByName(Abilities[4]),
-    npcBot:GetAbilityByName(Abilities[5]),
-    npcBot:GetAbilityByName(Abilities[6]),
-}
+local npcBot = GetBot();
+local Abilities, Talents, AbilitiesReal = ability_levelup_generic.GetHeroAbilities(npcBot)
 
 local AbilityToLevelUp =
 {
@@ -111,6 +87,29 @@ function AbilityUsageThink()
         npcBot:Action_UseAbilityOnEntity(LittleFriends, castLittleFriendsTarget);
         return;
     end
+
+    if npcBot:HasModifier("modifier_enchantress_natures_attendants")
+    then
+        if botMode ~= BOT_MODE_ATTACK and botMode ~= BOT_MODE_RETREAT
+        then
+            local allyAbility = npcBot:GetNearbyHeroes(NaturesAttendants:GetSpecialValueInt("radius") * 2, false,
+                BOT_MODE_NONE);
+            if (#allyAbility > 1)
+            then
+                for _, ally in pairs(allyAbility)
+                do
+                    if ally ~= npcBot and utility.IsHero(ally) and utility.CanBeHeal(ally) and (ally:GetHealth() / ally:GetMaxHealth() < 0.8)
+                    then
+                        if GetUnitToUnitDistance(npcBot, ally) > (NaturesAttendants:GetSpecialValueInt("radius"))
+                        then
+                            npcBot:Action_MoveToLocation(ally:GetLocation() +
+                                RandomVector(NaturesAttendants:GetSpecialValueInt("radius")));
+                        end
+                    end
+                end
+            end
+        end
+    end
 end
 
 function ConsiderImpetus()
@@ -121,19 +120,14 @@ function ConsiderImpetus()
 
     local attackTarget = npcBot:GetAttackTarget();
 
-    if attackTarget ~= nil and utility.CanCastOnInvulnerableTarget(attackTarget)
+    if (utility.IsHero(attackTarget) or utility.IsRoshan(attackTarget)) and utility.CanCastSpellOnTarget(ability, attackTarget)
     then
-        if utility.IsHero(attackTarget) or utility.IsRoshan(attackTarget)
-        then
-            if not ability:GetAutoCastState()
-            then
-                ability:ToggleAutoCast()
-            end
-        else
-            if ability:GetAutoCastState()
-            then
-                ability:ToggleAutoCast()
-            end
+        if not ability:GetAutoCastState() then
+            ability:ToggleAutoCast()
+        end
+    else
+        if ability:GetAutoCastState() then
+            ability:ToggleAutoCast()
         end
     end
 end
@@ -152,7 +146,7 @@ function ConsiderEnchant()
     -- Attack use
     if utility.PvPMode(npcBot)
     then
-        if botTarget ~= nil and utility.IsHero(botTarget) and utility.CanCastOnMagicImmuneTarget(botTarget) and not utility.IsDisabled(botTarget)
+        if utility.IsHero(botTarget) and utility.CanCastOnMagicImmuneTarget(botTarget) and not utility.IsDisabled(botTarget)
             and utility.SafeCast(botTarget, false)
         then
             if GetUnitToUnitDistance(npcBot, botTarget) > attackRange and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility + 200
@@ -195,7 +189,7 @@ function ConsiderEnchant()
         then
             for _, enemy in pairs(enemyCreeps) do
                 if utility.CanCastOnMagicImmuneTarget(enemy) and not enemy:IsAncientCreep() and utility.SafeCast(enemy, true)
-                and (enemy:GetLevel() <= creepMaxLevel and (enemy:GetLevel() > 1))
+                    and (enemy:GetLevel() <= creepMaxLevel and (enemy:GetLevel() > 1))
                 then
                     --npcBot:ActionImmediate_Chat("Использую Enchant для подчинения крипа!", true);
                     return BOT_ACTION_DESIRE_HIGH, enemy;
@@ -238,7 +232,7 @@ function ConsiderSproink()
     local attackTarget = npcBot:GetAttackTarget();
 
     -- Attack use
-    if attackTarget ~= nil and utility.IsHero(attackTarget) and utility.CanCastOnInvulnerableTarget(attackTarget)
+    if utility.IsHero(attackTarget) and utility.CanCastOnInvulnerableTarget(attackTarget)
     then
         if GetUnitToUnitDistance(npcBot, attackTarget) <= attackRange / 2
         then
@@ -250,7 +244,7 @@ function ConsiderSproink()
     -- Retreat use
     if botMode == BOT_MODE_RETREAT
     then
-        if (HealthPercentage <= 0.8) and not npcBot:IsFacingLocation(utility.SafeLocation(npcBot), 80)
+        if (HealthPercentage <= 0.9) and not npcBot:IsFacingLocation(utility.SafeLocation(npcBot), 80)
         then
             --npcBot:ActionImmediate_Chat("Использую Sproink для отхода!", true);
             return BOT_ACTION_DESIRE_HIGH;
@@ -270,7 +264,7 @@ function ConsiderLittleFriends()
     -- Attack use
     if utility.PvPMode(npcBot)
     then
-        if botTarget ~= nil and utility.IsHero(botTarget) and utility.CanCastOnInvulnerableTarget(botTarget) and utility.SafeCast(botTarget, false)
+        if utility.IsHero(botTarget) and utility.CanCastOnMagicImmuneTarget(botTarget) and utility.SafeCast(botTarget, false)
         then
             local allyCreeps = botTarget:GetNearbyCreeps(radiusAbility, true);
             local enemyCreeps = botTarget:GetNearbyCreeps(radiusAbility, false);

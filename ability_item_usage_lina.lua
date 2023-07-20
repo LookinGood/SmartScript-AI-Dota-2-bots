@@ -12,32 +12,8 @@ function BuybackUsageThink()
 end
 
 -- Ability learn
-local Talents = {}
-local Abilities = {}
-local npcBot = GetBot()
-
-for i = 0, 23, 1 do
-    local ability = npcBot:GetAbilityInSlot(i)
-    if (ability ~= nil)
-    then
-        if (ability:IsTalent() == true)
-        then
-            table.insert(Talents, ability:GetName())
-        else
-            table.insert(Abilities, ability:GetName())
-        end
-    end
-end
-
-local AbilitiesReal =
-{
-    npcBot:GetAbilityByName(Abilities[1]),
-    npcBot:GetAbilityByName(Abilities[2]),
-    npcBot:GetAbilityByName(Abilities[3]),
-    npcBot:GetAbilityByName(Abilities[4]),
-    npcBot:GetAbilityByName(Abilities[5]),
-    npcBot:GetAbilityByName(Abilities[6]),
-}
+local npcBot = GetBot();
+Abilities, Talents, AbilitiesReal = ability_levelup_generic.GetHeroAbilities(npcBot)
 
 local AbilityToLevelUp =
 {
@@ -55,7 +31,7 @@ local AbilityToLevelUp =
     Abilities[6],
     Abilities[3],
     Abilities[3],
-    Talents[3],
+    Talents[4],
     Abilities[3],
     Abilities[6],
     Talents[5],
@@ -121,44 +97,30 @@ function ConsiderDragonSlave()
     local radiusAbility = ability:GetSpecialValueInt("dragon_slave_width_end");
     local damageAbility = ability:GetSpecialValueInt("dragon_slave_damage");
     local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
-    local enemyAbility = npcBot:GetNearbyHeroes((castRangeAbility + 200), true, BOT_MODE_NONE);
+    local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility + 200, true, BOT_MODE_NONE);
 
     -- Cast if can kill somebody
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if utility.CanCastOnMagicImmuneTarget(enemy)
+            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and not utility.TargetCantDie(enemy)
             then
-                if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and not utility.TargetCantDie(enemy)
+                if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    if utility.IsMoving(enemy)
-                    then
-                        --npcBot:ActionImmediate_Chat("Использую DragonSlave что бы убить бегущую цель!",true);
-                        return BOT_ACTION_DESIRE_VERYHIGH, enemy:GetExtrapolatedLocation(delayAbility);
-                    else
-                        --npcBot:ActionImmediate_Chat("Использую DragonSlave что бы убить бегущую цель!", true);
-                        return BOT_ACTION_DESIRE_VERYHIGH, enemy:GetLocation();
-                    end
+                    return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(enemy, delayAbility);
                 end
             end
         end
     end
 
     -- Cast if attack enemy
-    if utility.PvPMode(npcBot)
+    if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
     then
-        if botTarget ~= nil and (utility.IsHero(botTarget) or utility.IsRoshan(botTarget))
+        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
         then
-            if utility.CanCastOnMagicImmuneTarget(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
             then
-                if utility.IsMoving(botTarget)
-                then
-                    --npcBot:ActionImmediate_Chat("Использую DragonSlave по бегущей цели!", true);
-                    return BOT_ACTION_DESIRE_VERYHIGH, botTarget:GetExtrapolatedLocation(delayAbility);
-                else
-                    --npcBot:ActionImmediate_Chat("Использую DragonSlave по стоящей цели!",true);
-                    return BOT_ACTION_DESIRE_VERYHIGH, botTarget:GetLocation();
-                end
+                return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(botTarget, delayAbility);
             end
         end
         -- Cast if push/defend/farm
@@ -175,16 +137,10 @@ function ConsiderDragonSlave()
     elseif botMode == BOT_MODE_LANING
     then
         local enemy = utility.GetWeakest(enemyAbility);
-        if utility.IsValidTarget(enemy) and (ManaPercentage >= 0.7) and utility.CanCastOnMagicImmuneTarget(enemy)
+        if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)
         then
-            if utility.IsMoving(enemy)
-            then
-                --npcBot:ActionImmediate_Chat("Использую DragonSlave по бегущей цели на ЛАЙНЕ!",true);
-                return BOT_ACTION_DESIRE_VERYHIGH, enemy:GetExtrapolatedLocation(delayAbility);
-            else
-                --npcBot:ActionImmediate_Chat("Использую DragonSlave по стоящей цели на ЛАЙНЕ!",true);
-                return BOT_ACTION_DESIRE_VERYHIGH, enemy:GetLocation();
-            end
+            --npcBot:ActionImmediate_Chat("Использую DragonSlave по цели на ЛАЙНЕ!", true);
+            return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(enemy, delayAbility);
         end
     end
 end
@@ -204,18 +160,11 @@ function ConsiderLightStrikeArray()
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if utility.CanCastOnMagicImmuneTarget(enemy)
+            if (utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and not utility.TargetCantDie(enemy)) or enemy:IsChanneling()
             then
-                if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) or enemy:IsChanneling()
+                if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    if utility.IsMoving(enemy)
-                    then
-                        --npcBot:ActionImmediate_Chat("Использую LightStrikeArray по бегущей цели убивая", true);
-                        return BOT_ACTION_DESIRE_VERYHIGH, enemy:GetExtrapolatedLocation(delayAbility);
-                    else
-                        --npcBot:ActionImmediate_Chat("Использую LightStrikeArray по стоящей цели убивая!", true);
-                        return BOT_ACTION_DESIRE_VERYHIGH, enemy:GetLocation();
-                    end
+                    return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(enemy, delayAbility);
                 end
             end
         end
@@ -224,18 +173,13 @@ function ConsiderLightStrikeArray()
     -- Attack use
     if utility.PvPMode(npcBot) or npcBot:GetActiveMode() == BOT_MODE_ROSHAN
     then
-        if botTarget ~= nil and (utility.IsHero(botTarget) or utility.IsRoshan(botTarget))
+        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
         then
-            if utility.CanCastOnMagicImmuneTarget(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility + 200 and not utility.IsDisabled(botTarget)
+            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility + 200
+                and not utility.IsDisabled(botTarget)
             then
-                if utility.IsMoving(botTarget)
-                then
-                    --npcBot:ActionImmediate_Chat("Использую LightStrikeArray по бегущей цели!", true);
-                    return BOT_ACTION_DESIRE_VERYHIGH, botTarget:GetExtrapolatedLocation(delayAbility);
-                else
-                    --npcBot:ActionImmediate_Chat("Использую LightStrikeArray по стоящей цели!", true);
-                    return BOT_ACTION_DESIRE_VERYHIGH, botTarget:GetLocation();
-                end
+                --npcBot:ActionImmediate_Chat("Использую LightStrikeArray по цели!", true);
+                return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(botTarget, delayAbility);
             end
         end
         -- Retreat or help ally use
@@ -244,16 +188,9 @@ function ConsiderLightStrikeArray()
         if (#enemyAbility > 0)
         then
             for _, enemy in pairs(enemyAbility) do
-                if utility.CanCastOnMagicImmuneTarget(enemy) and not utility.IsDisabled(enemy)
+                if utility.CanCastSpellOnTarget(ability, enemy) and not utility.IsDisabled(enemy)
                 then
-                    if utility.IsMoving(enemy)
-                    then
-                        --npcBot:ActionImmediate_Chat("Использую LightStrikeArray по бегущей цели ОТСТУПАЯ!", true);
-                        return BOT_ACTION_DESIRE_VERYHIGH, enemy:GetExtrapolatedLocation(delayAbility);
-                    else
-                        --npcBot:ActionImmediate_Chat("Использую LightStrikeArray по стоящей цели ОТСТУПАЯ!",true);
-                        return BOT_ACTION_DESIRE_VERYHIGH, enemy:GetLocation();
-                    end
+                    return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(enemy, delayAbility);
                 end
             end
         end
@@ -271,9 +208,9 @@ function ConsiderFlameCloak()
     -- Attack use
     if utility.PvPMode(npcBot) or npcBot:GetActiveMode() == BOT_MODE_ROSHAN
     then
-        if botTarget ~= nil and (utility.IsHero(botTarget) or utility.IsRoshan(botTarget))
+        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
         then
-            if botTarget:CanBeSeen() and GetUnitToUnitDistance(npcBot, botTarget) <= (attackRange * 2)
+            if GetUnitToUnitDistance(npcBot, botTarget) <= (attackRange * 2)
             then
                 --npcBot:ActionImmediate_Chat("Использую FlameCloak против врага!", true);
                 return BOT_ACTION_DESIRE_HIGH;
@@ -298,28 +235,18 @@ function ConsiderLagunaBlade()
 
     local castRangeAbility = ability:GetCastRange();
     local damageAbility = ability:GetSpecialValueInt("damage");
-    local damageType = ability:GetDamageType();
     local enemyAbility = npcBot:GetNearbyHeroes((castRangeAbility + 200), true, BOT_MODE_NONE);
 
     -- Cast if can kill somebody
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if utility.SafeCast(enemy, true)
+            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and not utility.TargetCantDie(enemy)
             then
-                if utility.CanAbilityKillTarget(enemy, damageAbility, damageType)
+                if utility.CanCastSpellOnTarget(ability, enemy) and utility.SafeCast(enemy, true)
                 then
-                    if damageType == DAMAGE_TYPE_MAGICAL
-                    then
-                        if utility.CanCastOnMagicImmuneTarget(enemy)
-                        then
-                            --npcBot:ActionImmediate_Chat("Использую LagunaBlade что бы убить врага маг уроном!",true);
-                            return BOT_ACTION_DESIRE_VERYHIGH, enemy;
-                        end
-                    else
-                        --npcBot:ActionImmediate_Chat("Использую LagunaBlade что бы убить врага чистым уроном!", true);
-                        return BOT_ACTION_DESIRE_VERYHIGH, enemy;
-                    end
+                    --npcBot:ActionImmediate_Chat("Использую LagunaBlade что бы убить цель!", true);
+                    return BOT_ACTION_DESIRE_VERYHIGH, enemy;
                 end
             end
         end
@@ -328,19 +255,13 @@ function ConsiderLagunaBlade()
     -- Attack use
     if utility.PvPMode(npcBot)
     then
-        if botTarget ~= nil and utility.IsHero(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
-            and utility.SafeCast(botTarget, true) and botTarget:GetHealth() / botTarget:GetMaxHealth() <= 0.5
+        if utility.IsHero(botTarget)
         then
-            if damageType == DAMAGE_TYPE_MAGICAL
+            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+                and utility.SafeCast(botTarget, true) and botTarget:GetHealth() / botTarget:GetMaxHealth() <= 0.5
             then
-                if utility.CanCastOnMagicImmuneTarget(botTarget)
-                then
-                    --npcBot:ActionImmediate_Chat("Использую LagunaBlade с маг уроном!", true);
-                    return BOT_ACTION_DESIRE_VERYHIGH, botTarget;
-                end
-            else
-                --npcBot:ActionImmediate_Chat("Использую LagunaBlade с чистым уроном!", true);
-                return BOT_ACTION_DESIRE_VERYHIGH, botTarget;
+                --npcBot:ActionImmediate_Chat("Использую LagunaBlade для атаки!", true);
+                return BOT_ACTION_DESIRE_HIGH, botTarget;
             end
         end
     end

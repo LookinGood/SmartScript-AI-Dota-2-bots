@@ -12,32 +12,8 @@ function BuybackUsageThink()
 end
 
 -- Ability learn
-local Talents = {}
-local Abilities = {}
-local npcBot = GetBot()
-
-for i = 0, 23, 1 do
-    local ability = npcBot:GetAbilityInSlot(i)
-    if (ability ~= nil)
-    then
-        if (ability:IsTalent() == true)
-        then
-            table.insert(Talents, ability:GetName())
-        else
-            table.insert(Abilities, ability:GetName())
-        end
-    end
-end
-
-local AbilitiesReal =
-{
-    npcBot:GetAbilityByName(Abilities[1]),
-    npcBot:GetAbilityByName(Abilities[2]),
-    npcBot:GetAbilityByName(Abilities[3]),
-    npcBot:GetAbilityByName(Abilities[4]),
-    npcBot:GetAbilityByName(Abilities[5]),
-    npcBot:GetAbilityByName(Abilities[6]),
-}
+local npcBot = GetBot();
+local Abilities, Talents, AbilitiesReal = ability_levelup_generic.GetHeroAbilities(npcBot)
 
 local AbilityToLevelUp =
 {
@@ -125,18 +101,19 @@ function ConsiderShadowStrike()
     end
 
     local castRangeAbility = ability:GetCastRange();
-    local radiusAbility = (ability:GetSpecialValueInt("aoe_radius"));
+    local radiusAbility = ability:GetSpecialValueInt("aoe_radius");
     local damageAbility = (ability:GetSpecialValueInt("duration_damage") * ability:GetSpecialValueInt("duration")) +
         ability:GetSpecialValueInt("strike_damage");
-    local enemyAbility = npcBot:GetNearbyHeroes((castRangeAbility + 200), true, BOT_MODE_NONE);
+    local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
+    local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility + 200, true, BOT_MODE_NONE);
 
     -- Cast if can kill somebody
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if utility.CanCastOnMagicImmuneTarget(enemy)
+            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType())
             then
-                if utility.CanAbilityKillTarget(enemy, damageAbility, DAMAGE_TYPE_MAGICAL)
+                if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     if not npcBot:HasScepter() and utility.SafeCast(enemy, true)
                     then
@@ -145,7 +122,7 @@ function ConsiderShadowStrike()
                     elseif npcBot:HasScepter()
                     then
                         --npcBot:ActionImmediate_Chat("Использую ShadowStrike для убийства с аганимом!",true);
-                        return BOT_ACTION_DESIRE_HIGH, enemy:GetLocation(), "location";
+                        return BOT_ACTION_DESIRE_HIGH, utility.GetTargetPosition(enemy, delayAbility), "location";
                     end
                 end
             end
@@ -155,9 +132,9 @@ function ConsiderShadowStrike()
     -- Attack use
     if utility.PvPMode(npcBot)
     then
-        if botTarget ~= nil and (utility.IsHero(botTarget) or utility.IsRoshan(botTarget))
+        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
         then
-            if utility.CanCastOnMagicImmuneTarget(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= (castRangeAbility + 200)
+            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= (castRangeAbility + 200)
             then
                 if not npcBot:HasScepter() and utility.SafeCast(botTarget, true)
                 then
@@ -166,20 +143,19 @@ function ConsiderShadowStrike()
                 elseif npcBot:HasScepter()
                 then
                     --npcBot:ActionImmediate_Chat("Использую ShadowStrike для нападения с аганимом!",true);
-                    return BOT_ACTION_DESIRE_HIGH, botTarget:GetLocation(), "location";
+                    return BOT_ACTION_DESIRE_HIGH, utility.GetTargetPosition(botTarget, delayAbility), "location";
                 end
             end
         end
         -- Retreat or help ally use
     elseif botMode == BOT_MODE_RETREAT or botMode == BOT_MODE_DEFEND_ALLY
     then
-        local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility + 200, true, BOT_MODE_NONE);
         if (enemyAbility > 0)
         then
             for _, enemy in pairs(enemyAbility) do
-                if utility.CanCastOnMagicImmuneTarget(enemy) and utility.SafeCast(enemy, true)
+                if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    if not npcBot:HasScepter()
+                    if not npcBot:HasScepter() and utility.SafeCast(enemy, true)
                     then
                         --npcBot:ActionImmediate_Chat("Использую ShadowStrike для отступления без аганима!",true);
                         return BOT_ACTION_DESIRE_HIGH, enemy, "target";
@@ -187,7 +163,7 @@ function ConsiderShadowStrike()
                     then
                         npcBot:ActionImmediate_Chat("Использую ShadowStrike для отступления с аганимом!",
                             true);
-                        return BOT_ACTION_DESIRE_HIGH, enemy:GetLocation(), "location";
+                        return BOT_ACTION_DESIRE_HIGH, utility.GetTargetPosition(enemy, delayAbility), "location";
                     end
                 end
             end
@@ -209,21 +185,17 @@ function ConsiderShadowStrike()
         -- Cast when laning
     elseif botMode == BOT_MODE_LANING
     then
-        if (#enemyAbility > 0) and (ManaPercentage >= 0.7)
+        local enemy = utility.GetWeakest(enemyAbility);
+        if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)
         then
-            for _, enemy in pairs(enemyAbility) do
-                if utility.CanCastOnMagicImmuneTarget(enemy)
-                then
-                    if not npcBot:HasScepter()
-                    then
-                        --npcBot:ActionImmediate_Chat("Использую ShadowStrike для лайнинга без аганима!", true);
-                        return BOT_ACTION_DESIRE_HIGH, enemy, "target";
-                    elseif npcBot:HasScepter()
-                    then
-                        --npcBot:ActionImmediate_Chat("Использую ShadowStrike для лайнинга с аганимом!", true);
-                        return BOT_ACTION_DESIRE_HIGH, enemy:GetLocation(), "location";
-                    end
-                end
+            if not npcBot:HasScepter() and utility.SafeCast(enemy, true)
+            then
+                --npcBot:ActionImmediate_Chat("Использую ShadowStrike для лайнинга без аганима!", true);
+                return BOT_ACTION_DESIRE_HIGH, enemy, "target";
+            elseif npcBot:HasScepter()
+            then
+                --npcBot:ActionImmediate_Chat("Использую ShadowStrike для лайнинга с аганимом!", true);
+                return BOT_ACTION_DESIRE_HIGH, utility.GetTargetPosition(enemy, delayAbility), "location";
             end
         end
     end
@@ -256,7 +228,7 @@ function ConsiderBlink()
     -- Cast if enemy hero too far away
     if utility.PvPMode(npcBot)
     then
-        if botTarget ~= nil and utility.IsHero(botTarget) and botTarget:CanBeSeen()
+        if utility.IsHero(botTarget)
         then
             if GetUnitToUnitDistance(npcBot, botTarget) > (attackRange * 2)
             then
@@ -289,9 +261,9 @@ function ConsiderScreamOfPain()
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if utility.CanCastOnMagicImmuneTarget(enemy)
+            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and not utility.TargetCantDie(enemy)
             then
-                if utility.CanAbilityKillTarget(enemy, damageAbility, DAMAGE_TYPE_MAGICAL) and not utility.TargetCantDie(enemy)
+                if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     return BOT_ACTION_DESIRE_HIGH;
                 end
@@ -305,7 +277,7 @@ function ConsiderScreamOfPain()
         if (#enemyAbility > 0)
         then
             for _, enemy in pairs(enemyAbility) do
-                if utility.CanCastOnMagicImmuneTarget(enemy)
+                if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую ScreamOfPain для нападения/отступления!",true);
                     return BOT_ACTION_DESIRE_HIGH;
@@ -318,7 +290,7 @@ function ConsiderScreamOfPain()
         if (#enemyCreeps > 2)
         then
             for _, enemy in pairs(enemyCreeps) do
-                if utility.CanCastOnMagicImmuneTarget(enemy)
+                if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую ScreamOfPain против крипов",true);
                     return BOT_ACTION_DESIRE_HIGH;
@@ -337,17 +309,19 @@ function ConsiderSonicWave()
     local castRangeAbility = ability:GetCastRange();
     --local radiusAbility = (ability:GetSpecialValueInt("final_aoe"));
     local damageAbility = ability:GetSpecialValueInt("damage");
+    local delayAbility = 0.5;
     local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE)
 
     -- Cast if can kill somebody
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if utility.CanCastOnInvulnerableTarget(enemy) and utility.CanAbilityKillTarget(enemy, damageAbility, DAMAGE_TYPE_PURE)
-                and not utility.TargetCantDie(enemy)
+            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and not utility.TargetCantDie(enemy)
             then
-                --npcBot:ActionImmediate_Chat("Использую SonicWave что бы добить врага!", true);
-                return BOT_ACTION_DESIRE_HIGH, enemy:GetLocation();
+                if utility.CanCastSpellOnTarget(ability, enemy)
+                then
+                    return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(enemy, delayAbility);
+                end
             end
         end
     end
@@ -355,11 +329,11 @@ function ConsiderSonicWave()
     -- Attack use
     if utility.PvPMode(npcBot)
     then
-        if botTarget ~= nil and utility.IsHero(botTarget) and utility.CanCastOnInvulnerableTarget(botTarget) and
+        if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget) and
             GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
         then
             --npcBot:ActionImmediate_Chat("Использую Sonic Wave по врагу в радиусе действия!",true);
-            return BOT_ACTION_DESIRE_HIGH, botTarget:GetLocation();
+            return BOT_ACTION_DESIRE_HIGH, utility.GetTargetPosition(botTarget, delayAbility);
         end
         -- Retreat use
     elseif botMode == BOT_MODE_RETREAT
@@ -367,10 +341,10 @@ function ConsiderSonicWave()
         if (#enemyAbility > 0) and (HealthPercentage <= 0.6) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
         then
             for _, enemy in pairs(enemyAbility) do
-                if (utility.CanCastOnInvulnerableTarget(enemy))
+                if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую SonicWave что бы оторваться!", true);
-                    return BOT_ACTION_DESIRE_HIGH, enemy:GetLocation();
+                    return BOT_ACTION_DESIRE_HIGH, utility.GetTargetPosition(enemy, delayAbility);
                 end
             end
         end

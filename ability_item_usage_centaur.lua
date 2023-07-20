@@ -12,32 +12,8 @@ function BuybackUsageThink()
 end
 
 -- Ability learn
-local Talents = {}
-local Abilities = {}
-local npcBot = GetBot()
-
-for i = 0, 23, 1 do
-    local ability = npcBot:GetAbilityInSlot(i)
-    if (ability ~= nil)
-    then
-        if (ability:IsTalent() == true)
-        then
-            table.insert(Talents, ability:GetName())
-        else
-            table.insert(Abilities, ability:GetName())
-        end
-    end
-end
-
-local AbilitiesReal =
-{
-    npcBot:GetAbilityByName(Abilities[1]),
-    npcBot:GetAbilityByName(Abilities[2]),
-    npcBot:GetAbilityByName(Abilities[3]),
-    npcBot:GetAbilityByName(Abilities[4]),
-    npcBot:GetAbilityByName(Abilities[5]),
-    npcBot:GetAbilityByName(Abilities[6]),
-}
+local npcBot = GetBot();
+local Abilities, Talents, AbilitiesReal = ability_levelup_generic.GetHeroAbilities(npcBot)
 
 local AbilityToLevelUp =
 {
@@ -117,21 +93,19 @@ function ConsiderHoofStomp()
         return;
     end
 
-    local castRadiusAbility = (ability:GetSpecialValueInt("radius"));
-    local damageAbility = (ability:GetSpecialValueInt("stomp_damage"));
+    local castRadiusAbility = ability:GetSpecialValueInt("radius");
+    local damageAbility = ability:GetSpecialValueInt("stomp_damage");
     local enemyAbility = npcBot:GetNearbyHeroes(castRadiusAbility - 100, true, BOT_MODE_NONE);
 
-
-    -- Cast if can kill somebody
+    -- Cast if can kill somebody/interrupt cast
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if utility.CanCastOnMagicImmuneTarget(enemy)
+            if (utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and not utility.TargetCantDie(enemy)) or enemy:IsChanneling()
             then
-                if utility.CanAbilityKillTarget(enemy, damageAbility, DAMAGE_TYPE_MAGICAL)
+                if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    --npcBot:ActionImmediate_Chat("Использую HoofStomp что бы убить цель!",true);
-                    return BOT_ACTION_DESIRE_VERYHIGH;
+                    return BOT_ACTION_DESIRE_VERYHIGH, enemy;
                 end
             end
         end
@@ -144,23 +118,11 @@ function ConsiderHoofStomp()
         then
             for _, enemy in pairs(enemyAbility)
             do
-                if utility.CanCastOnMagicImmuneTarget(enemy) and not utility.IsDisabled(enemy)
+                if utility.CanCastSpellOnTarget(ability, enemy) and not utility.IsDisabled(enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую Hoof Stomp против врага в радиусе действия!", true);
                     return BOT_ACTION_DESIRE_HIGH;
                 end
-            end
-        end
-    end
-
-    -- Interrupt cast
-    if (#enemyAbility > 0)
-    then
-        for _, enemy in pairs(enemyAbility) do
-            if utility.CanCastOnMagicImmuneTarget(enemy) and utility.IsHero(enemy) and enemy:IsChanneling()
-            then
-                --npcBot:ActionImmediate_Chat("Использую Hoof Stomp что бы сбить заклинание врага!", true);
-                return BOT_MODE_DESIRE_VERYHIGH;
             end
         end
     end
@@ -173,7 +135,8 @@ function ConsiderDoubleEdge()
     end
 
     local castRangeAbility = ability:GetCastRange() * 2;
-    local strengthDamage =  npcBot:GetAttributeValue(ATTRIBUTE_STRENGTH) / 100 * ability:GetSpecialValueInt("strength_damage");
+    local strengthDamage = npcBot:GetAttributeValue(ATTRIBUTE_STRENGTH) / 100 *
+    ability:GetSpecialValueInt("strength_damage");
     local damageAbility = ability:GetSpecialValueInt("edge_damage") + strengthDamage;
     local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
 
@@ -181,32 +144,25 @@ function ConsiderDoubleEdge()
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if utility.CanCastOnMagicImmuneTarget(enemy) and utility.SafeCast(enemy, true)
+            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and not utility.TargetCantDie(enemy) and utility.SafeCast(enemy, true)
             then
-                if utility.CanAbilityKillTarget(enemy, damageAbility, DAMAGE_TYPE_MAGICAL)
+                if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    --npcBot:ActionImmediate_Chat("Использую DoubleEdge что бы убить цель!",true);
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy;
                 end
             end
         end
     end
 
-    -- General use
-    if utility.PvPMode(npcBot)
+    -- Cast if attack enemy
+    if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
     then
-        if botTarget ~= nil and utility.CanCastOnMagicImmuneAndInvulnerableTarget(botTarget)
-            and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility and (HealthPercentage > 0.1)
+        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
         then
-            --npcBot:ActionImmediate_Chat("Использую Double Edge против врага в радиусе действия!",true);
-            return BOT_ACTION_DESIRE_HIGH, botTarget;
-        end
-        -- Roshan
-    elseif botMode == BOT_MODE_ROSHAN
-    then
-        if botTarget ~= nil and utility.IsRoshan(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility and (HealthPercentage > 0.4) then
-            --npcBot:ActionImmediate_Chat("Использую Double Edge на Рошана!", true);
-            return BOT_MODE_DESIRE_MODERATE, botTarget;
+            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility and (HealthPercentage > 0.1)
+            then
+                return BOT_ACTION_DESIRE_VERYHIGH, botTarget;
+            end
         end
     end
 end
@@ -227,7 +183,7 @@ function ConsiderHitchARide()
         then
             for _, ally in pairs(allyAbility)
             do
-                if (ally:GetHealth() / ally:GetMaxHealth() <= 0.8) and utility.IsHero(ally) and ally ~= npcBot
+                if ally ~= npcBot and utility.IsHero(ally) and not ally:IsChanneling() and (ally:GetHealth() / ally:GetMaxHealth() <= 0.8)
                 then
                     --npcBot:ActionImmediate_Chat("Использую Hitch a Ride на союзного героя со здоровьем ниже 80%!", true);
                     return BOT_ACTION_DESIRE_HIGH, ally;
@@ -249,8 +205,7 @@ function ConsiderStampede()
     -- Attack use
     if utility.PvPMode(npcBot)
     then
-        if botTarget ~= nil and botTarget:CanBeSeen() and utility.IsHero(botTarget) and
-            GetUnitToUnitDistance(npcBot, botTarget) > (attackRange * 2)
+        if utility.IsHero(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) > (attackRange * 2) and GetUnitToUnitDistance(npcBot, botTarget) < 3000
         then
             --npcBot:ActionImmediate_Chat("Использую Stampede для нападения!", true);
             return BOT_ACTION_DESIRE_HIGH;
@@ -259,7 +214,7 @@ function ConsiderStampede()
     elseif botMode == BOT_MODE_RETREAT
     then
         local enemyAbility = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
-        if (#enemyAbility > 0) and (HealthPercentage < 0.5)
+        if (#enemyAbility > 0) and (HealthPercentage <= 0.6)
         then
             --npcBot:ActionImmediate_Chat("Использую Stampede для отступления!", true);
             return BOT_ACTION_DESIRE_HIGH;

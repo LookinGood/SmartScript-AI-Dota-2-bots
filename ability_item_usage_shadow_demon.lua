@@ -12,32 +12,8 @@ function BuybackUsageThink()
 end
 
 -- Ability learn
-local Talents = {}
-local Abilities = {}
-local npcBot = GetBot()
-
-for i = 0, 23, 1 do
-    local ability = npcBot:GetAbilityInSlot(i)
-    if (ability ~= nil)
-    then
-        if (ability:IsTalent() == true)
-        then
-            table.insert(Talents, ability:GetName())
-        else
-            table.insert(Abilities, ability:GetName())
-        end
-    end
-end
-
-local AbilitiesReal =
-{
-    npcBot:GetAbilityByName(Abilities[1]),
-    npcBot:GetAbilityByName(Abilities[2]),
-    npcBot:GetAbilityByName(Abilities[3]),
-    npcBot:GetAbilityByName(Abilities[4]),
-    npcBot:GetAbilityByName(Abilities[5]),
-    npcBot:GetAbilityByName(Abilities[6]),
-}
+local npcBot = GetBot();
+local Abilities, Talents, AbilitiesReal = ability_levelup_generic.GetHeroAbilities(npcBot)
 
 local AbilityToLevelUp =
 {
@@ -141,9 +117,9 @@ function ConsiderDisruption()
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if utility.CanCastOnMagicImmuneTarget(enemy) and utility.SafeCast(enemy, true)
+            if enemy:IsChanneling()
             then
-                if enemy:IsChanneling()
+                if utility.CanCastOnMagicImmuneTarget(enemy) and utility.SafeCast(enemy, true)
                 then
                     --npcBot:ActionImmediate_Chat("Использую Disruption что бы сбить заклинание!", true);
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy;
@@ -177,7 +153,7 @@ function ConsiderDisruption()
     -- Cast if enemy hero too far away
     if utility.PvPMode(npcBot)
     then
-        if botTarget ~= nil and utility.IsHero(botTarget) and utility.CanCastOnMagicImmuneTarget(botTarget) and utility.SafeCast(botTarget, false)
+        if utility.IsHero(botTarget) and utility.CanCastOnMagicImmuneTarget(botTarget) and utility.SafeCast(botTarget, false)
             and not utility.IsDisabled(botTarget)
         then
             if GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility and GetUnitToUnitDistance(npcBot, botTarget) > npcBot:GetAttackRange()
@@ -231,20 +207,20 @@ function ConsiderDisseminate()
     -- Cast if attack enemy
     if utility.PvPMode(npcBot)
     then
-        if botTarget ~= nil and utility.CanCastOnMagicImmuneTarget(botTarget) and
-            GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility + 200 and utility.IsHero(botTarget) and utility.SafeCast(botTarget, true)
+        if utility.IsHero(botTarget) and utility.CanCastOnMagicImmuneTarget(botTarget) and
+            GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility + 200 and utility.SafeCast(botTarget, true)
         then
             -- npcBot:ActionImmediate_Chat("Использую Disseminate по вражескому герою!", true);
             return BOT_ACTION_DESIRE_HIGH, botTarget;
         end
     end
 
-    -- Cast if ally attacked and low HP
+    -- Cast if ally attacked
     if (#allyAbility > 0)
     then
-        for _, ally in pairs(allysAbility)
+        for _, ally in pairs(allyAbility)
         do
-            if utility.IsHero(ally) and ally:WasRecentlyDamagedByAnyHero(2.0) and (ally:GetHealth() / ally:GetMaxHealth() <= 0.8)
+            if utility.IsHero(ally) and ally:WasRecentlyDamagedByAnyHero(2.0)
             then
                 local enemyAbility = ally:GetNearbyHeroes(damageRadiusAbility, true, BOT_MODE_NONE);
                 if (#enemyAbility > 0)
@@ -270,16 +246,9 @@ function ConsiderShadowPoison()
     -- Cast if attack enemy
     if utility.PvPMode(npcBot)
     then
-        if botTarget ~= nil and CanCastOnMagicImmuneTarget(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+        if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
         then
-            if utility.IsMoving(botTarget)
-            then
-                --npcBot:ActionImmediate_Chat("Использую ShadowPoison по бегущей цели!", true);
-                return BOT_ACTION_DESIRE_VERYHIGH, botTarget:GetExtrapolatedLocation(delayAbility);
-            else
-                --npcBot:ActionImmediate_Chat("Использую ShadowPoison по стоящей цели!",true);
-                return BOT_ACTION_DESIRE_VERYHIGH, botTarget:GetLocation();
-            end
+            return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(enemy, delayAbility);
         end
         -- Cast if push/defend/farm
     elseif utility.PvEMode(npcBot)
@@ -294,21 +263,14 @@ function ConsiderShadowPoison()
         -- Cast when laning
     elseif botMode == BOT_MODE_LANING
     then
-        local enemyAbility = GetUnitList(UNIT_LIST_ENEMY_HEROES);
-        if (ManaPercentage >= 0.6)
+        local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
+        if (#enemyAbility > 0) and (ManaPercentage >= 0.6)
         then
-            for _, enemy in pairs(enemyAbility) do
-                if utility.CanCastOnMagicImmuneTarget(enemy) and GetUnitToUnitDistance(npcBot, enemy) <= castRangeAbility
-                then
-                    if utility.IsMoving(enemy)
-                    then
-                        --npcBot:ActionImmediate_Chat("Использую ShadowPoison по бегущей цели на ЛАЙНЕ!",true);
-                        return BOT_ACTION_DESIRE_HIGH, enemy:GetExtrapolatedLocation(delayAbility);
-                    else
-                        --npcBot:ActionImmediate_Chat("Использую ShadowPoison по стоящей цели на ЛАЙНЕ!",true);
-                        return BOT_ACTION_DESIRE_HIGH, enemy:GetLocation();
-                    end
-                end
+            local enemy = utility.GetWeakest(enemyAbility);
+            if utility.CanCastSpellOnTarget(ability, enemy)
+            then
+                --npcBot:ActionImmediate_Chat("Использую DragonSlave по цели на ЛАЙНЕ!", true);
+                return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(enemy, delayAbility);
             end
         end
     end
@@ -385,11 +347,11 @@ function ConsiderDemonicPurge()
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if enemy:CanBeSeen() and utility.SafeCast(enemy, true)
+            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and not utility.TargetCantDie(enemy)
             then
-                if utility.CanAbilityKillTarget(enemy, damageAbility, DAMAGE_TYPE_MAGICAL)
+                if utility.SafeCast(enemy, true)
                 then
-                    --npcBot:ActionImmediate_Chat("Использую DemonicPurge что бы убить цель!",true);
+                    --npcBot:ActionImmediate_Chat("Использую DemonicPurge что бы убить цель!", true);
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy;
                 end
             end
@@ -402,7 +364,7 @@ function ConsiderDemonicPurge()
         if (#enemyAbility > 0)
         then
             for _, enemy in pairs(enemyAbility) do
-                if enemy:CanBeSeen() and utility.SafeCast(enemy, true) and not enemy:HasModifier('modifier_shadow_demon_purge_slow')
+                if utility.IsValidTarget(enemy) and utility.SafeCast(enemy, true) and not enemy:HasModifier('modifier_shadow_demon_purge_slow')
                 then
                     --npcBot:ActionImmediate_Chat("Использую Demonic Purge на врага в радиусе действия!",true);
                     return BOT_MODE_DESIRE_HIGH, enemy;

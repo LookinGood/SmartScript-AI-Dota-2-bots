@@ -12,32 +12,8 @@ function BuybackUsageThink()
 end
 
 -- Ability learn
-local Talents = {}
-local Abilities = {}
-local npcBot = GetBot()
-
-for i = 0, 23, 1 do
-    local ability = npcBot:GetAbilityInSlot(i)
-    if (ability ~= nil)
-    then
-        if (ability:IsTalent() == true)
-        then
-            table.insert(Talents, ability:GetName())
-        else
-            table.insert(Abilities, ability:GetName())
-        end
-    end
-end
-
-local AbilitiesReal =
-{
-    npcBot:GetAbilityByName(Abilities[1]),
-    npcBot:GetAbilityByName(Abilities[2]),
-    npcBot:GetAbilityByName(Abilities[3]),
-    npcBot:GetAbilityByName(Abilities[4]),
-    npcBot:GetAbilityByName(Abilities[5]),
-    npcBot:GetAbilityByName(Abilities[6]),
-}
+local npcBot = GetBot();
+local Abilities, Talents, AbilitiesReal = ability_levelup_generic.GetHeroAbilities(npcBot)
 
 local AbilityToLevelUp =
 {
@@ -109,16 +85,16 @@ function ConsiderLucentBeam()
     end
 
     local castRangeAbility = ability:GetCastRange();
-    local damageAbility = (ability:GetSpecialValueInt("beam_damage"));
-    local enemyAbility = npcBot:GetNearbyHeroes((castRangeAbility + 200), true, BOT_MODE_NONE);
+    local damageAbility = ability:GetSpecialValueInt("beam_damage");
+    local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility + 200, true, BOT_MODE_NONE);
 
     -- Cast if can kill somebody/interrupt cast
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if utility.CanCastOnMagicImmuneTarget(enemy) and utility.SafeCast(enemy, true)
+            if (utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and not utility.TargetCantDie(enemy)) or enemy:IsChanneling()
             then
-                if utility.CanAbilityKillTarget(enemy, damageAbility, DAMAGE_TYPE_MAGICAL) or enemy:IsChanneling()
+                if utility.CanCastSpellOnTarget(ability, enemy) and utility.SafeCast(enemy, true)
                 then
                     --npcBot:ActionImmediate_Chat("Использую LucentBeam что бы сбить заклинание или убить цель!",true);
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy;
@@ -128,13 +104,15 @@ function ConsiderLucentBeam()
     end
 
     -- Attack use
-    if utility.PvPMode(npcBot)
+    if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
     then
-        if botTarget ~= nil and utility.IsHero(botTarget) and utility.CanCastOnMagicImmuneTarget(botTarget) and not utility.IsDisabled(botTarget) and
-            GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility and utility.SafeCast(botTarget, true)
+        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
         then
-            --npcBot:ActionImmediate_Chat("Использую LucentBeam по врагу в радиусе действия!",true);
-            return BOT_MODE_DESIRE_HIGH, botTarget;
+            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+                and not utility.IsDisabled(botTarget) and utility.SafeCast(botTarget, true)
+            then
+                return BOT_MODE_DESIRE_HIGH, botTarget;
+            end
         end
         -- Retreat or help ally use
     elseif botMode == BOT_MODE_RETREAT or botMode == BOT_MODE_DEFEND_ALLY
@@ -142,22 +120,11 @@ function ConsiderLucentBeam()
         if (#enemyAbility > 0)
         then
             for _, enemy in pairs(enemyAbility) do
-                if utility.CanCastOnMagicImmuneTarget(enemy) and utility.SafeCast(enemy, true)
+                if utility.CanCastSpellOnTarget(ability, enemy) and not utility.IsDisabled(enemy) and utility.SafeCast(enemy, true)
                 then
-                    --npcBot:ActionImmediate_Chat("Использую LucentBeam что бы оторваться от врага", true);
+                    --npcBot:ActionImmediate_Chat("Использую LucentBeam что бы оторваться от врага",true);
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy;
                 end
-            end
-        end
-        -- Roshan
-    elseif npcBot:GetActiveMode() == BOT_MODE_ROSHAN
-    then
-        if botTarget ~= nil and utility.IsRoshan(botTarget)
-        then
-            if GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility and not utility.IsDisabled(botTarget)
-            then
-                --npcBot:ActionImmediate_Chat("Использую LucentBeam на Рошана!", true);
-                return BOT_MODE_DESIRE_MODERATE, botTarget;
             end
         end
     end
@@ -169,22 +136,23 @@ function ConsiderEclipse()
         return;
     end
 
-    local radiusAbility = ability:GetSpecialValueInt("radius");
     local castRangeAbility = ability:GetSpecialValueInt("AbilityCastRange");
+    local radiusAbility = ability:GetSpecialValueInt("radius");
+    local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
 
     -- Attack use
     if utility.PvPMode(npcBot)
     then
-        if botTarget ~= nil and utility.IsHero(botTarget) and utility.CanCastOnMagicImmuneTarget(botTarget)
+        if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget)
         then
             if not npcBot:HasScepter() and GetUnitToUnitDistance(npcBot, botTarget) <= radiusAbility
             then
                 --npcBot:ActionImmediate_Chat("Использую Eclipse для нападения без аганима!",true);
-                return BOT_ACTION_DESIRE_HIGH, botTarget, nil;
+                return BOT_ACTION_DESIRE_HIGH, nil, nil;
             elseif npcBot:HasScepter() and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
             then
                 --npcBot:ActionImmediate_Chat("Использую Eclipse для нападения с аганимом!",true);
-                return BOT_ACTION_DESIRE_HIGH, botTarget:GetLocation(), "location";
+                return BOT_ACTION_DESIRE_HIGH, utility.GetTargetPosition(botTarget, delayAbility), "location";
             end
         end
     end

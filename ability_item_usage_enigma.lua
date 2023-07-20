@@ -12,32 +12,8 @@ function BuybackUsageThink()
 end
 
 -- Ability learn
-local Talents = {}
-local Abilities = {}
 local npcBot = GetBot();
-
-for i = 0, 23, 1 do
-    local ability = npcBot:GetAbilityInSlot(i)
-    if (ability ~= nil)
-    then
-        if (ability:IsTalent() == true)
-        then
-            table.insert(Talents, ability:GetName())
-        else
-            table.insert(Abilities, ability:GetName())
-        end
-    end
-end
-
-local AbilitiesReal =
-{
-    npcBot:GetAbilityByName(Abilities[1]),
-    npcBot:GetAbilityByName(Abilities[2]),
-    npcBot:GetAbilityByName(Abilities[3]),
-    npcBot:GetAbilityByName(Abilities[4]),
-    npcBot:GetAbilityByName(Abilities[5]),
-    npcBot:GetAbilityByName(Abilities[6]),
-}
+local Abilities, Talents, AbilitiesReal = ability_levelup_generic.GetHeroAbilities(npcBot)
 
 local AbilityToLevelUp =
 {
@@ -106,8 +82,10 @@ function AbilityUsageThink()
 
     if (castBlackHoleDesire ~= nil)
     then
-        npcBot:Action_UseAbilityOnLocation(BlackHole, castBlackHoleLocation);
-        --return;
+        npcBot:Action_ClearActions(false);
+        npcBot:ActionQueue_UseAbilityOnLocation(BlackHole, castBlackHoleLocation);
+        npcBot:Action_Delay(0.5);
+        return;
     end
 
     --[[     if npcBot:GetCurrentActiveAbility() == BlackHole
@@ -119,7 +97,7 @@ function AbilityUsageThink()
         --npcBot:ActionQueue_UseAbilityOnLocation(BlackHole, castBlackHoleLocation);
         --npcBot:ActionQueue_Delay(0.5);
         --npcBot:ActionPush_UseAbilityOnLocation(BlackHole, castBlackHoleLocation);
-        
+
     end ]]
 end
 
@@ -131,18 +109,18 @@ function ConsiderMalefice()
 
     local castRangeAbility = ability:GetCastRange();
     local strikesAbility = ability:GetSpecialValueInt("stun_instances");
-    local damageAbility = (ability:GetSpecialValueInt("damage") * strikesAbility);
-    local enemyAbility = npcBot:GetNearbyHeroes((castRangeAbility + 200), true, BOT_MODE_NONE);
+    local damageAbility = ability:GetSpecialValueInt("damage") * strikesAbility;
+    local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility + 200, true, BOT_MODE_NONE);
 
     -- Cast if can kill somebody/interrupt cast
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if utility.CanCastOnMagicImmuneTarget(enemy) and utility.SafeCast(enemy, true)
+            if (utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and not utility.TargetCantDie(enemy)) or enemy:IsChanneling()
             then
-                if utility.CanAbilityKillTarget(enemy, damageAbility, DAMAGE_TYPE_MAGICAL) or enemy:IsChanneling()
+                if utility.CanCastSpellOnTarget(ability, enemy) and utility.SafeCast(enemy, true)
                 then
-                    --npcBot:ActionImmediate_Chat("Использую Malefice что бы сбить заклинание или убить цель!",true);
+                    --npcBot:ActionImmediate_Chat("Использую Malefice что бы убить цель!", true);
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy;
                 end
             end
@@ -150,45 +128,38 @@ function ConsiderMalefice()
     end
 
     -- Attack use
-    if utility.PvPMode(npcBot)
+    if utility.PvPMode(npcBot) or npcBot:GetActiveMode() == BOT_MODE_ROSHAN
     then
-        if botTarget ~= nil and (utility.CanCastOnMagicImmuneAndInvulnerableTarget(botTarget)) and not utility.IsDisabled(botTarget)
-            and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility and utility.IsHero(botTarget)
-            and utility.SafeCast(botTarget, true)
+        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
         then
-            return BOT_ACTION_DESIRE_HIGH, botTarget;
+            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+                and utility.SafeCast(botTarget, true)
+            then
+                --npcBot:ActionImmediate_Chat("Использую Malefice по врагу в радиусе действия!",true);
+                return BOT_MODE_DESIRE_HIGH, botTarget;
+            end
         end
         -- Retreat or help ally use
-    elseif (botMode == BOT_MODE_RETREAT or botMode == BOT_MODE_DEFEND_ALLY)
+    elseif botMode == BOT_MODE_RETREAT or botMode == BOT_MODE_DEFEND_ALLY
     then
         if (#enemyAbility > 0)
         then
             for _, enemy in pairs(enemyAbility) do
-                if (utility.CanCastOnMagicImmuneTarget(enemy)) and utility.SafeCast(enemy, true) and not utility.IsDisabled(enemy)
+                if utility.CanCastSpellOnTarget(ability, enemy) and utility.SafeCast(enemy, true)
                 then
-                    return BOT_ACTION_DESIRE_HIGH, enemy;
+                    --npcBot:ActionImmediate_Chat("Использую Malefice что бы оторваться от врага", true);
+                    return BOT_ACTION_DESIRE_VERYHIGH, enemy;
                 end
             end
         end
         -- Cast when laning
-    elseif npcBot:GetActiveMode() == BOT_MODE_LANING
+    elseif botMode == BOT_MODE_LANING
     then
-        if (#enemyAbility > 0) and (ManaPercentage >= 0.8)
+        local enemy = utility.GetWeakest(enemyAbility);
+        if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)
         then
-            for _, enemy in pairs(enemyAbility) do
-                if (utility.CanCastOnMagicImmuneTarget(enemy)) and utility.SafeCast(enemy, true)
-                then
-                    return BOT_ACTION_DESIRE_HIGH, enemy;
-                end
-            end
-        end
-        -- Roshan
-    elseif npcBot:GetActiveMode() == BOT_MODE_ROSHAN
-    then
-        if botTarget ~= nil and utility.IsRoshan(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility and (ManaPercentage >= 0.5)
-        then
-            --npcBot:ActionImmediate_Chat("Использую Malefice на Рошана!", true);
-            return BOT_MODE_DESIRE_MODERATE, botTarget;
+            --npcBot:ActionImmediate_Chat("Использую Malefice по цели на ЛАЙНЕ!", true);
+            return BOT_ACTION_DESIRE_VERYHIGH, enemy;
         end
     end
 end
@@ -237,34 +208,51 @@ function ConsiderMidnightPulse()
     end
 
     local castRangeAbility = ability:GetCastRange();
-    local radiusAbility = (ability:GetSpecialValueInt("radius"));
+    local radiusAbility = ability:GetSpecialValueInt("radius");
+    local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
 
     -- Attack use
-    if utility.PvPMode(npcBot)
+    if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
     then
-        if botTarget ~= nil and (utility.CanCastOnInvulnerableTarget(botTarget)) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
         then
-            return BOT_ACTION_DESIRE_HIGH, botTarget:GetLocation();
+            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+            then
+                return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(botTarget, delayAbility);
+            end
+        end
+        -- Retreat or help ally use
+    elseif botMode == BOT_MODE_RETREAT or botMode == BOT_MODE_DEFEND_ALLY
+    then
+        if (#enemyAbility > 0)
+        then
+            for _, enemy in pairs(enemyAbility) do
+                if utility.CanCastSpellOnTarget(ability, enemy)
+                then
+                    --npcBot:ActionImmediate_Chat("Использую MidnightPulse для отступления!", true);
+                    return BOT_ACTION_DESIRE_HIGH, utility.GetTargetPosition(enemy, delayAbility);
+                end
+            end
         end
         -- Cast if push/defend/farm
-    elseif utility.PvEMode(npcBot)
+    elseif utility.PvEMode(npcBot) and (ManaPercentage >= 0.6)
     then
-        local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility, radiusAbility, 0,
-            0);
-        if (ManaPercentage >= 0.8) and (locationAoE.count >= 2)
+        local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility,
+            radiusAbility,
+            0, 0);
+        if (locationAoE.count >= 3)
         then
             --npcBot:ActionImmediate_Chat("Использую MidnightPulse по вражеским крипам!", true);
-            return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
+            return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc, "location";
         end
         -- Cast when laning
     elseif botMode == BOT_MODE_LANING
     then
-        local locationAoE = npcBot:FindAoELocation(true, true, npcBot:GetLocation(), castRangeAbility,
-            radiusAbility, 0, 0);
-        if (ManaPercentage >= 0.8) and (locationAoE.count > 0)
+        local enemy = utility.GetWeakest(enemyAbility);
+        if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)
         then
-            --npcBot:ActionImmediate_Chat("Использую MidnightPulse по героям врага на линии!", true);
-            return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
+            --npcBot:ActionImmediate_Chat("Использую MidnightPulse по цели на ЛАЙНЕ!", true);
+            return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(enemy, delayAbility);
         end
     end
 end
@@ -276,18 +264,22 @@ function ConsiderBlackHole()
     end
 
     local castRangeAbility = ability:GetCastRange() + 200;
+    local radiusAbility = ability:GetSpecialValueInt("radius");
     local damageAbility = ability:GetSpecialValueInt("damage") * ability:GetSpecialValueInt("duration");
-    local radiusAbility = (ability:GetSpecialValueInt("radius"));
-    local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE)
+    local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
+    local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
 
     -- Cast if can kill somebody
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if utility.CanAbilityKillTarget(enemy, damageAbility, DAMAGE_TYPE_PURE) and (enemy:GetHealth() / enemy:GetMaxHealth() > 0.1)
+            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and not utility.TargetCantDie(enemy)
             then
-                --npcBot:ActionImmediate_Chat("Использую BlackHole что бы добить врага!", true);
-                return BOT_ACTION_DESIRE_HIGH, enemy:GetLocation();
+                if utility.CanCastSpellOnTarget(ability, enemy) and utility.SafeCast(enemy, true)
+                then
+                    --npcBot:ActionImmediate_Chat("Использую LagunaBlade что бы убить цель!", true);
+                    return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(enemy, delayAbility);
+                end
             end
         end
     end

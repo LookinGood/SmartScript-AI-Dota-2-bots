@@ -12,32 +12,8 @@ function BuybackUsageThink()
 end
 
 -- Ability learn
-local Talents = {}
-local Abilities = {}
-local npcBot = GetBot()
-
-for i = 0, 23, 1 do
-    local ability = npcBot:GetAbilityInSlot(i)
-    if (ability ~= nil)
-    then
-        if (ability:IsTalent() == true)
-        then
-            table.insert(Talents, ability:GetName())
-        else
-            table.insert(Abilities, ability:GetName())
-        end
-    end
-end
-
-local AbilitiesReal =
-{
-    npcBot:GetAbilityByName(Abilities[1]),
-    npcBot:GetAbilityByName(Abilities[2]),
-    npcBot:GetAbilityByName(Abilities[3]),
-    npcBot:GetAbilityByName(Abilities[4]),
-    npcBot:GetAbilityByName(Abilities[5]),
-    npcBot:GetAbilityByName(Abilities[6]),
-}
+local npcBot = GetBot();
+local Abilities, Talents, AbilitiesReal = ability_levelup_generic.GetHeroAbilities(npcBot)
 
 local AbilityToLevelUp =
 {
@@ -122,45 +98,31 @@ function ConsiderVenomousGale()
     local radiusAbility = ability:GetSpecialValueInt("start_radius");
     local damageAbility = ability:GetSpecialValueInt("strike_damage") +
     (ability:GetSpecialValueInt("tick_damage") * ability:GetSpecialValueInt("duration"));
-    local delayAbility = 0.5;
+    local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
     local enemyAbility = npcBot:GetNearbyHeroes((castRangeAbility + 200), true, BOT_MODE_NONE);
 
     -- Cast if can kill somebody
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if utility.CanCastOnMagicImmuneTarget(enemy)
+            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and not utility.TargetCantDie(enemy)
             then
-                if utility.CanAbilityKillTarget(enemy, damageAbility, DAMAGE_TYPE_MAGICAL) and not utility.TargetCantDie(enemy)
+                if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    if utility.IsMoving(enemy)
-                    then
-                        --npcBot:ActionImmediate_Chat("Использую VenomousGale что бы убить бегущую цель!", true);
-                        return BOT_ACTION_DESIRE_VERYHIGH, enemy:GetExtrapolatedLocation(delayAbility);
-                    else
-                        --npcBot:ActionImmediate_Chat("Использую VenomousGale что бы убить бегущую цель!",true);
-                        return BOT_ACTION_DESIRE_VERYHIGH, enemy:GetLocation();
-                    end
+                    return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(enemy, delayAbility);
                 end
             end
         end
     end
 
-    -- Cast if attack enemy
-    if utility.PvPMode(npcBot)
+    -- Attack use
+    if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
     then
-        if botTarget ~= nil and (utility.IsHero(botTarget) or utility.IsRoshan(botTarget))
+        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
         then
-            if utility.CanCastOnMagicImmuneTarget(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
             then
-                if utility.IsMoving(botTarget)
-                then
-                    --npcBot:ActionImmediate_Chat("Использую VenomousGale по бегущей цели!", true);
-                    return BOT_ACTION_DESIRE_VERYHIGH, botTarget:GetExtrapolatedLocation(delayAbility);
-                else
-                    --npcBot:ActionImmediate_Chat("Использую VenomousGale по стоящей цели!",true);
-                    return BOT_ACTION_DESIRE_VERYHIGH, botTarget:GetLocation();
-                end
+                return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(botTarget, delayAbility);
             end
         end
         -- Retreat or help ally use
@@ -169,47 +131,32 @@ function ConsiderVenomousGale()
         if (#enemyAbility > 0)
         then
             for _, enemy in pairs(enemyAbility) do
-                if utility.CanCastOnMagicImmuneTarget(enemy)
+                if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    if utility.IsMoving(enemy)
-                    then
-                        --npcBot:ActionImmediate_Chat("Использую VenomousGale по бегущей цели отступая!",true);
-                        return BOT_ACTION_DESIRE_VERYHIGH, enemy:GetExtrapolatedLocation(delayAbility);
-                    else
-                        --npcBot:ActionImmediate_Chat("Использую VenomousGale по стоящей цели отступая!",true);
-                        return BOT_ACTION_DESIRE_VERYHIGH, enemy:GetLocation();
-                    end
+                    --npcBot:ActionImmediate_Chat("Использую VenomousGale для отступления!", true);
+                    return BOT_ACTION_DESIRE_HIGH, utility.GetTargetPosition(enemy, delayAbility);
                 end
             end
         end
         -- Cast if push/defend/farm
-    elseif utility.PvEMode(npcBot)
+    elseif utility.PvEMode(npcBot) and (ManaPercentage >= 0.6)
     then
-        local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility, radiusAbility,
+        local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility,
+            radiusAbility,
             0, 0);
-        if (ManaPercentage >= 0.5) and (locationAoE.count >= 3)
+        if (locationAoE.count >= 3)
         then
             --npcBot:ActionImmediate_Chat("Использую VenomousGale по вражеским крипам!", true);
-            return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
+            return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc, "location";
         end
         -- Cast when laning
     elseif botMode == BOT_MODE_LANING
     then
-        if (#enemyAbility > 0) and (ManaPercentage >= 0.8)
+        local enemy = utility.GetWeakest(enemyAbility);
+        if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)
         then
-            for _, enemy in pairs(enemyAbility) do
-                if utility.CanCastOnMagicImmuneTarget(enemy)
-                then
-                    if utility.IsMoving(enemy)
-                    then
-                        --npcBot:ActionImmediate_Chat("Использую VenomousGale по бегущей цели на ЛАЙНЕ!",true);
-                        return BOT_ACTION_DESIRE_VERYHIGH, enemy:GetExtrapolatedLocation(delayAbility);
-                    else
-                        --npcBot:ActionImmediate_Chat("Использую VenomousGale по стоящей цели на ЛАЙНЕ!",true);
-                        return BOT_ACTION_DESIRE_VERYHIGH, enemy:GetLocation();
-                    end
-                end
-            end
+            --npcBot:ActionImmediate_Chat("Использую VenomousGale по цели на ЛАЙНЕ!", true);
+            return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(enemy, delayAbility);
         end
     end
 end
@@ -225,7 +172,7 @@ function ConsiderPlagueWard()
     -- General use
     if utility.PvPMode(npcBot)
     then
-        if botTarget ~= nil and utility.CanCastOnInvulnerableTarget(botTarget)
+        if utility.CanCastSpellOnTarget(ability, botTarget)
         then
             return BOT_MODE_DESIRE_MODERATE, botTarget:GetLocation();
         end
@@ -235,7 +182,7 @@ function ConsiderPlagueWard()
         if (#enemyAbility > 0)
         then
             for _, enemy in pairs(enemyAbility) do
-                if (utility.CanCastOnInvulnerableTarget(enemy))
+                if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     return BOT_MODE_DESIRE_MODERATE, enemy:GetLocation();
                 end
@@ -252,7 +199,7 @@ function ConsiderPlagueWard()
         if (#enemyCreeps > 0)
         then
             for _, enemy in pairs(enemyCreeps) do
-                if (utility.CanCastOnInvulnerableTarget(enemy))
+                if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     return BOT_MODE_DESIRE_VERYLOW, enemy:GetLocation() + RandomVector(100);
                 end
@@ -261,7 +208,7 @@ function ConsiderPlagueWard()
         if (#enemyTower > 0)
         then
             for _, enemy in pairs(enemyTower) do
-                if (utility.CanCastOnInvulnerableTarget(enemy))
+                if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     return BOT_MODE_DESIRE_LOW, enemy:GetLocation() + RandomVector(100);
                 end
@@ -269,7 +216,7 @@ function ConsiderPlagueWard()
             if (#frendlyTower > 0)
             then
                 for _, ally in pairs(frendlyTower) do
-                    if (utility.CanCastOnInvulnerableTarget(ally))
+                    if utility.CanCastSpellOnTarget(ability, ally)
                     then
                         return BOT_MODE_DESIRE_LOW, ally:GetLocation() + RandomVector(100);
                     end
@@ -278,7 +225,7 @@ function ConsiderPlagueWard()
             if (#enemyBarracks > 0)
             then
                 for _, enemy in pairs(enemyBarracks) do
-                    if (utility.CanCastOnInvulnerableTarget(enemy))
+                    if utility.CanCastSpellOnTarget(ability, enemy)
                     then
                         return BOT_MODE_DESIRE_LOW, enemy:GetLocation() + RandomVector(100);
                     end
@@ -287,7 +234,7 @@ function ConsiderPlagueWard()
             if (#frendlyBarracks > 0)
             then
                 for _, ally in pairs(frendlyBarracks) do
-                    if (utility.CanCastOnInvulnerableTarget(ally))
+                    if utility.CanCastSpellOnTarget(ability, ally)
                     then
                         return BOT_MODE_DESIRE_LOW, ally:GetLocation() + RandomVector(100);
                     end
@@ -305,22 +252,26 @@ function ConsiderLatentToxicity()
 
     local castRangeAbility = ability:GetCastRange();
 
-    -- General use
-    if utility.PvPMode(npcBot)
+    -- Attack use
+    if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
     then
-        if botTarget ~= nil and utility.CanCastOnMagicImmuneTarget(botTarget) and utility.SafeCast(botTarget, false)
+        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
         then
-            return BOT_MODE_DESIRE_MODERATE, botTarget;
+            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility and utility.SafeCast(botTarget, true)
+            then
+                return BOT_MODE_DESIRE_HIGH, botTarget;
+            end
         end
+        -- Retreat or help ally use
     elseif botMode == BOT_MODE_RETREAT or botMode == BOT_MODE_DEFEND_ALLY
     then
-        local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
         if (#enemyAbility > 0)
         then
             for _, enemy in pairs(enemyAbility) do
-                if (utility.CanCastOnMagicImmuneTarget(enemy)) and utility.SafeCast(enemy, false)
+                if utility.CanCastSpellOnTarget(ability, enemy)  and utility.SafeCast(enemy, true)
                 then
-                    return BOT_ACTION_DESIRE_HIGH, enemy;
+                    --npcBot:ActionImmediate_Chat("Использую LatentToxicity что бы оторваться от врага",true);
+                    return BOT_ACTION_DESIRE_VERYHIGH, enemy;
                 end
             end
         end
@@ -335,23 +286,27 @@ function ConsiderNoxiousPlague()
 
     local castRangeAbility = ability:GetCastRange();
 
-    -- General use
-    if utility.PvPMode(npcBot)
+    -- Attack use
+    if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
     then
-        if botTarget ~= nil and utility.IsHero(botTarget) and utility.CanCastOnMagicImmuneTarget(botTarget) and utility.SafeCast(botTarget, true)
+        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
         then
-            --npcBot:ActionImmediate_Chat("Использую Noxious Plague по цели!",true);
-            return BOT_MODE_DESIRE_MODERATE, botTarget;
+            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility and utility.SafeCast(botTarget, true)
+            then
+                return BOT_MODE_DESIRE_HIGH, botTarget;
+            end
         end
-    elseif botMode == BOT_MODE_RETREAT
+        -- Retreat or help ally use
+    elseif botMode == BOT_MODE_RETREAT or botMode == BOT_MODE_DEFEND_ALLY
     then
         local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
         if (#enemyAbility > 0) and (HealthPercentage <= 0.7)
         then
             for _, enemy in pairs(enemyAbility) do
-                if (utility.CanCastOnMagicImmuneTarget(enemy)) and utility.SafeCast(enemy, true)
+                if utility.CanCastSpellOnTarget(ability, enemy) and utility.SafeCast(enemy, true)
                 then
-                    return BOT_ACTION_DESIRE_HIGH, enemy;
+                    --npcBot:ActionImmediate_Chat("Использую LatentToxicity что бы оторваться от врага",true);
+                    return BOT_ACTION_DESIRE_VERYHIGH, enemy;
                 end
             end
         end

@@ -12,32 +12,8 @@ function BuybackUsageThink()
 end
 
 -- Ability learn
-local Talents = {}
-local Abilities = {}
-local npcBot = GetBot()
-
-for i = 0, 23, 1 do
-    local ability = npcBot:GetAbilityInSlot(i)
-    if (ability ~= nil)
-    then
-        if (ability:IsTalent() == true)
-        then
-            table.insert(Talents, ability:GetName())
-        else
-            table.insert(Abilities, ability:GetName())
-        end
-    end
-end
-
-local AbilitiesReal =
-{
-    npcBot:GetAbilityByName(Abilities[1]),
-    npcBot:GetAbilityByName(Abilities[2]),
-    npcBot:GetAbilityByName(Abilities[3]),
-    npcBot:GetAbilityByName(Abilities[4]),
-    npcBot:GetAbilityByName(Abilities[5]),
-    npcBot:GetAbilityByName(Abilities[6]),
-}
+local npcBot = GetBot();
+local Abilities, Talents, AbilitiesReal = ability_levelup_generic.GetHeroAbilities(npcBot)
 
 local AbilityToLevelUp =
 {
@@ -138,18 +114,11 @@ function ConsiderWildAxes()
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if utility.CanCastOnMagicImmuneTarget(enemy)
+            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and not utility.TargetCantDie(enemy)
             then
-                if utility.CanAbilityKillTarget(enemy, damageAbility, DAMAGE_TYPE_MAGICAL) and not utility.TargetCantDie(enemy)
+                if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    if utility.IsMoving(enemy)
-                    then
-                        --npcBot:ActionImmediate_Chat("Использую WildAxes что бы убить бегущую цель!", true);
-                        return BOT_ACTION_DESIRE_VERYHIGH, enemy:GetExtrapolatedLocation(delayAbility);
-                    else
-                        --npcBot:ActionImmediate_Chat("Использую WildAxes что бы убить бегущую цель!",true);
-                        return BOT_ACTION_DESIRE_VERYHIGH, enemy:GetLocation();
-                    end
+                    return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(enemy, delayAbility);
                 end
             end
         end
@@ -158,18 +127,11 @@ function ConsiderWildAxes()
     -- Cast if attack enemy
     if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
     then
-        if botTarget ~= nil and (utility.IsHero(botTarget) or utility.IsRoshan(botTarget))
+        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
         then
-            if utility.CanCastOnMagicImmuneTarget(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
             then
-                if utility.IsMoving(botTarget)
-                then
-                    --npcBot:ActionImmediate_Chat("Использую WildAxes по бегущей цели!", true);
-                    return BOT_ACTION_DESIRE_VERYHIGH, botTarget:GetExtrapolatedLocation(delayAbility);
-                else
-                    --npcBot:ActionImmediate_Chat("Использую WildAxes по стоящей цели!",true);
-                    return BOT_ACTION_DESIRE_VERYHIGH, botTarget:GetLocation();
-                end
+                return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(botTarget, delayAbility);
             end
         end
         -- Cast if push/defend/farm
@@ -177,7 +139,7 @@ function ConsiderWildAxes()
     then
         local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility, radiusAbility,
             0, 0);
-        if (ManaPercentage >= 0.5) and (locationAoE.count >= 2)
+        if (ManaPercentage >= 0.5) and (locationAoE.count >= 3)
         then
             --npcBot:ActionImmediate_Chat("Использую WildAxes по вражеским крипам!", true);
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
@@ -185,21 +147,11 @@ function ConsiderWildAxes()
         -- Cast when laning
     elseif botMode == BOT_MODE_LANING
     then
-        if (#enemyAbility > 0) and (ManaPercentage >= 0.8)
+        local enemy = utility.GetWeakest(enemyAbility);
+        if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)
         then
-            for _, enemy in pairs(enemyAbility) do
-                if utility.CanCastOnMagicImmuneTarget(enemy)
-                then
-                    if utility.IsMoving(enemy)
-                    then
-                        --npcBot:ActionImmediate_Chat("Использую WildAxes по бегущей цели на ЛАЙНЕ!",true);
-                        return BOT_ACTION_DESIRE_HIGH, enemy:GetExtrapolatedLocation(delayAbility);
-                    else
-                        --npcBot:ActionImmediate_Chat("Использую WildAxes по стоящей цели на ЛАЙНЕ!",true);
-                        return BOT_ACTION_DESIRE_HIGH, enemy:GetLocation();
-                    end
-                end
-            end
+            --npcBot:ActionImmediate_Chat("Использую WildAxes по цели на ЛАЙНЕ!", true);
+            return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(enemy, delayAbility);
         end
     end
 end
@@ -213,7 +165,7 @@ function ConsiderSummonBoar()
     -- Attack use
     if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
     then
-        if botTarget ~= nil and (utility.IsHero(botTarget) or utility.IsRoshan(botTarget))
+        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
         then
             if utility.CanCastOnInvulnerableTarget(botTarget)
             then
@@ -256,7 +208,7 @@ function ConsiderSummonHawk()
         if (#neutralCreeps > 0) and (ManaPercentage >= 0.5)
         then
             for _, enemy in pairs(neutralCreeps) do
-                if enemy:CanBeSeen()
+                if utility.IsValidTarget(enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую Summon Hawk для разведки!", true);
                     return BOT_ACTION_DESIRE_VERYLOW, enemy:GetLocation();
@@ -277,7 +229,7 @@ function ConsiderSummonHawk()
     then
         if utility.PvPMode(npcBot)
         then
-            if botTarget ~= nil and (utility.CanCastOnMagicImmuneAndInvulnerableTarget(botTarget))
+            if utility.CanCastOnMagicImmuneAndInvulnerableTarget(botTarget)
             then
                 npcBot:ActionImmediate_Chat("Использую Summon Hawk по врагу в радиусе действия!",
                     true);
@@ -308,6 +260,7 @@ function ConsiderDrumsOfSlom()
         return;
     end
 
+    local damageType = ability:GetDamageType();
     local radiusAbility = (ability:GetSpecialValueInt("radius"));
 
     -- Attack or retreat use
@@ -317,7 +270,7 @@ function ConsiderDrumsOfSlom()
         if (#enemyAbility > 0)
         then
             for _, enemy in pairs(enemyAbility) do
-                if (utility.CanCastOnMagicImmuneAndInvulnerableTarget(enemy))
+                if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     npcBot:ActionImmediate_Chat("Использую Drums Of Slom по врагу в радиусе действия!",
                         true);
@@ -335,41 +288,46 @@ function ConsiderPrimalRoar()
     end
 
     local castRangeAbility = ability:GetCastRange();
+    local damageAbility = ability:GetSpecialValueInt("damage");
     local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility + 200, true, BOT_MODE_NONE);
 
-    -- Interrupt cast
+    -- Cast if can kill somebody/interrupt cast
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if utility.CanCastOnInvulnerableTarget(enemy) and enemy:IsChanneling()
+            if (utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and not utility.TargetCantDie(enemy)) or enemy:IsChanneling()
             then
-                --npcBot:ActionImmediate_Chat("Использую Primal Roar что бы сбить заклинание врага!", true);
-                return BOT_MODE_DESIRE_VERYHIGH, enemy;
-            end
-        end
-    end
-
-    -- Cast if attack enemy
-    if utility.PvPMode(npcBot)
-    then
-        if botTarget ~= nil and utility.IsHero(botTarget) and not utility.IsDisabled(botTarget) and utility.CanCastOnInvulnerableTarget(botTarget)
-            and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
-        then
-            --npcBot:ActionImmediate_Chat("Использую Primal Roar по врагу в радиусе действия!", true);
-            return BOT_ACTION_DESIRE_HIGH, botTarget;
-        end
-        -- Use if need retreat
-    elseif botMode == BOT_MODE_RETREAT
-    then
-        if (#enemyAbility > 0) and (HealthPercentage <= 0.6)
-        then
-            for _, enemy in pairs(enemyAbility) do
-                if utility.CanCastOnInvulnerableTarget(enemy) and not utility.IsDisabled(enemy)
+                if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    --npcBot:ActionImmediate_Chat("Использую Primal Roar что бы оторваться от врага!",true);
-                    return BOT_ACTION_DESIRE_HIGH, enemy;
+                    return BOT_ACTION_DESIRE_VERYHIGH, enemy;
                 end
             end
         end
     end
+
+   -- Attack use
+   if utility.PvPMode(npcBot)
+   then
+       if utility.IsHero(botTarget)
+       then
+           if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+               and not utility.IsDisabled(botTarget) and utility.SafeCast(botTarget, true)
+           then
+               return BOT_MODE_DESIRE_HIGH, botTarget;
+           end
+       end
+       -- Retreat or help ally use
+   elseif botMode == BOT_MODE_RETREAT or botMode == BOT_MODE_DEFEND_ALLY
+   then
+       if (#enemyAbility > 0) and (HealthPercentage <= 0.8)
+       then
+           for _, enemy in pairs(enemyAbility) do
+               if utility.CanCastSpellOnTarget(ability, enemy) and not utility.IsDisabled(enemy) and utility.SafeCast(enemy, true)
+               then
+                   --npcBot:ActionImmediate_Chat("Использую WraithfireBlast что бы оторваться от врага",true);
+                   return BOT_ACTION_DESIRE_VERYHIGH, enemy;
+               end
+           end
+       end
+   end
 end

@@ -12,32 +12,8 @@ function BuybackUsageThink()
 end
 
 -- Ability learn
-local Talents = {}
-local Abilities = {}
-local npcBot = GetBot()
-
-for i = 0, 23, 1 do
-    local ability = npcBot:GetAbilityInSlot(i)
-    if (ability ~= nil)
-    then
-        if (ability:IsTalent() == true)
-        then
-            table.insert(Talents, ability:GetName())
-        else
-            table.insert(Abilities, ability:GetName())
-        end
-    end
-end
-
-local AbilitiesReal =
-{
-    npcBot:GetAbilityByName(Abilities[1]),
-    npcBot:GetAbilityByName(Abilities[2]),
-    npcBot:GetAbilityByName(Abilities[3]),
-    npcBot:GetAbilityByName(Abilities[4]),
-    npcBot:GetAbilityByName(Abilities[5]),
-    npcBot:GetAbilityByName(Abilities[6]),
-}
+local npcBot = GetBot();
+local Abilities, Talents, AbilitiesReal = ability_levelup_generic.GetHeroAbilities(npcBot)
 
 local AbilityToLevelUp =
 {
@@ -111,18 +87,18 @@ function ConsiderMagicMissile()
     end
 
     local castRangeAbility = ability:GetCastRange();
-    local damageAbility = (ability:GetSpecialValueInt("magic_missile_damage"));
-    local enemyAbility = npcBot:GetNearbyHeroes((castRangeAbility + 200), true, BOT_MODE_NONE);
+    local damageAbility = ability:GetSpecialValueInt("magic_missile_damage");
+    local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility + 200, true, BOT_MODE_NONE);
 
-    -- Cast if can kill somebody/Interrup cast
+    -- Cast if can kill somebody/interrupt cast
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if utility.CanCastOnMagicImmuneTarget(enemy) and utility.SafeCast(enemy, true)
+            if (utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and not utility.TargetCantDie(enemy)) or enemy:IsChanneling()
             then
-                if utility.CanAbilityKillTarget(enemy, damageAbility, DAMAGE_TYPE_MAGICAL) or enemy:IsChanneling()
+                if utility.CanCastSpellOnTarget(ability, enemy) and utility.SafeCast(enemy, true)
                 then
-                    --npcBot:ActionImmediate_Chat("Использую MagicMissile что бы сбить заклинание цели!",true);
+                    --npcBot:ActionImmediate_Chat("Использую MagicMissile что бы сбить заклинание или убить цель!",true);
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy;
                 end
             end
@@ -130,35 +106,27 @@ function ConsiderMagicMissile()
     end
 
     -- Attack use
-    if utility.PvPMode(npcBot)
+    if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
     then
-        if botTarget ~= nil and utility.IsHero(botTarget) and utility.CanCastOnMagicImmuneTarget(botTarget) and not utility.IsDisabled(botTarget) and
-            GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility and utility.SafeCast(botTarget, true)
+        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
         then
-            --npcBot:ActionImmediate_Chat("Использую MagicMissile по врагу в радиусе действия!",true);
-            return BOT_MODE_DESIRE_HIGH, botTarget;
+            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+                and not utility.IsDisabled(botTarget) and utility.SafeCast(botTarget, true)
+            then
+                return BOT_MODE_DESIRE_HIGH, botTarget;
+            end
         end
+        -- Retreat or help ally use
     elseif botMode == BOT_MODE_RETREAT or botMode == BOT_MODE_DEFEND_ALLY
     then
         if (#enemyAbility > 0)
         then
             for _, enemy in pairs(enemyAbility) do
-                if utility.CanCastOnMagicImmuneTarget(enemy) and utility.SafeCast(enemy, true)
+                if utility.CanCastSpellOnTarget(ability, enemy) and not utility.IsDisabled(enemy) and utility.SafeCast(enemy, true)
                 then
-                    --npcBot:ActionImmediate_Chat("Использую MagicMissile что бы оторваться от врага", true);
+                    --npcBot:ActionImmediate_Chat("Использую MagicMissile что бы оторваться от врага",true);
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy;
                 end
-            end
-        end
-        -- Roshan
-    elseif npcBot:GetActiveMode() == BOT_MODE_ROSHAN
-    then
-        if botTarget ~= nil and utility.IsRoshan(botTarget)
-        then
-            if GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility and not utility.IsDisabled(botTarget)
-            then
-                --npcBot:ActionImmediate_Chat("Использую MagicMissile на Рошана!", true);
-                return BOT_MODE_DESIRE_MODERATE, botTarget;
             end
         end
     end
@@ -171,36 +139,41 @@ function ConsiderWaveOfTerror()
     end
 
     local castRangeAbility = ability:GetCastRange();
-    local radiusAbility = (ability:GetSpecialValueInt("wave_width"));
-    local damageAbility = (ability:GetSpecialValueInt("AbilityDamage"));
+    local radiusAbility = ability:GetSpecialValueInt("wave_width");
+    local damageAbility = ability:GetSpecialValueInt("AbilityDamage");
+    local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
     local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
 
     -- Cast if can kill somebody
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if utility.CanCastOnMagicImmuneTarget(enemy) and utility.CanAbilityKillTarget(enemy, damageAbility, DAMAGE_TYPE_MAGICAL)
+            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and not utility.TargetCantDie(enemy)
             then
-                --npcBot:ActionImmediate_Chat("Использую WaveOfTerror что бы добить врага!",true);
-                return BOT_ACTION_DESIRE_HIGH, enemy:GetLocation();
+                if utility.CanCastSpellOnTarget(ability, enemy)
+                then
+                    return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(enemy, delayAbility);
+                end
             end
         end
     end
 
     -- Cast if attack enemy
-    if utility.PvPMode(npcBot)
+    if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
     then
-        if botTarget ~= nil and utility.CanCastOnMagicImmuneTarget(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
         then
-            --npcBot:ActionImmediate_Chat("Использую WaveOfTerror по врагу в радиусе действия!",true);
-            return BOT_ACTION_DESIRE_HIGH, botTarget:GetLocation();
+            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+            then
+                return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(botTarget, delayAbility);
+            end
         end
         -- Cast if push/defend/farm
     elseif utility.PvEMode(npcBot)
     then
         local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility, radiusAbility,
             0, 0);
-        if (ManaPercentage >= 0.5) and (locationAoE.count >= 2)
+        if (ManaPercentage >= 0.5) and (locationAoE.count >= 3)
         then
             --npcBot:ActionImmediate_Chat("Использую WaveOfTerror по вражеским крипам!", true);
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
@@ -208,12 +181,11 @@ function ConsiderWaveOfTerror()
         -- Cast when laning
     elseif botMode == BOT_MODE_LANING
     then
-        local locationAoE = npcBot:FindAoELocation(true, true, npcBot:GetLocation(), castRangeAbility,
-            radiusAbility, 0, 0);
-        if (ManaPercentage >= 0.7) and (locationAoE.count > 0)
+        local enemy = utility.GetWeakest(enemyAbility);
+        if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)
         then
-            --npcBot:ActionImmediate_Chat("Использую WaveOfTerror по героям врага на линии!",true);
-            return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
+            --npcBot:ActionImmediate_Chat("Использую WaveOfTerror по цели на ЛАЙНЕ!", true);
+            return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(enemy, delayAbility);
         end
     end
 end
@@ -233,7 +205,7 @@ function ConsiderNetherSwap()
     -- Attack use
     if utility.PvPMode(npcBot)
     then
-        if botTarget ~= nil and utility.IsHero(botTarget) and not utility.IsDisabled(botTarget) and utility.SafeCast(botTarget, false)
+        if utility.IsHero(botTarget) and not utility.IsDisabled(botTarget) and utility.SafeCast(botTarget, false)
             and (GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility and GetUnitToUnitDistance(npcBot, botTarget) > attackRange)
         then
             --npcBot:ActionImmediate_Chat("Использую NetherSwap по врагу в радиусе действия!",true);
@@ -243,7 +215,7 @@ function ConsiderNetherSwap()
         if (#enemyAbility > 0)
         then
             for _, enemy in pairs(enemyAbility) do
-                if enemy:IsChanneling() and utility.SafeCast(enemy, false) == true
+                if enemy:IsChanneling() and utility.SafeCast(enemy, false)
                 then
                     --npcBot:ActionImmediate_Chat("Использую NetherSwap что бы сбить заклинание цели!",true);
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy;

@@ -26,18 +26,18 @@ local ItemsToBuy =
 	"item_ogre_axe",
 
     "item_ogre_axe",
+	"item_mithril_hammer",
+	"item_recipe_black_king_bar",
+
+    "item_aghanims_shard",
+
+    "item_ogre_axe",
     "item_belt_of_strength",
     "item_recipe_sange",
 
     "item_blade_of_alacrity",
 	"item_boots_of_elves",
 	"item_recipe_yasha",
-
-    "item_aghanims_shard",
-
-	"item_ogre_axe",
-	"item_mithril_hammer",
-	"item_recipe_black_king_bar",
 
     "item_blink",
 

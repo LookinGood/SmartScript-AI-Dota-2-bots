@@ -12,32 +12,8 @@ function BuybackUsageThink()
 end
 
 -- Ability learn
-local Talents = {}
-local Abilities = {}
 local npcBot = GetBot();
-
-for i = 0, 23, 1 do
-    local ability = npcBot:GetAbilityInSlot(i)
-    if (ability ~= nil)
-    then
-        if (ability:IsTalent() == true)
-        then
-            table.insert(Talents, ability:GetName())
-        else
-            table.insert(Abilities, ability:GetName())
-        end
-    end
-end
-
-local AbilitiesReal =
-{
-    npcBot:GetAbilityByName(Abilities[1]),
-    npcBot:GetAbilityByName(Abilities[2]),
-    npcBot:GetAbilityByName(Abilities[3]),
-    npcBot:GetAbilityByName(Abilities[4]),
-    npcBot:GetAbilityByName(Abilities[5]),
-    npcBot:GetAbilityByName(Abilities[6]),
-}
+local Abilities, Talents, AbilitiesReal = ability_levelup_generic.GetHeroAbilities(npcBot)
 
 local AbilityToLevelUp =
 {
@@ -165,32 +141,33 @@ function ConsiderScatterblast()
     end
 
     local castRangeAbility = ability:GetCastRange();
-    local meleeCastRangeAbility = (ability:GetSpecialValueInt("point_blank_range"));
-    local radiusAbility = (ability:GetSpecialValueInt("blast_width_initial"));
-    local damageAbility = (ability:GetSpecialValueInt("damage"));                          -- 280
+    local meleeCastRangeAbility = ability:GetSpecialValueInt("point_blank_range");
+    local radiusAbility = ability:GetSpecialValueInt("blast_width_initial");
+    local damageAbility = ability:GetSpecialValueInt("damage");                            -- 280
     local meleeDamageAbility = damageAbility +
         (damageAbility / 100 * (ability:GetSpecialValueInt("point_blank_dmg_bonus_pct"))); -- 480
-    local enemyAbility = npcBot:GetNearbyHeroes((castRangeAbility + 200), true, BOT_MODE_NONE);
+    local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
+    local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility + 200, true, BOT_MODE_NONE);
 
     -- Cast if can kill somebody
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if utility.CanCastOnMagicImmuneTarget(enemy)
+            if utility.CanCastSpellOnTarget(ability, enemy)
             then
                 if GetUnitToUnitDistance(npcBot, enemy) <= (castRangeAbility + 200)
                 then
-                    if utility.CanAbilityKillTarget(enemy, damageAbility, DAMAGE_TYPE_MAGICAL)
+                    if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType())
                     then
                         --npcBot:ActionImmediate_Chat("Использую Scatterblast что бы убить цель!",true);
-                        return BOT_ACTION_DESIRE_VERYHIGH, enemy:GetLocation();
+                        return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(enemy, delayAbility);
                     end
                 elseif GetUnitToUnitDistance(npcBot, enemy) <= meleeCastRangeAbility
                 then
-                    if utility.CanAbilityKillTarget(enemy, meleeDamageAbility, DAMAGE_TYPE_MAGICAL)
+                    if utility.CanAbilityKillTarget(enemy, meleeDamageAbility, ability:GetDamageType())
                     then
                         --npcBot:ActionImmediate_Chat("Использую Scatterblast что бы убить цель ВБЛИЗИ!",true);
-                        return BOT_ACTION_DESIRE_VERYHIGH, enemy:GetLocation();
+                        return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(enemy, delayAbility);
                     end
                 end
             end
@@ -200,23 +177,25 @@ function ConsiderScatterblast()
     -- Attack use
     if not npcBot:HasModifier("modifier_snapfire_mortimer_kisses")
     then
-        if utility.PvPMode(npcBot)
+        if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
         then
-            if botTarget ~= nil and utility.IsHero(botTarget) and utility.CanCastOnMagicImmuneTarget(botTarget)
-                and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+            if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
             then
-                --npcBot:ActionImmediate_Chat("Использую Scatterblast по врагу в радиусе действия!",true);
-                return BOT_MODE_DESIRE_HIGH, botTarget:GetLocation();
+                if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+                then
+                    --npcBot:ActionImmediate_Chat("Использую Scatterblast по врагу в радиусе действия!",true);
+                    return BOT_MODE_DESIRE_HIGH, utility.GetTargetPosition(botTarget, delayAbility);
+                end
             end
         elseif botMode == BOT_MODE_RETREAT or botMode == BOT_MODE_DEFEND_ALLY
         then
             if (#enemyAbility > 0)
             then
                 for _, enemy in pairs(enemyAbility) do
-                    if utility.CanCastOnMagicImmuneTarget(enemy)
+                    if utility.CanCastSpellOnTarget(ability, enemy)
                     then
                         --npcBot:ActionImmediate_Chat("Использую Scatterblast что бы оторваться от врага",true);
-                        return BOT_ACTION_DESIRE_VERYHIGH, enemy:GetLocation();
+                        return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(enemy, delayAbility);
                     end
                 end
             end
@@ -234,20 +213,11 @@ function ConsiderScatterblast()
             -- Cast when laning
         elseif botMode == BOT_MODE_LANING
         then
-            local locationAoE = npcBot:FindAoELocation(true, true, npcBot:GetLocation(), castRangeAbility,
-                radiusAbility, 0, 0);
-            if (ManaPercentage >= 0.7) and (locationAoE.count > 0)
+            local enemy = utility.GetWeakest(enemyAbility);
+            if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)
             then
-                --npcBot:ActionImmediate_Chat("Использую Scatterblast по героям врага на линии!",true);
-                return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
-            end
-            -- Roshan
-        elseif npcBot:GetActiveMode() == BOT_MODE_ROSHAN
-        then
-            if botTarget ~= nil and utility.IsRoshan(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
-            then
-                --npcBot:ActionImmediate_Chat("Использую Scatterblast на Рошана!", true);
-                return BOT_MODE_DESIRE_MODERATE, botTarget:GetLocation();
+                --npcBot:ActionImmediate_Chat("Использую Scatterblast по цели на ЛАЙНЕ!", true);
+                return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(enemy, delayAbility);
             end
         end
     end
@@ -262,15 +232,15 @@ function ConsiderFiresnapCookie()
     local castRangeAbility = ability:GetCastRange();
     local allyHeroAbility = npcBot:GetNearbyHeroes(castRangeAbility, false, BOT_MODE_NONE);
     local allyCreepsAbility = npcBot:GetNearbyCreeps(castRangeAbility, false);
-    local jumpRangeAbility = (ability:GetSpecialValueInt("jump_horizontal_distance"));
-    local jumpRadiusAbility = (ability:GetSpecialValueInt("impact_radius"));
+    local jumpRangeAbility = ability:GetSpecialValueInt("jump_horizontal_distance");
+    local jumpRadiusAbility = ability:GetSpecialValueInt("impact_radius");
 
     -- Attack use
     if not npcBot:HasModifier("modifier_snapfire_mortimer_kisses")
     then
         if utility.PvPMode(npcBot)
         then
-            if botTarget ~= nil and utility.IsHero(botTarget) and utility.CanCastOnMagicImmuneTarget(botTarget)
+            if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget)
             then
                 if (#allyHeroAbility > 0)
                 then
@@ -327,9 +297,9 @@ function ConsiderLilShredder()
     then
         if utility.PvPMode(npcBot) or npcBot:GetActiveMode() == BOT_MODE_ROSHAN
         then
-            if botTarget ~= nil and (utility.IsHero(botTarget) or utility.IsRoshan(botTarget))
+            if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
             then
-                if utility.CanCastOnInvulnerableTarget(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= attackRange
+                if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= attackRange
                 then
                     --npcBot:ActionImmediate_Chat("Использую LilShredder против врага!", true);
                     return BOT_ACTION_DESIRE_HIGH;
@@ -355,7 +325,7 @@ function ConsiderGobbleUp()
     then
         if utility.PvPMode(npcBot)
         then
-            if botTarget ~= nil and utility.IsHero(botTarget) and utility.CanCastOnMagicImmuneTarget(botTarget)
+            if utility.IsHero(botTarget) and utility.CanCastOnMagicImmuneTarget(botTarget)
                 and GetUnitToUnitDistance(npcBot, botTarget) <= spitDistance
             then
                 if (#allyCreepsAbility > 0)
@@ -390,7 +360,7 @@ function ConsiderSpitOut()
     -- Generic use
     if npcBot:HasModifier("modifier_snapfire_gobble_up_belly_has_unit") and not npcBot:HasModifier("modifier_snapfire_mortimer_kisses")
     then
-        if botTarget ~= nil
+        if utility.IsValidTarget(botTarget)
         then
             --npcBot:ActionImmediate_Chat("Использую SpitOut во врага!", true);
             return BOT_MODE_DESIRE_ABSOLUTE, botTarget:GetLocation();
@@ -413,17 +383,10 @@ function ConsiderMortimerKisses()
     -- Attack use
     if utility.PvPMode(npcBot)
     then
-        if botTarget ~= nil and utility.IsHero(botTarget) and utility.CanCastOnMagicImmuneTarget(botTarget)
+        if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget)
             and (GetUnitToUnitDistance(npcBot, botTarget) >= minRangeAbility and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility)
         then
-            if utility.IsMoving(botTarget)
-            then
-                --npcBot:ActionImmediate_Chat("Использую MortimerKisses по бегущей цели на ЛАЙНЕ!",true);
-                return BOT_ACTION_DESIRE_HIGH, botTarget:GetExtrapolatedLocation(delayAbility);
-            else
-                --npcBot:ActionImmediate_Chat("Использую MortimerKisses по стоящей цели на ЛАЙНЕ!",true);
-                return BOT_ACTION_DESIRE_HIGH, botTarget:GetLocation();
-            end
+            return BOT_ACTION_DESIRE_HIGH, utility.GetTargetPosition(enemy, delayAbility);
         end
     end
 end

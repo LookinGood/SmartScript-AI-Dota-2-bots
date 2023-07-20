@@ -136,7 +136,7 @@ function Think()
 
 	-- Insert here hero hame and set "testmode = true" if you want the bot to choose a specific hero
 	testmode = false;
-	testHero = "npc_dota_hero_lina"
+	testHero = "npc_dota_hero_dawnbreaker"
 
 	if testmode
 	then

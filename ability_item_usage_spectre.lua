@@ -12,32 +12,8 @@ function BuybackUsageThink()
 end
 
 -- Ability learn
-local Talents = {}
-local Abilities = {}
-local npcBot = GetBot()
-
-for i = 0, 23, 1 do
-    local ability = npcBot:GetAbilityInSlot(i)
-    if (ability ~= nil)
-    then
-        if (ability:IsTalent() == true)
-        then
-            table.insert(Talents, ability:GetName())
-        else
-            table.insert(Abilities, ability:GetName())
-        end
-    end
-end
-
-local AbilitiesReal =
-{
-    npcBot:GetAbilityByName(Abilities[1]),
-    npcBot:GetAbilityByName(Abilities[2]),
-    npcBot:GetAbilityByName(Abilities[3]),
-    npcBot:GetAbilityByName(Abilities[4]),
-    npcBot:GetAbilityByName(Abilities[5]),
-    npcBot:GetAbilityByName(Abilities[6]),
-}
+local npcBot = GetBot();
+local Abilities, Talents, AbilitiesReal = ability_levelup_generic.GetHeroAbilities(npcBot)
 
 local AbilityToLevelUp =
 {
@@ -140,9 +116,9 @@ function ConsiderSpectralDagger()
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if utility.CanCastOnMagicImmuneTarget(enemy) and utility.SafeCast(enemy, true) and GetUnitToUnitDistance(npcBot, enemy) <= castRangeAbility
+            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType())
             then
-                if utility.CanAbilityKillTarget(enemy, damageAbility, DAMAGE_TYPE_MAGICAL)
+                if utility.CanCastSpellOnTarget(ability, enemy) and utility.SafeCast(enemy, true) and GetUnitToUnitDistance(npcBot, enemy) <= castRangeAbility
                 then
                     --npcBot:ActionImmediate_Chat("Использую SpectralDagger что бы убить цель!", true);
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy, "target";
@@ -152,42 +128,38 @@ function ConsiderSpectralDagger()
     end
 
     -- Attack use
-    if utility.PvPMode(npcBot)
+    if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
     then
-        if botTarget ~= nil and utility.IsHero(botTarget) and utility.CanCastOnMagicImmuneTarget(botTarget) and
-            GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility and utility.SafeCast(botTarget, true)
+        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
         then
-            --npcBot:ActionImmediate_Chat("Использую SpectralDagger по врагу в радиусе действия!",true);
-            return BOT_MODE_DESIRE_HIGH, botTarget, "target";
+            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+                and utility.SafeCast(botTarget, true)
+            then
+                --npcBot:ActionImmediate_Chat("Использую SpectralDagger по врагу в радиусе действия!",true);
+                return BOT_MODE_DESIRE_HIGH, botTarget, "target";
+            end
         end
         -- Retreat use
     elseif botMode == BOT_MODE_RETREAT
     then
-        if (HealthPercentage < 0.7) and npcBot:WasRecentlyDamagedByAnyHero(2.0) and npcBot:DistanceFromFountain() > castRangeAbility
+        if (HealthPercentage < 0.7) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
         then
             if (#enemyAbility > 0)
             then
                 for _, enemy in pairs(enemyAbility) do
-                    if utility.CanCastOnMagicImmuneTarget(enemy) and utility.SafeCast(enemy, true) and GetUnitToUnitDistance(npcBot, enemy) <= castRangeAbility
+                    if utility.CanCastSpellOnTarget(ability, enemy) and utility.SafeCast(enemy, true) and GetUnitToUnitDistance(npcBot, enemy) <= castRangeAbility
                     then
                         --npcBot:ActionImmediate_Chat("Использую SpectralDagger для отхода, по врагу!", true);
                         return BOT_ACTION_DESIRE_VERYHIGH, enemy, "target";
+                    else
+                        --npcBot:ActionImmediate_Chat("Использую SpectralDagger для отхода!", true);
+                        return BOT_ACTION_DESIRE_HIGH, utility.GetEscapeLocation(npcBot, castRangeAbility), "location";
                     end
                 end
-            else
+            elseif (#enemyAbility <= 0) and npcBot:DistanceFromFountain() > castRangeAbility
+            then
                 --npcBot:ActionImmediate_Chat("Использую SpectralDagger для отхода!", true);
                 return BOT_ACTION_DESIRE_HIGH, utility.GetEscapeLocation(npcBot, castRangeAbility), "location";
-            end
-        end
-        -- Roshan
-    elseif npcBot:GetActiveMode() == BOT_MODE_ROSHAN
-    then
-        if botTarget ~= nil and utility.IsRoshan(botTarget) and (ManaPercentage >= 0.5)
-        then
-            if GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
-            then
-                --npcBot:ActionImmediate_Chat("Использую SpectralDagger на Рошана!", true);
-                return BOT_MODE_DESIRE_MODERATE, botTarget, "target";
             end
         end
     end
@@ -199,7 +171,7 @@ function ConsiderDispersion()
         return;
     end
 
-    local radiusAbility = (ability:GetSpecialValueInt("max_radius"));
+    local radiusAbility = ability:GetSpecialValueInt("max_radius");
     local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
 
     -- General use
@@ -207,7 +179,7 @@ function ConsiderDispersion()
     then
         for _, enemy in pairs(enemyAbility)
         do
-            if (utility.CanCastOnInvulnerableTarget(enemy))
+            if utility.CanCastOnInvulnerableTarget(enemy)
             then
                 --npcBot:ActionImmediate_Chat("Использую Dispersion против врага в радиусе действия!",true);
                 return BOT_ACTION_DESIRE_HIGH;
@@ -223,12 +195,12 @@ function ConsiderReality()
     end
 
     local attackRange = npcBot:GetAttackRange();
-    local allyAbility = (GetUnitList(UNIT_LIST_ALLIED_HEROES));
+    local allyAbility = GetUnitList(UNIT_LIST_ALLIED_HEROES);
 
     -- Attack use
     if utility.PvPMode(npcBot)
     then
-        if botTarget ~= nil and utility.IsHero(botTarget) and utility.CanCastOnInvulnerableTarget(botTarget)
+        if utility.IsHero(botTarget) and utility.CanCastOnInvulnerableTarget(botTarget)
             and GetUnitToUnitDistance(npcBot, botTarget) > (attackRange * 2)
         then
             for i = 1, #allyAbility do
@@ -258,14 +230,14 @@ function ConsiderShadowStep()
         return;
     end
 
-    local damageAbility = (SpectralDagger:GetSpecialValueInt("damage"));
-    local enemyAbility = (GetUnitList(UNIT_LIST_ENEMY_HEROES));
+    local damageAbility = SpectralDagger:GetSpecialValueInt("damage");
+    local enemyAbility = GetUnitList(UNIT_LIST_ENEMY_HEROES);
     local closeEnemyAbility = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
 
     -- Cast if can kill somebody
     for i = 1, #enemyAbility do
-        if enemyAbility[i] ~= nil and utility.CanCastOnMagicImmuneTarget(enemyAbility[i]) and
-            utility.CanAbilityKillTarget(enemyAbility[i], damageAbility, DAMAGE_TYPE_MAGICAL)
+        if utility.CanAbilityKillTarget(enemyAbility[i], damageAbility, SpectralDagger:GetDamageType())
+            and utility.CanCastSpellOnTarget(SpectralDagger, enemyAbility[i])
         then
             --npcBot:ActionImmediate_Chat("Использую ShadowStep что бы добить врага!", true);
             return BOT_MODE_DESIRE_ABSOLUTE, enemyAbility[i];
@@ -275,7 +247,7 @@ function ConsiderShadowStep()
     -- Attack use
     if utility.PvPMode(npcBot)
     then
-        if botTarget ~= nil and utility.IsHero(botTarget) and utility.CanCastOnMagicImmuneTarget(botTarget) and utility.SafeCast(botTarget, true)
+        if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(SpectralDagger, botTarget) and utility.SafeCast(botTarget, true)
         then
             --npcBot:ActionImmediate_Chat("Использую ShadowStep по врагу в радиусе действия!",true);
             return BOT_MODE_DESIRE_HIGH, botTarget;
@@ -286,7 +258,7 @@ function ConsiderShadowStep()
         if (#closeEnemyAbility > 0)
         then
             for _, enemy in pairs(closeEnemyAbility) do
-                if utility.CanCastOnMagicImmuneTarget(enemy) and utility.SafeCast(enemy, true)
+                if utility.CanCastSpellOnTarget(SpectralDagger, enemy) and utility.SafeCast(enemy, true)
                 then
                     --npcBot:ActionImmediate_Chat("Использую ShadowStep что бы оторваться от врага",true);
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy;
@@ -308,8 +280,7 @@ function ConsiderHaunt()
     -- Attack use
     if utility.PvPMode(npcBot)
     then
-        if botTarget ~= nil and botTarget:CanBeSeen() and utility.IsHero(botTarget) and
-            GetUnitToUnitDistance(npcBot, botTarget) > (attackRange * 2)
+        if utility.IsHero(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) > (attackRange * 2)
         then
             --npcBot:ActionImmediate_Chat("Использую Haunt для нападения!", true);
             return BOT_ACTION_DESIRE_HIGH;

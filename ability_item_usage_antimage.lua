@@ -12,32 +12,8 @@ function BuybackUsageThink()
 end
 
 -- Ability learn
-local Talents = {}
-local Abilities = {}
-local npcBot = GetBot()
-
-for i = 0, 23, 1 do
-    local ability = npcBot:GetAbilityInSlot(i)
-    if (ability ~= nil)
-    then
-        if (ability:IsTalent() == true)
-        then
-            table.insert(Talents, ability:GetName())
-        else
-            table.insert(Abilities, ability:GetName())
-        end
-    end
-end
-
-local AbilitiesReal =
-{
-    npcBot:GetAbilityByName(Abilities[1]),
-    npcBot:GetAbilityByName(Abilities[2]),
-    npcBot:GetAbilityByName(Abilities[3]),
-    npcBot:GetAbilityByName(Abilities[4]),
-    npcBot:GetAbilityByName(Abilities[5]),
-    npcBot:GetAbilityByName(Abilities[6]),
-}
+local npcBot = GetBot();
+local Abilities, Talents, AbilitiesReal = ability_levelup_generic.GetHeroAbilities(npcBot)
 
 local AbilityToLevelUp =
 {
@@ -125,17 +101,10 @@ function ConsiderBlink()
     -- Cast if enemy hero too far away
     if utility.PvPMode(npcBot)
     then
-        if botTarget ~= nil and utility.IsHero(botTarget) and utility.CanCastOnInvulnerableTarget(botTarget) and
+        if utility.IsHero(botTarget) and utility.CanCastOnInvulnerableTarget(botTarget) and
             GetUnitToUnitDistance(npcBot, botTarget) > (attackRange * 2)
         then
-            if utility.IsMoving(botTarget)
-            then
-                --npcBot:ActionImmediate_Chat("Использую Blink по бегущей цели!", true);
-                return BOT_ACTION_DESIRE_VERYHIGH, botTarget:GetExtrapolatedLocation(delayAbility);
-            else
-                --npcBot:ActionImmediate_Chat("Использую Blink по стоящей цели!",true);
-                return BOT_ACTION_DESIRE_VERYHIGH, botTarget:GetLocation();
-            end
+            return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(botTarget, delayAbility);
         end
         -- Cast if need retreat
     elseif botMode == BOT_MODE_RETREAT and npcBot:DistanceFromFountain() >= castRangeAbility
@@ -159,7 +128,7 @@ function ConsiderBlink()
     end
 
     -- If going somewhere
-    if botTarget ~= nil and not utility.IsHero(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) > (attackRange * 2)
+    if not utility.IsHero(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) > (attackRange * 2)
     then
         return BOT_ACTION_DESIRE_VERYLOW, botTarget:GetLocation();
     end
@@ -201,7 +170,7 @@ function ConsiderBlinkFragment()
         if (#enemyAbility > 0)
         then
             for _, enemy in pairs(enemyAbility) do
-                if utility.CanCastOnInvulnerableTarget(enemy)
+                if utility.IsValidTarget(enemy)
                 then
                     return BOT_MODE_DESIRE_MODERATE, enemy:GetLocation();
                 end
@@ -224,10 +193,10 @@ function ConsiderManaVoid()
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if utility.CanCastOnMagicImmuneTarget(enemy) and utility.SafeCast(enemy, true)
+            if utility.CanCastSpellOnTarget(ability, enemy) and utility.SafeCast(enemy, true)
             then
                 local damageAbility = damagePercentMana * (enemy:GetMaxMana() - enemy:GetMana())
-                if utility.CanAbilityKillTarget(enemy, damageAbility, DAMAGE_TYPE_MAGICAL) or enemy:GetMana() / enemy:GetMaxMana() <= 0.2 or enemy:IsChanneling()
+                if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) or enemy:GetMana() / enemy:GetMaxMana() <= 0.2 or enemy:IsChanneling()
                 then
                     return BOT_MODE_DESIRE_VERYHIGH, enemy;
                 end

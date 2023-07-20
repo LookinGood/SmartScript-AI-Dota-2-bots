@@ -12,32 +12,8 @@ function BuybackUsageThink()
 end
 
 -- Ability learn
-local Talents = {}
-local Abilities = {}
-local npcBot = GetBot()
-
-for i = 0, 23, 1 do
-    local ability = npcBot:GetAbilityInSlot(i)
-    if (ability ~= nil)
-    then
-        if (ability:IsTalent() == true)
-        then
-            table.insert(Talents, ability:GetName())
-        else
-            table.insert(Abilities, ability:GetName())
-        end
-    end
-end
-
-local AbilitiesReal =
-{
-    npcBot:GetAbilityByName(Abilities[1]),
-    npcBot:GetAbilityByName(Abilities[2]),
-    npcBot:GetAbilityByName(Abilities[3]),
-    npcBot:GetAbilityByName(Abilities[4]),
-    npcBot:GetAbilityByName(Abilities[5]),
-    npcBot:GetAbilityByName(Abilities[6]),
-}
+local npcBot = GetBot();
+local Abilities, Talents, AbilitiesReal = ability_levelup_generic.GetHeroAbilities(npcBot)
 
 local AbilityToLevelUp =
 {
@@ -125,8 +101,8 @@ function ConsiderEarthSpike()
     end
 
     local castRangeAbility = ability:GetCastRange();
-    local damageAbility = ability:GetSpecialValueInt("damage");
     local radiusAbility = ability:GetSpecialValueInt("width");
+    local damageAbility = ability:GetSpecialValueInt("damage");
     local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
     local enemyAbility = npcBot:GetNearbyHeroes((castRangeAbility + 200), true, BOT_MODE_NONE);
 
@@ -134,9 +110,9 @@ function ConsiderEarthSpike()
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if utility.CanCastOnMagicImmuneTarget(enemy)
+            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) or enemy:IsChanneling()
             then
-                if utility.CanAbilityKillTarget(enemy, damageAbility, DAMAGE_TYPE_MAGICAL) or enemy:IsChanneling()
+                if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     if utility.SafeCast(enemy, true)
                     then
@@ -144,7 +120,7 @@ function ConsiderEarthSpike()
                         return BOT_MODE_DESIRE_HIGH, enemy, "target";
                     else
                         --npcBot:ActionImmediate_Chat("Использую EarthSpike что бы сбить заклинание по области!",true);
-                        return BOT_MODE_DESIRE_HIGH, enemy:GetExtrapolatedLocation(delayAbility), "location";
+                        return BOT_MODE_DESIRE_HIGH, utility.GetTargetPosition(enemy, delayAbility), "location";
                     end
                 end
             end
@@ -154,9 +130,9 @@ function ConsiderEarthSpike()
     -- Attack use
     if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
     then
-        if botTarget ~= nil and (utility.IsHero(botTarget) or utility.IsRoshan(botTarget))
+        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
         then
-            if utility.CanCastOnMagicImmuneTarget(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility + 200
+            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility + 200
             then
                 if not utility.IsDisabled(botTarget)
                 then
@@ -166,13 +142,13 @@ function ConsiderEarthSpike()
                         return BOT_MODE_DESIRE_HIGH, botTarget, "target";
                     else
                         --npcBot:ActionImmediate_Chat("Использую EarthSpike по основной цели по земле!",true);
-                        return BOT_MODE_DESIRE_HIGH, botTarget:GetExtrapolatedLocation(delayAbility), "location";
+                        return BOT_MODE_DESIRE_HIGH, utility.GetTargetPosition(botTarget, delayAbility), "location";
                     end
                 else
                     if (#enemyAbility > 1)
                     then
                         for _, enemy in pairs(enemyAbility) do
-                            if utility.CanCastOnMagicImmuneTarget(enemy) and not utility.IsDisabled(botTarget)
+                            if utility.CanCastSpellOnTarget(ability, enemy) and not utility.IsDisabled(enemy)
                             then
                                 if utility.SafeCast(enemy, true)
                                 then
@@ -180,7 +156,8 @@ function ConsiderEarthSpike()
                                     return BOT_MODE_DESIRE_HIGH, enemy, "target";
                                 else
                                     --npcBot:ActionImmediate_Chat("Использую EarthSpike по второй цели по земле!",true);
-                                    return BOT_MODE_DESIRE_HIGH, enemy:GetExtrapolatedLocation(delayAbility), "location";
+                                    return BOT_MODE_DESIRE_HIGH, utility.GetTargetPosition(enemy, delayAbility),
+                                        "location";
                                 end
                             end
                         end
@@ -194,7 +171,7 @@ function ConsiderEarthSpike()
         if (#enemyAbility > 0)
         then
             for _, enemy in pairs(enemyAbility) do
-                if utility.CanCastOnMagicImmuneTarget(enemy) and not utility.IsDisabled(enemy)
+                if utility.CanCastSpellOnTarget(ability, enemy) and not utility.IsDisabled(enemy)
                 then
                     if utility.SafeCast(enemy, true)
                     then
@@ -203,7 +180,7 @@ function ConsiderEarthSpike()
                     else
                         npcBot:ActionImmediate_Chat("Использую EarthSpike что бы оторваться по области",
                             true);
-                        return BOT_MODE_DESIRE_HIGH, enemy:GetExtrapolatedLocation(delayAbility), "location";
+                        return BOT_MODE_DESIRE_HIGH, utility.GetTargetPosition(botTarget, delayAbility), "location";
                     end
                 end
             end
@@ -221,20 +198,16 @@ function ConsiderEarthSpike()
         -- Cast when laning
     elseif botMode == BOT_MODE_LANING
     then
-        if (#enemyAbility > 0) and (ManaPercentage >= 0.5)
+        local enemy = utility.GetWeakest(enemyAbility);
+        if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)
         then
-            for _, enemy in pairs(enemyAbility) do
-                if utility.CanCastOnMagicImmuneTarget(enemy) and not utility.IsDisabled(enemy)
-                then
-                    if utility.SafeCast(enemy, true)
-                    then
-                        --npcBot:ActionImmediate_Chat("Использую EarthSpike на лайне по цели!", true);
-                        return BOT_MODE_DESIRE_HIGH, enemy, "target";
-                    else
-                       --npcBot:ActionImmediate_Chat("Использую EarthSpike на лайне по области!", true);
-                        return BOT_MODE_DESIRE_HIGH, enemy:GetExtrapolatedLocation(delayAbility), "location";
-                    end
-                end
+            if utility.SafeCast(enemy, true)
+            then
+                --npcBot:ActionImmediate_Chat("Использую EarthSpike на лайне по цели!", true);
+                return BOT_MODE_DESIRE_HIGH, enemy, "target";
+            else
+                --npcBot:ActionImmediate_Chat("Использую EarthSpike на лайне по области!", true);
+                return BOT_MODE_DESIRE_HIGH, utility.GetTargetPosition(enemy, delayAbility), "location";
             end
         end
     end
@@ -264,7 +237,7 @@ function ConsiderHex()
     -- Attack use
     if utility.PvPMode(npcBot)
     then
-        if botTarget ~= nil and utility.IsHero(botTarget) and utility.CanCastOnMagicImmuneTarget(botTarget) and utility.SafeCast(botTarget, false)
+        if utility.IsHero(botTarget) and utility.CanCastOnMagicImmuneTarget(botTarget) and utility.SafeCast(botTarget, false)
             and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility + 200
         then
             if not utility.IsDisabled(botTarget)
@@ -275,7 +248,7 @@ function ConsiderHex()
                 if (#enemyAbility > 1)
                 then
                     for _, enemy in pairs(enemyAbility) do
-                        if utility.CanCastOnMagicImmuneTarget(enemy) and not utility.IsDisabled(botTarget)
+                        if utility.CanCastOnMagicImmuneTarget(enemy) and not utility.IsDisabled(enemy)
                         then
                             npcBot:ActionImmediate_Chat("Использую Hex по второй цели!", true);
                             return BOT_MODE_DESIRE_HIGH, enemy;
@@ -349,7 +322,7 @@ function ConsiderManaDrain()
         if (ManaPercentage <= 0.7) or npcBot:GetMana() < EarthSpike:GetManaCost()
             or npcBot:GetMana() < Hex:GetManaCost() or npcBot:GetMana() < FingerOfDeath:GetManaCost()
         then
-            if botTarget ~= nil and utility.IsHero(botTarget) and utility.CanCastOnMagicImmuneTarget(botTarget)
+            if utility.IsHero(botTarget) and utility.CanCastOnMagicImmuneTarget(botTarget)
                 and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
             then
                 --npcBot:ActionImmediate_Chat("Использую ManaDrain для нападения!", true);
@@ -373,11 +346,11 @@ function ConsiderFingerOfDeath()
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if utility.CanCastOnMagicImmuneTarget(enemy) and utility.SafeCast(enemy, true)
+            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and not utility.TargetCantDie(enemy)
             then
-                if utility.CanAbilityKillTarget(enemy, damageAbility, DAMAGE_TYPE_MAGICAL)
+                if utility.CanCastSpellOnTarget(ability, enemy) and utility.SafeCast(enemy, true)
                 then
-                    --npcBot:ActionImmediate_Chat("Использую FingerOfDeath что бы убить цель!", true);
+                    --npcBot:ActionImmediate_Chat("Использую LagunaBlade что бы убить цель!", true);
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy;
                 end
             end
@@ -387,11 +360,14 @@ function ConsiderFingerOfDeath()
     -- Attack use
     if utility.PvPMode(npcBot)
     then
-        if botTarget ~= nil and utility.IsHero(botTarget) and utility.CanCastOnMagicImmuneTarget(botTarget)
-            and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility and utility.SafeCast(botTarget, true)
-            and botTarget:GetHealth() / botTarget:GetMaxHealth() <= 0.5
+        if utility.IsHero(botTarget)
         then
-            return BOT_MODE_DESIRE_HIGH, botTarget;
+            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+                and utility.SafeCast(botTarget, true) and botTarget:GetHealth() / botTarget:GetMaxHealth() <= 0.5
+            then
+                --npcBot:ActionImmediate_Chat("Использую LagunaBlade для атаки!", true);
+                return BOT_ACTION_DESIRE_HIGH, botTarget;
+            end
         end
     end
 end

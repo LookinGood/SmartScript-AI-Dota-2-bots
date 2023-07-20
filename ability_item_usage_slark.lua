@@ -12,32 +12,8 @@ function BuybackUsageThink()
 end
 
 -- Ability learn
-local Talents = {}
-local Abilities = {}
-local npcBot = GetBot()
-
-for i = 0, 23, 1 do
-    local ability = npcBot:GetAbilityInSlot(i)
-    if (ability ~= nil)
-    then
-        if (ability:IsTalent() == true)
-        then
-            table.insert(Talents, ability:GetName())
-        else
-            table.insert(Abilities, ability:GetName())
-        end
-    end
-end
-
-local AbilitiesReal =
-{
-    npcBot:GetAbilityByName(Abilities[1]),
-    npcBot:GetAbilityByName(Abilities[2]),
-    npcBot:GetAbilityByName(Abilities[3]),
-    npcBot:GetAbilityByName(Abilities[4]),
-    npcBot:GetAbilityByName(Abilities[5]),
-    npcBot:GetAbilityByName(Abilities[6]),
-}
+local npcBot = GetBot();
+local Abilities, Talents, AbilitiesReal = ability_levelup_generic.GetHeroAbilities(npcBot)
 
 local AbilityToLevelUp =
 {
@@ -117,16 +93,15 @@ function ConsiderDarkPact()
         return;
     end
 
-    local radiusAbility = (ability:GetSpecialValueInt("radius"));
-    local selfDamageAbility = (ability:GetSpecialValueInt("total_damage") * ability:GetSpecialValueInt("self_damage_pct") / 100);
+    local radiusAbility = ability:GetSpecialValueInt("radius");
+    local selfDamageAbility = ability:GetSpecialValueInt("total_damage") * ability:GetSpecialValueInt("self_damage_pct") / 100;
 
     -- Attack use
-    if not utility.CanAbilityKillTarget(npcBot, selfDamageAbility, DAMAGE_TYPE_MAGICAL)
+    if not utility.CanAbilityKillTarget(npcBot, selfDamageAbility, ability:GetDamageType())
     then
         if utility.PvPMode(npcBot)
         then
-            if botTarget ~= nil and (utility.CanCastOnMagicImmuneTarget(botTarget)) and GetUnitToUnitDistance(npcBot, botTarget) <= radiusAbility
-                and utility.IsHero(botTarget)
+            if utility.CanCastSpellOnTarget(ability, botTarget) and utility.IsHero(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= radiusAbility
             then
                 --npcBot:ActionImmediate_Chat("Использую DarkPact для атаки!", true);
                 return BOT_ACTION_DESIRE_HIGH;
@@ -145,7 +120,7 @@ function ConsiderDarkPact()
             if (#enemyCreeps > 2)
             then
                 for _, enemy in pairs(enemyCreeps) do
-                    if utility.CanCastOnMagicImmuneTarget(enemy) and npcBot:GetAttackTarget() == enemy
+                    if utility.CanCastSpellOnTarget(ability, enemy) and npcBot:GetAttackTarget() == enemy
                     then
                         --npcBot:ActionImmediate_Chat("Использую DarkPact против крипов", true);
                         return BOT_ACTION_DESIRE_HIGH;
@@ -162,13 +137,13 @@ function ConsiderPounce()
         return;
     end
 
-    local castRangeAbility = (ability:GetSpecialValueInt("pounce_distance"));
+    local castRangeAbility = ability:GetSpecialValueInt("pounce_distance");
     local attackRange = npcBot:GetAttackRange();
 
     -- Attack use
     if utility.PvPMode(npcBot)
     then
-        if botTarget ~= nil and (utility.CanCastOnMagicImmuneTarget(botTarget)) and utility.IsHero(botTarget) and not utility.IsDisabled(botTarget)
+        if utility.CanCastSpellOnTarget(ability, botTarget) and utility.IsHero(botTarget) and not utility.IsDisabled(botTarget)
             and (GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility and GetUnitToUnitDistance(npcBot, botTarget) > attackRange)
             and npcBot:IsFacingLocation(botTarget:GetLocation(), 10)
         then
@@ -225,7 +200,7 @@ function ConsiderShadowDance()
         -- Attack use
         if utility.PvPMode(npcBot)
         then
-            if botTarget ~= nil and botTarget:CanBeSeen() and utility.IsHero(botTarget) and
+            if utility.IsValidTarget(botTarget) and utility.IsHero(botTarget) and
                 GetUnitToUnitDistance(npcBot, botTarget) <= (attackRange * 2)
             then
                 --npcBot:ActionImmediate_Chat("Использую ShadowDance для нападения!", true);

@@ -239,6 +239,15 @@ function IsMoving(npcTarget)
 		and npcTarget:GetBaseMovementSpeed() > 0
 end
 
+function GetTargetPosition(npcTarget, fdelay)
+	if IsMoving(npcTarget)
+	then
+		return npcTarget:GetExtrapolatedLocation(fdelay);
+	else
+		return npcTarget:GetLocation();
+	end
+end
+
 function IsHaveMaxSpeed(npcTarget)
 	return IsValidTarget(npcTarget) and
 		(npcTarget:HasModifier("modifier_rune_haste") or
@@ -375,11 +384,12 @@ function CanAbilityKillTarget(npcTarget, damage, damagetype)
 end
 
 function TargetCantDie(npcTarget)
-	return IsValidTarget(npcTarget) and npcTarget:GetHealth() / npcTarget:GetMaxHealth() <= 0.2 and
+	return IsValidTarget(npcTarget) and npcTarget:GetHealth() / npcTarget:GetMaxHealth() <= 0.3 and
 		(npcTarget:HasModifier("modifier_dazzle_shallow_grave") or
 			npcTarget:HasModifier("modifier_oracle_false_promise_timer") or
 			npcTarget:HasModifier("modifier_item_aeon_disk_buff") or
-			npcTarget:HasModifier("modifier_templar_assassin_refraction_absorb"));
+			npcTarget:HasModifier("modifier_templar_assassin_refraction_absorb") or
+			npcTarget:HasModifier("modifier_abaddon_aphotic_shield"));
 end
 
 function CanBeHeal(npcTarget)
@@ -414,6 +424,39 @@ end
 function CanCastOnMagicImmuneAndInvulnerableTarget(npcTarget)
 	return CanCastOnMagicImmuneTarget(npcTarget) and CanCastOnInvulnerableTarget(npcTarget);
 end
+
+--[[ function CanCastSpellOnTarget(npcTarget, damageType)
+	if damageType == DAMAGE_TYPE_MAGICAL
+	then
+		return CanCastOnMagicImmuneTarget(npcTarget);
+	elseif damageType == DAMAGE_TYPE_PHYSICAL
+	then
+		return CanCastOnInvulnerableTarget(npcTarget);
+	elseif damageType == DAMAGE_TYPE_PURE
+	then
+		return IsValidTarget(npcTarget) and not npcTarget:HasModifier("modifier_black_king_bar_immune");
+	else
+		return IsValidTarget(npcTarget);
+	end
+end ]]
+
+function CanCastSpellOnTarget(spell, npcTarget)
+	local damageType = spell:GetDamageType();
+
+	if damageType == DAMAGE_TYPE_MAGICAL
+	then
+		return CanCastOnMagicImmuneTarget(npcTarget);
+	elseif damageType == DAMAGE_TYPE_PHYSICAL
+	then
+		return CanCastOnInvulnerableTarget(npcTarget);
+	elseif damageType == DAMAGE_TYPE_PURE
+	then
+		return IsValidTarget(npcTarget) and not npcTarget:HasModifier("modifier_black_king_bar_immune");
+	else
+		return IsValidTarget(npcTarget);
+	end
+end
+
 
 function SafeCast(npcTarget, bfullSafe)
 	if IsValidTarget(npcTarget) and

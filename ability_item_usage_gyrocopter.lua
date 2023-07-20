@@ -12,33 +12,8 @@ function BuybackUsageThink()
 end
 
 -- Ability learn
-local Talents = {}
-local Abilities = {}
-local npcBot = GetBot()
-
-for i = 0, 23, 1 do
-    local ability = npcBot:GetAbilityInSlot(i)
-    if (ability ~= nil)
-    then
-        if (ability:IsTalent() == true)
-        then
-            table.insert(Talents, ability:GetName())
-        else
-            table.insert(Abilities, ability:GetName())
-        end
-    end
-end
-
-local AbilitiesReal =
-{
-    npcBot:GetAbilityByName(Abilities[1]),
-    npcBot:GetAbilityByName(Abilities[2]),
-    npcBot:GetAbilityByName(Abilities[3]),
-    npcBot:GetAbilityByName(Abilities[4]),
-    npcBot:GetAbilityByName(Abilities[5]),
-    npcBot:GetAbilityByName(Abilities[6]),
-}
-
+local npcBot = GetBot();
+local Abilities, Talents, AbilitiesReal = ability_levelup_generic.GetHeroAbilities(npcBot)
 
 local AbilityToLevelUp =
 {
@@ -119,7 +94,7 @@ function ConsiderRocketBarrage()
         return;
     end
 
-    local castRadiusAbility = (ability:GetSpecialValueInt("radius"));
+    local castRadiusAbility = ability:GetSpecialValueInt("radius");
     local enemyAbility = npcBot:GetNearbyHeroes(castRadiusAbility, true, BOT_MODE_NONE);
 
     -- General use
@@ -128,7 +103,7 @@ function ConsiderRocketBarrage()
         if (#enemyAbility > 0)
         then
             for _, enemy in pairs(enemyAbility) do
-                if (utility.CanCastOnMagicImmuneAndInvulnerableTarget(enemy))
+                if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую Rocket Barrage против врага в радиусе действия!",true);
                     return BOT_ACTION_DESIRE_HIGH;
@@ -152,37 +127,37 @@ function ConsiderHomingMissile()
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if utility.CanCastOnMagicImmuneTarget(enemy) and utility.SafeCast(enemy, true)
+            if (utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and not utility.TargetCantDie(enemy)) or enemy:IsChanneling()
             then
-                if utility.CanAbilityKillTarget(enemy, damageAbility, DAMAGE_TYPE_MAGICAL) or enemy:IsChanneling()
+                if utility.CanCastSpellOnTarget(ability, enemy) and utility.SafeCast(enemy, true)
                 then
-                    --npcBot:ActionImmediate_Chat("Использую HomingMissile что бы сбить заклинание или убить цель!",true);
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy;
                 end
             end
         end
     end
 
-    -- General use
-    if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
+    -- Attack use
+    if utility.PvPMode(npcBot) or npcBot:GetActiveMode() == BOT_MODE_ROSHAN
     then
-        if botTarget ~= nil and (utility.IsHero(botTarget) or utility.IsRoshan(botTarget))
+        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
         then
-            if (utility.CanCastOnMagicImmuneTarget(botTarget)) and not utility.IsDisabled(botTarget) and
-                GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility and utility.SafeCast(botTarget, true)
+            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+                and utility.SafeCast(botTarget, true)
             then
-                --npcBot:ActionImmediate_Chat("Использую Homing Missile по врагу в радиусе действия!",true);
+                --npcBot:ActionImmediate_Chat("Использую ColdFeet по врагу в радиусе действия!",true);
                 return BOT_MODE_DESIRE_HIGH, botTarget;
             end
         end
+        -- Retreat or help ally use
     elseif botMode == BOT_MODE_RETREAT or botMode == BOT_MODE_DEFEND_ALLY
     then
         if (#enemyAbility > 0)
         then
             for _, enemy in pairs(enemyAbility) do
-                if (utility.CanCastOnMagicImmuneTarget(enemy)) and utility.SafeCast(enemy, false)
+                if utility.CanCastSpellOnTarget(ability, enemy) and utility.SafeCast(enemy, true)
                 then
-                    --npcBot:ActionImmediate_Chat("Использую Homing Missile что бы оторваться от врага", true);
+                    --npcBot:ActionImmediate_Chat("Использую ColdFeet что бы оторваться от врага", true);
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy;
                 end
             end
@@ -197,15 +172,15 @@ function ConsiderFlakCannon()
     end
 
     local attackTarget = npcBot:GetAttackTarget();
-    local castRadiusAbility = (ability:GetSpecialValueInt("radius"));
+    local castRadiusAbility = ability:GetSpecialValueInt("radius");
     local enemyAbility = attackTarget:GetNearbyHeroes(castRadiusAbility, false, BOT_MODE_NONE);
 
     -- Cast if enemy hero at the range of attack
     if utility.PvPMode(npcBot)
     then
-        if (attackTarget ~= nil and (#enemyAbility > 1))
+        if (#enemyAbility > 1)
         then
-            if utility.IsHero(attackTarget) and (utility.CanCastOnInvulnerableTarget(attackTarget))
+            if utility.IsHero(attackTarget) and utility.CanCastSpellOnTarget(ability, attackTarget)
             then
                 --npcBot:ActionImmediate_Chat("Использую Flak Cannon против нескольких врагов на дистанции атаки!",true);
                 return BOT_ACTION_DESIRE_HIGH;
@@ -222,13 +197,13 @@ function ConsiderCallDown()
 
     local castRangeAbility = ability:GetCastRange();
     local radiusAbility = ability:GetSpecialValueInt("radius");
-    local enemyAbility = npcBot:GetNearbyHeroes((castRangeAbility + 200), true, BOT_MODE_NONE);
+    local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility + 200, true, BOT_MODE_NONE);
 
     -- Cast if enemy hero immobilized
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if (utility.CanCastOnMagicImmuneAndInvulnerableTarget(enemy)) and utility.IsHero(enemy) and (enemy:GetHealth() / enemy:GetMaxHealth() > 0.3) and
+            if utility.CanCastSpellOnTarget(ability, enemy) and utility.IsHero(enemy) and (enemy:GetHealth() / enemy:GetMaxHealth() > 0.3) and
                 utility.IsDisabled(enemy)
             then
                 --npcBot:ActionImmediate_Chat("Использую Call Down против обездвиженного врага!",true);

@@ -12,32 +12,8 @@ function BuybackUsageThink()
 end
 
 -- Ability learn
-local Talents = {}
-local Abilities = {}
 local npcBot = GetBot();
-
-for i = 0, 23, 1 do
-    local ability = npcBot:GetAbilityInSlot(i)
-    if (ability ~= nil)
-    then
-        if (ability:IsTalent() == true)
-        then
-            table.insert(Talents, ability:GetName())
-        else
-            table.insert(Abilities, ability:GetName())
-        end
-    end
-end
-
-local AbilitiesReal =
-{
-    npcBot:GetAbilityByName(Abilities[1]),
-    npcBot:GetAbilityByName(Abilities[2]),
-    npcBot:GetAbilityByName(Abilities[3]),
-    npcBot:GetAbilityByName(Abilities[4]),
-    npcBot:GetAbilityByName(Abilities[5]),
-    npcBot:GetAbilityByName(Abilities[6]),
-}
+local Abilities, Talents, AbilitiesReal = ability_levelup_generic.GetHeroAbilities(npcBot)
 
 local AbilityToLevelUp =
 {
@@ -94,8 +70,11 @@ function AbilityUsageThink()
 
     if (castMultishotDesire ~= nil)
     then
-        npcBot:Action_UseAbilityOnLocation(Multishot, castMultishotLocation);
-        --return;
+        npcBot:Action_ClearActions(false);
+        npcBot:ActionQueue_Delay(0.5);
+        npcBot:ActionQueue_UseAbilityOnLocation(Multishot, castMultishotLocation);
+        --npcBot:Action_UseAbilityOnLocation(Multishot, castMultishotLocation);
+        return;
     end
 
     if (castGlacierDesire ~= nil)
@@ -113,17 +92,14 @@ function ConsiderFrostArrows()
 
     local attackTarget = npcBot:GetAttackTarget();
 
-    if attackTarget ~= nil and utility.CanCastOnInvulnerableTarget(attackTarget)
+    if (utility.IsHero(attackTarget) or utility.IsRoshan(attackTarget)) and utility.CanCastSpellOnTarget(ability, attackTarget)
     then
-        if utility.IsHero(attackTarget) or utility.IsRoshan(attackTarget)
-        then
-            if not ability:GetAutoCastState() then
-                ability:ToggleAutoCast()
-            end
-        else
-            if ability:GetAutoCastState() then
-                ability:ToggleAutoCast()
-            end
+        if not ability:GetAutoCastState() then
+            ability:ToggleAutoCast()
+        end
+    else
+        if ability:GetAutoCastState() then
+            ability:ToggleAutoCast()
         end
     end
 end
@@ -135,6 +111,7 @@ function ConsiderGust()
     end
 
     local castRangeAbility = ability:GetCastRange();
+    local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
     local enemyAbility = npcBot:GetNearbyHeroes((castRangeAbility + 200), true, BOT_MODE_NONE);
 
     -- Interrupt cast/Detect invisible
@@ -146,7 +123,7 @@ function ConsiderGust()
                 if enemy:IsChanneling() or enemy:IsInvisible()
                 then
                     --npcBot:ActionImmediate_Chat("Использую Gust что бы сбить заклинание цели/Или по невидимому врагу!", true);
-                    return BOT_ACTION_DESIRE_VERYHIGH, enemy:GetLocation();
+                    return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(enemy, delayAbility);
                 end
             end
         end
@@ -155,11 +132,11 @@ function ConsiderGust()
     -- Attack use
     if utility.PvPMode(npcBot)
     then
-        if botTarget ~= nil and utility.IsHero(botTarget) and utility.CanCastOnMagicImmuneTarget(botTarget) and not utility.IsDisabled(botTarget)
-            and not botTarget:IsSilenced() and GetUnitToUnitDistance(npcBot, botTarget) <= (castRangeAbility + 200)
+        if utility.IsHero(botTarget) and utility.CanCastOnMagicImmuneTarget(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= (castRangeAbility + 200)
+            and not botTarget:IsSilenced() and not utility.IsDisabled(botTarget)
         then
             --npcBot:ActionImmediate_Chat("Использую Gust для нападения!", true);
-            return BOT_ACTION_DESIRE_HIGH, botTarget:GetLocation();
+            return BOT_ACTION_DESIRE_HIGH, utility.GetTargetPosition(botTarget, delayAbility);
         end
         -- Retreat or help ally use
     elseif botMode == BOT_MODE_RETREAT or botMode == BOT_MODE_DEFEND_ALLY
@@ -170,7 +147,7 @@ function ConsiderGust()
                 if utility.CanCastOnMagicImmuneTarget(enemy) and not utility.IsDisabled(enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую Gust для отступления!", true);
-                    return BOT_ACTION_DESIRE_HIGH, enemy:GetLocation();
+                    return BOT_ACTION_DESIRE_HIGH, utility.GetTargetPosition(enemy, delayAbility);
                 end
             end
         end
@@ -183,12 +160,12 @@ function ConsiderMultishot()
         return;
     end
 
-    local castRangeAbility = (npcBot:GetAttackRange() * 1.75);
+    local castRangeAbility = npcBot:GetAttackRange() * ability:GetSpecialValueInt("arrow_range_multiplier");
 
     -- Attack use
     if utility.PvPMode(npcBot)
     then
-        if botTarget ~= nil and utility.IsHero(botTarget) and utility.CanCastOnInvulnerableTarget(botTarget)
+        if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget)
             and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
         then
             --npcBot:ActionImmediate_Chat("Использую Multishot для нападения!", true);
@@ -201,7 +178,7 @@ function ConsiderMultishot()
         if (#enemyAbility > 0) and (ManaPercentage >= 0.7)
         then
             for _, enemy in pairs(enemyAbility) do
-                if utility.CanCastOnInvulnerableTarget(enemy)
+                if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую Multishot для лайнинга!", true);
                     return BOT_ACTION_DESIRE_HIGH, enemy:GetLocation();
@@ -222,7 +199,7 @@ function ConsiderGlacier()
     -- Attack use
     if utility.PvPMode(npcBot)
     then
-        if attackTarget ~= nil and utility.IsHero(attackTarget) and utility.CanCastOnInvulnerableTarget(attackTarget)
+        if utility.IsHero(attackTarget) and utility.CanCastOnInvulnerableTarget(attackTarget)
         then
             --npcBot:ActionImmediate_Chat("Использую Glacier для атаки!", true);
             return BOT_ACTION_DESIRE_HIGH;

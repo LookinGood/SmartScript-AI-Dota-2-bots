@@ -12,32 +12,8 @@ function BuybackUsageThink()
 end
 
 -- Ability learn
-local Talents = {}
-local Abilities = {}
 local npcBot = GetBot();
-
-for i = 0, 23, 1 do
-    local ability = npcBot:GetAbilityInSlot(i)
-    if (ability ~= nil)
-    then
-        if (ability:IsTalent() == true)
-        then
-            table.insert(Talents, ability:GetName())
-        else
-            table.insert(Abilities, ability:GetName())
-        end
-    end
-end
-
-local AbilitiesReal =
-{
-    npcBot:GetAbilityByName(Abilities[1]),
-    npcBot:GetAbilityByName(Abilities[2]),
-    npcBot:GetAbilityByName(Abilities[3]),
-    npcBot:GetAbilityByName(Abilities[4]),
-    npcBot:GetAbilityByName(Abilities[5]),
-    npcBot:GetAbilityByName(Abilities[6]),
-}
+local Abilities, Talents, AbilitiesReal = ability_levelup_generic.GetHeroAbilities(npcBot)
 
 local AbilityToLevelUp =
 {
@@ -121,18 +97,18 @@ function ConsiderColdFeet()
     end
 
     local castRangeAbility = ability:GetCastRange();
-    local damageAbility = (ability:GetSpecialValueInt("damage") * ability:GetDuration());
+    local damageAbility = ability:GetSpecialValueInt("damage") * ability:GetDuration();
     local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility + 200, true, BOT_MODE_NONE);
 
     -- Cast if can kill somebody/interrupt cast
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if utility.CanCastOnMagicImmuneTarget(enemy) and utility.SafeCast(enemy, true)
+            if (utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and not utility.TargetCantDie(enemy)) or enemy:IsChanneling() or utility.IsDisabled(enemy)
             then
-                if utility.CanAbilityKillTarget(enemy, damageAbility, DAMAGE_TYPE_MAGICAL) or enemy:IsChanneling() or utility.IsDisabled(enemy)
+                if utility.CanCastSpellOnTarget(ability, enemy) and utility.SafeCast(enemy, true)
                 then
-                    --npcBot:ActionImmediate_Chat("Использую ColdFeet что бы сбить заклинание или убить цель!",true);
+                    --npcBot:ActionImmediate_Chat("Использую ColdFeet что бы убить цель!", true);
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy;
                 end
             end
@@ -140,13 +116,16 @@ function ConsiderColdFeet()
     end
 
     -- Attack use
-    if utility.PvPMode(npcBot)
+    if utility.PvPMode(npcBot) or npcBot:GetActiveMode() == BOT_MODE_ROSHAN
     then
-        if botTarget ~= nil and utility.IsHero(botTarget) and utility.CanCastOnMagicImmuneTarget(botTarget) and
-            GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility and utility.SafeCast(botTarget, true)
+        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
         then
-            --npcBot:ActionImmediate_Chat("Использую ColdFeet по врагу в радиусе действия!",true);
-            return BOT_MODE_DESIRE_HIGH, botTarget;
+            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+                and utility.SafeCast(botTarget, true)
+            then
+                --npcBot:ActionImmediate_Chat("Использую ColdFeet по врагу в радиусе действия!",true);
+                return BOT_MODE_DESIRE_HIGH, botTarget;
+            end
         end
         -- Retreat or help ally use
     elseif botMode == BOT_MODE_RETREAT or botMode == BOT_MODE_DEFEND_ALLY
@@ -154,22 +133,11 @@ function ConsiderColdFeet()
         if (#enemyAbility > 0)
         then
             for _, enemy in pairs(enemyAbility) do
-                if utility.CanCastOnMagicImmuneTarget(enemy) and utility.SafeCast(enemy, true)
+                if utility.CanCastSpellOnTarget(ability, enemy) and utility.SafeCast(enemy, true)
                 then
                     --npcBot:ActionImmediate_Chat("Использую ColdFeet что бы оторваться от врага", true);
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy;
                 end
-            end
-        end
-        -- Roshan
-    elseif npcBot:GetActiveMode() == BOT_MODE_ROSHAN
-    then
-        if botTarget ~= nil and utility.IsRoshan(botTarget)
-        then
-            if GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
-            then
-                --npcBot:ActionImmediate_Chat("Использую ColdFeet на Рошана!", true);
-                return BOT_MODE_DESIRE_MODERATE, botTarget;
             end
         end
     end
@@ -182,28 +150,31 @@ function ConsiderIceVortex()
     end
 
     local castRangeAbility = ability:GetCastRange();
-    local radiusAbility = (ability:GetSpecialValueInt("radius"));
+    local radiusAbility = ability:GetSpecialValueInt("radius");
+    local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
+    local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
 
     -- Attack use
-    if utility.PvPMode(npcBot)
+    if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
     then
-        if botTarget ~= nil and utility.IsHero(botTarget) and botTarget:CanBeSeen() and GetUnitToUnitDistance(npcBot, botTarget) <= (castRangeAbility + 200)
-            and not botTarget:HasModifier("modifier_ice_vortex")
+        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
         then
-            --npcBot:ActionImmediate_Chat("Использую IceVortex для нападения!", true);
-            return BOT_ACTION_DESIRE_HIGH, botTarget:GetLocation();
+            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+                and not botTarget:HasModifier("modifier_ice_vortex")
+            then
+                return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(botTarget, delayAbility);
+            end
         end
         -- Retreat or help ally use
     elseif botMode == BOT_MODE_RETREAT or botMode == BOT_MODE_DEFEND_ALLY
     then
-        local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility + 200, true, BOT_MODE_NONE);
         if (#enemyAbility > 0)
         then
             for _, enemy in pairs(enemyAbility) do
-                if enemy:CanBeSeen() and not enemy:HasModifier("modifier_ice_vortex")
+                if utility.CanCastSpellOnTarget(ability, enemy) and not enemy:HasModifier("modifier_ice_vortex")
                 then
                     --npcBot:ActionImmediate_Chat("Использую IceVortex для отступления!", true);
-                    return BOT_ACTION_DESIRE_HIGH, enemy:GetLocation();
+                    return BOT_ACTION_DESIRE_HIGH, utility.GetTargetPosition(enemy, delayAbility);
                 end
             end
         end
@@ -219,23 +190,13 @@ function ConsiderIceVortex()
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc, "location";
         end
         -- Cast when laning
-    elseif botMode == BOT_MODE_LANING and (ManaPercentage >= 0.7)
+    elseif botMode == BOT_MODE_LANING
     then
-        local locationAoE = npcBot:FindAoELocation(true, true, npcBot:GetLocation(), castRangeAbility,
-            radiusAbility, 0, 0);
-        if (locationAoE.count > 0)
+        local enemy = utility.GetWeakest(enemyAbility);
+        if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)
         then
-            --npcBot:ActionImmediate_Chat("Использую IceVortex по героям врага на линии!",true);
-            return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
-        end
-        -- Roshan
-    elseif botMode == BOT_MODE_ROSHAN and (ManaPercentage >= 0.4)
-    then
-        if botTarget ~= nil and utility.IsRoshan(botTarget) and botTarget:CanBeSeen() and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
-            and not botTarget:HasModifier("modifier_ice_vortex")
-        then
-            --npcBot:ActionImmediate_Chat("Использую IceVortex на рошана!", true);
-            return BOT_ACTION_DESIRE_HIGH, botTarget:GetLocation();
+            --npcBot:ActionImmediate_Chat("Использую IceVortex по цели на ЛАЙНЕ!", true);
+            return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(enemy, delayAbility);
         end
     end
 end
@@ -249,8 +210,8 @@ function ConsiderChillingTouch()
     local attackRange = npcBot:GetAttackRange() + (ability:GetSpecialValueInt("attack_range_bonus"));
     local attackTarget = npcBot:GetAttackTarget();
 
-    if botTarget ~= nil and GetUnitToUnitDistance(npcBot, botTarget) <= attackRange
-        and (utility.IsHero(botTarget) or utility.IsRoshan(botTarget))
+    if (utility.IsHero(botTarget) or utility.IsRoshan(botTarget)) and utility.CanCastSpellOnTarget(ability, botTarget)
+        and GetUnitToUnitDistance(npcBot, botTarget) <= attackRange
     then
         if not ability:GetAutoCastState()
         then
@@ -265,7 +226,7 @@ function ConsiderChillingTouch()
 
     if attackTarget ~= nil
     then
-        if (utility.IsHero(attackTarget) or utility.IsRoshan(attackTarget))
+        if (utility.IsHero(attackTarget) or utility.IsRoshan(attackTarget)) and utility.CanCastSpellOnTarget(ability, attackTarget)
         then
             if not ability:GetAutoCastState()
             then
@@ -287,8 +248,8 @@ function ConsiderRelease()
     end
 
     local projectiles = GetLinearProjectiles();
-    local radiusAbility = (IceBlast:GetSpecialValueInt("radius_min"));
-    local enemyAbility = (GetUnitList(UNIT_LIST_ENEMY_HEROES));
+    local radiusAbility = IceBlast:GetSpecialValueInt("radius_min");
+    local enemyAbility = GetUnitList(UNIT_LIST_ENEMY_HEROES);
 
     for _, iceBlast in pairs(projectiles)
     do
@@ -316,25 +277,26 @@ function ConsiderIceBlast()
         return;
     end
 
-    local healthLimit = (ability:GetSpecialValueInt("kill_pct"));
-    local enemyAbility = (GetUnitList(UNIT_LIST_ENEMY_HEROES));
+    local healthLimit = ability:GetSpecialValueInt("kill_pct");
+    local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
+    local enemyAbility = GetUnitList(UNIT_LIST_ENEMY_HEROES);
 
     -- Generic use if can kill enemy hero
     for i = 1, #enemyAbility do
         if enemyAbility[i]:GetHealth() <= (enemyAbility[i]:GetMaxHealth() / 100 * healthLimit)
         then
             --npcBot:ActionImmediate_Chat("Использую IceBlast что бы добить врага!", true);
-            return BOT_ACTION_DESIRE_VERYHIGH, enemyAbility[i]:GetLocation();
+            return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(enemyAbility[i], delayAbility);
         end
     end
 
     -- Cast if attack enemy
     if utility.PvPMode(npcBot)
     then
-        if botTarget ~= nil and botTarget:CanBeSeen()
+        if utility.CanCastSpellOnTarget(ability, botTarget)
         then
             --npcBot:ActionImmediate_Chat("Использую IceBlast по врагу в радиусе действия!",true);
-            return BOT_ACTION_DESIRE_HIGH, botTarget:GetLocation();
+            return BOT_ACTION_DESIRE_HIGH, utility.GetTargetPosition(botTarget, delayAbility);
         end
     end
 end

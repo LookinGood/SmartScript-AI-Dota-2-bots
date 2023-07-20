@@ -12,32 +12,8 @@ function BuybackUsageThink()
 end
 
 -- Ability learn
-local Talents = {}
-local Abilities = {}
-local npcBot = GetBot()
-
-for i = 0, 23, 1 do
-    local ability = npcBot:GetAbilityInSlot(i)
-    if (ability ~= nil)
-    then
-        if (ability:IsTalent() == true)
-        then
-            table.insert(Talents, ability:GetName())
-        else
-            table.insert(Abilities, ability:GetName())
-        end
-    end
-end
-
-local AbilitiesReal =
-{
-    npcBot:GetAbilityByName(Abilities[1]),
-    npcBot:GetAbilityByName(Abilities[2]),
-    npcBot:GetAbilityByName(Abilities[3]),
-    npcBot:GetAbilityByName(Abilities[4]),
-    npcBot:GetAbilityByName(Abilities[5]),
-    npcBot:GetAbilityByName(Abilities[6]),
-}
+local npcBot = GetBot();
+Abilities, Talents, AbilitiesReal = ability_levelup_generic.GetHeroAbilities(npcBot)
 
 local AbilityToLevelUp =
 {
@@ -121,7 +97,7 @@ function AbilityUsageThink()
     if npcBot:HasModifier("modifier_leshrac_diabolic_edict")
     then
         local attackTarget = npcBot:GetAttackTarget();
-        if attackTarget ~= nil
+        if utility.IsValidTarget(attackTarget)
         then
             if GetUnitToUnitDistance(npcBot, attackTarget) > (DiabolicEdict:GetSpecialValueInt("radius") - 100)
             then
@@ -134,7 +110,7 @@ function AbilityUsageThink()
     if npcBot:HasModifier("modifier_leshrac_pulse_nova")
     then
         local attackTarget = npcBot:GetAttackTarget();
-        if attackTarget ~= nil and utility.IsHero(attackTarget)
+        if utility.IsValidTarget(attackTarget) and utility.IsHero(attackTarget)
         then
             if GetUnitToUnitDistance(npcBot, attackTarget) > (PulseNova:GetSpecialValueInt("radius") - 100)
             then
@@ -143,7 +119,6 @@ function AbilityUsageThink()
             end
         end
     end
-
 end
 
 function ConsiderSplitEarth()
@@ -161,18 +136,11 @@ function ConsiderSplitEarth()
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if utility.CanCastOnMagicImmuneTarget(enemy)
+            if (utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and not utility.TargetCantDie(enemy)) or enemy:IsChanneling()
             then
-                if utility.CanAbilityKillTarget(enemy, damageAbility, DAMAGE_TYPE_MAGICAL) or enemy:IsChanneling()
+                if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    if utility.IsMoving(enemy)
-                    then
-                        --npcBot:ActionImmediate_Chat("Использую SplitEarth по бегущей цели убивая", true);
-                        return BOT_ACTION_DESIRE_VERYHIGH, enemy:GetExtrapolatedLocation(delayAbility);
-                    else
-                        --npcBot:ActionImmediate_Chat("Использую SplitEarth по стоящей цели убивая!",true);
-                        return BOT_ACTION_DESIRE_VERYHIGH, enemy:GetLocation();
-                    end
+                    return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(enemy, delayAbility);
                 end
             end
         end
@@ -181,18 +149,13 @@ function ConsiderSplitEarth()
     -- Attack use
     if utility.PvPMode(npcBot) or npcBot:GetActiveMode() == BOT_MODE_ROSHAN
     then
-        if botTarget ~= nil and (utility.IsHero(botTarget) or utility.IsRoshan(botTarget))
+        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
         then
-            if utility.CanCastOnMagicImmuneTarget(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility + 200
+            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility + 200
+                and not utility.IsDisabled(botTarget)
             then
-                if utility.IsMoving(botTarget)
-                then
-                    --npcBot:ActionImmediate_Chat("Использую SplitEarth по бегущей цели!", true);
-                    return BOT_ACTION_DESIRE_VERYHIGH, botTarget:GetExtrapolatedLocation(delayAbility);
-                else
-                    --npcBot:ActionImmediate_Chat("Использую SplitEarth по стоящей цели!", true);
-                    return BOT_ACTION_DESIRE_VERYHIGH, botTarget:GetLocation();
-                end
+                --npcBot:ActionImmediate_Chat("Использую SplitEarth по цели!", true);
+                return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(botTarget, delayAbility);
             end
         end
         -- Retreat or help ally use
@@ -201,16 +164,9 @@ function ConsiderSplitEarth()
         if (#enemyAbility > 0)
         then
             for _, enemy in pairs(enemyAbility) do
-                if utility.CanCastOnMagicImmuneTarget(enemy)
+                if utility.CanCastSpellOnTarget(ability, enemy) and not utility.IsDisabled(enemy)
                 then
-                    if utility.IsMoving(enemy)
-                    then
-                        --npcBot:ActionImmediate_Chat("Использую SplitEarth по бегущей цели ОТСТУПАЯ!", true);
-                        return BOT_ACTION_DESIRE_VERYHIGH, enemy:GetExtrapolatedLocation(delayAbility);
-                    else
-                        --npcBot:ActionImmediate_Chat("Использую SplitEarth по стоящей цели ОТСТУПАЯ!",true);
-                        return BOT_ACTION_DESIRE_VERYHIGH, enemy:GetLocation();
-                    end
+                    return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(enemy, delayAbility);
                 end
             end
         end
@@ -227,21 +183,13 @@ function ConsiderDiabolicEdict()
     --local radiusAbility = ability:GetSpecialValueInt("radius");
     local enemyAbility = npcBot:GetNearbyHeroes(npcBot:GetAttackRange(), true, BOT_MODE_NONE);
 
-    if attackTarget ~= nil
-    then
-        if utility.IsHero(attackTarget)
-        then
-            return BOT_ACTION_DESIRE_HIGH;
-        end
-    end
-
     -- Attack use
     if utility.PvPMode(npcBot) or botMode == BOT_MODE_RETREAT
     then
         if (#enemyAbility > 0)
         then
             for _, enemy in pairs(enemyAbility) do
-                if enemy:CanBeSeen()
+                if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую DiabolicEdict против врага в радиусе действия!",true);
                     return BOT_ACTION_DESIRE_HIGH;
@@ -250,8 +198,8 @@ function ConsiderDiabolicEdict()
         end
     end
 
-    -- Use when attack building
-    if attackTarget ~= nil
+    -- Use when attack
+    if utility.IsValidTarget(attackTarget) and utility.CanCastSpellOnTarget(ability, attackTarget)
     then
         if attackTarget:IsTower() or attackTarget:IsFort() or attackTarget:IsBarracks()
         then
@@ -260,6 +208,9 @@ function ConsiderDiabolicEdict()
                 --npcBot:ActionImmediate_Chat("Использую DiabolicEdict против зданий!", true);
                 return BOT_ACTION_DESIRE_HIGH;
             end
+        elseif utility.IsHero(attackTarget)
+        then
+            return BOT_ACTION_DESIRE_HIGH;
         end
     end
 end
@@ -272,17 +223,17 @@ function ConsiderLightningStorm()
 
     local castRangeAbility = ability:GetCastRange();
     local damageAbility = ability:GetSpecialValueInt("damage");
-    local enemyAbility = npcBot:GetNearbyHeroes((castRangeAbility + 200), true, BOT_MODE_NONE);
+    local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility + 200, true, BOT_MODE_NONE);
 
     -- Cast if can kill somebody
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if utility.CanCastOnMagicImmuneTarget(enemy) and utility.SafeCast(enemy, true)
+            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and not utility.TargetCantDie(enemy)
             then
-                if utility.CanAbilityKillTarget(enemy, damageAbility, DAMAGE_TYPE_MAGICAL)
+                if utility.CanCastSpellOnTarget(ability, enemy) and utility.SafeCast(enemy, true)
                 then
-                    --npcBot:ActionImmediate_Chat("Использую LightningStorm что бы убить цель!",true);
+                    --npcBot:ActionImmediate_Chat("Использую LightningStorm что бы убить цель!", true);
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy;
                 end
             end
@@ -290,13 +241,14 @@ function ConsiderLightningStorm()
     end
 
     -- Attack use
-    if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
+    if utility.PvPMode(npcBot) or npcBot:GetActiveMode() == BOT_MODE_ROSHAN
     then
-        if botTarget ~= nil and (utility.IsHero(botTarget) or utility.IsRoshan(botTarget))
+        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
         then
-            if utility.CanCastOnMagicImmuneTarget(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility + 200
+            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
                 and utility.SafeCast(botTarget, true)
             then
+                --npcBot:ActionImmediate_Chat("Использую LightningStorm по врагу в радиусе действия!",true);
                 return BOT_MODE_DESIRE_HIGH, botTarget;
             end
         end
@@ -306,34 +258,34 @@ function ConsiderLightningStorm()
         if (#enemyAbility > 0)
         then
             for _, enemy in pairs(enemyAbility) do
-                if utility.CanCastOnMagicImmuneTarget(enemy) and not utility.IsDisabled(enemy) and utility.SafeCast(enemy, true)
+                if utility.CanCastSpellOnTarget(ability, enemy) and utility.SafeCast(enemy, true)
                 then
                     --npcBot:ActionImmediate_Chat("Использую LightningStorm что бы оторваться от врага", true);
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy;
                 end
             end
         end
-        -- Cast if push/defend/farm
+        --  Pushing/defending/Farm
     elseif utility.PvEMode(npcBot)
     then
         local enemyCreeps = npcBot:GetNearbyCreeps(castRangeAbility, true);
         if (#enemyCreeps >= 3) and (ManaPercentage >= 0.7)
         then
             local enemy = utility.GetWeakest(enemyCreeps);
-            if enemy ~= nil and utility.CanCastOnMagicImmuneTarget(enemy) and utility.SafeCast(enemy, true)
+            if utility.CanCastSpellOnTarget(ability, enemy) and utility.SafeCast(enemy, true)
             then
                 --npcBot:ActionImmediate_Chat("Использую LightningStorm по крипам!", true);
                 return BOT_ACTION_DESIRE_HIGH, enemy;
             end
         end
         -- Cast when laning
-    elseif botMode == BOT_MODE_LANING
+    elseif npcBot:GetActiveMode() == BOT_MODE_LANING
     then
         local enemy = utility.GetWeakest(enemyAbility);
-        if enemy ~= nil and (ManaPercentage >= 0.7) and utility.CanCastOnMagicImmuneTarget(enemy) and utility.SafeCast(enemy, true)
+        if utility.CanCastSpellOnTarget(ability, enemy) and utility.SafeCast(enemy, true) and (ManaPercentage >= 0.7)
         then
-            --npcBot:ActionImmediate_Chat("Использую LightningStorm для лайнинга!", true);
-            return BOT_ACTION_DESIRE_HIGH, enemy;
+            --npcBot:ActionImmediate_Chat("Использую LightningStorm по цели на ЛАЙНЕ!", true);
+            return BOT_ACTION_DESIRE_VERYHIGH, enemy;
         end
     end
 end
@@ -349,7 +301,7 @@ function ConsiderNihilism()
     -- Attack use
     if utility.PvPMode(npcBot)
     then
-        if botTarget ~= nil and utility.IsHero(botTarget) and utility.CanCastOnMagicImmuneTarget(botTarget) and not utility.IsDisabled(botTarget)
+        if utility.IsHero(botTarget) and utility.CanCastOnMagicImmuneTarget(botTarget) and not utility.IsDisabled(botTarget)
             and GetUnitToUnitDistance(npcBot, botTarget) < radiusAbility
         then
             --npcBot:ActionImmediate_Chat("Использую Nihilism против врага!", true);
@@ -378,7 +330,7 @@ function ConsiderPulseNova()
     -- Attack use
     if utility.PvPMode(npcBot)
     then
-        if botTarget ~= nil and utility.IsHero(botTarget) and utility.CanCastOnMagicImmuneTarget(botTarget)
+        if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget)
             and GetUnitToUnitDistance(npcBot, botTarget) <= attackRange
         then
             if ability:GetToggleState() == false
@@ -399,7 +351,7 @@ function ConsiderPulseNova()
         if (HealthPercentage <= 0.8) and (#enemyAbility > 0)
         then
             for _, enemy in pairs(enemyAbility) do
-                if utility.CanCastOnMagicImmuneTarget(enemy)
+                if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     if ability:GetToggleState() == false
                     then

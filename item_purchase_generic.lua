@@ -143,6 +143,11 @@ end
 function SellSpecifiedItem(item_name)
 	local npcBot = GetBot();
 
+	if not npcBot:IsAlive()
+	then
+		return;
+	end
+
 	local itemCount = 0;
 	local item = nil;
 

@@ -12,32 +12,8 @@ function BuybackUsageThink()
 end
 
 -- Ability learn
-local Talents = {}
-local Abilities = {}
-local npcBot = GetBot()
-
-for i = 0, 23, 1 do
-    local ability = npcBot:GetAbilityInSlot(i)
-    if (ability ~= nil)
-    then
-        if (ability:IsTalent() == true)
-        then
-            table.insert(Talents, ability:GetName())
-        else
-            table.insert(Abilities, ability:GetName())
-        end
-    end
-end
-
-local AbilitiesReal =
-{
-    npcBot:GetAbilityByName(Abilities[1]),
-    npcBot:GetAbilityByName(Abilities[2]),
-    npcBot:GetAbilityByName(Abilities[3]),
-    npcBot:GetAbilityByName(Abilities[4]),
-    npcBot:GetAbilityByName(Abilities[5]),
-    npcBot:GetAbilityByName(Abilities[6]),
-}
+local npcBot = GetBot();
+local Abilities, Talents, AbilitiesReal = ability_levelup_generic.GetHeroAbilities(npcBot)
 
 local AbilityToLevelUp =
 {
@@ -140,7 +116,7 @@ function ConsiderReflection()
     -- Attack use
     if utility.PvPMode(npcBot)
     then
-        if botTarget ~= nil and utility.CanCastOnMagicImmuneTarget(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+        if utility.CanCastOnMagicImmuneTarget(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
         then
             --npcBot:ActionImmediate_Chat("Использую Reflection для нападения!", true);
             return BOT_ACTION_DESIRE_HIGH, botTarget:GetLocation();
@@ -171,7 +147,7 @@ function ConsiderConjureImage()
     -- Attack use
     if utility.PvPMode(npcBot)
     then
-        if botTarget ~= nil and not botTarget:IsInvulnerable()
+        if utility.CanCastOnInvulnerableTarget(botTarget)
         then
             --npcBot:ActionImmediate_Chat("Использую ConjureImage для нападения!", true);
             return BOT_ACTION_DESIRE_HIGH;
@@ -200,13 +176,13 @@ function ConsiderMetamorphosis()
     end
 
     local baseAttackRange = npcBot:GetAttackRange();
-    local bonusAttackRange = (ability:GetSpecialValueInt("bonus_range"));
+    local bonusAttackRange = ability:GetSpecialValueInt("bonus_range");
     local attackRange = baseAttackRange + bonusAttackRange;
 
     -- Attack use
     if utility.PvPMode(npcBot)
     then
-        if botTarget ~= nil and utility.CanCastOnInvulnerableTarget(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= attackRange
+        if utility.CanCastOnInvulnerableTarget(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= attackRange
             and not npcBot:HasModifier("modifier_terrorblade_metamorphosis")
         then
             --npcBot:ActionImmediate_Chat("Использую Metamorphosis для нападения!", true);
@@ -226,7 +202,7 @@ function ConsiderDemonZeal()
     -- Attack use
     if utility.PvPMode(npcBot)
     then
-        if botTarget ~= nil and utility.CanCastOnInvulnerableTarget(botTarget) and (HealthPercentage > 0.2)
+        if utility.CanCastOnInvulnerableTarget(botTarget) and (HealthPercentage > 0.2)
             and GetUnitToUnitDistance(npcBot, botTarget) <= (attackRange + 200)
         then
             --npcBot:ActionImmediate_Chat("Использую DemonZeal для нападения!", true);
@@ -268,7 +244,7 @@ function ConsiderTerrorWave()
     -- Attack use
     if utility.PvPMode(npcBot)
     then
-        if botTarget ~= nil and utility.CanCastOnMagicImmuneTarget(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= radiusAbility
+        if utility.IsHero(botTarget) and utility.CanCastOnMagicImmuneTarget(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= radiusAbility
         then
             --npcBot:ActionImmediate_Chat("Использую TerrorWave для нападения!", true);
             return BOT_ACTION_DESIRE_HIGH;
@@ -304,7 +280,7 @@ function ConsiderSunder()
     if (#enemyAbility > 0) and (HealthPercentage <= 0.2)
     then
         for _, enemy in pairs(enemyAbility) do
-            if utility.CanCastOnMagicImmuneTarget(enemy) and ((enemy:GetHealth() / enemy:GetMaxHealth()) > 0.3)
+            if utility.CanCastOnMagicImmuneTarget(enemy) and (enemy:GetHealth() / enemy:GetMaxHealth()) > 0.3
             then
                 --npcBot:ActionImmediate_Chat("Использую Sunder на врага со здоровьем ниже 30%!",true);
                 return BOT_MODE_DESIRE_VERYHIGH, enemy;

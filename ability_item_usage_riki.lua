@@ -12,32 +12,8 @@ function BuybackUsageThink()
 end
 
 -- Ability learn
-local Talents = {}
-local Abilities = {}
-local npcBot = GetBot()
-
-for i = 0, 23, 1 do
-    local ability = npcBot:GetAbilityInSlot(i)
-    if (ability ~= nil)
-    then
-        if (ability:IsTalent() == true)
-        then
-            table.insert(Talents, ability:GetName())
-        else
-            table.insert(Abilities, ability:GetName())
-        end
-    end
-end
-
-local AbilitiesReal =
-{
-    npcBot:GetAbilityByName(Abilities[1]),
-    npcBot:GetAbilityByName(Abilities[2]),
-    npcBot:GetAbilityByName(Abilities[3]),
-    npcBot:GetAbilityByName(Abilities[4]),
-    npcBot:GetAbilityByName(Abilities[5]),
-    npcBot:GetAbilityByName(Abilities[6]),
-}
+local npcBot = GetBot();
+local Abilities, Talents, AbilitiesReal = ability_levelup_generic.GetHeroAbilities(npcBot)
 
 local AbilityToLevelUp =
 {
@@ -110,6 +86,7 @@ function ConsiderSmokeScreen()
     end
 
     local castRangeAbility = ability:GetCastRange();
+    local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
     local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility + 200, true, BOT_MODE_NONE);
 
     -- Interrupt cast
@@ -128,13 +105,16 @@ function ConsiderSmokeScreen()
     end
 
     -- Attack use
-    if utility.PvPMode(npcBot)
+    if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
     then
-        if botTarget ~= nil and (utility.CanCastOnMagicImmuneTarget(botTarget)) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
-            and utility.IsHero(botTarget) and not npcBot:HasModifier("modifier_riki_tricks_of_the_trade_phase")
+        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
         then
-            --npcBot:ActionImmediate_Chat("Использую SmokeScreen для атаки!", true);
-            return BOT_ACTION_DESIRE_HIGH, botTarget:GetLocation();
+            if utility.CanCastOnMagicImmuneTarget(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+                and not npcBot:HasModifier("modifier_riki_tricks_of_the_trade_phase")
+            then
+                --npcBot:ActionImmediate_Chat("Использую SmokeScreen для атаки!", true);
+                return BOT_ACTION_DESIRE_HIGH, utility.GetTargetPosition(botTarget, delayAbility);
+            end
         end
         -- Retreat or help ally use
     elseif botMode == BOT_MODE_RETREAT or botMode == BOT_MODE_DEFEND_ALLY
@@ -142,22 +122,11 @@ function ConsiderSmokeScreen()
         if (#enemyAbility > 0)
         then
             for _, enemy in pairs(enemyAbility) do
-                if (utility.CanCastOnMagicImmuneTarget(enemy))
+                if utility.CanCastOnMagicImmuneTarget(enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую SmokeScreen для отхода!", true);
-                    return BOT_ACTION_DESIRE_HIGH, enemy:GetLocation();
+                    return BOT_ACTION_DESIRE_HIGH, utility.GetTargetPosition(enemy, delayAbility);
                 end
-            end
-        end
-        -- Roshan
-    elseif botMode == BOT_MODE_ROSHAN
-    then
-        if botTarget ~= nil and utility.IsRoshan(botTarget) and (ManaPercentage >= 0.4)
-        then
-            if GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
-            then
-                --npcBot:ActionImmediate_Chat("Использую SmokeScreen на Рошана!", true);
-                return BOT_MODE_DESIRE_MODERATE, botTarget:GetLocation();
             end
         end
     end
@@ -180,11 +149,13 @@ function ConsiderBlinkStrike()
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if utility.CanCastOnInvulnerableTarget(enemy) and utility.CanAbilityKillTarget(enemy, damageAbility, DAMAGE_TYPE_MAGICAL)
-                and utility.SafeCast(botTarget, true)
+            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and not utility.TargetCantDie(enemy)
             then
-                --npcBot:ActionImmediate_Chat("Использую BlinkStrike что бы добить врага!", true);
-                return BOT_ACTION_DESIRE_HIGH, enemy;
+                if utility.CanCastSpellOnTarget(ability, enemy) and utility.SafeCast(enemy, true)
+                then
+                    --npcBot:ActionImmediate_Chat("Использую BlinkStrike что бы добить врага!", true);
+                    return BOT_ACTION_DESIRE_HIGH, enemy;
+                end
             end
         end
     end
@@ -192,8 +163,8 @@ function ConsiderBlinkStrike()
     -- Attack use
     if utility.PvPMode(npcBot)
     then
-        if botTarget ~= nil and utility.CanCastOnInvulnerableTarget(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
-            and GetUnitToUnitDistance(npcBot, botTarget) > attackRange and utility.IsHero(botTarget) and utility.SafeCast(botTarget, true)
+        if utility.CanCastSpellOnTarget(ability, botTarget) and utility.IsHero(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+            and GetUnitToUnitDistance(npcBot, botTarget) > attackRange and utility.SafeCast(botTarget, true)
             and not npcBot:HasModifier("modifier_riki_tricks_of_the_trade_phase")
         then
             --npcBot:ActionImmediate_Chat("Использую  BlinkStrike по врагу в радиусе действия!",true);
@@ -209,8 +180,8 @@ function ConsiderBlinkStrike()
         if (#allyAbility > 1)
         then
             for _, ally in pairs(allyAbility) do
-                if GetUnitToLocationDistance(ally, fountainLocation) < GetUnitToLocationDistance(npcBot, fountainLocation) and
-                    (GetUnitToUnitDistance(ally, npcBot) > castRangeAbility / 2) and ally ~= npcBot
+                if ally ~= npcBot and GetUnitToLocationDistance(ally, fountainLocation) < GetUnitToLocationDistance(npcBot, fountainLocation) and
+                    (GetUnitToUnitDistance(ally, npcBot) > castRangeAbility / 2)
                 then
                     --npcBot:ActionImmediate_Chat("Использую BlinkStrike для побега на союзника!",true);
                     return BOT_ACTION_DESIRE_HIGH, ally;
@@ -257,6 +228,7 @@ function ConsiderTricksOfTheTrade()
     end
 
     local castRangeAbility = ability:GetCastRange();
+    local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
     local incomingSpells = npcBot:GetIncomingTrackingProjectiles();
 
     -- Cast if get incoming spell
@@ -275,11 +247,10 @@ function ConsiderTricksOfTheTrade()
     -- Attack use
     if utility.PvPMode(npcBot)
     then
-        if botTarget ~= nil and (utility.CanCastOnInvulnerableTarget(botTarget)) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
-            and utility.IsHero(botTarget)
+        if utility.IsHero(botTarget) and utility.CanCastOnInvulnerableTarget(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
         then
             --npcBot:ActionImmediate_Chat("Использую TricksOfTheTrade для атаки!", true);
-            return BOT_ACTION_DESIRE_HIGH, botTarget:GetLocation();
+            return BOT_ACTION_DESIRE_HIGH, utility.GetTargetPosition(botTarget, delayAbility);
         end
         -- Retreat
     elseif botMode == BOT_MODE_RETREAT

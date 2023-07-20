@@ -101,7 +101,7 @@ function Think()
     if mainBuilding ~= nil
     then
         local defendZone = utility.GetEscapeLocation(mainBuilding, 500);
-        if GetUnitToLocationDistance(npcBot, defendZone) > 200 and defendZonePatrol == nil
+        if GetUnitToLocationDistance(npcBot, defendZone) > 300 and defendZonePatrol == nil
         then
             local tps = npcBot:GetItemInSlot(15);
             local enemyTower = npcBot:GetNearbyTowers(1000, true);
@@ -138,8 +138,10 @@ function Think()
                         --npcBot:ActionImmediate_Chat("Я убиваю крипов защищая мид!", true);
                         npcBot:Action_AttackUnit(mainCreep, false);
                     else
-                        npcBot:Action_MoveToLocation(npcBot:GetLocation() + RandomVector(500));
+                        npcBot:Action_MoveToLocation(npcBot:GetLocation() + RandomVector(300));
                     end
+                else
+                    npcBot:Action_MoveToLocation(npcBot:GetLocation() + RandomVector(300));
                 end
             end
         end

@@ -12,32 +12,8 @@ function BuybackUsageThink()
 end
 
 -- Ability learn
-local Talents = {}
-local Abilities = {}
-local npcBot = GetBot()
-
-for i = 0, 23, 1 do
-    local ability = npcBot:GetAbilityInSlot(i)
-    if (ability ~= nil)
-    then
-        if (ability:IsTalent() == true)
-        then
-            table.insert(Talents, ability:GetName())
-        else
-            table.insert(Abilities, ability:GetName())
-        end
-    end
-end
-
-local AbilitiesReal =
-{
-    npcBot:GetAbilityByName(Abilities[1]),
-    npcBot:GetAbilityByName(Abilities[2]),
-    npcBot:GetAbilityByName(Abilities[3]),
-    npcBot:GetAbilityByName(Abilities[4]),
-    npcBot:GetAbilityByName(Abilities[5]),
-    npcBot:GetAbilityByName(Abilities[6]),
-}
+local npcBot = GetBot();
+local Abilities, Talents, AbilitiesReal = ability_levelup_generic.GetHeroAbilities(npcBot)
 
 local AbilityToLevelUp =
 {
@@ -119,41 +95,57 @@ function ConsiderPoisonTouch()
     end
 
     local castRangeAbility = ability:GetCastRange();
+    local damageAbility = ability:GetSpecialValueInt("damage") * ability:GetDuration();
     local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility + 200, true, BOT_MODE_NONE);
 
-    -- Attack use
-    if utility.PvPMode(npcBot)
+    -- Cast if can kill somebody/interrupt cast
+    if (#enemyAbility > 0)
     then
-        if botTarget ~= nil and utility.CanCastOnMagicImmuneTarget(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
-        then
-            --  npcBot:ActionImmediate_Chat("Использую Poison Touch по врагу в радиусе действия!", true);
-            return BOT_ACTION_DESIRE_HIGH, botTarget;
+        for _, enemy in pairs(enemyAbility) do
+            if (utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and not utility.TargetCantDie(enemy)) or enemy:IsChanneling()
+            then
+                if utility.CanCastSpellOnTarget(ability, enemy) and utility.SafeCast(enemy, true)
+                then
+                    --npcBot:ActionImmediate_Chat("Использую PoisonTouch что бы убить цель!", true);
+                    return BOT_ACTION_DESIRE_VERYHIGH, enemy;
+                end
+            end
         end
-    elseif botMode == BOT_MODE_RETREAT
+    end
+
+    -- Attack use
+    if utility.PvPMode(npcBot) or npcBot:GetActiveMode() == BOT_MODE_ROSHAN
+    then
+        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
+        then
+            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+                and utility.SafeCast(botTarget, true)
+            then
+                --npcBot:ActionImmediate_Chat("Использую PoisonTouch по врагу в радиусе действия!",true);
+                return BOT_MODE_DESIRE_HIGH, botTarget;
+            end
+        end
+        -- Retreat or help ally use
+    elseif botMode == BOT_MODE_RETREAT or botMode == BOT_MODE_DEFEND_ALLY
     then
         if (#enemyAbility > 0)
         then
             for _, enemy in pairs(enemyAbility) do
-                if utility.CanCastOnMagicImmuneTarget(enemy) and utility.SafeCast(enemy, false) and enemy:IsChanneling()
+                if utility.CanCastSpellOnTarget(ability, enemy) and utility.SafeCast(enemy, true)
                 then
-                    --  npcBot:ActionImmediate_Chat("Использую Poison Touch что бы сбить заклинание цели!", true);
+                    --npcBot:ActionImmediate_Chat("Использую PoisonTouch что бы оторваться от врага", true);
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy;
-                    -- Interrupt cast
-                elseif utility.CanCastOnMagicImmuneTarget(enemy) and utility.SafeCast(enemy, false)
-                then
-                    -- npcBot:ActionImmediate_Chat("Использую Poison Touch по врагу в радиусе!", true);
-                    return BOT_ACTION_DESIRE_HIGH, enemy;
                 end
             end
         end
         --  Pushing/defending/Farm
     elseif utility.PvEMode(npcBot)
     then
-        local enemyCreepsLane = npcBot:GetNearbyLaneCreeps(castRangeAbility, true)
-        if (#enemyCreepsLane > 2) and (ManaPercentage >= 0.5)
+        local enemyCreeps = npcBot:GetNearbyCreeps(castRangeAbility, true)
+        if (#enemyCreeps > 2) and (ManaPercentage >= 0.5)
         then
-            for _, enemy in pairs(enemyCreepsLane) do
-                if utility.CanCastOnMagicImmuneTarget(enemy) and utility.SafeCast(enemy, false)
+            for _, enemy in pairs(enemyCreeps) do
+                if utility.CanCastSpellOnTarget(ability, enemy) and utility.SafeCast(enemy, false)
                 then
                     return BOT_MODE_DESIRE_VERYLOW, enemy;
                 end
@@ -162,22 +154,11 @@ function ConsiderPoisonTouch()
         -- Cast when laning
     elseif botMode == BOT_MODE_LANING
     then
-        if (#enemyAbility > 0) and (ManaPercentage >= 0.7)
+        local enemy = utility.GetWeakest(enemyAbility);
+        if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)
         then
-            for _, enemy in pairs(enemyAbility) do
-                if (utility.CanCastOnMagicImmuneTarget(enemy)) and utility.SafeCast(enemy, true)
-                then
-                    return BOT_ACTION_DESIRE_HIGH, enemy;
-                end
-            end
-        end
-        -- Roshan
-    elseif botMode == BOT_MODE_ROSHAN
-    then
-        if botTarget ~= nil and utility.IsRoshan(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= CastRangeAbility and (ManaPercentage >= 0.4)
-        then
-            --npcBot:ActionImmediate_Chat("Использую Poison Touch на Рошана!", true);
-            return BOT_MODE_DESIRE_MODERATE, botTarget;
+            --npcBot:ActionImmediate_Chat("Использую PoisonTouch по цели на ЛАЙНЕ!", true);
+            return BOT_ACTION_DESIRE_VERYHIGH, enemy;
         end
     end
 end
@@ -215,7 +196,7 @@ function ConsiderShadowWave()
     end
 
     local castRangeAbility = ability:GetCastRange();
-    local radiusAbility = (ability:GetSpecialValueInt("damage_radius"));
+    local radiusAbility = ability:GetSpecialValueInt("damage_radius");
     local allyAbility = npcBot:GetNearbyHeroes(castRangeAbility + 200, false, BOT_MODE_NONE);
 
     -- General use on allied heroes
@@ -258,7 +239,7 @@ function ConsiderShadowWave()
                 then
                     for _, enemy in pairs(enemyAbility)
                     do
-                        if utility.CanCastOnInvulnerableTarget(enemy)
+                        if utility.CanCastSpellOnTarget(ability, enemy)
                         then
                             --npcBot:ActionImmediate_Chat( "Использую Shadow Wave на союзного крипа что бы продамажить врага!",true);
                             return BOT_ACTION_DESIRE_MODERATE, ally;
@@ -276,7 +257,7 @@ function ConsiderShadowWave()
                 then
                     for _, enemy in pairs(enemyAbility)
                     do
-                        if utility.CanCastOnInvulnerableTarget(enemy)
+                        if utility.CanCastSpellOnTarget(ability, enemy)
                         then
                             --npcBot:ActionImmediate_Chat("Использую Shadow Wave на союзного героя что бы продамажить врага!",true);
                             return BOT_ACTION_DESIRE_MODERATE, ally;
@@ -292,7 +273,7 @@ function ConsiderShadowWave()
     then
         if utility.PvPMode(npcBot)
         then
-            if botTarget ~= nil and utility.IsHero(botTarget) and utility.CanCastOnInvulnerableTarget(botTarget) and
+            if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget) and
                 GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
             then
                 --npcBot:ActionImmediate_Chat("Использую Shadow Wave на врага!", true);
@@ -301,16 +282,6 @@ function ConsiderShadowWave()
         end
     end
 end
-
---[[ local function GetBadJujuCount(npcTarget)
-    local modifier = npcTarget:GetModifierByName("modifier_dazzle_bad_juju_armor_counter")
-    if (modifier ~= nil)
-    then
-        return npcTarget:GetModifierStackCount(modifier);
-    else
-        return 0
-    end
-end ]]
 
 function ConsiderBadJuju()
     local ability = BadJuju;

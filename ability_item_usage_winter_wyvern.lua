@@ -12,32 +12,8 @@ function BuybackUsageThink()
 end
 
 -- Ability learn
-local Talents = {}
-local Abilities = {}
 local npcBot = GetBot();
-
-for i = 0, 23, 1 do
-    local ability = npcBot:GetAbilityInSlot(i)
-    if (ability ~= nil)
-    then
-        if (ability:IsTalent() == true)
-        then
-            table.insert(Talents, ability:GetName())
-        else
-            table.insert(Abilities, ability:GetName())
-        end
-    end
-end
-
-local AbilitiesReal =
-{
-    npcBot:GetAbilityByName(Abilities[1]),
-    npcBot:GetAbilityByName(Abilities[2]),
-    npcBot:GetAbilityByName(Abilities[3]),
-    npcBot:GetAbilityByName(Abilities[4]),
-    npcBot:GetAbilityByName(Abilities[5]),
-    npcBot:GetAbilityByName(Abilities[6]),
-}
+local Abilities, Talents, AbilitiesReal = ability_levelup_generic.GetHeroAbilities(npcBot)
 
 local AbilityToLevelUp =
 {
@@ -117,7 +93,7 @@ function ConsiderArcticBurn()
         return;
     end
 
-    local castRangeAbility = npcBot:GetAttackRange() + (ability:GetSpecialValueInt("attack_range_bonus"));
+    local castRangeAbility = npcBot:GetAttackRange() + ability:GetSpecialValueInt("attack_range_bonus");
 
     -- Off ability
     if not utility.PvPMode(npcBot) and npcBot:TimeSinceDamagedByAnyHero() >= 5.0
@@ -135,7 +111,7 @@ function ConsiderArcticBurn()
     -- Attack use
     if utility.PvPMode(npcBot)
     then
-        if botTarget ~= nil and utility.IsHero(botTarget) and utility.CanCastOnMagicImmuneTarget(botTarget) 
+        if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget)
         and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
         then
             if not npcBot:HasScepter()
@@ -179,22 +155,22 @@ function ConsiderSplinterBlast()
     end
 
     local castRangeAbility = ability:GetCastRange();
-    local damageAbility = (ability:GetSpecialValueInt("damage"));
-    local radiusAbility = (ability:GetSpecialValueInt("split_radius"));
+    local damageAbility = ability:GetSpecialValueInt("damage");
+    local radiusAbility = ability:GetSpecialValueInt("split_radius");
     local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility + 200, true, BOT_MODE_NONE);
 
     -- Cast if can kill somebody
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if utility.CanAbilityKillTarget(enemy, damageAbility, DAMAGE_TYPE_MAGICAL) and utility.CanCastOnMagicImmuneTarget(enemy)
+            if tility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and utility.CanCastSpellOnTarget(ability, enemy)
             then
                 local enemyHeroAround = enemy:GetNearbyHeroes(radiusAbility, false, BOT_MODE_NONE);
                 local enemyCreepsAround = enemy:GetNearbyCreeps(radiusAbility, false);
                 if (#enemyHeroAround > 1)
                 then
                     for _, enemyHero in pairs(enemyHeroAround) do
-                        if enemyHero ~= enemy and utility.CanCastOnMagicImmuneTarget(enemyHero)
+                        if enemyHero ~= enemy and utility.CanCastSpellOnTarget(ability, enemyHero)
                         then
                             --npcBot:ActionImmediate_Chat("Использую SplinterBlast на героя что бы добить врага!",true);
                             return BOT_ACTION_DESIRE_HIGH, enemyHero;
@@ -204,7 +180,7 @@ function ConsiderSplinterBlast()
                 if (#enemyCreepsAround > 0)
                 then
                     for _, enemyCreep in pairs(enemyCreepsAround) do
-                        if utility.CanCastOnMagicImmuneTarget(enemyCreep)
+                        if utility.CanCastSpellOnTarget(ability, enemyCreep)
                         then
                             --npcBot:ActionImmediate_Chat("Использую SplinterBlast на крипа что бы добить врага!", true);
                             return BOT_ACTION_DESIRE_HIGH, enemyCreep;
@@ -218,14 +194,14 @@ function ConsiderSplinterBlast()
     -- Attack use
     if utility.PvPMode(npcBot)
     then
-        if botTarget ~= nil and utility.IsHero(botTarget) and utility.CanCastOnMagicImmuneTarget(botTarget)
+        if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget)
         then
             local enemyHeroAround = botTarget:GetNearbyHeroes(radiusAbility, false, BOT_MODE_NONE);
             local enemyCreepsAround = botTarget:GetNearbyCreeps(radiusAbility, false);
             if (#enemyHeroAround > 1)
             then
                 for _, enemy in pairs(enemyHeroAround) do
-                    if enemy ~= botTarget and utility.CanCastOnMagicImmuneTarget(enemy) and GetUnitToUnitDistance(npcBot, enemy) <= (castRangeAbility + 200)
+                    if enemy ~= botTarget and utility.CanCastSpellOnTarget(ability, enemy) and GetUnitToUnitDistance(npcBot, enemy) <= (castRangeAbility + 200)
                         and utility.SafeCast(enemy, false)
                     then
                         --npcBot:ActionImmediate_Chat("Использую SplinterBlast на вражеского героя рядом с целью!",true);
@@ -236,7 +212,7 @@ function ConsiderSplinterBlast()
             if (#enemyCreepsAround > 0)
             then
                 for _, enemy in pairs(enemyCreepsAround) do
-                    if enemy ~= botTarget and utility.CanCastOnMagicImmuneTarget(enemy) and GetUnitToUnitDistance(npcBot, enemy) <= (castRangeAbility + 200)
+                    if enemy ~= botTarget and utility.CanCastSpellOnTarget(ability, enemy) and GetUnitToUnitDistance(npcBot, enemy) <= (castRangeAbility + 200)
                         and utility.SafeCast(enemy, false)
                     then
                         --npcBot:ActionImmediate_Chat("Использую SplinterBlast на вражеского крипа рядом с целью!", true);
@@ -252,7 +228,7 @@ function ConsiderSplinterBlast()
         if (#enemyCreeps > 2)
         then
             for _, enemy in pairs(enemyCreeps) do
-                if utility.CanCastOnMagicImmuneTarget(enemy)
+                if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую SplinterBlast на крипа для ПУША!", true);
                     return BOT_ACTION_DESIRE_HIGH, enemy;
@@ -270,7 +246,7 @@ function ConsiderSplinterBlast()
                 if (#enemyHeroAround > 1)
                 then
                     for _, enemyHero in pairs(enemyHeroAround) do
-                        if enemyHero ~= enemy and utility.CanCastOnMagicImmuneTarget(enemyHero)
+                        if enemyHero ~= enemy and utility.CanCastSpellOnTarget(ability, enemyHero)
                         then
                             --npcBot:ActionImmediate_Chat("Использую SplinterBlast на героя для отхода!", true);
                             return BOT_ACTION_DESIRE_HIGH, enemyHero;
@@ -280,7 +256,7 @@ function ConsiderSplinterBlast()
                 if (#enemyCreepsAround > 0)
                 then
                     for _, enemyCreep in pairs(enemyCreepsAround) do
-                        if utility.CanCastOnMagicImmuneTarget(enemyCreep)
+                        if utility.CanCastSpellOnTarget(ability, enemyCreep)
                         then
                             --npcBot:ActionImmediate_Chat("Использую SplinterBlast на крипа для отхода!",true);
                             return BOT_ACTION_DESIRE_HIGH, enemyCreep;
@@ -308,7 +284,7 @@ function ConsiderColdEmbrace()
         do
             if utility.IsHero(ally) and utility.CanBeHeal(ally) and not ally:IsChanneling()
             then
-                if utility.IsDisabled(ally) and (ally:GetHealth() / ally:GetMaxHealth() <= 0.5) and ally:WasRecentlyDamagedByAnyHero(2.0)
+                if utility.IsDisabled(ally) and (ally:GetHealth() / ally:GetMaxHealth() <= 0.7) and ally:WasRecentlyDamagedByAnyHero(2.0)
                 then
                    --npcBot:ActionImmediate_Chat("Использую ColdEmbrace на союзника в стане!", true);
                     return BOT_ACTION_DESIRE_HIGH, ally;
@@ -329,13 +305,12 @@ function ConsiderWintersCurse()
     end
 
     local castRangeAbility = ability:GetCastRange();
-    local radiusAbility = (ability:GetSpecialValueInt("radius"));
+    local radiusAbility = ability:GetSpecialValueInt("radius");
 
     -- Attack use
     if utility.PvPMode(npcBot)
     then
-        if botTarget ~= nil and utility.IsHero(botTarget) and botTarget:CanBeSeen()
-            and GetUnitToUnitDistance(npcBot, botTarget) <= (castRangeAbility + 200)
+        if utility.IsHero(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= (castRangeAbility + 200)
         then
             local enemyHeroAround = botTarget:GetNearbyHeroes(radiusAbility, false, BOT_MODE_NONE);
             if (#enemyHeroAround > 2)
@@ -353,7 +328,7 @@ function ConsiderWintersCurse()
             if (#enemyAbility > 0)
             then
                 for _, enemy in pairs(enemyAbility) do
-                    if enemy:CanBeSeen()
+                    if utility.IsValidTarget(enemy)
                     then
                         local enemyHeroAround = enemy:GetNearbyHeroes(radiusAbility, false, BOT_MODE_NONE);
                         if (#enemyHeroAround > 1)

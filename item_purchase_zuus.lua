@@ -4,6 +4,7 @@ require(GetScriptDirectory() .. "/item_purchase_generic")
 local ItemsToBuy =
 {
 	"item_tango",
+	"item_wind_lace",
 	"item_ring_of_protection",
 	"item_gauntlets",
 	"item_gauntlets",
@@ -22,15 +23,22 @@ local ItemsToBuy =
 	"item_recipe_null_talisman",
 
 	"item_boots",
-	"item_energy_booster",
+	"item_ring_of_regen",
 
 	"item_energy_booster",
 	"item_void_stone",
 	"item_recipe_aether_lens",
 
-	"item_aghanims_shard",
+	"item_wind_lace",
+    "item_belt_of_strength",
+    "item_robe",
+    "item_recipe_ancient_janggo",
+
+	"item_recipe_boots_of_bearing",
 
 	"item_blink",
+
+	"item_aghanims_shard",
 
 	"item_staff_of_wizardry",
 	"item_robe",
@@ -47,19 +55,12 @@ local ItemsToBuy =
 	"item_point_booster",
 	"item_energy_booster",
 	"item_vitality_booster",
-
 	"item_void_stone",
 	"item_void_stone",
-
 	"item_recipe_octarine_core",
 
 	"item_mystic_staff",
 	"item_recipe_arcane_blink",
-
-	"item_recipe_travel_boots",
-	"item_boots",
-
-	"item_recipe_travel_boots",
 }
 
 function ItemPurchaseThink()

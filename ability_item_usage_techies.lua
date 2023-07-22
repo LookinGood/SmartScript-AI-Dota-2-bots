@@ -205,6 +205,7 @@ function ConsiderBlastOff()
     end
 
     local castRangeAbility = ability:GetCastRange();
+    local damageAbility = ability:GetSpecialValueInt("damage");
     local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
 
     -- Cast if can kill somebody/interrupt cast

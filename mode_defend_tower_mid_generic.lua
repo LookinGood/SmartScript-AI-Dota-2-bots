@@ -94,54 +94,50 @@ end
 
 function Think()
     local npcBot = GetBot();
-    --local enemyHeroes = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
     --local allyHeroes = npcBot:GetNearbyHeroes(1600, false, BOT_MODE_NONE);
+    --local allyBuildings = GetUnitList(UNIT_LIST_ALLIED_BUILDINGS);
+    local mainCreep = nil;
     local defendZonePatrol = nil;
 
     if mainBuilding ~= nil
     then
-        local defendZone = utility.GetEscapeLocation(mainBuilding, 500);
-        if GetUnitToLocationDistance(npcBot, defendZone) > 300 and defendZonePatrol == nil
+        local defendZone = utility.GetEscapeLocation(mainBuilding, 700);
+        if defendZonePatrol == nil
         then
-            local tps = npcBot:GetItemInSlot(15);
-            local enemyTower = npcBot:GetNearbyTowers(1000, true);
-            if tps ~= nil and tps:IsFullyCastable() and GetUnitToLocationDistance(npcBot, defendZone) > 5000 and #enemyTower <= 0
+            if GetUnitToLocationDistance(npcBot, defendZone) > 700
             then
-                local enemyHeroes = utility.CountEnemyHeroAroundUnit(mainBuilding, 1000);
-                if enemyHeroes <= 1
-                then
-                    npcBot:Action_UseAbilityOnLocation(tps, defendZone + RandomVector(400));
-                else
-                    npcBot:Action_MoveToLocation(defendZone);
-                end
-            else
-                --npcBot:ActionImmediate_Chat("Я иду защищать мид!", true);
                 npcBot:Action_MoveToLocation(defendZone);
-            end
-        elseif GetUnitToLocationDistance(npcBot, defendZone) <= 300 and defendZonePatrol == nil
-        then
-            defendZonePatrol = npcBot:GetLocation();
-            if GetUnitToLocationDistance(npcBot, defendZonePatrol) <= 1600
+            elseif GetUnitToLocationDistance(npcBot, defendZone) <= 700
             then
-                local enemyCreeps = npcBot:GetNearbyCreeps(1600, true);
-                if #enemyCreeps > 0
+                defendZonePatrol = npcBot:GetLocation();
+            end
+
+            if defendZonePatrol ~= nil
+            then
+                if GetUnitToLocationDistance(npcBot, defendZonePatrol) <= 1600
                 then
-                    for _, enemy in pairs(enemyCreeps)
-                    do
-                        if utility.IsValidTarget(enemy)
-                        then
-                            mainCreep = enemy;
-                        end
+                    local enemyHeroes = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
+                    local enemyCreeps = npcBot:GetNearbyCreeps(1600, true);
+                    if (#enemyCreeps > 0) and (#enemyHeroes <= 1)
+                    then
+                        mainCreep = utility.GetWeakest(enemyCreeps);
+                    else
+                        npcBot:Action_MoveToLocation(npcBot:GetLocation() + RandomVector(500));
                     end
+
                     if mainCreep ~= nil
                     then
-                        --npcBot:ActionImmediate_Chat("Я убиваю крипов защищая мид!", true);
-                        npcBot:Action_AttackUnit(mainCreep, false);
+                        if GetUnitToUnitDistance(npcBot, mainCreep) > attackRange
+                        then
+                            npcBot:Action_MoveToLocation(mainCreep:GetLocation());
+                        else
+                            npcBot:Action_AttackUnit(mainCreep, false);
+                        end
                     else
-                        npcBot:Action_MoveToLocation(npcBot:GetLocation() + RandomVector(300));
+                        npcBot:Action_MoveToLocation(npcBot:GetLocation() + RandomVector(500));
                     end
                 else
-                    npcBot:Action_MoveToLocation(npcBot:GetLocation() + RandomVector(300));
+                    npcBot:Action_MoveToLocation(defendZonePatrol);
                 end
             end
         end

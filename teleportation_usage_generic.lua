@@ -13,16 +13,24 @@ function ShouldTP()
         return false, nil;
     end
 
+    local enemyTower = npcBot:GetNearbyTowers(1000, true);
+    if (#enemyTower > 0)
+    then
+        return false, nil;
+    end
+
     local tpLocation = nil;
+    local towerLaning = nil;
+    local towerDefend = nil;
+    local towerPush = nil;
     local botMode = npcBot:GetActiveMode();
     local botLoc = npcBot:GetLocation();
     local botTeam = GetTeam();
     local enemyHeroes = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
     local allyHeroes = npcBot:GetNearbyHeroes(1600, false, BOT_MODE_NONE);
-    --local allyShrines = npcBot:GetNearbyShrines(1600, false);
     local allyBuildings = GetUnitList(UNIT_LIST_ALLIED_BUILDINGS);
-    local enemyTower = npcBot:GetNearbyTowers(1000, true);
     local tpDistance = 4000;
+    local minTpDistance = 3000;
     local ancient = GetAncient(GetTeam());
     local enemyAncient = GetAncient(GetOpposingTeam());
     local topTower1 = GetTower(GetTeam(), TOWER_TOP_1);
@@ -34,19 +42,10 @@ function ShouldTP()
     local botTower1 = GetTower(GetTeam(), TOWER_BOT_1);
     local botTower2 = GetTower(GetTeam(), TOWER_BOT_2);
     local botTower3 = GetTower(GetTeam(), TOWER_BOT_3);
-    local enemytopTower1 = GetTower(GetOpposingTeam(), TOWER_TOP_1);
-    local enemytopTower2 = GetTower(GetOpposingTeam(), TOWER_TOP_2);
-    local enemytopTower3 = GetTower(GetOpposingTeam(), TOWER_TOP_3);
-    local enemymidTower1 = GetTower(GetOpposingTeam(), TOWER_MID_1);
-    local enemymidTower2 = GetTower(GetOpposingTeam(), TOWER_MID_2);
-    local enemymidTower3 = GetTower(GetOpposingTeam(), TOWER_MID_3);
-    local enemybotTower1 = GetTower(GetOpposingTeam(), TOWER_BOT_1);
-    local enemybotTower2 = GetTower(GetOpposingTeam(), TOWER_BOT_2);
-    local enemybotTower3 = GetTower(GetOpposingTeam(), TOWER_BOT_3);
 
     if botMode == BOT_MODE_RETREAT
     then
-        if npcBot:DistanceFromFountain() > tpDistance and (#enemyTower == 0)
+        if npcBot:DistanceFromFountain() > tpDistance
         then
             if (npcBot:GetHealth() / npcBot:GetMaxHealth() <= 0.6 and npcBot:WasRecentlyDamagedByAnyHero(2.0)) or (npcBot:GetHealth() / npcBot:GetMaxHealth() <= 0.4)
                 or (not utility.CanMove(npcBot) and (#allyHeroes < 2) and (npcBot:GetHealth() / npcBot:GetMaxHealth() <= 0.6))
@@ -57,143 +56,226 @@ function ShouldTP()
             end
         end
     end
+
+    if (#enemyHeroes > 0)
+    then
+        return false, nil;
+    end
+
     if botMode == BOT_MODE_LANING
     then
-        local assignedLane = npcBot:GetAssignedLane();
-        local botAmount = GetAmountAlongLane(assignedLane, botLoc);
-        local laneFront = GetLaneFrontAmount(botTeam, assignedLane, false);
-        if assignedLane == LANE_TOP then
-            if topTower1 ~= nil and not topTower1:IsInvulnerable()
+        if towerLaning == nil
+        then
+            if assignedLane == LANE_TOP
             then
-                towerLaning = topTower1;
-            elseif topTower2 ~= nil and not topTower2:IsInvulnerable()
+                if utility.IsValidTarget(topTower1)
+                then
+                    towerLaning = topTower1;
+                elseif utility.IsValidTarget(topTower2)
+                then
+                    towerLaning = topTower2;
+                elseif utility.IsValidTarget(topTower3)
+                then
+                    towerLaning = topTower3;
+                end
+            elseif assignedLane == LANE_MID
             then
-                towerLaning = topTower2;
-            elseif topTower3 ~= nil and not topTower3:IsInvulnerable()
+                if utility.IsValidTarget(midTower1)
+                then
+                    towerLaning = midTower1;
+                elseif utility.IsValidTarget(midTower2)
+                then
+                    towerLaning = midTower2;
+                elseif utility.IsValidTarget(midTower3)
+                then
+                    towerLaning = midTower3;
+                end
+            elseif assignedLane == LANE_BOT
             then
-                towerLaning = topTower3;
-            end
-        elseif assignedLane == LANE_MID then
-            if midTower1 ~= nil and not midTower1:IsInvulnerable()
-            then
-                towerLaning = midTower1;
-            elseif midTower2 ~= nil and not midTower2:IsInvulnerable()
-            then
-                towerLaning = midTower2;
-            elseif midTower3 ~= nil and not midTower3:IsInvulnerable()
-            then
-                towerLaning = midTower3;
-            end
-        elseif assignedLane == LANE_BOT then
-            if botTower1 ~= nil and not botTower1:IsInvulnerable()
-            then
-                towerLaning = botTower1;
-            elseif botTower2 ~= nil and not botTower2:IsInvulnerable()
-            then
-                towerLaning = botTower2;
-            elseif botTower3 ~= nil and not botTower3:IsInvulnerable()
-            then
-                towerLaning = botTower3;
+                if utility.IsValidTarget(botTower1)
+                then
+                    towerLaning = botTower1;
+                elseif utility.IsValidTarget(botTower2)
+                then
+                    towerLaning = botTower2;
+                elseif utility.IsValidTarget(botTower3)
+                then
+                    towerLaning = botTower3;
+                end
             end
         end
-        if towerLaning ~= nil and #enemyHeroes == 0 and (botAmount.distance >= tpDistance or botAmount.amount < laneFront / 5)
-            and utility.CountEnemyHeroAroundUnit(towerLaning, 700) <= 2
+
+        if towerLaning ~= nil
         then
-            tpLocation = utility.GetEscapeLocation(towerLaning, 800)
-            --npcBot:ActionImmediate_Chat("Использую tpscroll для лайнинга на линии!", true);
-            return true, tpLocation;
+            local assignedLane = npcBot:GetAssignedLane();
+            local botAmount = GetAmountAlongLane(assignedLane, botLoc);
+            local laneFront = GetLaneFrontAmount(botTeam, assignedLane, false);
+            if GetUnitToUnitDistance(npcBot, towerLaning) >= tpDistance and (botAmount.distance >= tpDistance or botAmount.amount < laneFront / 5)
+            then
+                local enemyHeroes = utility.CountEnemyHeroAroundUnit(towerLaning, 1000);
+                if (enemyHeroes <= 2)
+                then
+                    return true, utility.GetEscapeLocation(towerLaning, 800);
+                else
+                    for _, ally in pairs(allyBuildings) do
+                        local enemyHeroes = utility.CountEnemyHeroAroundUnit(ally, 1000);
+                        if GetUnitToUnitDistance(ally, towerLaning) < GetUnitToUnitDistance(npcBot, towerLaning) and
+                            GetUnitToUnitDistance(npcBot, ally) >= minTpDistance and (enemyHeroes <= 2)
+                        then
+                            --npcBot:ActionImmediate_Chat("Использую tpscroll для лайнинга на линии!",true);
+                            return true, utility.GetEscapeLocation(ally, 800);
+                        end
+                    end
+                end
+            end
         end
     end
 
-    if botMode == BOT_MODE_DEFEND_TOWER_TOP then
-        if topTower1 ~= nil and not topTower1:IsInvulnerable()
+    if botMode == BOT_MODE_DEFEND_TOWER_TOP
+    then
+        if towerDefend == nil
         then
-            towerDefend = topTower1;
-        elseif topTower2 ~= nil and not topTower2:IsInvulnerable()
-        then
-            towerDefend = topTower2;
-        elseif topTower3 ~= nil and not topTower3:IsInvulnerable()
-        then
-            towerDefend = topTower3;
+            if utility.IsValidTarget(topTower1)
+            then
+                towerDefend = topTower1;
+            elseif utility.IsValidTarget(topTower2)
+            then
+                towerDefend = topTower2;
+            elseif utility.IsValidTarget(topTower3)
+            then
+                towerDefend = topTower3;
+            else
+                towerDefend = ancient;
+            end
         end
-        if towerDefend ~= nil and (#enemyHeroes == 0 and #enemyTower == 0)
-            and utility.CountEnemyHeroAroundUnit(towerDefend, 1000) <= 1
+
+        if towerDefend ~= nil
         then
             local botAmount = GetAmountAlongLane(LANE_TOP, botLoc);
             local laneFront = GetLaneFrontAmount(botTeam, LANE_TOP, false);
             if GetUnitToUnitDistance(npcBot, towerDefend) >= tpDistance and (botAmount.distance >= tpDistance or botAmount.amount < laneFront / 5)
             then
-                --npcBot:ActionImmediate_Chat("Использую tpscroll для защиты топа!", true);
-                return true, utility.GetEscapeLocation(towerDefend, 800)
+                local enemyHeroes = utility.CountEnemyHeroAroundUnit(towerDefend, 1000);
+                if (enemyHeroes <= 2)
+                then
+                    return true, utility.GetEscapeLocation(towerDefend, 800);
+                else
+                    for _, ally in pairs(allyBuildings) do
+                        local enemyHeroes = utility.CountEnemyHeroAroundUnit(ally, 1000);
+                        if GetUnitToUnitDistance(ally, towerDefend) < GetUnitToUnitDistance(npcBot, towerDefend) and
+                            GetUnitToUnitDistance(npcBot, ally) >= minTpDistance and (enemyHeroes <= 1)
+                        then
+                            --npcBot:ActionImmediate_Chat("Использую tpscroll для дефа топа!", true);
+                            return true, utility.GetEscapeLocation(ally, 800);
+                        end
+                    end
+                end
             end
         end
     elseif botMode == BOT_MODE_DEFEND_TOWER_MID
     then
-        if midTower1 ~= nil and not midTower1:IsInvulnerable()
+        if towerDefend == nil
         then
-            towerDefend = midTower1;
-        elseif midTower2 ~= nil and not midTower2:IsInvulnerable()
-        then
-            towerDefend = midTower2;
-        elseif midTower3 ~= nil and not midTower3:IsInvulnerable()
-        then
-            towerDefend = midTower3;
-        elseif (midTower1 == nil and midTower2 == nil and midTower3 == nil)
-        then
-            towerDefend = ancient;
+            if utility.IsValidTarget(midTower1)
+            then
+                towerDefend = midTower1;
+            elseif utility.IsValidTarget(midTower2)
+            then
+                towerDefend = midTower2;
+            elseif utility.IsValidTarget(midTower3)
+            then
+                towerDefend = midTower3;
+            else
+                towerDefend = ancient;
+            end
         end
-        if towerDefend ~= nil and (#enemyHeroes == 0 and #enemyTower == 0)
+
+        if towerDefend ~= nil
         then
             local botAmount = GetAmountAlongLane(LANE_MID, botLoc);
             local laneFront = GetLaneFrontAmount(botTeam, LANE_MID, false);
-            local enemyHeroes = utility.CountEnemyHeroAroundUnit(towerDefend, 1000);
             if GetUnitToUnitDistance(npcBot, towerDefend) >= tpDistance and (botAmount.distance >= tpDistance or botAmount.amount < laneFront / 5)
-                and enemyHeroes <= 1
             then
-                --npcBot:ActionImmediate_Chat("Использую tpscroll для защиты мида!", true);
-                return true, utility.GetEscapeLocation(towerDefend, 800)
+                local enemyHeroes = utility.CountEnemyHeroAroundUnit(towerDefend, 1000);
+                if (enemyHeroes <= 2)
+                then
+                    return true, utility.GetEscapeLocation(towerDefend, 800);
+                else
+                    for _, ally in pairs(allyBuildings) do
+                        local enemyHeroes = utility.CountEnemyHeroAroundUnit(ally, 1000);
+                        if GetUnitToUnitDistance(ally, towerDefend) < GetUnitToUnitDistance(npcBot, towerDefend) and
+                            GetUnitToUnitDistance(npcBot, ally) >= minTpDistance and (enemyHeroes <= 1)
+                        then
+                            --npcBot:ActionImmediate_Chat("Использую tpscroll для дефа мида!", true);
+                            return true, utility.GetEscapeLocation(ally, 800);
+                        end
+                    end
+                end
             end
         end
     elseif botMode == BOT_MODE_DEFEND_TOWER_BOT
     then
-        if botTower1 ~= nil and not botTower1:IsInvulnerable()
+        if towerDefend == nil
         then
-            towerDefend = botTower1;
-        elseif botTower2 ~= nil and not botTower2:IsInvulnerable()
-        then
-            towerDefend = botTower2;
-        elseif botTower3 ~= nil and not botTower3:IsInvulnerable()
-        then
-            towerDefend = botTower3;
+            if utility.IsValidTarget(botTower1)
+            then
+                towerDefend = botTower1;
+            elseif utility.IsValidTarget(botTower2)
+            then
+                towerDefend = botTower2;
+            elseif utility.IsValidTarget(botTower3)
+            then
+                towerDefend = botTower3;
+            else
+                towerDefend = ancient;
+            end
         end
-        if towerDefend ~= nil and (#enemyHeroes == 0 and #enemyTower == 0)
+
+        if towerDefend ~= nil
         then
             local botAmount = GetAmountAlongLane(LANE_BOT, botLoc);
             local laneFront = GetLaneFrontAmount(botTeam, LANE_BOT, false);
-            local enemyHeroes = utility.CountEnemyHeroAroundUnit(towerDefend, 1000);
             if GetUnitToUnitDistance(npcBot, towerDefend) >= tpDistance and (botAmount.distance >= tpDistance or botAmount.amount < laneFront / 5)
-            and enemyHeroes <= 1
             then
-                --npcBot:ActionImmediate_Chat("Использую tpscroll для защиты бота!", true);
-                return true, GetEscapeLocation(towerDefend, 800)
+                local enemyHeroes = utility.CountEnemyHeroAroundUnit(towerDefend, 1000);
+                if (enemyHeroes <= 2)
+                then
+                    return true, utility.GetEscapeLocation(towerDefend, 800);
+                else
+                    for _, ally in pairs(allyBuildings) do
+                        local enemyHeroes = utility.CountEnemyHeroAroundUnit(ally, 1000);
+                        if GetUnitToUnitDistance(ally, towerDefend) < GetUnitToUnitDistance(npcBot, towerDefend) and
+                            GetUnitToUnitDistance(npcBot, ally) >= minTpDistance and (enemyHeroes <= 1)
+                        then
+                            --npcBot:ActionImmediate_Chat("Использую tpscroll для дефа бота!", true);
+                            return true, utility.GetEscapeLocation(ally, 800);
+                        end
+                    end
+                end
             end
         end
     end
 
     if botMode == BOT_MODE_PUSH_TOWER_TOP
     then
-        if enemytopTower1 ~= nil and not enemytopTower1:IsInvulnerable()
+        local enemytopTower1 = GetTower(GetOpposingTeam(), TOWER_TOP_1);
+        local enemytopTower2 = GetTower(GetOpposingTeam(), TOWER_TOP_2);
+        local enemytopTower3 = GetTower(GetOpposingTeam(), TOWER_TOP_3);
+        if towerPush == nil
         then
-            towerPush = enemytopTower1;
-        elseif enemytopTower2 ~= nil and not enemytopTower2:IsInvulnerable()
-        then
-            towerPush = enemytopTower2;
-        elseif enemytopTower3 ~= nil and not enemytopTower3:IsInvulnerable()
-        then
-            towerPush = enemytopTower3;
-        end
-        if towerPush ~= nil and (#enemyHeroes == 0 and #enemyTower == 0)
-        then
+            if utility.IsValidTarget(enemytopTower1)
+            then
+                towerPush = enemytopTower1;
+            elseif utility.IsValidTarget(enemytopTower2)
+            then
+                towerPush = enemytopTower2;
+            elseif utility.IsValidTarget(enemytopTower3)
+            then
+                towerPush = enemytopTower3;
+            else
+                towerPush = enemyAncient;
+            end
+        else
             local botAmount = GetAmountAlongLane(LANE_TOP, botLoc);
             local laneFront = GetLaneFrontAmount(botTeam, LANE_TOP, false);
             if GetUnitToUnitDistance(npcBot, towerPush) > tpDistance and (botAmount.distance >= tpDistance or botAmount.amount < laneFront / 5)
@@ -203,7 +285,7 @@ function ShouldTP()
                     for _, ally in pairs(allyBuildings) do
                         local enemyHeroes = utility.CountEnemyHeroAroundUnit(ally, 1000);
                         if GetUnitToUnitDistance(ally, towerPush) < GetUnitToUnitDistance(npcBot, towerPush) and
-                            GetUnitToUnitDistance(npcBot, ally) >= tpDistance and (enemyHeroes <= 1)
+                            GetUnitToUnitDistance(npcBot, ally) >= minTpDistance and (enemyHeroes <= 1)
                         then
                             return true, ally:GetLocation();
                         end
@@ -216,21 +298,24 @@ function ShouldTP()
         end
     elseif botMode == BOT_MODE_PUSH_TOWER_MID
     then
-        if enemymidTower1 ~= nil and not enemymidTower1:IsInvulnerable()
+        local enemymidTower1 = GetTower(GetOpposingTeam(), TOWER_MID_1);
+        local enemymidTower2 = GetTower(GetOpposingTeam(), TOWER_MID_2);
+        local enemymidTower3 = GetTower(GetOpposingTeam(), TOWER_MID_3);
+        if towerPush == nil
         then
-            towerPush = enemymidTower1;
-        elseif enemymidTower2 ~= nil and not enemymidTower2:IsInvulnerable()
-        then
-            towerPush = enemymidTower2;
-        elseif enemymidTower3 ~= nil and not enemymidTower3:IsInvulnerable()
-        then
-            towerPush = enemymidTower3;
-        elseif (enemymidTower1 == nil and enemymidTower2 == nil and enemymidTower3 == nil)
-        then
-            towerPush = enemyAncient;
-        end
-        if towerPush ~= nil and (#enemyHeroes == 0 and #enemyTower == 0)
-        then
+            if utility.IsValidTarget(enemymidTower1)
+            then
+                towerPush = enemymidTower1;
+            elseif utility.IsValidTarget(enemymidTower2)
+            then
+                towerPush = enemymidTower2;
+            elseif utility.IsValidTarget(enemymidTower3)
+            then
+                towerPush = enemymidTower3;
+            else
+                towerPush = enemyAncient;
+            end
+        else
             local botAmount = GetAmountAlongLane(LANE_MID, botLoc);
             local laneFront = GetLaneFrontAmount(botTeam, LANE_MID, false);
             if GetUnitToUnitDistance(npcBot, towerPush) > tpDistance and (botAmount.distance >= tpDistance or botAmount.amount < laneFront / 5)
@@ -240,7 +325,7 @@ function ShouldTP()
                     for _, ally in pairs(allyBuildings) do
                         local enemyHeroes = utility.CountEnemyHeroAroundUnit(ally, 1000);
                         if GetUnitToUnitDistance(ally, towerPush) < GetUnitToUnitDistance(npcBot, towerPush) and
-                            GetUnitToUnitDistance(npcBot, ally) >= tpDistance and (enemyHeroes <= 1)
+                            GetUnitToUnitDistance(npcBot, ally) >= minTpDistance and (enemyHeroes <= 1)
                         then
                             return true, ally:GetLocation();
                         end
@@ -253,18 +338,24 @@ function ShouldTP()
         end
     elseif botMode == BOT_MODE_PUSH_TOWER_BOT
     then
-        if enemybotTower1 ~= nil and not enemybotTower1:IsInvulnerable()
+        local enemybotTower1 = GetTower(GetOpposingTeam(), TOWER_BOT_1);
+        local enemybotTower2 = GetTower(GetOpposingTeam(), TOWER_BOT_2);
+        local enemybotTower3 = GetTower(GetOpposingTeam(), TOWER_BOT_3);
+        if towerPush == nil
         then
-            towerPush = enemybotTower1;
-        elseif enemybotTower2 ~= nil and not enemybotTower2:IsInvulnerable()
-        then
-            towerPush = enemybotTower2;
-        elseif enemybotTower3 ~= nil and not enemybotTower3:IsInvulnerable()
-        then
-            towerPush = enemybotTower3;
-        end
-        if towerPush ~= nil and (#enemyHeroes == 0 and #enemyTower == 0)
-        then
+            if utility.IsValidTarget(enemybotTower1)
+            then
+                towerPush = enemybotTower1;
+            elseif utility.IsValidTarget(enemybotTower2)
+            then
+                towerPush = enemybotTower2;
+            elseif utility.IsValidTarget(enemybotTower3)
+            then
+                towerPush = enemybotTower3;
+            else
+                towerPush = enemyAncient;
+            end
+        else
             local botAmount = GetAmountAlongLane(LANE_BOT, botLoc);
             local laneFront = GetLaneFrontAmount(botTeam, LANE_BOT, false);
             if GetUnitToUnitDistance(npcBot, towerPush) > tpDistance and (botAmount.distance >= tpDistance or botAmount.amount < laneFront / 5)
@@ -274,7 +365,7 @@ function ShouldTP()
                     for _, ally in pairs(allyBuildings) do
                         local enemyHeroes = utility.CountEnemyHeroAroundUnit(ally, 1000);
                         if GetUnitToUnitDistance(ally, towerPush) < GetUnitToUnitDistance(npcBot, towerPush) and
-                            GetUnitToUnitDistance(npcBot, ally) >= tpDistance and (enemyHeroes <= 1)
+                            GetUnitToUnitDistance(npcBot, ally) >= minTpDistance and (enemyHeroes <= 1)
                         then
                             return true, ally:GetLocation();
                         end

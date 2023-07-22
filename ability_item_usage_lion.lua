@@ -178,8 +178,7 @@ function ConsiderEarthSpike()
                         --npcBot:ActionImmediate_Chat("Использую EarthSpike что бы оторваться по цели", true);
                         return BOT_MODE_DESIRE_HIGH, enemy, "target";
                     else
-                        npcBot:ActionImmediate_Chat("Использую EarthSpike что бы оторваться по области",
-                            true);
+                        --npcBot:ActionImmediate_Chat("Использую EarthSpike что бы оторваться по области", true);
                         return BOT_MODE_DESIRE_HIGH, utility.GetTargetPosition(botTarget, delayAbility), "location";
                     end
                 end
@@ -250,7 +249,7 @@ function ConsiderHex()
                     for _, enemy in pairs(enemyAbility) do
                         if utility.CanCastOnMagicImmuneTarget(enemy) and not utility.IsDisabled(enemy)
                         then
-                            npcBot:ActionImmediate_Chat("Использую Hex по второй цели!", true);
+                            --npcBot:ActionImmediate_Chat("Использую Hex по второй цели!", true);
                             return BOT_MODE_DESIRE_HIGH, enemy;
                         end
                     end

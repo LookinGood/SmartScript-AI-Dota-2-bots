@@ -70,9 +70,9 @@ function AbilityUsageThink()
 
     if (castMultishotDesire ~= nil)
     then
-        npcBot:Action_ClearActions(false);
-        npcBot:ActionQueue_Delay(0.5);
-        npcBot:ActionQueue_UseAbilityOnLocation(Multishot, castMultishotLocation);
+        --npcBot:Action_ClearActions(false);
+        --npcBot:Action_Delay(0.5);
+        npcBot:Action_UseAbilityOnLocation(Multishot, castMultishotLocation);
         --npcBot:Action_UseAbilityOnLocation(Multishot, castMultishotLocation);
         return;
     end

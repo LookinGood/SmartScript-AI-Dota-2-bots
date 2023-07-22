@@ -163,7 +163,7 @@ function ConsiderSplinterBlast()
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if tility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and utility.CanCastSpellOnTarget(ability, enemy)
+            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and utility.CanCastSpellOnTarget(ability, enemy)
             then
                 local enemyHeroAround = enemy:GetNearbyHeroes(radiusAbility, false, BOT_MODE_NONE);
                 local enemyCreepsAround = enemy:GetNearbyCreeps(radiusAbility, false);

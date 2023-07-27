@@ -92,54 +92,51 @@ function GetDesire()
     return BOT_ACTION_DESIRE_NONE;
 end
 
+function OnEnd()
+    mainBuilding = nil;
+end
+
 function Think()
     local npcBot = GetBot();
     --local allyHeroes = npcBot:GetNearbyHeroes(1600, false, BOT_MODE_NONE);
     --local allyBuildings = GetUnitList(UNIT_LIST_ALLIED_BUILDINGS);
-    local mainCreep = nil;
-    local defendZonePatrol = nil;
 
     if mainBuilding ~= nil
     then
         local defendZone = utility.GetEscapeLocation(mainBuilding, 700);
-        if defendZonePatrol == nil
+        if GetUnitToLocationDistance(npcBot, defendZone) > 700
         then
-            if GetUnitToLocationDistance(npcBot, defendZone) > 700
+            npcBot:Action_MoveToLocation(defendZone);
+        else
+            --local enemyHeroes = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
+            local enemyCreeps = npcBot:GetNearbyCreeps(1600, true);
+            local mainCreep = nil;
+            if (#enemyCreeps > 0)
             then
-                npcBot:Action_MoveToLocation(defendZone);
-            elseif GetUnitToLocationDistance(npcBot, defendZone) <= 700
-            then
-                defendZonePatrol = npcBot:GetLocation();
-            end
-
-            if defendZonePatrol ~= nil
-            then
-                if GetUnitToLocationDistance(npcBot, defendZonePatrol) <= 1600
+                mainCreep = utility.GetWeakest(enemyCreeps);
+                if GetUnitToUnitDistance(npcBot, mainCreep) > npcBot:GetAttackRange()
                 then
-                    local enemyHeroes = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
-                    local enemyCreeps = npcBot:GetNearbyCreeps(1600, true);
-                    if (#enemyCreeps > 0) and (#enemyHeroes <= 1)
-                    then
-                        mainCreep = utility.GetWeakest(enemyCreeps);
-                    else
-                        npcBot:Action_MoveToLocation(npcBot:GetLocation() + RandomVector(500));
-                    end
-
-                    if mainCreep ~= nil
-                    then
-                        if GetUnitToUnitDistance(npcBot, mainCreep) > attackRange
-                        then
-                            npcBot:Action_MoveToLocation(mainCreep:GetLocation());
-                        else
-                            npcBot:Action_AttackUnit(mainCreep, false);
-                        end
-                    else
-                        npcBot:Action_MoveToLocation(npcBot:GetLocation() + RandomVector(500));
-                    end
+                    npcBot:Action_MoveToLocation(mainCreep:GetLocation());
                 else
-                    npcBot:Action_MoveToLocation(defendZonePatrol);
+                    npcBot:Action_AttackUnit(mainCreep, false);
                 end
+            else
+                npcBot:Action_AttackMove(npcBot:GetLocation() + RandomVector(500));
+                --npcBot:Action_MoveToLocation(npcBot:GetLocation() + RandomVector(500));
             end
+
+    --[[         if mainCreep ~= nil
+            then
+                if GetUnitToUnitDistance(npcBot, mainCreep) > npcBot:GetAttackRange()
+                then
+                    npcBot:Action_MoveToLocation(mainCreep:GetLocation());
+                else
+                    npcBot:Action_AttackUnit(mainCreep, false);
+                end
+            else
+                npcBot:Action_AttackMove(npcBot:GetLocation() + RandomVector(500));
+                --npcBot:Action_MoveToLocation(npcBot:GetLocation() + RandomVector(500));
+            end ]]
         end
     end
 end

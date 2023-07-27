@@ -244,9 +244,9 @@ function ItemUsageThink()
 		then
 			for _, ally in pairs(allies)
 			do
-				if not ally:IsInvisible() and utility.IsHero(ally)
+				if utility.IsHero(ally) and not ally:IsInvisible()
 				then
-					if (ally:GetHealth() / ally:GetMaxHealth() <= 0.8 and ally:WasRecentlyDamagedByAnyHero(5.0)) or ally:IsChanneling()
+					if (ally:GetHealth() / ally:GetMaxHealth() <= 0.8 and ally:WasRecentlyDamagedByAnyHero(2.0)) or ally:IsChanneling()
 					then
 						if shadowAmulet ~= nil and not ally:HasModifier("modifier_item_shadow_amulet_fade") and not ally:HasModifier("modifier_item_dustofappearance")
 						then
@@ -266,8 +266,7 @@ function ItemUsageThink()
 	end
 
 	-- INTERRUPT CAST ITEMS
-	if not npcBot:IsAlive() or npcBot:IsChanneling() or npcBot:IsUsingAbility() or npcBot:IsMuted() or npcBot:IsDominated() or npcBot:IsStunned() or npcBot:IsHexed() or
-		npcBot:IsNightmared()
+	if npcBot:IsChanneling() or npcBot:IsUsingAbility() or npcBot:IsCastingAbility()
 	then
 		return;
 	end
@@ -276,8 +275,8 @@ function ItemUsageThink()
 	local tps = npcBot:GetItemInSlot(15);
 	if tps ~= nil and tps:IsFullyCastable()
 	then
-		local tpLocation = nil
-		local shouldTP = false
+		local tpLocation = nil;
+		local shouldTP = false;
 		shouldTP, tpLocation = teleportation_usage_generic.ShouldTP()
 		if shouldTP
 		then
@@ -305,12 +304,13 @@ function ItemUsageThink()
 	local tangoSingle = IsItemAvailable("item_tango_single");
 	if (tango ~= nil and tango:IsFullyCastable()) or (tangoSingle ~= nil and tangoSingle:IsFullyCastable())
 	then
+		local itemRange = 165;
 		if npcBot:DistanceFromFountain() > 1000 and npcBot:GetHealth() < npcBot:GetMaxHealth() - 200 and not npcBot:HasModifier("modifier_tango_heal")
 			and utility.CanBeHeal(npcBot)
 		then
 			if tango ~= nil
 			then
-				local trees = npcBot:GetNearbyTrees(165 * 2);
+				local trees = npcBot:GetNearbyTrees(itemRange * 2);
 				if trees[1] ~= nil and (IsLocationVisible(GetTreeLocation(trees[1])) or IsLocationPassable(GetTreeLocation(trees[1])))
 				then
 					npcBot:Action_UseAbilityOnTree(tango, trees[1]);
@@ -319,7 +319,7 @@ function ItemUsageThink()
 				end
 			elseif tangoSingle ~= nil
 			then
-				local trees = npcBot:GetNearbyTrees(165 * 3);
+				local trees = npcBot:GetNearbyTrees(itemRange * 3);
 				if trees[1] ~= nil and (IsLocationVisible(GetTreeLocation(trees[1])) or IsLocationPassable(GetTreeLocation(trees[1])))
 				then
 					npcBot:Action_UseAbilityOnTree(tangoSingle, trees[1]);
@@ -331,7 +331,7 @@ function ItemUsageThink()
 		then
 			if tango ~= nil and npcBot:DistanceFromFountain() > 3000
 			then
-				local allies = npcBot:GetNearbyHeroes(700, false, BOT_MODE_NONE);
+				local allies = npcBot:GetNearbyHeroes(itemRange * 3, false, BOT_MODE_NONE);
 				if (#allies > 1)
 				then
 					for _, ally in pairs(allies)
@@ -473,6 +473,7 @@ function ItemUsageThink()
 	if (magicStick ~= nil and magicStick:IsFullyCastable()) or (magicWand ~= nil and magicWand:IsFullyCastable())
 	then
 		if (npcBot:GetHealth() / npcBot:GetMaxHealth() <= 0.5) or (npcBot:GetMana() / npcBot:GetMaxMana() <= 0.4)
+			and utility.CanBeHeal(npcBot)
 		then
 			if magicStick ~= nil and magicStick:GetCurrentCharges() > 0
 			then
@@ -537,31 +538,35 @@ function ItemUsageThink()
 	local powerTreads = IsItemAvailable("item_power_treads");
 	if powerTreads ~= nil and powerTreads:IsFullyCastable() and not npcBot:IsInvisible()
 	then
-		if botMode == BOT_MODE_RETREAT and powerTreads:GetPowerTreadsStat() ~= ATTRIBUTE_STRENGTH
+		if npcBot:GetLevel() <= 6
 		then
-			npcBot:Action_UseAbility(powerTreads);
-			--return;
-		end
-		if botMode ~= BOT_MODE_RETREAT
-		then
-			if npcBot:GetPrimaryAttribute() == ATTRIBUTE_STRENGTH and powerTreads:GetPowerTreadsStat() ~= ATTRIBUTE_STRENGTH
+			if powerTreads:GetPowerTreadsStat() ~= ATTRIBUTE_STRENGTH
 			then
 				npcBot:Action_UseAbility(powerTreads);
-				--return;
-			elseif npcBot:GetPrimaryAttribute() == ATTRIBUTE_AGILITY and powerTreads:GetPowerTreadsStat() ~= ATTRIBUTE_INTELLECT
+			end
+		else
+			if botMode == BOT_MODE_RETREAT and powerTreads:GetPowerTreadsStat() ~= ATTRIBUTE_STRENGTH
 			then
 				npcBot:Action_UseAbility(powerTreads);
-				--return;
-			elseif npcBot:GetPrimaryAttribute() == ATTRIBUTE_INTELLECT and powerTreads:GetPowerTreadsStat() ~= ATTRIBUTE_AGILITY
+			end
+			if botMode ~= BOT_MODE_RETREAT
 			then
-				npcBot:Action_UseAbility(powerTreads);
-				--return;
-			elseif (npcBot:GetPrimaryAttribute() ~= ATTRIBUTE_STRENGTH and
-					npcBot:GetPrimaryAttribute() ~= ATTRIBUTE_AGILITY and
-					npcBot:GetPrimaryAttribute() ~= ATTRIBUTE_INTELLECT) and powerTreads:GetPowerTreadsStat() ~= ATTRIBUTE_AGILITY
-			then
-				npcBot:Action_UseAbility(powerTreads);
-				--return;
+				if npcBot:GetPrimaryAttribute() == ATTRIBUTE_STRENGTH and powerTreads:GetPowerTreadsStat() ~= ATTRIBUTE_STRENGTH
+				then
+					npcBot:Action_UseAbility(powerTreads);
+				elseif npcBot:GetPrimaryAttribute() == ATTRIBUTE_AGILITY and powerTreads:GetPowerTreadsStat() ~= ATTRIBUTE_INTELLECT
+				then
+					npcBot:Action_UseAbility(powerTreads);
+				elseif npcBot:GetPrimaryAttribute() == ATTRIBUTE_INTELLECT and powerTreads:GetPowerTreadsStat() ~= ATTRIBUTE_AGILITY
+				then
+					npcBot:Action_UseAbility(powerTreads);
+				elseif (npcBot:GetPrimaryAttribute() ~= ATTRIBUTE_STRENGTH and
+						npcBot:GetPrimaryAttribute() ~= ATTRIBUTE_AGILITY and
+						npcBot:GetPrimaryAttribute() ~= ATTRIBUTE_INTELLECT)
+					and powerTreads:GetPowerTreadsStat() ~= ATTRIBUTE_AGILITY
+				then
+					npcBot:Action_UseAbility(powerTreads);
+				end
 			end
 		end
 	end

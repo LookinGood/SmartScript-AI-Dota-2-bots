@@ -3,54 +3,10 @@ _G._savedEnv = getfenv()
 module("utility", package.seeall)
 require(GetScriptDirectory() .. "/hero_role_generic")
 
-function GetWeakestUnit(EnemyUnits)
-	if EnemyUnits == nil or #EnemyUnits == 0 then
-		return nil, 10000;
-	end
-
-	local WeakestUnit = nil;
-	local LowestHealth = 10000;
-	for _, unit in pairs(EnemyUnits)
-	do
-		if unit ~= nil and unit:IsAlive()
-		then
-			if unit:GetHealth() < LowestHealth
-			then
-				LowestHealth = unit:GetHealth();
-				WeakestUnit = unit;
-			end
-		end
-	end
-
-	return WeakestUnit, LowestHealth
-end
-
-function GetStrongestUnit(EnemyUnits)
-	if EnemyUnits == nil or #EnemyUnits == 0 then
-		return nil, 0;
-	end
-
-	local StrongestUnit = nil;
-	local HighestHealth = 0;
-	for _, unit in pairs(EnemyUnits)
-	do
-		if unit ~= nil and unit:IsAlive()
-		then
-			if unit:GetHealth() > HighestHealth
-			then
-				HighestHealth = unit:GetHealth();
-				StrongestUnit = unit;
-			end
-		end
-	end
-
-	return StrongestUnit, HighestHealth
-end
-
 function IsValidTarget(target)
 	return target ~= nil and
-		target:IsAlive() and
 		target:CanBeSeen() and
+		target:IsAlive() and
 		not target:IsInvulnerable()
 end
 
@@ -211,12 +167,17 @@ function IsIllusion(npcTarget)
 			npcTarget:HasModifier("modifier_phantom_lancer_juxtapose_illusion"))
 end
 
-function IsRoshan(npcTarget)
-	return IsValidTarget(npcTarget) and string.find(npcTarget:GetUnitName(), "roshan");
-end
-
 function IsHero(npcTarget)
 	return IsValidTarget(npcTarget) and npcTarget:IsHero() and not IsIllusion(npcTarget);
+end
+
+function IsBuilding(npcTarget)
+	return IsValidTarget(npcTarget) and
+		npcTarget:IsTower() or npcTarget:IsFort() or npcTarget:IsBarracks();
+end
+
+function IsRoshan(npcTarget)
+	return IsValidTarget(npcTarget) and string.find(npcTarget:GetUnitName(), "roshan");
 end
 
 function IsDisabled(npcTarget)
@@ -237,15 +198,6 @@ function IsMoving(npcTarget)
 		not npcTarget:IsStunned() and
 		not npcTarget:IsNightmared()
 		and npcTarget:GetBaseMovementSpeed() > 0
-end
-
-function GetTargetPosition(npcTarget, fdelay)
-	if IsMoving(npcTarget)
-	then
-		return npcTarget:GetExtrapolatedLocation(fdelay);
-	else
-		return npcTarget:GetLocation();
-	end
 end
 
 function IsHaveMaxSpeed(npcTarget)
@@ -362,16 +314,59 @@ function CountEnemyHeroAroundUnit(unit, radius)
 	return count;
 end
 
+function CountUnitAroundTarget(target, unitName, bEnemy, radius)
+	local count = 0;
+
+	if bEnemy == true
+	then
+		local unitList = GetUnitList(UNIT_LIST_ENEMY_CREEPS);
+		for _, creep in pairs(unitList)
+		do
+			if creep:GetUnitName() == unitName
+			then
+				if GetUnitToUnitDistance(creep, target) <= radius
+				then
+					count = count + 1;
+				end
+			end
+		end
+	elseif bEnemy == false
+	then
+		local unitList = GetUnitList(UNIT_LIST_ALLIED_CREEPS);
+		for _, creep in pairs(unitList)
+		do
+			if creep:GetUnitName() == unitName
+			then
+				if GetUnitToUnitDistance(creep, target) <= radius
+				then
+					count = count + 1;
+				end
+			end
+		end
+	end
+
+	return count;
+end
+
 function CanCast(npcTarget)
 	return npcTarget:IsAlive() and
-		not npcTarget:IsUsingAbility() and
-		not npcTarget:IsCastingAbility() and
+		--not npcTarget:IsUsingAbility() and
+		--not npcTarget:IsCastingAbility() and
 		not npcTarget:IsChanneling() and
 		not npcTarget:IsSilenced() and
 		not npcTarget:IsDominated() and
 		not npcTarget:IsStunned() and
 		not npcTarget:IsHexed() and
 		not npcTarget:IsNightmared()
+end
+
+function GetTargetPosition(npcTarget, fdelay)
+	if IsMoving(npcTarget)
+	then
+		return npcTarget:GetExtrapolatedLocation(fdelay);
+	else
+		return npcTarget:GetLocation();
+	end
 end
 
 function CanAbilityKillTarget(npcTarget, damage, damagetype)
@@ -456,7 +451,6 @@ function CanCastSpellOnTarget(spell, npcTarget)
 		return IsValidTarget(npcTarget);
 	end
 end
-
 
 function SafeCast(npcTarget, bfullSafe)
 	if IsValidTarget(npcTarget) and

@@ -386,7 +386,7 @@ function ConsiderMortimerKisses()
         if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget)
             and (GetUnitToUnitDistance(npcBot, botTarget) >= minRangeAbility and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility)
         then
-            return BOT_ACTION_DESIRE_HIGH, utility.GetTargetPosition(enemy, delayAbility);
+            return BOT_ACTION_DESIRE_HIGH, utility.GetTargetPosition(botTarget, delayAbility);
         end
     end
 end

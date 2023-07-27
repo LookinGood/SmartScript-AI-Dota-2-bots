@@ -126,7 +126,7 @@ function ConsiderStrafe()
     end
 
     -- Use when attack building
-    if attackTarget:IsTower() or attackTarget:IsFort() or attackTarget:IsBarracks()
+    if utility.IsBuilding(attackTarget)
     then
         if (attackTarget:GetHealth() / attackTarget:GetMaxHealth() >= 0.3) and ManaPercentage >= 0.4
         then

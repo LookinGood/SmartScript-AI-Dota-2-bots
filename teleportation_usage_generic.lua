@@ -263,13 +263,13 @@ function ShouldTP()
         local enemytopTower3 = GetTower(GetOpposingTeam(), TOWER_TOP_3);
         if towerPush == nil
         then
-            if utility.IsValidTarget(enemytopTower1)
+            if enemytopTower1 ~= nil
             then
                 towerPush = enemytopTower1;
-            elseif utility.IsValidTarget(enemytopTower2)
+            elseif enemytopTower2 ~= nil
             then
                 towerPush = enemytopTower2;
-            elseif utility.IsValidTarget(enemytopTower3)
+            elseif enemytopTower3 ~= nil
             then
                 towerPush = enemytopTower3;
             else
@@ -303,13 +303,13 @@ function ShouldTP()
         local enemymidTower3 = GetTower(GetOpposingTeam(), TOWER_MID_3);
         if towerPush == nil
         then
-            if utility.IsValidTarget(enemymidTower1)
+            if enemymidTower1 ~= nil
             then
                 towerPush = enemymidTower1;
-            elseif utility.IsValidTarget(enemymidTower2)
+            elseif enemymidTower2 ~= nil
             then
                 towerPush = enemymidTower2;
-            elseif utility.IsValidTarget(enemymidTower3)
+            elseif enemymidTower3 ~= nil
             then
                 towerPush = enemymidTower3;
             else
@@ -343,13 +343,13 @@ function ShouldTP()
         local enemybotTower3 = GetTower(GetOpposingTeam(), TOWER_BOT_3);
         if towerPush == nil
         then
-            if utility.IsValidTarget(enemybotTower1)
+            if enemybotTower1 ~= nil
             then
                 towerPush = enemybotTower1;
-            elseif utility.IsValidTarget(enemybotTower2)
+            elseif enemybotTower2 ~= nil
             then
                 towerPush = enemybotTower2;
-            elseif utility.IsValidTarget(enemybotTower3)
+            elseif enemybotTower3 ~= nil
             then
                 towerPush = enemybotTower3;
             else

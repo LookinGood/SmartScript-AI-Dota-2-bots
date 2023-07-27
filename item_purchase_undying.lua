@@ -65,6 +65,8 @@ local ItemsToBuy =
     "item_void_stone",
 
     "item_recipe_octarine_core",
+
+    "item_aghanims_shard",
 }
 
 function ItemPurchaseThink()

@@ -61,7 +61,7 @@ function AbilityUsageThink()
     castVenomousGaleDesire, castVenomousGaleLocation = ConsiderVenomousGale();
     castPlagueWardDesire, castPlagueWardLocation = ConsiderPlagueWard();
     castLatentToxicityDesire, castLatentToxicitytarget = ConsiderLatentToxicity();
-    castNoxiousPlagueDesire, castNoxiousPlaguetarget = ConsiderNoxiousPlague();
+    castNoxiousPlagueDesire, castNoxiousPlagueTarget = ConsiderNoxiousPlague();
 
     if (castVenomousGaleDesire ~= nil)
     then
@@ -83,7 +83,7 @@ function AbilityUsageThink()
 
     if (castNoxiousPlagueDesire ~= nil)
     then
-        npcBot:Action_UseAbilityOnEntity(NoxiousPlague, castNoxiousPlaguetarget);
+        npcBot:Action_UseAbilityOnEntity(NoxiousPlague, castNoxiousPlagueTarget);
         return;
     end
 end

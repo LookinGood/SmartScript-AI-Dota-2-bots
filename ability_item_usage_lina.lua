@@ -13,7 +13,7 @@ end
 
 -- Ability learn
 local npcBot = GetBot();
-Abilities, Talents, AbilitiesReal = ability_levelup_generic.GetHeroAbilities(npcBot)
+local Abilities, Talents, AbilitiesReal = ability_levelup_generic.GetHeroAbilities(npcBot)
 
 local AbilityToLevelUp =
 {

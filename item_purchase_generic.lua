@@ -176,19 +176,16 @@ function SellExtraItem()
 	then
 		if (DotaTime() > 15 * 60)
 		then
-			SellSpecifiedItem("item_branches")
-			SellSpecifiedItem("item_faerie_fire")
-			SellSpecifiedItem("item_enchanted_mango")
 			SellSpecifiedItem("item_tango")
 			SellSpecifiedItem("item_clarity")
 			SellSpecifiedItem("item_flask")
+			SellSpecifiedItem("item_faerie_fire")
+			SellSpecifiedItem("item_enchanted_mango")
 			SellSpecifiedItem("item_blood_grenade")
 		end
 		if (DotaTime() > 20 * 60)
 		then
-			SellSpecifiedItem("item_magic_stick")
 			SellSpecifiedItem("item_magic_wand")
-			SellSpecifiedItem("item_stout_shield")
 		end
 		if (DotaTime() > 30 * 60)
 		then
@@ -196,14 +193,9 @@ function SellExtraItem()
 			SellSpecifiedItem("item_bracer")
 			SellSpecifiedItem("item_null_talisman")
 			SellSpecifiedItem("item_bottle")
-			SellSpecifiedItem("item_orb_of_venom")
 			SellSpecifiedItem("item_orb_of_corrosion")
 			SellSpecifiedItem("item_falcon_blade")
 			SellSpecifiedItem("item_soul_ring")
-			--SellSpecifiedItem("item_quelling_blade")
-			--SellSpecifiedItem("item_urn_of_shadows")
-			--SellSpecifiedItem("item_drums_of_endurance")
-			--SellSpecifiedItem("item_ring_of_basilius")
 		end
 		if (DotaTime() > 60 * 60)
 		then

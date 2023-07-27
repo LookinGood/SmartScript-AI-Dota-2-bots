@@ -52,7 +52,6 @@ local ItemsToBuy =
 	"item_quarterstaff",
 	"item_sobi_mask",
 	"item_robe",
-
 	"item_cloak",
 	"item_recipe_mage_slayer",
 

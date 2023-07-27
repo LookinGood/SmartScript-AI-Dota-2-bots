@@ -41,6 +41,8 @@ require(GetScriptDirectory() .. "/bot_name_generic")
 	"npc_dota_hero_lion",
 	"npc_dota_hero_leshrac",
 	"npc_dota_hero_lina",
+	"npc_dota_hero_furion",
+	"npc_dota_hero_sniper",
 ]]
 --#endregion
 
@@ -82,6 +84,8 @@ hero_pool_my =
 	"npc_dota_hero_lion",
 	"npc_dota_hero_leshrac",
 	"npc_dota_hero_lina",
+	"npc_dota_hero_furion",
+	"npc_dota_hero_sniper",
 }
 
 
@@ -136,7 +140,7 @@ function Think()
 
 	-- Insert here hero hame and set "testmode = true" if you want the bot to choose a specific hero
 	testmode = false;
-	testHero = "npc_dota_hero_dawnbreaker"
+	testHero = "npc_dota_hero_sniper"
 
 	if testmode
 	then

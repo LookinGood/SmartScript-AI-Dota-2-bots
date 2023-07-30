@@ -42,6 +42,13 @@ function AbilityLevelUpThink()
     ability_levelup_generic.AbilityLevelUpThink(AbilityToLevelUp)
 end
 
+-- Abilities
+local AcidSpray = AbilitiesReal[1]
+local UnstableConcoction = AbilitiesReal[2]
+local UnstableConcoctionThrow = npcBot:GetAbilityByName("alchemist_unstable_concoction_throw");
+local BerserkPotion = AbilitiesReal[4]
+local ChemicalRage = AbilitiesReal[6]
+
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
         return;
@@ -52,17 +59,11 @@ function AbilityUsageThink()
     HealthPercentage = npcBot:GetHealth() / npcBot:GetMaxHealth();
     ManaPercentage = npcBot:GetMana() / npcBot:GetMaxMana();
 
-    AcidSpray = AbilitiesReal[1]
-    UnstableConcoction = AbilitiesReal[2]
-    UnstableConcoctionThrow = npcBot:GetAbilityByName("alchemist_unstable_concoction_throw");
-    BerserkPotion = AbilitiesReal[4]
-    ChemicalRage = AbilitiesReal[6]
-
-    castAcidSprayDesire, castAcidSprayLocation = ConsiderAcidSpray();
-    castUnstableConcoctionDesire = ConsiderUnstableConcoction();
-    castUnstableConcoctionThrowDesire, castUnstableConcoctionThrowTarget = ConsiderUnstableConcoctionThrow();
-    castBerserkPotionDesire, castBerserkPotionTarget = ConsiderBerserkPotion();
-    castChemicalRageDesire = ConsiderChemicalRage();
+    local castAcidSprayDesire, castAcidSprayLocation = ConsiderAcidSpray();
+    local castUnstableConcoctionDesire = ConsiderUnstableConcoction();
+    local castUnstableConcoctionThrowDesire, castUnstableConcoctionThrowTarget = ConsiderUnstableConcoctionThrow();
+    local castBerserkPotionDesire, castBerserkPotionTarget = ConsiderBerserkPotion();
+    local castChemicalRageDesire = ConsiderChemicalRage();
 
     if (castAcidSprayDesire ~= nil)
     then

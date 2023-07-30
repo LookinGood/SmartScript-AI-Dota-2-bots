@@ -42,6 +42,14 @@ function AbilityLevelUpThink()
     ability_levelup_generic.AbilityLevelUpThink(AbilityToLevelUp)
 end
 
+-- Abilities
+local Disruption = AbilitiesReal[1]
+local Disseminate = AbilitiesReal[2]
+local ShadowPoison = AbilitiesReal[3]
+local ShadowPoisonRelease = AbilitiesReal[4]
+local DemonicCleanse = AbilitiesReal[5]
+local DemonicPurge = AbilitiesReal[6]
+
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
         return
@@ -52,19 +60,12 @@ function AbilityUsageThink()
     HealthPercentage = npcBot:GetHealth() / npcBot:GetMaxHealth();
     ManaPercentage = npcBot:GetMana() / npcBot:GetMaxMana();
 
-    Disruption = AbilitiesReal[1]
-    Disseminate = AbilitiesReal[2]
-    ShadowPoison = AbilitiesReal[3]
-    ShadowPoisonRelease = AbilitiesReal[4]
-    DemonicCleanse = AbilitiesReal[5]
-    DemonicPurge = AbilitiesReal[6]
-
-    castDisruptionDesire, castDisruptionTarget = ConsiderDisruption();
-    castDisseminateDesire, castDisseminateTarget = ConsiderDisseminate();
-    castShadowPoisonDesire, castShadowPoisonLocation = ConsiderShadowPoison();
-    castShadowPoisonReleaseDesire = ConsiderShadowPoisonRelease();
-    castDemonicCleanseDesire, castDemonicCleanseTarget = ConsiderDemonicCleanse();
-    castDemonicPurgeDesire, castDemonicPurgeTarget = ConsiderDemonicPurge();
+    local castDisruptionDesire, castDisruptionTarget = ConsiderDisruption();
+    local castDisseminateDesire, castDisseminateTarget = ConsiderDisseminate();
+    local castShadowPoisonDesire, castShadowPoisonLocation = ConsiderShadowPoison();
+    local castShadowPoisonReleaseDesire = ConsiderShadowPoisonRelease();
+    local castDemonicCleanseDesire, castDemonicCleanseTarget = ConsiderDemonicCleanse();
+    local castDemonicPurgeDesire, castDemonicPurgeTarget = ConsiderDemonicPurge();
 
     if (castDisruptionDesire ~= nil)
     then

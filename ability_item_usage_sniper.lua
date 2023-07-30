@@ -66,16 +66,19 @@ function AbilityUsageThink()
     if (castShrapnelDesire ~= nil)
     then
         npcBot:Action_UseAbilityOnLocation(Shrapnel, castShrapnelLocation);
+        return;
     end
 
     if (castTakeAimDesire ~= nil)
     then
         npcBot:Action_UseAbility(TakeAim);
+        return;
     end
 
     if (castConcussiveGrenadeDesire ~= nil)
     then
         npcBot:Action_UseAbilityOnLocation(ConcussiveGrenade, castConcussiveGrenadeLocation);
+        return;
     end
 
     if (castAssassinateDesire ~= nil)

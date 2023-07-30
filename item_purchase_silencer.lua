@@ -58,7 +58,7 @@ local ItemsToBuy =
 	"item_mithril_hammer",
 	"item_javelin",
 
-	"item_recipe_gleipnir",
+	"item_recipe_gungir",
 
 	"item_hyperstone",
 	"item_hyperstone",

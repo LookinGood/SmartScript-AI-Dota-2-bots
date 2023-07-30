@@ -42,6 +42,12 @@ function AbilityLevelUpThink()
     ability_levelup_generic.AbilityLevelUpThink(AbilityToLevelUp)
 end
 
+-- Abilities
+local DarkPact = AbilitiesReal[1]
+local Pounce = AbilitiesReal[2]
+local DepthShroud = AbilitiesReal[4]
+local ShadowDance = AbilitiesReal[6]
+
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
         return
@@ -52,15 +58,10 @@ function AbilityUsageThink()
     HealthPercentage = npcBot:GetHealth() / npcBot:GetMaxHealth();
     ManaPercentage = npcBot:GetMana() / npcBot:GetMaxMana();
 
-    DarkPact = AbilitiesReal[1]
-    Pounce = AbilitiesReal[2]
-    DepthShroud = AbilitiesReal[4]
-    ShadowDance = AbilitiesReal[6]
-
-    castDarkPactDesire = ConsiderDarkPact();
-    castPounceDesire = ConsiderPounce();
-    castDepthShroudDesire, castDepthShroudLocation = ConsiderDepthShroud();
-    castShadowDanceDesire = ConsiderShadowDance();
+    local castDarkPactDesire = ConsiderDarkPact();
+    local castPounceDesire = ConsiderPounce();
+    local castDepthShroudDesire, castDepthShroudLocation = ConsiderDepthShroud();
+    local castShadowDanceDesire = ConsiderShadowDance();
 
     if (castDarkPactDesire ~= nil)
     then

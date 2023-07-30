@@ -42,6 +42,14 @@ function AbilityLevelUpThink()
     ability_levelup_generic.AbilityLevelUpThink(AbilityToLevelUp)
 end
 
+-- Abilities
+local Strafe = AbilitiesReal[1]
+local TarBomb = AbilitiesReal[2]
+local DeathPact = AbilitiesReal[3]
+local BurningArmy = AbilitiesReal[4]
+local BurningBarrage = AbilitiesReal[5]
+local SkeletonWalk = AbilitiesReal[6]
+
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
         return
@@ -52,19 +60,12 @@ function AbilityUsageThink()
     HealthPercentage = npcBot:GetHealth() / npcBot:GetMaxHealth();
     ManaPercentage = npcBot:GetMana() / npcBot:GetMaxMana();
 
-    Strafe = AbilitiesReal[1]
-    TarBomb = AbilitiesReal[2]
-    DeathPact = AbilitiesReal[3]
-    BurningArmy = AbilitiesReal[4]
-    BurningBarrage = AbilitiesReal[5]
-    SkeletonWalk = AbilitiesReal[6]
-
-    castStrafeDesire = ConsiderStrafe();
-    castTarBombDesire, castTarBombTarget = ConsiderTarBomb();
-    castDeathPactDesire, castDeathPactTarget = ConsiderDeathPact();
-    castBurningArmyDesire, castBurningArmyLocation = ConsiderBurningArmy();
-    castBurningBarrageDesire, castBurningBarrageLocation = ConsiderBurningBarrage();
-    castSkeletonWalkDesire = ConsiderSkeletonWalk();
+    local castStrafeDesire = ConsiderStrafe();
+    local castTarBombDesire, castTarBombTarget = ConsiderTarBomb();
+    local castDeathPactDesire, castDeathPactTarget = ConsiderDeathPact();
+    local castBurningArmyDesire, castBurningArmyLocation = ConsiderBurningArmy();
+    local castBurningBarrageDesire, castBurningBarrageLocation = ConsiderBurningBarrage();
+    local castSkeletonWalkDesire = ConsiderSkeletonWalk();
 
     if (castStrafeDesire ~= nil)
     then

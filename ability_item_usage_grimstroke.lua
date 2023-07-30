@@ -42,6 +42,13 @@ function AbilityLevelUpThink()
     ability_levelup_generic.AbilityLevelUpThink(AbilityToLevelUp)
 end
 
+-- Abilities
+local StrokeOfFate = AbilitiesReal[1]
+local PhantomsEmbrace = AbilitiesReal[2]
+local InkSwell = AbilitiesReal[3]
+local DarkPortrait = AbilitiesReal[4]
+local Soulbind = AbilitiesReal[6]
+
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
         return
@@ -52,17 +59,11 @@ function AbilityUsageThink()
     HealthPercentage = npcBot:GetHealth() / npcBot:GetMaxHealth();
     ManaPercentage = npcBot:GetMana() / npcBot:GetMaxMana();
 
-    StrokeOfFate = AbilitiesReal[1]
-    PhantomsEmbrace = AbilitiesReal[2]
-    InkSwell = AbilitiesReal[3]
-    DarkPortrait = AbilitiesReal[4]
-    Soulbind = AbilitiesReal[6]
-
-    castStrokeOfFateDesire, castStrokeOfFateLocation = ConsiderStrokeOfFate();
-    castPhantomsEmbraceDesire, castPhantomsEmbraceTarget = ConsiderPhantomsEmbrace();
-    castInkSwellDesire, castInkSwellTarget = ConsiderInkSwell();
-    castDarkPortraitDesire, castDarkPortraitTarget = ConsiderDarkPortrait();
-    castSoulbindDesire, castSoulbindTarget = ConsiderSoulbind();
+    local castStrokeOfFateDesire, castStrokeOfFateLocation = ConsiderStrokeOfFate();
+    local castPhantomsEmbraceDesire, castPhantomsEmbraceTarget = ConsiderPhantomsEmbrace();
+    local castInkSwellDesire, castInkSwellTarget = ConsiderInkSwell();
+    local castDarkPortraitDesire, castDarkPortraitTarget = ConsiderDarkPortrait();
+    local castSoulbindDesire, castSoulbindTarget = ConsiderSoulbind();
 
     if (castStrokeOfFateDesire ~= nil)
     then

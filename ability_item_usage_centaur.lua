@@ -42,6 +42,12 @@ function AbilityLevelUpThink()
     ability_levelup_generic.AbilityLevelUpThink(AbilityToLevelUp)
 end
 
+-- Abilities
+local HoofStomp = AbilitiesReal[1]
+local DoubleEdge = AbilitiesReal[2]
+local HitchARide = AbilitiesReal[4]
+local Stampede = AbilitiesReal[6]
+
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
         return
@@ -52,15 +58,10 @@ function AbilityUsageThink()
     HealthPercentage = npcBot:GetHealth() / npcBot:GetMaxHealth();
     ManaPercentage = npcBot:GetMana() / npcBot:GetMaxMana();
 
-    HoofStomp = AbilitiesReal[1]
-    DoubleEdge = AbilitiesReal[2]
-    HitchARide = AbilitiesReal[4]
-    Stampede = AbilitiesReal[6]
-
-    castHoofStompDesire = ConsiderHoofStomp();
-    castDoubleEdgeDesire, castDoubleEdgeTarget = ConsiderDoubleEdge();
-    castHitchARideDesire, castHitchARideTarget = ConsiderHitchARide();
-    castStampedeDesire = ConsiderStampede();
+    local castHoofStompDesire = ConsiderHoofStomp();
+    local castDoubleEdgeDesire, castDoubleEdgeTarget = ConsiderDoubleEdge();
+    local castHitchARideDesire, castHitchARideTarget = ConsiderHitchARide();
+    local castStampedeDesire = ConsiderStampede();
 
     if (castHoofStompDesire ~= nil)
     then

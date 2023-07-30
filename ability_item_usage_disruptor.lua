@@ -42,7 +42,12 @@ function AbilityLevelUpThink()
     ability_levelup_generic.AbilityLevelUpThink(AbilityToLevelUp)
 end
 
--- Ability Use
+-- Abilities
+local ThunderStrike = AbilitiesReal[1]
+local Glimpse = AbilitiesReal[2]
+local KineticField = AbilitiesReal[3]
+local StaticStorm = AbilitiesReal[6]
+
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
         return
@@ -53,15 +58,10 @@ function AbilityUsageThink()
     HealthPercentage = npcBot:GetHealth() / npcBot:GetMaxHealth();
     ManaPercentage = npcBot:GetMana() / npcBot:GetMaxMana();
 
-    ThunderStrike = AbilitiesReal[1]
-    Glimpse = AbilitiesReal[2]
-    KineticField = AbilitiesReal[3]
-    StaticStorm = AbilitiesReal[6]
-
-    castThunderStrikeDesire, castThunderStrikeTarget = ConsiderThunderStrike();
-    castGlimpseDesire, castGlimpseTarget = ConsiderGlimpse();
-    castKineticFieldDesire, castKineticFieldLocation = ConsiderKineticField();
-    castStaticStormDesire, castStaticStormLocation = ConsiderStaticStorm();
+    local castThunderStrikeDesire, castThunderStrikeTarget = ConsiderThunderStrike();
+    local castGlimpseDesire, castGlimpseTarget = ConsiderGlimpse();
+    local castKineticFieldDesire, castKineticFieldLocation = ConsiderKineticField();
+    local castStaticStormDesire, castStaticStormLocation = ConsiderStaticStorm();
 
     if (castThunderStrikeDesire ~= nil)
     then
@@ -95,19 +95,18 @@ function ConsiderThunderStrike()
     end
 
     local castRangeAbility = ability:GetCastRange();
-    local strikesAbility = ability:GetSpecialValueInt("strikes");
-    local damageAbility = ability:GetAbilityDamage() * strikesAbility;
-    local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility + 200, true, BOT_MODE_NONE);
+    local damageAbility = ability:GetAbilityDamage() * ability:GetSpecialValueInt("strikes");
+    local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
 
     -- Cast if can kill somebody
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if (utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and not utility.TargetCantDie(enemy))
+            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and not utility.TargetCantDie(enemy)
             then
                 if utility.CanCastSpellOnTarget(ability, enemy) and utility.SafeCast(enemy, true)
                 then
-                    --npcBot:ActionImmediate_Chat("Использую ThunderStrike что бы убить цель!", true);
+                    npcBot:ActionImmediate_Chat("Использую ThunderStrike что бы убить цель!", true);
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy;
                 end
             end
@@ -142,10 +141,10 @@ function ConsiderThunderStrike()
         --  Pushing/defending/Farm
     elseif utility.PvEMode(npcBot)
     then
-        local enemyCreepsLane = npcBot:GetNearbyLaneCreeps(castRangeAbility, true);
-        if (#enemyCreepsLane > 2) and (ManaPercentage >= 0.5)
+        local enemyCreeps = npcBot:GetNearbyCreeps(castRangeAbility, true);
+        if #enemyCreeps > 1 and (ManaPercentage >= 0.5)
         then
-            for _, enemy in pairs(enemyCreepsLane) do
+            for _, enemy in pairs(enemyCreeps) do
                 if utility.CanCastSpellOnTarget(ability, enemy) and utility.SafeCast(enemy, true)
                 then
                     return BOT_MODE_DESIRE_VERYLOW, enemy;
@@ -171,8 +170,7 @@ function ConsiderGlimpse()
     end
 
     local castRangeAbility = ability:GetCastRange();
-    local attackRange = npcBot:GetAttackRange();
-    local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility + 200, true, BOT_MODE_NONE);
+    local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
 
     -- Interrupt cast
     if (#enemyAbility > 0)
@@ -189,7 +187,7 @@ function ConsiderGlimpse()
     if utility.PvPMode(npcBot)
     then
         if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget) and
-            GetUnitToUnitDistance(npcBot, botTarget) > (attackRange * 2) and utility.SafeCast(botTarget, false)
+            GetUnitToUnitDistance(npcBot, botTarget) > (npcBot:GetAttackRange() * 2) and utility.SafeCast(botTarget, false)
         then
             return BOT_ACTION_DESIRE_HIGH, botTarget;
         end

@@ -42,6 +42,14 @@ function AbilityLevelUpThink()
     ability_levelup_generic.AbilityLevelUpThink(AbilityToLevelUp)
 end
 
+-- Abilities
+local ArcLightning = AbilitiesReal[1]
+local LightningBolt = AbilitiesReal[2]
+local HeavenlyJump = AbilitiesReal[3]
+local Nimbus = AbilitiesReal[4]
+local LightningHands = AbilitiesReal[5]
+local ThundergodWrath = AbilitiesReal[6]
+
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
         return;
@@ -52,19 +60,12 @@ function AbilityUsageThink()
     HealthPercentage = npcBot:GetHealth() / npcBot:GetMaxHealth();
     ManaPercentage = npcBot:GetMana() / npcBot:GetMaxMana();
 
-    ArcLightning = AbilitiesReal[1]
-    LightningBolt = AbilitiesReal[2]
-    HeavenlyJump = AbilitiesReal[3]
-    Nimbus = AbilitiesReal[4]
-    LightningHands = AbilitiesReal[5]
-    ThundergodWrath = AbilitiesReal[6]
-
-    castArcLightningDesire, castArcLightningTarget = ConsiderArcLightning();
-    castLightningBoltDesire, castLightningBoltLocation = ConsiderLightningBolt();
-    castHeavenlyJumpDesire = ConsiderHeavenlyJump();
-    castNimbusDesire, castNimbusLocation = ConsiderNimbus();
+    local castArcLightningDesire, castArcLightningTarget = ConsiderArcLightning();
+    local castLightningBoltDesire, castLightningBoltLocation = ConsiderLightningBolt();
+    local castHeavenlyJumpDesire = ConsiderHeavenlyJump();
+    local castNimbusDesire, castNimbusLocation = ConsiderNimbus();
     ConsiderLightningHands();
-    castThundergodWrathDesire = ConsiderThundergodWrath();
+    local castThundergodWrathDesire = ConsiderThundergodWrath();
 
     if (castArcLightningDesire ~= nil)
     then

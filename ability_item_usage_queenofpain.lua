@@ -42,6 +42,12 @@ function AbilityLevelUpThink()
     ability_levelup_generic.AbilityLevelUpThink(AbilityToLevelUp)
 end
 
+-- Abilities
+local ShadowStrike = AbilitiesReal[1]
+local Blink = AbilitiesReal[2]
+local ScreamOfPain = AbilitiesReal[3]
+local SonicWave = AbilitiesReal[6]
+
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
         return;
@@ -52,15 +58,10 @@ function AbilityUsageThink()
     HealthPercentage = npcBot:GetHealth() / npcBot:GetMaxHealth();
     ManaPercentage = npcBot:GetMana() / npcBot:GetMaxMana();
 
-    ShadowStrike = AbilitiesReal[1]
-    Blink = AbilitiesReal[2]
-    ScreamOfPain = AbilitiesReal[3]
-    SonicWave = AbilitiesReal[6]
-
-    castShadowStrikeDesire, castShadowStrikeTarget, castShadowStrikeTargetType = ConsiderShadowStrike();
-    castBlinkDesire, castBlinkLocation = ConsiderBlink();
-    castScreamOfPainDesire = ConsiderScreamOfPain();
-    castSonicWaveDesire, castSonicWaveLocation = ConsiderSonicWave();
+    local castShadowStrikeDesire, castShadowStrikeTarget, castShadowStrikeTargetType = ConsiderShadowStrike();
+    local castBlinkDesire, castBlinkLocation = ConsiderBlink();
+    local castScreamOfPainDesire = ConsiderScreamOfPain();
+    local castSonicWaveDesire, castSonicWaveLocation = ConsiderSonicWave();
 
     if (castShadowStrikeDesire ~= nil)
     then

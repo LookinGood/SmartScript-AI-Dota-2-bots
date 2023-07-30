@@ -26,7 +26,7 @@ local AbilityToLevelUp =
     Abilities[1],
     Abilities[2],
     Abilities[2],
-    Talents[1],
+    Talents[2],
     Abilities[2],
     Abilities[6],
     Abilities[4],
@@ -42,6 +42,15 @@ function AbilityLevelUpThink()
     ability_levelup_generic.AbilityLevelUpThink(AbilityToLevelUp)
 end
 
+-- Abilities
+local WildAxes = AbilitiesReal[1]
+local SummonBoar = AbilitiesReal[2]
+local SummonHawk = AbilitiesReal[3]
+local DrumsOfSlom = AbilitiesReal[5]
+local PrimalRoar = AbilitiesReal[6]
+--SummonBoar = npcBot:GetAbilityByName("beastmaster_call_of_the_wild_boar");
+--SummonHawk = npcBot:GetAbilityByName("beastmaster_call_of_the_wild_hawk");
+
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
         return;
@@ -52,20 +61,11 @@ function AbilityUsageThink()
     HealthPercentage = npcBot:GetHealth() / npcBot:GetMaxHealth();
     ManaPercentage = npcBot:GetMana() / npcBot:GetMaxMana();
 
-    WildAxes = AbilitiesReal[1]
-    SummonBoar = AbilitiesReal[2]
-    SummonHawk = AbilitiesReal[3]
-    DrumsOfSlom = AbilitiesReal[5]
-    PrimalRoar = AbilitiesReal[6]
-
-    --SummonBoar = npcBot:GetAbilityByName("beastmaster_call_of_the_wild_boar");
-    --SummonHawk = npcBot:GetAbilityByName("beastmaster_call_of_the_wild_hawk");
-
-    castWildAxesDesire, castWildAxesLocation = ConsiderWildAxes();
-    castSummonBoarDesire = ConsiderSummonBoar();
-    castSummonHawkDesire, castSummonHawkLocation = ConsiderSummonHawk();
-    castDrumsOfSlomDesire = ConsiderDrumsOfSlom();
-    castPrimalRoarDesire, castPrimalRoarTarget = ConsiderPrimalRoar();
+    local castWildAxesDesire, castWildAxesLocation = ConsiderWildAxes();
+    local castSummonBoarDesire = ConsiderSummonBoar();
+    local castSummonHawkDesire, castSummonHawkLocation = ConsiderSummonHawk();
+    local castDrumsOfSlomDesire = ConsiderDrumsOfSlom();
+    local castPrimalRoarDesire, castPrimalRoarTarget = ConsiderPrimalRoar();
 
     if (castWildAxesDesire ~= nil)
     then
@@ -305,29 +305,29 @@ function ConsiderPrimalRoar()
         end
     end
 
-   -- Attack use
-   if utility.PvPMode(npcBot)
-   then
-       if utility.IsHero(botTarget)
-       then
-           if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
-               and not utility.IsDisabled(botTarget) and utility.SafeCast(botTarget, true)
-           then
-               return BOT_MODE_DESIRE_HIGH, botTarget;
-           end
-       end
-       -- Retreat or help ally use
-   elseif botMode == BOT_MODE_RETREAT or botMode == BOT_MODE_DEFEND_ALLY
-   then
-       if (#enemyAbility > 0) and (HealthPercentage <= 0.8)
-       then
-           for _, enemy in pairs(enemyAbility) do
-               if utility.CanCastSpellOnTarget(ability, enemy) and not utility.IsDisabled(enemy) and utility.SafeCast(enemy, true)
-               then
-                   --npcBot:ActionImmediate_Chat("Использую WraithfireBlast что бы оторваться от врага",true);
-                   return BOT_ACTION_DESIRE_VERYHIGH, enemy;
-               end
-           end
-       end
-   end
+    -- Attack use
+    if utility.PvPMode(npcBot)
+    then
+        if utility.IsHero(botTarget)
+        then
+            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+                and not utility.IsDisabled(botTarget) and utility.SafeCast(botTarget, true)
+            then
+                return BOT_MODE_DESIRE_HIGH, botTarget;
+            end
+        end
+        -- Retreat or help ally use
+    elseif botMode == BOT_MODE_RETREAT or botMode == BOT_MODE_DEFEND_ALLY
+    then
+        if (#enemyAbility > 0) and (HealthPercentage <= 0.8)
+        then
+            for _, enemy in pairs(enemyAbility) do
+                if utility.CanCastSpellOnTarget(ability, enemy) and not utility.IsDisabled(enemy) and utility.SafeCast(enemy, true)
+                then
+                    --npcBot:ActionImmediate_Chat("Использую WraithfireBlast что бы оторваться от врага",true);
+                    return BOT_ACTION_DESIRE_VERYHIGH, enemy;
+                end
+            end
+        end
+    end
 end

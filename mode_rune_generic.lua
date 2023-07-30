@@ -27,18 +27,15 @@ function GetDesire()
         return BOT_MODE_DESIRE_ABSOLUTE;
     end
 
-    mainRune = nil;
-
     for _, rune in pairs(runeList)
     do
         local runeStatus = GetRuneStatus(rune);
         if runeStatus == RUNE_STATUS_AVAILABLE
         then
-            local runeDistance = GetUnitToLocationDistance(npcBot, GetRuneSpawnLocation(rune));
+            local runeLocation = GetRuneSpawnLocation(rune);
+            local runeDistance = GetUnitToLocationDistance(npcBot, runeLocation);
             if runeDistance <= 3000
             then
-                mainRune = rune;
-                mainRuneLocation = GetRuneSpawnLocation(mainRune);
                 return BOT_MODE_DESIRE_HIGH;
             else
                 return BOT_MODE_DESIRE_NONE;
@@ -49,29 +46,9 @@ function GetDesire()
     end
 end
 
-function OnStart()
---[[     mainRune = nil;
-
-    for _, rune in pairs(runeList)
-    do
-        local runeStatus = GetRuneStatus(rune);
-        if runeStatus == RUNE_STATUS_AVAILABLE
-        then
-            local runeDistance = GetUnitToLocationDistance(npcBot, GetRuneSpawnLocation(rune));
-            if runeDistance <= 3000
-            then
-                
-            end
-        end
-    end ]]
-end
-
-function OnEnd()
-    mainRune = nil;
-end
-
 function Think()
     local npcBot = GetBot();
+
     local bountyRuneRadiant = Vector(2183.8, -3906.2, 155.7);
     local powerfulRuneRadiant = Vector(1155.8, -1230.5, 84.7);
     local bountyRuneDire = Vector(-1559.8, 3460.0, 208.5);
@@ -84,33 +61,25 @@ function Think()
             if npcBot:GetAssignedLane() == LANE_BOT
             then
                 npcBot:Action_MoveToLocation(bountyRuneRadiant + RandomVector(300));
+                --return;
             else
                 npcBot:Action_MoveToLocation(powerfulRuneDire + RandomVector(300));
+                --return;
             end
         elseif npcBot:GetTeam() == TEAM_DIRE
         then
             if npcBot:GetAssignedLane() == LANE_TOP
             then
                 npcBot:Action_MoveToLocation(bountyRuneDire + RandomVector(300));
+                --return;
             else
                 npcBot:Action_MoveToLocation(powerfulRuneRadiant + RandomVector(300));
+                --return;
             end
         end
     end
 
-    if mainRune ~= nil
-    then
-        if GetUnitToLocationDistance(npcBot, mainRuneLocation) >= 100
-        then
-            npcBot:Action_MoveToLocation(mainRuneLocation + RandomVector(99));
-        else
-            npcBot:ActionImmediate_Ping(mainRuneLocation.x, mainRuneLocation.y, true);
-            npcBot:Action_PickUpRune(rune);
-        end
-    end
-
-
-    --[[     for _, rune in pairs(runeList)
+    for _, rune in pairs(runeList)
     do
         local runeStatus = GetRuneStatus(rune);
         if runeStatus == RUNE_STATUS_AVAILABLE
@@ -130,7 +99,7 @@ function Think()
                 end
             end
         end
-    end ]]
+    end
 end
 
 ---------------------------------------------------------------------------------------------------

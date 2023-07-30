@@ -42,6 +42,14 @@ function AbilityLevelUpThink()
     ability_levelup_generic.AbilityLevelUpThink(AbilityToLevelUp)
 end
 
+-- Abilities
+local IceShards = AbilitiesReal[1]
+local Snowball = AbilitiesReal[2]
+local LaunchSnowball = npcBot:GetAbilityByName("tusk_launch_snowball");
+local TagTeam = AbilitiesReal[3]
+local WalrusKick = AbilitiesReal[4]
+local WalrusPunch = AbilitiesReal[6]
+
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
         return;
@@ -52,19 +60,12 @@ function AbilityUsageThink()
     HealthPercentage = npcBot:GetHealth() / npcBot:GetMaxHealth();
     ManaPercentage = npcBot:GetMana() / npcBot:GetMaxMana();
 
-    IceShards = AbilitiesReal[1]
-    Snowball = AbilitiesReal[2]
-    LaunchSnowball = npcBot:GetAbilityByName("tusk_launch_snowball");
-    TagTeam = AbilitiesReal[3]
-    WalrusKick = AbilitiesReal[4]
-    WalrusPunch = AbilitiesReal[6]
-
-    castIceShardsDesire, castIceShardsLocation = ConsiderIceShards();
-    castSnowballDesire, castSnowballTarget = ConsiderSnowball();
-    castLaunchSnowballDesire = ConsiderLaunchSnowball();
-    castTagTeamDesire = ConsiderTagTeam();
-    castWalrusKickDesire, castWalrusKickTarget = ConsiderWalrusKick();
-    castWalrusPunchDesire, castWalrusPunchTarget = ConsiderWalrusPunch();
+    local castIceShardsDesire, castIceShardsLocation = ConsiderIceShards();
+    local castSnowballDesire, castSnowballTarget = ConsiderSnowball();
+    local castLaunchSnowballDesire = ConsiderLaunchSnowball();
+    local castTagTeamDesire = ConsiderTagTeam();
+    local castWalrusKickDesire, castWalrusKickTarget = ConsiderWalrusKick();
+    local castWalrusPunchDesire, castWalrusPunchTarget = ConsiderWalrusPunch();
 
     if (castIceShardsDesire ~= nil)
     then

@@ -10,12 +10,19 @@ function ItemPurchase(ItemsToBuy)
 	end
 
 	local npcBot = GetBot();
+
+	if npcBot:IsIllusion() or not npcBot:IsHero()
+	then
+		return;
+	end
+
 	local courier = utility.GetBotCourier(npcBot)
 
 	SellExtraItem()
 	utility.PurchaseDust(npcBot)
 	utility.PurchaseTP(npcBot)
 	utility.PurchaseWardObserver(npcBot)
+	utility.PurchaseInfusedRaindrop(npcBot)
 	--utility.PurchaseTomeOfKnowledge(npcBot) -- Item deleted
 
 	if (#ItemsToBuy == 0)
@@ -186,6 +193,7 @@ function SellExtraItem()
 		if (DotaTime() > 20 * 60)
 		then
 			SellSpecifiedItem("item_magic_wand")
+			SellSpecifiedItem("item_infused_raindrop")
 		end
 		if (DotaTime() > 30 * 60)
 		then
@@ -197,7 +205,7 @@ function SellExtraItem()
 			SellSpecifiedItem("item_falcon_blade")
 			SellSpecifiedItem("item_soul_ring")
 		end
-		if (DotaTime() > 60 * 60)
+		if (DotaTime() > 40 * 60)
 		then
 			SellSpecifiedItem("item_hand_of_midas")
 			SellSpecifiedItem("item_pavise")

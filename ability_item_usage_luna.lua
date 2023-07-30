@@ -42,6 +42,10 @@ function AbilityLevelUpThink()
     ability_levelup_generic.AbilityLevelUpThink(AbilityToLevelUp)
 end
 
+-- Abilities
+local LucentBeam = AbilitiesReal[1]
+local Eclipse = AbilitiesReal[6]
+
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
         return;
@@ -52,11 +56,8 @@ function AbilityUsageThink()
     HealthPercentage = npcBot:GetHealth() / npcBot:GetMaxHealth();
     ManaPercentage = npcBot:GetMana() / npcBot:GetMaxMana();
 
-    LucentBeam = AbilitiesReal[1]
-    Eclipse = AbilitiesReal[6]
-
-    castLucentBeamDesire, castLucentBeamTarget = ConsiderLucentBeam();
-    castEclipseDesire, castEclipseTarget, castEclipseTargetType = ConsiderEclipse();
+    local castLucentBeamDesire, castLucentBeamTarget = ConsiderLucentBeam();
+    local castEclipseDesire, castEclipseTarget, castEclipseTargetType = ConsiderEclipse();
 
     if (castLucentBeamDesire ~= nil)
     then

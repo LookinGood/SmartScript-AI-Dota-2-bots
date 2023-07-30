@@ -42,6 +42,11 @@ function AbilityLevelUpThink()
     ability_levelup_generic.AbilityLevelUpThink(AbilityToLevelUp)
 end
 
+-- Abilities
+local WraithfireBlast = AbilitiesReal[1]
+local VampiricSpirit = AbilitiesReal[2]
+local Reincarnation = AbilitiesReal[6]
+
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
         return;
@@ -52,13 +57,9 @@ function AbilityUsageThink()
     HealthPercentage = npcBot:GetHealth() / npcBot:GetMaxHealth();
     ManaPercentage = npcBot:GetMana() / npcBot:GetMaxMana();
 
-    WraithfireBlast = AbilitiesReal[1]
-    VampiricSpirit = AbilitiesReal[2]
-    Reincarnation = AbilitiesReal[6]
-
-    castWraithfireBlastDesire, castWraithfireBlastTarget = ConsiderWraithfireBlast();
-    castVampiricSpiritDesire = ConsiderVampiricSpirit();
-    castReincarnationDesire, castReincarnationTarget = ConsiderReincarnation();
+    local castWraithfireBlastDesire, castWraithfireBlastTarget = ConsiderWraithfireBlast();
+    local castVampiricSpiritDesire = ConsiderVampiricSpirit();
+    local castReincarnationDesire, castReincarnationTarget = ConsiderReincarnation();
 
     if (castWraithfireBlastDesire ~= nil)
     then

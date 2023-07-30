@@ -42,6 +42,13 @@ function AbilityLevelUpThink()
     ability_levelup_generic.AbilityLevelUpThink(AbilityToLevelUp)
 end
 
+-- Abilities
+local Impetus = AbilitiesReal[1]
+local Enchant = AbilitiesReal[2]
+local NaturesAttendants = AbilitiesReal[3]
+local Sproink = AbilitiesReal[4]
+local LittleFriends = AbilitiesReal[5]
+
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
         return;
@@ -52,17 +59,11 @@ function AbilityUsageThink()
     HealthPercentage = npcBot:GetHealth() / npcBot:GetMaxHealth();
     ManaPercentage = npcBot:GetMana() / npcBot:GetMaxMana();
 
-    Impetus = AbilitiesReal[1]
-    Enchant = AbilitiesReal[2]
-    NaturesAttendants = AbilitiesReal[3]
-    Sproink = AbilitiesReal[4]
-    LittleFriends = AbilitiesReal[5]
-
     ConsiderImpetus();
-    castEnchantDesire, castEnchantTarget = ConsiderEnchant();
-    castNaturesAttendantsDesire = ConsiderNaturesAttendants();
-    castSproinkDesire = ConsiderSproink();
-    castLittleFriendsDesire, castLittleFriendsTarget = ConsiderLittleFriends();
+    local castEnchantDesire, castEnchantTarget = ConsiderEnchant();
+    local castNaturesAttendantsDesire = ConsiderNaturesAttendants();
+    local castSproinkDesire = ConsiderSproink();
+    local castLittleFriendsDesire, castLittleFriendsTarget = ConsiderLittleFriends();
 
     if (castEnchantDesire ~= nil)
     then

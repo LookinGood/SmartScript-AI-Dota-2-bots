@@ -43,6 +43,11 @@ function AbilityLevelUpThink()
     ability_levelup_generic.AbilityLevelUpThink(AbilityToLevelUp)
 end
 
+-- Abilities
+local MagicMissile = AbilitiesReal[1]
+local WaveOfTerror = AbilitiesReal[2]
+local NetherSwap = AbilitiesReal[6]
+
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
         return;
@@ -53,13 +58,9 @@ function AbilityUsageThink()
     HealthPercentage = npcBot:GetHealth() / npcBot:GetMaxHealth();
     ManaPercentage = npcBot:GetMana() / npcBot:GetMaxMana();
 
-    MagicMissile = AbilitiesReal[1]
-    WaveOfTerror = AbilitiesReal[2]
-    NetherSwap = AbilitiesReal[6]
-
-    castMagicMissileDesire, castMagicMissileTarget = ConsiderMagicMissile();
-    castWaveOfTerrorDesire, castWaveOfTerrorLocation = ConsiderWaveOfTerror();
-    castNetherSwapDesire, castNetherSwapTarget = ConsiderNetherSwap();
+    local castMagicMissileDesire, castMagicMissileTarget = ConsiderMagicMissile();
+    local castWaveOfTerrorDesire, castWaveOfTerrorLocation = ConsiderWaveOfTerror();
+    local castNetherSwapDesire, castNetherSwapTarget = ConsiderNetherSwap();
 
     if (castMagicMissileDesire ~= nil)
     then

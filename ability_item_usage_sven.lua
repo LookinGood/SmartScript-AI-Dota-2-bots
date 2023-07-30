@@ -42,6 +42,11 @@ function AbilityLevelUpThink()
     ability_levelup_generic.AbilityLevelUpThink(AbilityToLevelUp)
 end
 
+-- Abilities
+local StormHammer = AbilitiesReal[1]
+local Warcry = AbilitiesReal[3]
+local GodsStrength = AbilitiesReal[6]
+
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
         return;
@@ -52,13 +57,9 @@ function AbilityUsageThink()
     HealthPercentage = npcBot:GetHealth() / npcBot:GetMaxHealth();
     ManaPercentage = npcBot:GetMana() / npcBot:GetMaxMana();
 
-    StormHammer = AbilitiesReal[1]
-    Warcry = AbilitiesReal[3]
-    GodsStrength = AbilitiesReal[6]
-
-    castStormHammerDesire, castStormHammerTarget = ConsiderStormHammer();
-    castWarcryDesire = ConsiderWarcry();
-    castGodsStrengthDesire = ConsiderGodsStrength();
+    local castStormHammerDesire, castStormHammerTarget = ConsiderStormHammer();
+    local castWarcryDesire = ConsiderWarcry();
+    local castGodsStrengthDesire = ConsiderGodsStrength();
 
     if (castStormHammerDesire ~= nil)
     then

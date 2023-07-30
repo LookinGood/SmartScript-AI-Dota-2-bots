@@ -19,11 +19,6 @@ local ItemsToBuy =
 	"item_boots",
 	"item_energy_booster",
 
-	"item_point_booster",
-	"item_ogre_axe",
-	"item_staff_of_wizardry",
-	"item_blade_of_alacrity",
-
 	"item_ring_of_regen",
 	"item_recipe_headdress",
 	"item_chainmail",
@@ -32,6 +27,11 @@ local ItemsToBuy =
 	"item_cloak",
 	"item_shadow_amulet",
 	"item_recipe_glimmer_cape",
+
+	"item_point_booster",
+	"item_ogre_axe",
+	"item_staff_of_wizardry",
+	"item_blade_of_alacrity",
 
 	"item_aghanims_shard",
 

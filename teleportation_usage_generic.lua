@@ -263,19 +263,21 @@ function ShouldTP()
         local enemytopTower3 = GetTower(GetOpposingTeam(), TOWER_TOP_3);
         if towerPush == nil
         then
-            if enemytopTower1 ~= nil
+            if utility.IsValidTarget(enemytopTower1)
             then
                 towerPush = enemytopTower1;
-            elseif enemytopTower2 ~= nil
+            elseif utility.IsValidTarget(enemytopTower2)
             then
                 towerPush = enemytopTower2;
-            elseif enemytopTower3 ~= nil
+            elseif utility.IsValidTarget(enemytopTower3)
             then
                 towerPush = enemytopTower3;
             else
                 towerPush = enemyAncient;
             end
-        else
+        end
+        if towerPush ~= nil
+        then
             local botAmount = GetAmountAlongLane(LANE_TOP, botLoc);
             local laneFront = GetLaneFrontAmount(botTeam, LANE_TOP, false);
             if GetUnitToUnitDistance(npcBot, towerPush) > tpDistance and (botAmount.distance >= tpDistance or botAmount.amount < laneFront / 5)
@@ -303,19 +305,21 @@ function ShouldTP()
         local enemymidTower3 = GetTower(GetOpposingTeam(), TOWER_MID_3);
         if towerPush == nil
         then
-            if enemymidTower1 ~= nil
+            if utility.IsValidTarget(enemymidTower1)
             then
                 towerPush = enemymidTower1;
-            elseif enemymidTower2 ~= nil
+            elseif utility.IsValidTarget(enemymidTower2)
             then
                 towerPush = enemymidTower2;
-            elseif enemymidTower3 ~= nil
+            elseif utility.IsValidTarget(enemymidTower3)
             then
                 towerPush = enemymidTower3;
             else
                 towerPush = enemyAncient;
             end
-        else
+        end
+        if towerPush ~= nil
+        then
             local botAmount = GetAmountAlongLane(LANE_MID, botLoc);
             local laneFront = GetLaneFrontAmount(botTeam, LANE_MID, false);
             if GetUnitToUnitDistance(npcBot, towerPush) > tpDistance and (botAmount.distance >= tpDistance or botAmount.amount < laneFront / 5)
@@ -343,19 +347,21 @@ function ShouldTP()
         local enemybotTower3 = GetTower(GetOpposingTeam(), TOWER_BOT_3);
         if towerPush == nil
         then
-            if enemybotTower1 ~= nil
+            if utility.IsValidTarget(enemybotTower1)
             then
                 towerPush = enemybotTower1;
-            elseif enemybotTower2 ~= nil
+            elseif utility.IsValidTarget(enemybotTower2)
             then
                 towerPush = enemybotTower2;
-            elseif enemybotTower3 ~= nil
+            elseif utility.IsValidTarget(enemybotTower3)
             then
                 towerPush = enemybotTower3;
             else
                 towerPush = enemyAncient;
             end
-        else
+        end
+        if towerPush ~= nil
+        then
             local botAmount = GetAmountAlongLane(LANE_BOT, botLoc);
             local laneFront = GetLaneFrontAmount(botTeam, LANE_BOT, false);
             if GetUnitToUnitDistance(npcBot, towerPush) > tpDistance and (botAmount.distance >= tpDistance or botAmount.amount < laneFront / 5)

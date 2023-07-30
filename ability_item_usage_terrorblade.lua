@@ -43,7 +43,14 @@ function AbilityLevelUpThink()
     ability_levelup_generic.AbilityLevelUpThink(AbilityToLevelUp)
 end
 
--- Ability Use
+-- Abilities
+local Reflection = AbilitiesReal[1]
+local ConjureImage = AbilitiesReal[2]
+local Metamorphosis = AbilitiesReal[3]
+local DemonZeal = AbilitiesReal[4]
+local TerrorWave = AbilitiesReal[5]
+local Sunder = AbilitiesReal[6]
+
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
         return;
@@ -54,19 +61,12 @@ function AbilityUsageThink()
     HealthPercentage = npcBot:GetHealth() / npcBot:GetMaxHealth();
     ManaPercentage = npcBot:GetMana() / npcBot:GetMaxMana();
 
-    Reflection = AbilitiesReal[1]
-    ConjureImage = AbilitiesReal[2]
-    Metamorphosis = AbilitiesReal[3]
-    DemonZeal = AbilitiesReal[4]
-    TerrorWave = AbilitiesReal[5]
-    Sunder = AbilitiesReal[6]
-
-    castReflectionDesire, castReflectionLocation = ConsiderReflection();
-    castConjureImageDesire = ConsiderConjureImage();
-    castMetamorphosisDesire = ConsiderMetamorphosis();
-    castDemonZealDesire = ConsiderDemonZeal();
-    castTerrorWaveDesire = ConsiderTerrorWave();
-    castSunderDesire, castSunderTarget = ConsiderSunder();
+    local castReflectionDesire, castReflectionLocation = ConsiderReflection();
+    local castConjureImageDesire = ConsiderConjureImage();
+    local castMetamorphosisDesire = ConsiderMetamorphosis();
+    local castDemonZealDesire = ConsiderDemonZeal();
+    local castTerrorWaveDesire = ConsiderTerrorWave();
+    local castSunderDesire, castSunderTarget = ConsiderSunder();
 
     if (castSunderDesire ~= nil)
     then

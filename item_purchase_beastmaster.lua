@@ -24,10 +24,6 @@ local ItemsToBuy =
     "item_mithril_hammer",
     "item_recipe_black_king_bar",
 
-    "item_helm_of_iron_will",
-    "item_diadem",
-    "item_recipe_helm_of_the_dominator",
-
     "item_belt_of_strength",
     "item_ogre_axe",
     "item_recipe_sange",
@@ -35,22 +31,25 @@ local ItemsToBuy =
     "item_talisman_of_evasion",
     "item_recipe_heavens_halberd",
 
+    "item_helm_of_iron_will",
+    "item_diadem",
+    "item_recipe_helm_of_the_dominator",
+
+    "item_ring_of_protection",
+    "item_recipe_buckler",
+
+    "item_sobi_mask",
+    "item_recipe_ring_of_basilius",
+
     "item_lifesteal",
-
-	"item_ring_of_protection",
-	"item_recipe_buckler",
-
-	"item_sobi_mask",
-	"item_recipe_ring_of_basilius",
-
-	"item_blades_of_attack",
-	"item_recipe_vladmir",
+    "item_blades_of_attack",
+    "item_recipe_vladmir",
 
     "item_recipe_helm_of_the_overlord",
 
     "item_point_booster",
-    "item_staff_of_wizardry",
     "item_ogre_axe",
+    "item_staff_of_wizardry",
     "item_blade_of_alacrity",
 
     "item_wind_lace",

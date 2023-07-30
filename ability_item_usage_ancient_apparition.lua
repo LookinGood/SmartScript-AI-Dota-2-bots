@@ -42,6 +42,13 @@ function AbilityLevelUpThink()
     ability_levelup_generic.AbilityLevelUpThink(AbilityToLevelUp)
 end
 
+-- Abilities
+local ColdFeet = AbilitiesReal[1]
+local IceVortex = AbilitiesReal[2]
+local ChillingTouch = AbilitiesReal[3]
+local Release = npcBot:GetAbilityByName("ancient_apparition_ice_blast_release");
+local IceBlast = AbilitiesReal[6]
+
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
         return
@@ -52,17 +59,11 @@ function AbilityUsageThink()
     HealthPercentage = npcBot:GetHealth() / npcBot:GetMaxHealth();
     ManaPercentage = npcBot:GetMana() / npcBot:GetMaxMana();
 
-    ColdFeet = AbilitiesReal[1]
-    IceVortex = AbilitiesReal[2]
-    ChillingTouch = AbilitiesReal[3]
-    Release = npcBot:GetAbilityByName("ancient_apparition_ice_blast_release");
-    IceBlast = AbilitiesReal[6]
-
-    castColdFeetDesire, castColdFeetTarget = ConsiderColdFeet();
-    castIceVortexDesire, castIceVortexLocation = ConsiderIceVortex();
+    local castColdFeetDesire, castColdFeetTarget = ConsiderColdFeet();
+    local castIceVortexDesire, castIceVortexLocation = ConsiderIceVortex();
     ConsiderChillingTouch();
-    castReleaseDesire = ConsiderRelease();
-    castIceBlastDesire, castIceBlastLocation = ConsiderIceBlast();
+    local castReleaseDesire = ConsiderRelease();
+    local castIceBlastDesire, castIceBlastLocation = ConsiderIceBlast();
 
     if (castColdFeetDesire ~= nil)
     then

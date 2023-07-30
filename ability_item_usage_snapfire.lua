@@ -42,6 +42,14 @@ function AbilityLevelUpThink()
     ability_levelup_generic.AbilityLevelUpThink(AbilityToLevelUp)
 end
 
+-- Abilities
+local Scatterblast = AbilitiesReal[1]
+local FiresnapCookie = AbilitiesReal[2]
+local LilShredder = AbilitiesReal[3]
+local GobbleUp = AbilitiesReal[4]
+local SpitOut = AbilitiesReal[5]
+local MortimerKisses = AbilitiesReal[6]
+
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
         return
@@ -52,19 +60,12 @@ function AbilityUsageThink()
     HealthPercentage = npcBot:GetHealth() / npcBot:GetMaxHealth();
     ManaPercentage = npcBot:GetMana() / npcBot:GetMaxMana();
 
-    Scatterblast = AbilitiesReal[1]
-    FiresnapCookie = AbilitiesReal[2]
-    LilShredder = AbilitiesReal[3]
-    GobbleUp = AbilitiesReal[4]
-    SpitOut = AbilitiesReal[5]
-    MortimerKisses = AbilitiesReal[6]
-
-    castScatterblastDesire, castScatterblastLocation = ConsiderScatterblast();
-    castFiresnapCookieDesire, castFiresnapCookieTarget = ConsiderFiresnapCookie();
-    castLilShredderDesire = ConsiderLilShredder();
-    castGobbleUpDesire, castGobbleUpTarget = ConsiderGobbleUp();
-    castSpitOutDesire, castSpitOutLocation = ConsiderSpitOut();
-    castMortimerKissesDesire, castMortimerKissesLocation = ConsiderMortimerKisses();
+    local castScatterblastDesire, castScatterblastLocation = ConsiderScatterblast();
+    local castFiresnapCookieDesire, castFiresnapCookieTarget = ConsiderFiresnapCookie();
+    local castLilShredderDesire = ConsiderLilShredder();
+    local castGobbleUpDesire, castGobbleUpTarget = ConsiderGobbleUp();
+    local castSpitOutDesire, castSpitOutLocation = ConsiderSpitOut();
+    local castMortimerKissesDesire, castMortimerKissesLocation = ConsiderMortimerKisses();
 
     if (castScatterblastDesire ~= nil)
     then
@@ -104,29 +105,19 @@ function AbilityUsageThink()
 
     if npcBot:HasModifier("modifier_snapfire_mortimer_kisses")
     then
-        if botTarget ~= nil
+        if utility.IsValidTarget(botTarget)
         then
-            if utility.IsMoving(botTarget)
-            then
-                npcBot:ActionPush_MoveToLocation(botTarget:GetExtrapolatedLocation(MortimerKisses
-                    :GetSpecialValueInt("AbilityCastPoint")));
-            else
-                npcBot:ActionPush_MoveToLocation(botTarget:GetLocation());
-            end
+            npcBot:ActionPush_MoveToLocation(utility.GetTargetPosition(botTarget,
+                MortimerKisses:GetSpecialValueInt("AbilityCastPoint")))
         else
             local enemyAbility = npcBot:GetNearbyHeroes(MortimerKisses:GetCastRange(), true, BOT_MODE_NONE);
             if (#enemyAbility > 0)
             then
                 for _, enemy in pairs(enemyAbility) do
-                    if enemy:IsAlive()
+                    if utility.IsValidTarget(enemy)
                     then
-                        if utility.IsMoving(enemy)
-                        then
-                            npcBot:ActionPush_MoveToLocation(enemy:GetExtrapolatedLocation(MortimerKisses
-                                :GetSpecialValueInt("AbilityCastPoint")));
-                        else
-                            npcBot:ActionPush_MoveToLocation(enemy:GetLocation());
-                        end
+                        npcBot:ActionPush_MoveToLocation(utility.GetTargetPosition(enemy,
+                            MortimerKisses:GetSpecialValueInt("AbilityCastPoint")))
                     end
                 end
             end
@@ -153,7 +144,7 @@ function ConsiderScatterblast()
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if utility.CanCastSpellOnTarget(ability, enemy)
+            if utility.CanCastSpellOnTarget(ability, enemy) and not utility.TargetCantDie(enemy)
             then
                 if GetUnitToUnitDistance(npcBot, enemy) <= (castRangeAbility + 200)
                 then

@@ -86,6 +86,31 @@ function HaveHumanInTeam(npcBot)
 	return false;
 end
 
+--[[ function GetNearbyHeroes(target, nRadius, bEnemies)
+	local unitList = {}
+	if bEnemies == false
+	then
+		local enemyHeroes = target:GetUnitList(UNIT_LIST_ENEMY_HEROES)
+		for _, enemy in pairs(enemyHeroes) do
+			if IsValidTarget(enemy) and GetUnitToUnitDistance(target, enemy) <= nRadius
+			then
+				table.insert(unitList, enemy);
+			end
+		end
+	elseif bEnemies == true
+	then
+		local allyHeroes = target:GetUnitList(UNIT_LIST_ALLIED_HEROES)
+		for _, ally in pairs(allyHeroes) do
+			if IsValidTarget(ally) and GetUnitToUnitDistance(target, ally) <= nRadius
+			then
+				table.insert(unitList, ally);
+			end
+		end
+	end
+
+	return unitList;
+end ]]
+
 function GetItemSlotsCount()
 	local npcBot = GetBot();
 	local itemCount = 0;
@@ -351,8 +376,8 @@ end
 function CanCast(npcTarget)
 	return npcTarget:IsAlive() and
 		--not npcTarget:IsUsingAbility() and
-		--not npcTarget:IsCastingAbility() and
-		not npcTarget:IsChanneling() and
+		not npcTarget:IsCastingAbility() and
+		--not npcTarget:IsChanneling() and
 		not npcTarget:IsSilenced() and
 		not npcTarget:IsDominated() and
 		not npcTarget:IsStunned() and
@@ -703,6 +728,100 @@ function GetEscapeLocation(bot, maxAbilityRadius)
 	return botLocation + (direction * maxAbilityRadius)
 end
 
+-- Mage enemy check
+local M = {}
+local mageEnemyCheck = false;
+
+M['mageHeroes'] = {
+	["npc_dota_hero_ancient_apparition"] = 1,
+	["npc_dota_hero_crystal_maiden"] = 1,
+	["npc_dota_hero_disruptor"] = 1,
+	["npc_dota_hero_death_prophet"] = 1,
+	["npc_dota_hero_dark_willow"] = 1,
+	["npc_dota_hero_earthshaker"] = 1,
+	["npc_dota_hero_ember_spirit"] = 1,
+	["npc_dota_hero_grimstroke"] = 1,
+	["npc_dota_hero_hoodwink"] = 1,
+	["npc_dota_hero_invoker"] = 1,
+	["npc_dota_hero_jakiro"] = 1,
+	["npc_dota_hero_leshrac"] = 1,
+	["npc_dota_hero_lich"] = 1,
+	["npc_dota_hero_lina"] = 1,
+	["npc_dota_hero_lion"] = 1,
+	["npc_dota_hero_magnataur"] = 1,
+	["npc_dota_hero_ogre_magi"] = 1,
+	["npc_dota_hero_oracle"] = 1,
+	["npc_dota_hero_phoenix"] = 1,
+	["npc_dota_hero_puck"] = 1,
+	["npc_dota_hero_pugna"] = 1,
+	["npc_dota_hero_queenofpain"] = 1,
+	["npc_dota_hero_rattletrap"] = 1,
+	["npc_dota_hero_razor"] = 1,
+	["npc_dota_hero_sand_king"] = 1,
+	["npc_dota_hero_shadow_demon"] = 1,
+	["npc_dota_hero_shadow_shaman"] = 1,
+	["npc_dota_hero_silencer"] = 1,
+	["npc_dota_hero_skywrath_mage"] = 1,
+	["npc_dota_hero_snapfire"] = 1,
+	["npc_dota_hero_storm_spirit"] = 1,
+	["npc_dota_hero_techies"] = 1,
+	["npc_dota_hero_tidehunter"] = 1,
+	["npc_dota_hero_tiny"] = 1,
+	["npc_dota_hero_venomancer"] = 1,
+	["npc_dota_hero_viper"] = 1,
+	["npc_dota_hero_visage"] = 1,
+	["npc_dota_hero_warlock"] = 1,
+	["npc_dota_hero_winter_wyvern"] = 1,
+	["npc_dota_hero_witch_doctor"] = 1,
+	["npc_dota_hero_zuus"] = 1,
+}
+
+function HaveMagesInEnemyTeam()
+	if mageEnemyCheck == false and DotaTime() >= 3 * 60
+	then
+		local players = GetTeamPlayers(GetOpposingTeam());
+		for i = 1, #players do
+			if M["mageHeroes"][GetSelectedHeroName(players[i])] == 1
+			then
+				return true;
+			end
+		end
+		mageEnemyCheck = true;
+	end
+end
+
+function PurchaseInfusedRaindrop(npcBot)
+	if npcBot:GetGold() < GetItemCost("item_infused_raindrop") or IsItemSlotsFull() or GetItemStockCount("item_infused_raindrop") < 1
+		or DotaTime() < 3 * 60 or npcBot:GetLevel() > 10
+	then
+		return;
+	end
+
+	local courier = GetBotCourier(npcBot);
+
+	for i = 0, 16 do
+		local item = npcBot:GetItemInSlot(i);
+		if item ~= nil and item:GetName() == "item_infused_raindrop"
+		then
+			return;
+		end
+	end
+
+	for i = 0, 8 do
+		local item = courier:GetItemInSlot(i);
+		if item ~= nil and item:GetName() == "item_infused_raindrop"
+		then
+			return;
+		end
+	end
+
+	if HaveMagesInEnemyTeam()
+	then
+		--npcBot:ActionImmediate_Chat("Покупаю infused raindrop против врагов магов!", true);
+		npcBot:ActionImmediate_PurchaseItem("item_infused_raindrop");
+	end
+end
+
 -- Invis enemy check
 local X = {}
 
@@ -724,7 +843,6 @@ X['invisHeroes'] = {
 	['npc_dota_hero_weaver'] = 1,
 	['npc_dota_hero_hoodwink'] = 1,
 }
-
 
 function UpdateInvisEnemyStatus(bot)
 	if globalEnemyCheck == false

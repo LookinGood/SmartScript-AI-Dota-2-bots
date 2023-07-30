@@ -42,6 +42,12 @@ function AbilityLevelUpThink()
     ability_levelup_generic.AbilityLevelUpThink(AbilityToLevelUp)
 end
 
+-- Abilities
+local ArcaneCurse = AbilitiesReal[1]
+local GlaivesOfWisdom = AbilitiesReal[2]
+local LastWord = AbilitiesReal[3]
+local GlobalSilence = AbilitiesReal[6]
+
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
         return;
@@ -52,16 +58,10 @@ function AbilityUsageThink()
     HealthPercentage = npcBot:GetHealth() / npcBot:GetMaxHealth();
     ManaPercentage = npcBot:GetMana() / npcBot:GetMaxMana();
 
-    ArcaneCurse = AbilitiesReal[1]
-    GlaivesOfWisdom = AbilitiesReal[2]
-    LastWord = AbilitiesReal[3]
-    GlobalSilence = AbilitiesReal[6]
-
-
-    castArcaneCurseDesire, castArcaneCurseLocation = ConsiderArcaneCurse();
+    local castArcaneCurseDesire, castArcaneCurseLocation = ConsiderArcaneCurse();
     ConsiderGlaivesOfWisdom();
-    castLastWordDesire, castLastWordTarget, castLastWordTargetType = ConsiderLastWord();
-    castGlobalSilenceDesire = ConsiderGlobalSilence();
+    local castLastWordDesire, castLastWordTarget, castLastWordTargetType = ConsiderLastWord();
+    local castGlobalSilenceDesire = ConsiderGlobalSilence();
 
     if (castArcaneCurseDesire ~= nil)
     then

@@ -42,7 +42,12 @@ function AbilityLevelUpThink()
     ability_levelup_generic.AbilityLevelUpThink(AbilityToLevelUp)
 end
 
--- Ability Use
+-- Abilities
+local RocketBarrage = AbilitiesReal[1]
+local HomingMissile = AbilitiesReal[2]
+local FlakCannon = AbilitiesReal[3]
+local CallDown = AbilitiesReal[6]
+
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
         return
@@ -53,15 +58,10 @@ function AbilityUsageThink()
     HealthPercentage = npcBot:GetHealth() / npcBot:GetMaxHealth();
     ManaPercentage = npcBot:GetMana() / npcBot:GetMaxMana();
 
-    RocketBarrage = AbilitiesReal[1]
-    HomingMissile = AbilitiesReal[2]
-    FlakCannon = AbilitiesReal[3]
-    CallDown = AbilitiesReal[6]
-
-    castRocketBarrageDesire = ConsiderRocketBarrage();
-    castHomingMissileDesire, castHomingMissileTarget = ConsiderHomingMissile();
-    castFlakCannonDesire = ConsiderFlakCannon();
-    castCallDownDesire, castCallDownLocation = ConsiderCallDown();
+    local castRocketBarrageDesire = ConsiderRocketBarrage();
+    local castHomingMissileDesire, castHomingMissileTarget = ConsiderHomingMissile();
+    local castFlakCannonDesire = ConsiderFlakCannon();
+    local castCallDownDesire, castCallDownLocation = ConsiderCallDown();
 
     if (castRocketBarrageDesire ~= nil)
     then

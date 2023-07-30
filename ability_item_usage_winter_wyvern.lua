@@ -42,6 +42,12 @@ function AbilityLevelUpThink()
     ability_levelup_generic.AbilityLevelUpThink(AbilityToLevelUp)
 end
 
+-- Abilities
+local ArcticBurn = AbilitiesReal[1]
+local SplinterBlast = AbilitiesReal[2]
+local ColdEmbrace = AbilitiesReal[3]
+local WintersCurse = AbilitiesReal[6]
+
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
         return
@@ -52,15 +58,10 @@ function AbilityUsageThink()
     HealthPercentage = npcBot:GetHealth() / npcBot:GetMaxHealth();
     ManaPercentage = npcBot:GetMana() / npcBot:GetMaxMana();
 
-    ArcticBurn = AbilitiesReal[1]
-    SplinterBlast = AbilitiesReal[2]
-    ColdEmbrace = AbilitiesReal[3]
-    WintersCurse = AbilitiesReal[6]
-
-    castArcticBurnDesire = ConsiderArcticBurn();
-    castSplinterBlastDesire, castSplinterBlastTarget = ConsiderSplinterBlast();
-    castColdEmbraceDesire, castColdEmbraceTarget = ConsiderColdEmbrace();
-    castWintersCurseDesire, castWintersCurseTarget = ConsiderWintersCurse();
+    local castArcticBurnDesire = ConsiderArcticBurn();
+    local castSplinterBlastDesire, castSplinterBlastTarget = ConsiderSplinterBlast();
+    local castColdEmbraceDesire, castColdEmbraceTarget = ConsiderColdEmbrace();
+    local castWintersCurseDesire, castWintersCurseTarget = ConsiderWintersCurse();
 
     if (castArcticBurnDesire ~= nil)
     then

@@ -42,6 +42,11 @@ function AbilityLevelUpThink()
     ability_levelup_generic.AbilityLevelUpThink(AbilityToLevelUp)
 end
 
+-- Abilities
+local SmokeScreen = AbilitiesReal[1]
+local BlinkStrike = AbilitiesReal[2]
+local TricksOfTheTrade = AbilitiesReal[3]
+
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
         return
@@ -52,13 +57,9 @@ function AbilityUsageThink()
     HealthPercentage = npcBot:GetHealth() / npcBot:GetMaxHealth();
     ManaPercentage = npcBot:GetMana() / npcBot:GetMaxMana();
 
-    SmokeScreen = AbilitiesReal[1]
-    BlinkStrike = AbilitiesReal[2]
-    TricksOfTheTrade = AbilitiesReal[3]
-
-    castSmokeScreenDesire, castSmokeScreenLocation = ConsiderSmokeScreen();
-    castBlinkStrikeDesire, castBlinkStrikeTarget = ConsiderBlinkStrike();
-    castTricksOfTheTradeDesire, castTricksOfTheTradeLocation = ConsiderTricksOfTheTrade();
+    local castSmokeScreenDesire, castSmokeScreenLocation = ConsiderSmokeScreen();
+    local castBlinkStrikeDesire, castBlinkStrikeTarget = ConsiderBlinkStrike();
+    local castTricksOfTheTradeDesire, castTricksOfTheTradeLocation = ConsiderTricksOfTheTrade();
 
     if (castSmokeScreenDesire ~= nil)
     then
@@ -141,9 +142,9 @@ function ConsiderBlinkStrike()
     local attackRange = npcBot:GetAttackRange();
     local castRangeAbility = ability:GetCastRange();
     local attackDamage = npcBot:GetAttackDamage();
-    local bonusDamageAbility = (ability:GetSpecialValueInt("bonus_damage"));
+    local bonusDamageAbility = ability:GetSpecialValueInt("bonus_damage");
     local damageAbility = attackDamage + bonusDamageAbility;
-    local enemyAbility = npcBot:GetNearbyHeroes((castRangeAbility + 200), true, BOT_MODE_NONE);
+    local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility + 200, true, BOT_MODE_NONE);
 
     -- Cast if can kill somebody
     if (#enemyAbility > 0)
@@ -163,58 +164,66 @@ function ConsiderBlinkStrike()
     -- Attack use
     if utility.PvPMode(npcBot)
     then
-        if utility.CanCastSpellOnTarget(ability, botTarget) and utility.IsHero(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
-            and GetUnitToUnitDistance(npcBot, botTarget) > attackRange and utility.SafeCast(botTarget, true)
-            and not npcBot:HasModifier("modifier_riki_tricks_of_the_trade_phase")
+        if utility.IsHero(botTarget) and not npcBot:HasModifier("modifier_riki_tricks_of_the_trade_phase")
         then
-            --npcBot:ActionImmediate_Chat("Использую  BlinkStrike по врагу в радиусе действия!",true);
-            return BOT_ACTION_DESIRE_HIGH, botTarget;
+            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+                and GetUnitToUnitDistance(npcBot, botTarget) > attackRange and utility.SafeCast(botTarget, true)
+            then
+                --npcBot:ActionImmediate_Chat("Использую  BlinkStrike по врагу в радиусе действия!",true);
+                return BOT_ACTION_DESIRE_HIGH, botTarget;
+            end
         end
         -- Use if need retreat
-    elseif botMode == BOT_MODE_RETREAT and (HealthPercentage <= 0.8) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
+    elseif botMode == BOT_MODE_RETREAT
     then
-        local allyAbility = npcBot:GetNearbyHeroes(castRangeAbility, false, BOT_MODE_NONE);
-        local allyCreeps = npcBot:GetNearbyCreeps(castRangeAbility, false);
-        local enemyCreeps = npcBot:GetNearbyCreeps(castRangeAbility, true);
-        local fountainLocation = utility.SafeLocation(npcBot);
-        if (#allyAbility > 1)
+        if (HealthPercentage <= 0.8) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
         then
-            for _, ally in pairs(allyAbility) do
-                if ally ~= npcBot and GetUnitToLocationDistance(ally, fountainLocation) < GetUnitToLocationDistance(npcBot, fountainLocation) and
-                    (GetUnitToUnitDistance(ally, npcBot) > castRangeAbility / 2)
-                then
-                    --npcBot:ActionImmediate_Chat("Использую BlinkStrike для побега на союзника!",true);
-                    return BOT_ACTION_DESIRE_HIGH, ally;
+            local allyAbility = npcBot:GetNearbyHeroes(castRangeAbility, false, BOT_MODE_NONE);
+            local allyCreeps = npcBot:GetNearbyCreeps(castRangeAbility, false);
+            local enemyCreeps = npcBot:GetNearbyCreeps(castRangeAbility, true);
+            local fountainLocation = utility.SafeLocation(npcBot);
+            if (#allyAbility > 1)
+            then
+                for _, ally in pairs(allyAbility) do
+                    if ally ~= npcBot and GetUnitToLocationDistance(ally, fountainLocation) < GetUnitToLocationDistance(npcBot, fountainLocation) and
+                        (GetUnitToUnitDistance(ally, npcBot) > castRangeAbility / 2)
+                    then
+                        --npcBot:ActionImmediate_Chat("Использую BlinkStrike для побега на союзника!",true);
+                        return BOT_ACTION_DESIRE_HIGH, ally;
+                    end
                 end
             end
-        elseif (#allyCreeps > 0)
-        then
-            for _, ally in pairs(allyCreeps) do
-                if GetUnitToLocationDistance(ally, fountainLocation) < GetUnitToLocationDistance(npcBot, fountainLocation) and
-                    (GetUnitToUnitDistance(ally, npcBot) > castRangeAbility / 2)
-                then
-                    --npcBot:ActionImmediate_Chat("Использую BlinkStrike для побега на союзного крипа!",true);
-                    return BOT_ACTION_DESIRE_HIGH, ally;
+            if (#allyCreeps > 0)
+            then
+                for _, ally in pairs(allyCreeps) do
+                    if GetUnitToLocationDistance(ally, fountainLocation) < GetUnitToLocationDistance(npcBot, fountainLocation) and
+                        (GetUnitToUnitDistance(ally, npcBot) > castRangeAbility / 2)
+                    then
+                        --npcBot:ActionImmediate_Chat("Использую BlinkStrike для побега на союзного крипа!",true);
+                        return BOT_ACTION_DESIRE_HIGH, ally;
+                    end
                 end
             end
-        elseif (#enemyAbility > 0)
-        then
-            for _, enemy in pairs(enemyAbility) do
-                if GetUnitToLocationDistance(enemy, fountainLocation) < GetUnitToLocationDistance(npcBot, fountainLocation) and
-                    (GetUnitToUnitDistance(enemy, npcBot) > castRangeAbility / 2)
-                then
-                    --npcBot:ActionImmediate_Chat("Использую BlinkStrike для побега на врага!",true);
-                    return BOT_ACTION_DESIRE_HIGH, enemy;
+            if (#enemyAbility > 0)
+            then
+                for _, enemy in pairs(enemyAbility) do
+                    if GetUnitToLocationDistance(enemy, fountainLocation) < GetUnitToLocationDistance(npcBot, fountainLocation) and
+                        (GetUnitToUnitDistance(enemy, npcBot) > castRangeAbility / 2)
+                    then
+                        --npcBot:ActionImmediate_Chat("Использую BlinkStrike для побега на врага!",true);
+                        return BOT_ACTION_DESIRE_HIGH, enemy;
+                    end
                 end
             end
-        elseif (#enemyCreeps > 0)
-        then
-            for _, enemy in pairs(enemyCreeps) do
-                if GetUnitToLocationDistance(enemy, fountainLocation) < GetUnitToLocationDistance(npcBot, fountainLocation) and
-                    (GetUnitToUnitDistance(enemy, npcBot) > castRangeAbility / 2)
-                then
-                    --npcBot:ActionImmediate_Chat("Использую BlinkStrike для побега на вражеского крипа!",true);
-                    return BOT_ACTION_DESIRE_HIGH, enemy;
+            if (#enemyCreeps > 0)
+            then
+                for _, enemy in pairs(enemyCreeps) do
+                    if GetUnitToLocationDistance(enemy, fountainLocation) < GetUnitToLocationDistance(npcBot, fountainLocation) and
+                        (GetUnitToUnitDistance(enemy, npcBot) > castRangeAbility / 2)
+                    then
+                        --npcBot:ActionImmediate_Chat("Использую BlinkStrike для побега на вражеского крипа!",true);
+                        return BOT_ACTION_DESIRE_HIGH, enemy;
+                    end
                 end
             end
         end

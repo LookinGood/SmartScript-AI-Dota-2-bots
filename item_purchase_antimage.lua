@@ -36,20 +36,20 @@ local ItemsToBuy =
 	"item_mithril_hammer",
 	"item_recipe_black_king_bar",
 
-	"item_mithril_hammer",
-	"item_belt_of_strength",
-	"item_recipe_basher",
-
-	"item_recipe_abyssal_blade",
-
-	"item_aghanims_shard",
-
 	"item_blade_of_alacrity",
 	"item_boots_of_elves",
 	"item_recipe_yasha",
 
 	"item_ultimate_orb",
 	"item_recipe_manta",
+
+	"item_aghanims_shard",
+
+	"item_mithril_hammer",
+	"item_belt_of_strength",
+	"item_recipe_basher",
+
+	"item_recipe_abyssal_blade",
 
 	"item_quarterstaff",
 	"item_talisman_of_evasion",

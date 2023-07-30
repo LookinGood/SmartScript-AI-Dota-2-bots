@@ -42,6 +42,12 @@ function AbilityLevelUpThink()
     ability_levelup_generic.AbilityLevelUpThink(AbilityToLevelUp)
 end
 
+-- Abilities
+local Blink = AbilitiesReal[2]
+local SpellShield = AbilitiesReal[3]
+local BlinkFragment = AbilitiesReal[4]
+local ManaVoid = AbilitiesReal[6]
+
 -- Ability Use
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
@@ -53,15 +59,10 @@ function AbilityUsageThink()
     HealthPercentage = npcBot:GetHealth() / npcBot:GetMaxHealth();
     ManaPercentage = npcBot:GetMana() / npcBot:GetMaxMana();
 
-    Blink = AbilitiesReal[2]
-    SpellShield = AbilitiesReal[3]
-    BlinkFragment = AbilitiesReal[4]
-    ManaVoid = AbilitiesReal[6]
-
-    castBlinkDesire, castBlinkLocation = ConsiderBlink();
-    castSpellshieldDesire = ConsiderSpellShield();
-    castBlinkFragmentDesire, castBlinkFragmentLocation = ConsiderBlinkFragment();
-    castManaVoidDesire, castManaVoidTarget = ConsiderManaVoid();
+    local castBlinkDesire, castBlinkLocation = ConsiderBlink();
+    local castSpellshieldDesire = ConsiderSpellShield();
+    local castBlinkFragmentDesire, castBlinkFragmentLocation = ConsiderBlinkFragment();
+    local castManaVoidDesire, castManaVoidTarget = ConsiderManaVoid();
 
     if (castManaVoidDesire ~= nil)
     then

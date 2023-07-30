@@ -42,6 +42,13 @@ function AbilityLevelUpThink()
     ability_levelup_generic.AbilityLevelUpThink(AbilityToLevelUp)
 end
 
+-- Abilities
+local SpectralDagger = AbilitiesReal[1]
+local Dispersion = AbilitiesReal[3]
+local Reality = AbilitiesReal[4]
+local ShadowStep = AbilitiesReal[5]
+local Haunt = AbilitiesReal[6]
+
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
         return
@@ -52,17 +59,11 @@ function AbilityUsageThink()
     HealthPercentage = npcBot:GetHealth() / npcBot:GetMaxHealth();
     ManaPercentage = npcBot:GetMana() / npcBot:GetMaxMana();
 
-    SpectralDagger = AbilitiesReal[1]
-    Dispersion = AbilitiesReal[3]
-    Reality = AbilitiesReal[4]
-    ShadowStep = AbilitiesReal[5]
-    Haunt = AbilitiesReal[6]
-
-    castSpectralDaggerDesire, castSpectralDaggerTarget, castSpectralDaggerTargetType = ConsiderSpectralDagger();
-    castDispersionDesire = ConsiderDispersion();
-    castRealityDesire, castRealityLocation = ConsiderReality();
-    castShadowStepDesire, castShadowStepTarget = ConsiderShadowStep();
-    castHauntDesire = ConsiderHaunt();
+    local castSpectralDaggerDesire, castSpectralDaggerTarget, castSpectralDaggerTargetType = ConsiderSpectralDagger();
+    local castDispersionDesire = ConsiderDispersion();
+    local castRealityDesire, castRealityLocation = ConsiderReality();
+    local castShadowStepDesire, castShadowStepTarget = ConsiderShadowStep();
+    local castHauntDesire = ConsiderHaunt();
 
     if (castSpectralDaggerDesire ~= nil)
     then

@@ -42,7 +42,12 @@ function AbilityLevelUpThink()
     ability_levelup_generic.AbilityLevelUpThink(AbilityToLevelUp)
 end
 
--- Ability Use
+-- Abilities
+local PoisonTouch = AbilitiesReal[1]
+local ShallowGrave = AbilitiesReal[2]
+local ShadowWave = AbilitiesReal[3]
+local BadJuju = AbilitiesReal[6]
+
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
         return
@@ -53,15 +58,10 @@ function AbilityUsageThink()
     HealthPercentage = npcBot:GetHealth() / npcBot:GetMaxHealth();
     ManaPercentage = npcBot:GetMana() / npcBot:GetMaxMana();
 
-    PoisonTouch = AbilitiesReal[1]
-    ShallowGrave = AbilitiesReal[2]
-    ShadowWave = AbilitiesReal[3]
-    BadJuju = AbilitiesReal[6]
-
-    castPoisonTouchDesire, castPoisonTouchTarget = ConsiderPoisonTouch();
-    castShallowGraveDesire, castShallowGraveTarget = ConsiderShallowGrave();
-    castShadowWaveDesire, castShadowWaveTarget = ConsiderShadowWave();
-    castBadJujuDesire = ConsiderBadJuju();
+    local castPoisonTouchDesire, castPoisonTouchTarget = ConsiderPoisonTouch();
+    local castShallowGraveDesire, castShallowGraveTarget = ConsiderShallowGrave();
+    local castShadowWaveDesire, castShadowWaveTarget = ConsiderShadowWave();
+    local castBadJujuDesire = ConsiderBadJuju();
 
     if (castPoisonTouchDesire ~= nil)
     then

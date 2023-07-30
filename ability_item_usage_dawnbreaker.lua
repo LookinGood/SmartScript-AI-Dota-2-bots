@@ -42,6 +42,12 @@ function AbilityLevelUpThink()
     ability_levelup_generic.AbilityLevelUpThink(AbilityToLevelUp)
 end
 
+-- Abilities
+local Starbreaker = AbilitiesReal[1]
+local CelestialHammer = AbilitiesReal[2]
+local Converge = npcBot:GetAbilityByName("dawnbreaker_converge");
+local SolarGuardian = AbilitiesReal[6]
+
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
         return;
@@ -52,15 +58,10 @@ function AbilityUsageThink()
     HealthPercentage = npcBot:GetHealth() / npcBot:GetMaxHealth();
     ManaPercentage = npcBot:GetMana() / npcBot:GetMaxMana();
 
-    Starbreaker = AbilitiesReal[1]
-    CelestialHammer = AbilitiesReal[2]
-    Converge = npcBot:GetAbilityByName("dawnbreaker_converge");
-    SolarGuardian = AbilitiesReal[6]
-
-    castStarbreakerDesire, castStarbreakerLocation = ConsiderStarbreaker();
-    castCelestialHammerDesire, castCelestialHammerLocation = ConsiderCelestialHammer();
-    castConvergeDesire = ConsiderConverge();
-    castSolarGuardianDesire, castSolarGuardianLocation = ConsiderSolarGuardian();
+    local castStarbreakerDesire, castStarbreakerLocation = ConsiderStarbreaker();
+    local castCelestialHammerDesire, castCelestialHammerLocation = ConsiderCelestialHammer();
+    local castConvergeDesire = ConsiderConverge();
+    local castSolarGuardianDesire, castSolarGuardianLocation = ConsiderSolarGuardian();
 
     if (castStarbreakerDesire ~= nil)
     then

@@ -38,10 +38,15 @@ local AbilityToLevelUp =
     Talents[7],
 }
 
-
 function AbilityLevelUpThink()
     ability_levelup_generic.AbilityLevelUpThink(AbilityToLevelUp)
 end
+
+-- Abilities
+local VenomousGale = AbilitiesReal[1]
+local PlagueWard = AbilitiesReal[3]
+local LatentToxicity = AbilitiesReal[4]
+local NoxiousPlague = AbilitiesReal[6]
 
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
@@ -53,15 +58,10 @@ function AbilityUsageThink()
     HealthPercentage = npcBot:GetHealth() / npcBot:GetMaxHealth();
     ManaPercentage = npcBot:GetMana() / npcBot:GetMaxMana();
 
-    VenomousGale = AbilitiesReal[1]
-    PlagueWard = AbilitiesReal[3]
-    LatentToxicity = AbilitiesReal[4]
-    NoxiousPlague = AbilitiesReal[6]
-
-    castVenomousGaleDesire, castVenomousGaleLocation = ConsiderVenomousGale();
-    castPlagueWardDesire, castPlagueWardLocation = ConsiderPlagueWard();
-    castLatentToxicityDesire, castLatentToxicitytarget = ConsiderLatentToxicity();
-    castNoxiousPlagueDesire, castNoxiousPlagueTarget = ConsiderNoxiousPlague();
+    local castVenomousGaleDesire, castVenomousGaleLocation = ConsiderVenomousGale();
+    local castPlagueWardDesire, castPlagueWardLocation = ConsiderPlagueWard();
+    local castLatentToxicityDesire, castLatentToxicitytarget = ConsiderLatentToxicity();
+    local castNoxiousPlagueDesire, castNoxiousPlagueTarget = ConsiderNoxiousPlague();
 
     if (castVenomousGaleDesire ~= nil)
     then

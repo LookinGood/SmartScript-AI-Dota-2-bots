@@ -25,6 +25,7 @@ C["carryHeroes"] = {
     ["npc_dota_hero_skeleton_king"] = 1,
     ["npc_dota_hero_furion"] = 1,
     ["npc_dota_hero_sniper"] = 1,
+    ["npc_dota_hero_doom_bringer"] = 1,
 }
 
 local S = {}
@@ -46,6 +47,7 @@ S["supportHeroes"] = {
     ["npc_dota_hero_lion"] = 1,
     ["npc_dota_hero_leshrac"] = 1,
     ["npc_dota_hero_lina"] = 1,
+    ["npc_dota_hero_shadow_shaman"] = 1,
 }
 
 

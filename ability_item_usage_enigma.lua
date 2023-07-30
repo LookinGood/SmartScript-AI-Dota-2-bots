@@ -42,6 +42,12 @@ function AbilityLevelUpThink()
     ability_levelup_generic.AbilityLevelUpThink(AbilityToLevelUp)
 end
 
+-- Abilities
+local Malefice = AbilitiesReal[1]
+local DemonicConversion = AbilitiesReal[2]
+local MidnightPulse = AbilitiesReal[3]
+local BlackHole = AbilitiesReal[6]
+
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
         return;
@@ -52,15 +58,10 @@ function AbilityUsageThink()
     HealthPercentage = npcBot:GetHealth() / npcBot:GetMaxHealth();
     ManaPercentage = npcBot:GetMana() / npcBot:GetMaxMana();
 
-    Malefice = AbilitiesReal[1]
-    DemonicConversion = AbilitiesReal[2]
-    MidnightPulse = AbilitiesReal[3]
-    BlackHole = AbilitiesReal[6]
-
-    castMaleficeDesire, castMaleficeTarget = ConsiderMalefice();
-    castDemonicConversionDesire, castDemonicConversionTarget = ConsiderDemonicConversion();
-    castMidnightPulseDesire, castMidnightPulseLocation = ConsiderMidnightPulse();
-    castBlackHoleDesire, castBlackHoleLocation = ConsiderBlackHole();
+    local castMaleficeDesire, castMaleficeTarget = ConsiderMalefice();
+    local castDemonicConversionDesire, castDemonicConversionTarget = ConsiderDemonicConversion();
+    local castMidnightPulseDesire, castMidnightPulseLocation = ConsiderMidnightPulse();
+    local castBlackHoleDesire, castBlackHoleLocation = ConsiderBlackHole();
 
     if (castMaleficeDesire ~= nil)
     then
@@ -82,23 +83,9 @@ function AbilityUsageThink()
 
     if (castBlackHoleDesire ~= nil)
     then
-        --npcBot:Action_ClearActions(false);
         npcBot:Action_UseAbilityOnLocation(BlackHole, castBlackHoleLocation);
-        --npcBot:Action_Delay(0.5);
         return;
     end
-
-    --[[     if npcBot:GetCurrentActiveAbility() == BlackHole
-    then
-        npcBot:ActionImmediate_Chat("Стою кастую блек хол!", true);
-        npcBot:Action_Delay(1.0)
-        --npcBot:Action_ClearActions(true);
-        --npcBot:Action_ClearActions(true);
-        --npcBot:ActionQueue_UseAbilityOnLocation(BlackHole, castBlackHoleLocation);
-        --npcBot:ActionQueue_Delay(0.5);
-        --npcBot:ActionPush_UseAbilityOnLocation(BlackHole, castBlackHoleLocation);
-
-    end ]]
 end
 
 function ConsiderMalefice()

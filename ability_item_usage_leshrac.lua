@@ -13,7 +13,7 @@ end
 
 -- Ability learn
 local npcBot = GetBot();
-Abilities, Talents, AbilitiesReal = ability_levelup_generic.GetHeroAbilities(npcBot)
+local Abilities, Talents, AbilitiesReal = ability_levelup_generic.GetHeroAbilities(npcBot)
 
 local AbilityToLevelUp =
 {
@@ -42,6 +42,13 @@ function AbilityLevelUpThink()
     ability_levelup_generic.AbilityLevelUpThink(AbilityToLevelUp)
 end
 
+-- Abilities
+local SplitEarth = AbilitiesReal[1]
+local DiabolicEdict = AbilitiesReal[2]
+local LightningStorm = AbilitiesReal[3]
+local Nihilism = AbilitiesReal[4]
+local PulseNova = AbilitiesReal[6]
+
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
         return;
@@ -52,17 +59,11 @@ function AbilityUsageThink()
     HealthPercentage = npcBot:GetHealth() / npcBot:GetMaxHealth();
     ManaPercentage = npcBot:GetMana() / npcBot:GetMaxMana();
 
-    SplitEarth = AbilitiesReal[1]
-    DiabolicEdict = AbilitiesReal[2]
-    LightningStorm = AbilitiesReal[3]
-    Nihilism = AbilitiesReal[4]
-    PulseNova = AbilitiesReal[6]
-
-    castSplitEarthDesire, castSplitEarthLocation = ConsiderSplitEarth();
-    castDiabolicEdictDesire = ConsiderDiabolicEdict();
-    castLightningStormDesire, castLightningStormTarget = ConsiderLightningStorm();
-    castNihilismDesire = ConsiderNihilism();
-    castPulseNovaDesire = ConsiderPulseNova();
+    local castSplitEarthDesire, castSplitEarthLocation = ConsiderSplitEarth();
+    local castDiabolicEdictDesire = ConsiderDiabolicEdict();
+    local castLightningStormDesire, castLightningStormTarget = ConsiderLightningStorm();
+    local castNihilismDesire = ConsiderNihilism();
+    local castPulseNovaDesire = ConsiderPulseNova();
 
     if (castSplitEarthDesire ~= nil)
     then

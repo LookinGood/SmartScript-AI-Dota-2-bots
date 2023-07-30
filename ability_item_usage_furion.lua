@@ -42,6 +42,13 @@ function AbilityLevelUpThink()
     ability_levelup_generic.AbilityLevelUpThink(AbilityToLevelUp)
 end
 
+-- Abilities
+local Sprout = AbilitiesReal[1]
+local Teleportation = AbilitiesReal[2]
+local NaturesCall = AbilitiesReal[3]
+local CurseOfTheOldgrowth = AbilitiesReal[4]
+local WrathOfNature = AbilitiesReal[6]
+
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
         return;
@@ -52,17 +59,11 @@ function AbilityUsageThink()
     HealthPercentage = npcBot:GetHealth() / npcBot:GetMaxHealth();
     ManaPercentage = npcBot:GetMana() / npcBot:GetMaxMana();
 
-    Sprout = AbilitiesReal[1]
-    Teleportation = AbilitiesReal[2]
-    NaturesCall = AbilitiesReal[3]
-    CurseOfTheOldgrowth = AbilitiesReal[4]
-    WrathOfNature = AbilitiesReal[6]
-
-    castSproutDesire, castSproutTarget, castSproutType = ConsiderSprout();
-    castTeleportationDesire, castTeleportationLocation = ConsiderTeleportation();
-    castNaturesCallDesire, castNaturesCallLocation = ConsiderNaturesCall();
-    castCurseOfTheOldgrowthDesire = ConsiderCurseOfTheOldgrowth();
-    castWrathOfNatureDesire, castWrathOfNatureTarget, castWrathOfNatureTargetType = ConsiderWrathOfNature();
+    local castSproutDesire, castSproutTarget, castSproutType = ConsiderSprout();
+    local castTeleportationDesire, castTeleportationLocation = ConsiderTeleportation();
+    local castNaturesCallDesire, castNaturesCallLocation = ConsiderNaturesCall();
+    local castCurseOfTheOldgrowthDesire = ConsiderCurseOfTheOldgrowth();
+    local castWrathOfNatureDesire, castWrathOfNatureTarget, castWrathOfNatureTargetType = ConsiderWrathOfNature();
 
     if (castSproutDesire ~= nil)
     then

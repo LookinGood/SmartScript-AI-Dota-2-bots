@@ -18,29 +18,35 @@ local Abilities, Talents, AbilitiesReal = ability_levelup_generic.GetHeroAbiliti
 local AbilityToLevelUp =
 {
     Abilities[1],
+    Abilities[3],
     Abilities[2],
     Abilities[1],
-    Abilities[2],
     Abilities[1],
     Abilities[6],
     Abilities[1],
-    Abilities[2],
-    Abilities[2],
+    Abilities[3],
+    Abilities[3],
     Talents[2],
     Abilities[3],
     Abilities[6],
-    Abilities[3],
-    Abilities[3],
-    Talents[3],
-    Abilities[3],
+    Abilities[2],
+    Abilities[2],
+    Talents[4],
+    Abilities[2],
     Abilities[6],
-    Talents[6],
+    Talents[5],
     Talents[7],
 }
 
 function AbilityLevelUpThink()
     ability_levelup_generic.AbilityLevelUpThink(AbilityToLevelUp)
 end
+
+-- Abilities
+local FrostArrows = AbilitiesReal[1]
+local Gust = AbilitiesReal[2]
+local Multishot = AbilitiesReal[3]
+local Glacier = AbilitiesReal[4]
 
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
@@ -52,15 +58,10 @@ function AbilityUsageThink()
     HealthPercentage = npcBot:GetHealth() / npcBot:GetMaxHealth();
     ManaPercentage = npcBot:GetMana() / npcBot:GetMaxMana();
 
-    FrostArrows = AbilitiesReal[1]
-    Gust = AbilitiesReal[2]
-    Multishot = AbilitiesReal[3]
-    Glacier = AbilitiesReal[4]
-
     ConsiderFrostArrows();
-    castGustDesire, castGustLocation = ConsiderGust();
-    castMultishotDesire, castMultishotLocation = ConsiderMultishot();
-    castGlacierDesire = ConsiderGlacier();
+    local castGustDesire, castGustLocation = ConsiderGust();
+    local castMultishotDesire, castMultishotLocation = ConsiderMultishot();
+    local castGlacierDesire = ConsiderGlacier();
 
     if (castGustDesire ~= nil)
     then
@@ -70,10 +71,7 @@ function AbilityUsageThink()
 
     if (castMultishotDesire ~= nil)
     then
-        --npcBot:Action_ClearActions(false);
-        --npcBot:Action_Delay(0.5);
         npcBot:Action_UseAbilityOnLocation(Multishot, castMultishotLocation);
-        --npcBot:Action_UseAbilityOnLocation(Multishot, castMultishotLocation);
         return;
     end
 
@@ -161,6 +159,8 @@ function ConsiderMultishot()
     end
 
     local castRangeAbility = npcBot:GetAttackRange() * ability:GetSpecialValueInt("arrow_range_multiplier");
+    local radiusAbility = ability:GetSpecialValueInt("arrow_width");
+    local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
 
     -- Attack use
     if utility.PvPMode(npcBot)
@@ -169,7 +169,18 @@ function ConsiderMultishot()
             and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
         then
             --npcBot:ActionImmediate_Chat("Использую Multishot для нападения!", true);
-            return BOT_ACTION_DESIRE_HIGH, botTarget:GetLocation();
+            return BOT_ACTION_DESIRE_HIGH, utility.GetTargetPosition(botTarget, delayAbility);
+        end
+        -- Cast if push/defend/farm
+    elseif utility.PvEMode(npcBot)
+    then
+        local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility,
+            radiusAbility,
+            0, 0);
+        if (locationAoE.count >= 3)
+        then
+            --npcBot:ActionImmediate_Chat("Использую Multishot по вражеским крипам!", true);
+            return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc, "location";
         end
         -- Cast when laning
     elseif npcBot:GetActiveMode() == BOT_MODE_LANING
@@ -181,7 +192,7 @@ function ConsiderMultishot()
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую Multishot для лайнинга!", true);
-                    return BOT_ACTION_DESIRE_HIGH, enemy:GetLocation();
+                    return BOT_ACTION_DESIRE_HIGH, utility.GetTargetPosition(enemy, delayAbility);
                 end
             end
         end

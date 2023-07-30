@@ -43,6 +43,13 @@ function AbilityLevelUpThink()
     ability_levelup_generic.AbilityLevelUpThink(AbilityToLevelUp)
 end
 
+-- Abilities
+local StickyBomb = AbilitiesReal[1]
+local ReactiveTazer = AbilitiesReal[2]
+local BlastOff = AbilitiesReal[3]
+local MinefieldSign = AbilitiesReal[5]
+local ProximityMines = AbilitiesReal[6]
+
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
         return;
@@ -53,17 +60,11 @@ function AbilityUsageThink()
     HealthPercentage = npcBot:GetHealth() / npcBot:GetMaxHealth();
     ManaPercentage = npcBot:GetMana() / npcBot:GetMaxMana();
 
-    StickyBomb = AbilitiesReal[1]
-    ReactiveTazer = AbilitiesReal[2]
-    BlastOff = AbilitiesReal[3]
-    MinefieldSign = AbilitiesReal[5]
-    ProximityMines = AbilitiesReal[6]
-
-    castStickyBombDesire, castStickyBombLocation = ConsiderStickyBomb();
-    castReactiveTazerDesire = ConsiderReactiveTazer();
-    castBlastOffDesire, castBlastOffLocation = ConsiderBlastOff();
-    castMinefieldSignDesire, castMinefieldSignLocation = ConsiderMinefieldSign();
-    castProximityMinesDesire, castProximityMinesLocation = ConsiderProximityMines();
+    local castStickyBombDesire, castStickyBombLocation = ConsiderStickyBomb();
+    local castReactiveTazerDesire = ConsiderReactiveTazer();
+    local castBlastOffDesire, castBlastOffLocation = ConsiderBlastOff();
+    local castMinefieldSignDesire, castMinefieldSignLocation = ConsiderMinefieldSign();
+    local castProximityMinesDesire, castProximityMinesLocation = ConsiderProximityMines();
 
     if (castStickyBombDesire ~= nil)
     then

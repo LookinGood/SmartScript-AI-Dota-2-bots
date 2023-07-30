@@ -42,6 +42,12 @@ function AbilityLevelUpThink()
     ability_levelup_generic.AbilityLevelUpThink(AbilityToLevelUp)
 end
 
+-- Abilities
+local SummonWolves = AbilitiesReal[1]
+local Howl = AbilitiesReal[2]
+local WolfBite = AbilitiesReal[4]
+local Shapeshift = AbilitiesReal[6]
+
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
         return
@@ -52,15 +58,10 @@ function AbilityUsageThink()
     HealthPercentage = npcBot:GetHealth() / npcBot:GetMaxHealth();
     ManaPercentage = npcBot:GetMana() / npcBot:GetMaxMana();
 
-    SummonWolves = AbilitiesReal[1]
-    Howl = AbilitiesReal[2]
-    WolfBite = AbilitiesReal[4]
-    Shapeshift = AbilitiesReal[6]
-
-    castSummonWolvesDesire = ConsiderSummonWolves();
-    castHowlDesire = ConsiderHowl();
-    castWolfBiteDesire, castWolfBiteTarget = ConsiderWolfBite();
-    castShapeshiftDesire = ConsiderShapeshift();
+    local castSummonWolvesDesire = ConsiderSummonWolves();
+    local castHowlDesire = ConsiderHowl();
+    local castWolfBiteDesire, castWolfBiteTarget = ConsiderWolfBite();
+    local castShapeshiftDesire = ConsiderShapeshift();
 
     if (castSummonWolvesDesire ~= nil)
     then

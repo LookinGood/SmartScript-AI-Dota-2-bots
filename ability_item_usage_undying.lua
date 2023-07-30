@@ -42,6 +42,12 @@ function AbilityLevelUpThink()
     ability_levelup_generic.AbilityLevelUpThink(AbilityToLevelUp)
 end
 
+-- Abilities
+local Decay = AbilitiesReal[1]
+local SoulRip = AbilitiesReal[2]
+local Tombstone = AbilitiesReal[3]
+local FleshGolem = AbilitiesReal[6]
+
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
         return
@@ -52,15 +58,10 @@ function AbilityUsageThink()
     HealthPercentage = npcBot:GetHealth() / npcBot:GetMaxHealth();
     ManaPercentage = npcBot:GetMana() / npcBot:GetMaxMana();
 
-    Decay = AbilitiesReal[1]
-    SoulRip = AbilitiesReal[2]
-    Tombstone = AbilitiesReal[3]
-    FleshGolem = AbilitiesReal[6]
-
-    castDecayDesire, castDecayLocation = ConsiderDecay();
-    castSoulRipDesire, castSoulRipTarget = ConsiderSoulRip();
-    castTombstoneDesire, castTombstoneLocation = ConsiderTombstone();
-    castFleshGolemDesire = ConsiderFleshGolem();
+    local castDecayDesire, castDecayLocation = ConsiderDecay();
+    local castSoulRipDesire, castSoulRipTarget = ConsiderSoulRip();
+    local castTombstoneDesire, castTombstoneLocation = ConsiderTombstone();
+    local castFleshGolemDesire = ConsiderFleshGolem();
 
     if (castDecayDesire ~= nil)
     then

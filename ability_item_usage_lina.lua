@@ -42,6 +42,12 @@ function AbilityLevelUpThink()
     ability_levelup_generic.AbilityLevelUpThink(AbilityToLevelUp)
 end
 
+-- Abilities
+local DragonSlave = AbilitiesReal[1]
+local LightStrikeArray = AbilitiesReal[2]
+local FlameCloak = AbilitiesReal[4]
+local LagunaBlade = AbilitiesReal[6]
+
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
         return;
@@ -52,15 +58,10 @@ function AbilityUsageThink()
     HealthPercentage = npcBot:GetHealth() / npcBot:GetMaxHealth();
     ManaPercentage = npcBot:GetMana() / npcBot:GetMaxMana();
 
-    DragonSlave = AbilitiesReal[1]
-    LightStrikeArray = AbilitiesReal[2]
-    FlameCloak = AbilitiesReal[4]
-    LagunaBlade = AbilitiesReal[6]
-
-    castDragonSlaveDesire, castDragonSlaveLocation = ConsiderDragonSlave();
-    castLightStrikeArrayDesire, castLightStrikeArrayLocation = ConsiderLightStrikeArray();
-    castFlameCloakDesire = ConsiderFlameCloak();
-    castLagunaBladeDesire, castLagunaBladeTarget = ConsiderLagunaBlade();
+    local castDragonSlaveDesire, castDragonSlaveLocation = ConsiderDragonSlave();
+    local castLightStrikeArrayDesire, castLightStrikeArrayLocation = ConsiderLightStrikeArray();
+    local castFlameCloakDesire = ConsiderFlameCloak();
+    local castLagunaBladeDesire, castLagunaBladeTarget = ConsiderLagunaBlade();
 
     if (castDragonSlaveDesire ~= nil)
     then

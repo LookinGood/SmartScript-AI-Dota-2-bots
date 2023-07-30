@@ -25,8 +25,8 @@ local ItemsToBuy =
     "item_blades_of_attack",
     "item_chainmail",
 
-	"item_blade_of_alacrity",
 	"item_robe",
+	"item_blade_of_alacrity",
 	"item_recipe_diffusal_blade",
 
 	"item_ogre_axe",
@@ -35,12 +35,12 @@ local ItemsToBuy =
 
 	"item_aghanims_shard",
 
-	"item_blade_of_alacrity",
 	"item_boots_of_elves",
+	"item_blade_of_alacrity",
 	"item_recipe_yasha",
 
-	"item_ogre_axe",
 	"item_belt_of_strength",
+	"item_ogre_axe",
 	"item_recipe_sange",
 
 	"item_quarterstaff",
@@ -53,9 +53,9 @@ local ItemsToBuy =
 	"item_recipe_monkey_king_bar",
 
 	"item_point_booster",
-	"item_blade_of_alacrity",
-	"item_staff_of_wizardry",
 	"item_ogre_axe",
+	"item_staff_of_wizardry",
+	"item_blade_of_alacrity",
 
 	"item_demon_edge",
 	"item_recipe_disperser",
@@ -66,8 +66,7 @@ local ItemsToBuy =
 	"item_recipe_travel_boots",
 	"item_boots",
 
-	"item_recipe_travel_boots_2",
-
+	"item_recipe_travel_boots",
 }
 
 function ItemPurchaseThink()

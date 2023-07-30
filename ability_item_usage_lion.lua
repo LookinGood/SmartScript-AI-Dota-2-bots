@@ -42,6 +42,12 @@ function AbilityLevelUpThink()
     ability_levelup_generic.AbilityLevelUpThink(AbilityToLevelUp)
 end
 
+-- Abilities
+local EarthSpike = AbilitiesReal[1]
+local Hex = AbilitiesReal[2]
+local ManaDrain = AbilitiesReal[3]
+local FingerOfDeath = AbilitiesReal[6]
+
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
         return;
@@ -52,15 +58,10 @@ function AbilityUsageThink()
     HealthPercentage = npcBot:GetHealth() / npcBot:GetMaxHealth();
     ManaPercentage = npcBot:GetMana() / npcBot:GetMaxMana();
 
-    EarthSpike = AbilitiesReal[1]
-    Hex = AbilitiesReal[2]
-    ManaDrain = AbilitiesReal[3]
-    FingerOfDeath = AbilitiesReal[6]
-
-    castEarthSpikeDesire, castEarthSpikeTarget, castEarthSpikeTargetType = ConsiderEarthSpike();
-    castHexDesire, castHexTarget = ConsiderHex();
-    castManaDrainDesire, castManaDrainTarget = ConsiderManaDrain();
-    castFingerOfDeathDesire, castFingerOfDeathTarget = ConsiderFingerOfDeath();
+    local castEarthSpikeDesire, castEarthSpikeTarget, castEarthSpikeTargetType = ConsiderEarthSpike();
+    local castHexDesire, castHexTarget = ConsiderHex();
+    local castManaDrainDesire, castManaDrainTarget = ConsiderManaDrain();
+    local castFingerOfDeathDesire, castFingerOfDeathTarget = ConsiderFingerOfDeath();
 
     if (castEarthSpikeDesire ~= nil)
     then

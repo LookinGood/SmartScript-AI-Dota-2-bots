@@ -105,7 +105,7 @@ function ConsiderVenomousGale()
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and not utility.TargetCantDie(enemy)
+            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType())
             then
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
@@ -257,7 +257,7 @@ function ConsiderLatentToxicity()
     then
         if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
         then
-            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility and utility.SafeCast(botTarget, true)
+            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
             then
                 return BOT_MODE_DESIRE_HIGH, botTarget;
             end
@@ -268,7 +268,7 @@ function ConsiderLatentToxicity()
         if (#enemyAbility > 0)
         then
             for _, enemy in pairs(enemyAbility) do
-                if utility.CanCastSpellOnTarget(ability, enemy)  and utility.SafeCast(enemy, true)
+                if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую LatentToxicity что бы оторваться от врага",true);
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy;
@@ -287,11 +287,11 @@ function ConsiderNoxiousPlague()
     local castRangeAbility = ability:GetCastRange();
 
     -- Attack use
-    if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
+    if utility.PvPMode(npcBot)
     then
-        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
+        if utility.IsHero(botTarget)
         then
-            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility and utility.SafeCast(botTarget, true)
+            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
             then
                 return BOT_MODE_DESIRE_HIGH, botTarget;
             end
@@ -303,7 +303,7 @@ function ConsiderNoxiousPlague()
         if (#enemyAbility > 0) and (HealthPercentage <= 0.7)
         then
             for _, enemy in pairs(enemyAbility) do
-                if utility.CanCastSpellOnTarget(ability, enemy) and utility.SafeCast(enemy, true)
+                if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую LatentToxicity что бы оторваться от врага",true);
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy;

@@ -154,7 +154,7 @@ function ConsiderCelestialHammer()
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and not utility.TargetCantDie(enemy)
+            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType())
             then
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
@@ -225,7 +225,7 @@ function ConsiderConverge()
                 do
                     if project ~= nil and project.ability:GetName() == "dawnbreaker_celestial_hammer"
                     then
-                        if GetUnitToLocationDistance(botTarget, project.location) <= radiusAbility * 2 and GetUnitToUnitDistance(npcBot, botTarget) >= castRangeAbility
+                        if GetUnitToLocationDistance(botTarget, project.location) <= radiusAbility * 2 and GetUnitToUnitDistance(npcBot, botTarget) >= castRangeAbility / 2
                         then
                             --npcBot:ActionImmediate_Chat("Использую Converge рядом с врагом!", true);
                             return BOT_ACTION_DESIRE_HIGH;

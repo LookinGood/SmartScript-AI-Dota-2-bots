@@ -137,7 +137,7 @@ function ConsiderSplitEarth()
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if (utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and not utility.TargetCantDie(enemy)) or enemy:IsChanneling()
+            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) or enemy:IsChanneling()
             then
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
@@ -230,9 +230,9 @@ function ConsiderLightningStorm()
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and not utility.TargetCantDie(enemy)
+            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType())
             then
-                if utility.CanCastSpellOnTarget(ability, enemy) and utility.SafeCast(enemy, true)
+                if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую LightningStorm что бы убить цель!", true);
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy;
@@ -247,7 +247,6 @@ function ConsiderLightningStorm()
         if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
-                and utility.SafeCast(botTarget, true)
             then
                 --npcBot:ActionImmediate_Chat("Использую LightningStorm по врагу в радиусе действия!",true);
                 return BOT_MODE_DESIRE_HIGH, botTarget;
@@ -259,7 +258,7 @@ function ConsiderLightningStorm()
         if (#enemyAbility > 0)
         then
             for _, enemy in pairs(enemyAbility) do
-                if utility.CanCastSpellOnTarget(ability, enemy) and utility.SafeCast(enemy, true)
+                if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую LightningStorm что бы оторваться от врага", true);
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy;
@@ -273,7 +272,7 @@ function ConsiderLightningStorm()
         if (#enemyCreeps >= 3) and (ManaPercentage >= 0.7)
         then
             local enemy = utility.GetWeakest(enemyCreeps);
-            if utility.CanCastSpellOnTarget(ability, enemy) and utility.SafeCast(enemy, true)
+            if utility.CanCastSpellOnTarget(ability, enemy)
             then
                 --npcBot:ActionImmediate_Chat("Использую LightningStorm по крипам!", true);
                 return BOT_ACTION_DESIRE_HIGH, enemy;
@@ -283,7 +282,7 @@ function ConsiderLightningStorm()
     elseif npcBot:GetActiveMode() == BOT_MODE_LANING
     then
         local enemy = utility.GetWeakest(enemyAbility);
-        if utility.CanCastSpellOnTarget(ability, enemy) and utility.SafeCast(enemy, true) and (ManaPercentage >= 0.7)
+        if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)
         then
             --npcBot:ActionImmediate_Chat("Использую LightningStorm по цели на ЛАЙНЕ!", true);
             return BOT_ACTION_DESIRE_VERYHIGH, enemy;
@@ -349,16 +348,25 @@ function ConsiderPulseNova()
     elseif botMode == BOT_MODE_RETREAT
     then
         local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
-        if (HealthPercentage <= 0.8) and (#enemyAbility > 0)
+        if (HealthPercentage <= 0.8)
         then
-            for _, enemy in pairs(enemyAbility) do
-                if utility.CanCastSpellOnTarget(ability, enemy)
-                then
-                    if ability:GetToggleState() == false
+            if (#enemyAbility > 0)
+            then
+                for _, enemy in pairs(enemyAbility) do
+                    if utility.CanCastSpellOnTarget(ability, enemy)
                     then
-                        --npcBot:ActionImmediate_Chat("Выключаю PulseNova.", true);
-                        return BOT_ACTION_DESIRE_HIGH;
+                        if ability:GetToggleState() == false
+                        then
+                            --npcBot:ActionImmediate_Chat("Выключаю PulseNova.", true);
+                            return BOT_ACTION_DESIRE_HIGH;
+                        end
                     end
+                end
+            else
+                if ability:GetToggleState() == true
+                then
+                    --npcBot:ActionImmediate_Chat("Выключаю PulseNova.", true);
+                    return BOT_ACTION_DESIRE_HIGH;
                 end
             end
         end

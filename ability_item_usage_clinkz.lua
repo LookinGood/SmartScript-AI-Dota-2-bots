@@ -154,7 +154,6 @@ function ConsiderTarBomb()
             if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
             then
                 if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
-                    and utility.SafeCast(botTarget, true)
                 then
                     return BOT_MODE_DESIRE_HIGH, botTarget;
                 end
@@ -165,7 +164,7 @@ function ConsiderTarBomb()
             if (#enemyAbility > 0)
             then
                 for _, enemy in pairs(enemyAbility) do
-                    if utility.CanCastSpellOnTarget(ability, enemy) and utility.SafeCast(enemy, true)
+                    if utility.CanCastSpellOnTarget(ability, enemy)
                     then
                         --npcBot:ActionImmediate_Chat("Использую TarBomb что бы оторваться от врага",true);
                         return BOT_ACTION_DESIRE_VERYHIGH, enemy;
@@ -179,7 +178,7 @@ function ConsiderTarBomb()
             if (#enemyCreeps > 0) and (ManaPercentage >= 0.6)
             then
                 for _, enemy in pairs(enemyCreeps) do
-                    if utility.CanCastSpellOnTarget(ability, enemy) and utility.SafeCast(enemy, false)
+                    if utility.CanCastSpellOnTarget(ability, enemy)
                     then
                         return BOT_MODE_DESIRE_VERYLOW, enemy;
                     end

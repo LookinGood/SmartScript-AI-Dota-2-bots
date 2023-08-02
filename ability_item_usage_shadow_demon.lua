@@ -120,7 +120,7 @@ function ConsiderDisruption()
         for _, enemy in pairs(enemyAbility) do
             if enemy:IsChanneling()
             then
-                if utility.CanCastOnMagicImmuneTarget(enemy) and utility.SafeCast(enemy, true)
+                if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую Disruption что бы сбить заклинание!", true);
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy;
@@ -154,8 +154,7 @@ function ConsiderDisruption()
     -- Cast if enemy hero too far away
     if utility.PvPMode(npcBot)
     then
-        if utility.IsHero(botTarget) and utility.CanCastOnMagicImmuneTarget(botTarget) and utility.SafeCast(botTarget, false)
-            and not utility.IsDisabled(botTarget)
+        if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget) and not utility.IsDisabled(botTarget)
         then
             if GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility and GetUnitToUnitDistance(npcBot, botTarget) > npcBot:GetAttackRange()
             then
@@ -169,7 +168,7 @@ function ConsiderDisruption()
         if (#enemyAbility > 0)
         then
             for _, enemy in pairs(enemyAbility) do
-                if utility.CanCastOnMagicImmuneTarget(enemy) and utility.SafeCast(enemy, false)
+                if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую Disruption что бы оторваться от врага!", true);
                     return BOT_ACTION_DESIRE_HIGH, enemy;
@@ -208,8 +207,8 @@ function ConsiderDisseminate()
     -- Cast if attack enemy
     if utility.PvPMode(npcBot)
     then
-        if utility.IsHero(botTarget) and utility.CanCastOnMagicImmuneTarget(botTarget) and
-            GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility + 200 and utility.SafeCast(botTarget, true)
+        if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget) and
+            GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility + 200
         then
             -- npcBot:ActionImmediate_Chat("Использую Disseminate по вражескому герою!", true);
             return BOT_ACTION_DESIRE_HIGH, botTarget;
@@ -348,9 +347,9 @@ function ConsiderDemonicPurge()
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and not utility.TargetCantDie(enemy)
+            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType())
             then
-                if utility.SafeCast(enemy, true)
+                if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую DemonicPurge что бы убить цель!", true);
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy;
@@ -365,7 +364,7 @@ function ConsiderDemonicPurge()
         if (#enemyAbility > 0)
         then
             for _, enemy in pairs(enemyAbility) do
-                if utility.IsValidTarget(enemy) and utility.SafeCast(enemy, true) and not enemy:HasModifier('modifier_shadow_demon_purge_slow')
+                if utility.CanCastSpellOnTarget(ability, enemy) and not enemy:HasModifier('modifier_shadow_demon_purge_slow')
                 then
                     --npcBot:ActionImmediate_Chat("Использую Demonic Purge на врага в радиусе действия!",true);
                     return BOT_MODE_DESIRE_HIGH, enemy;

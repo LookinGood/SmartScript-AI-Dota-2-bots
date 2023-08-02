@@ -138,7 +138,7 @@ function ConsiderHowl()
         then
             for _, enemy in pairs(enemyAbility)
             do
-                if utility.CanCastOnMagicImmuneTarget(enemy)
+                if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую Howl против врага в радиусе действия!",true);
                     return BOT_ACTION_DESIRE_HIGH;
@@ -147,10 +147,13 @@ function ConsiderHowl()
         end
     elseif npcBot:GetActiveMode() == BOT_MODE_ROSHAN
     then
-        if botTarget ~= nil and utility.IsRoshan(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= attackRange
+        if utility.IsRoshan(botTarget)
         then
-            -- npcBot:ActionImmediate_Chat("Использую Howl против Рошана!", true);
-            return BOT_ACTION_DESIRE_HIGH;
+            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= attackRang
+            then
+                -- npcBot:ActionImmediate_Chat("Использую Howl против Рошана!", true);
+                return BOT_ACTION_DESIRE_HIGH;
+            end
         end
     end
 end

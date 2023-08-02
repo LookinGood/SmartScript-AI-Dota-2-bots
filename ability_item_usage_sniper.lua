@@ -205,9 +205,9 @@ function ConsiderAssassinate()
         for _, enemy in pairs(enemyAbility) do
             if GetUnitToUnitDistance(npcBot, enemy) <= castRangeAbility
             then
-                if (utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and not utility.TargetCantDie(enemy)) or enemy:IsChanneling()
+                if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) or enemy:IsChanneling()
                 then
-                    if utility.CanCastSpellOnTarget(ability, enemy) and utility.SafeCast(enemy, true)
+                    if utility.CanCastSpellOnTarget(ability, enemy)
                     then
                         --npcBot:ActionImmediate_Chat("Использую Assassinate что бы убить цель или сбить каст!", true);
                         return BOT_ACTION_DESIRE_VERYHIGH, enemy;
@@ -223,7 +223,7 @@ function ConsiderAssassinate()
         if utility.IsHero(botTarget)
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
-                and utility.SafeCast(botTarget, true) and botTarget:GetHealth() / botTarget:GetMaxHealth() <= 0.4
+                and botTarget:GetHealth() / botTarget:GetMaxHealth() <= 0.4
             then
                 --npcBot:ActionImmediate_Chat("Использую Assassinate для атаки!", true);
                 return BOT_ACTION_DESIRE_HIGH, botTarget;

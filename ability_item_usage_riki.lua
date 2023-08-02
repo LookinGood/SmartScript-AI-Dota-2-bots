@@ -94,12 +94,12 @@ function ConsiderSmokeScreen()
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if utility.CanCastOnMagicImmuneTarget(enemy)
+            if utility.CanCastSpellOnTarget(ability, enemy)
             then
                 if enemy:IsChanneling()
                 then
                     --npcBot:ActionImmediate_Chat("Использую SmokeScreen что бы сбить заклинание цели!",true);
-                    return BOT_ACTION_DESIRE_VERYHIGH, enemy:GetLocation();
+                    return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(enemy, delayAbility);
                 end
             end
         end
@@ -110,7 +110,7 @@ function ConsiderSmokeScreen()
     then
         if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
         then
-            if utility.CanCastOnMagicImmuneTarget(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
                 and not npcBot:HasModifier("modifier_riki_tricks_of_the_trade_phase")
             then
                 --npcBot:ActionImmediate_Chat("Использую SmokeScreen для атаки!", true);
@@ -123,7 +123,7 @@ function ConsiderSmokeScreen()
         if (#enemyAbility > 0)
         then
             for _, enemy in pairs(enemyAbility) do
-                if utility.CanCastOnMagicImmuneTarget(enemy)
+                if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую SmokeScreen для отхода!", true);
                     return BOT_ACTION_DESIRE_HIGH, utility.GetTargetPosition(enemy, delayAbility);
@@ -150,9 +150,9 @@ function ConsiderBlinkStrike()
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and not utility.TargetCantDie(enemy)
+            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType())
             then
-                if utility.CanCastSpellOnTarget(ability, enemy) and utility.SafeCast(enemy, true)
+                if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую BlinkStrike что бы добить врага!", true);
                     return BOT_ACTION_DESIRE_HIGH, enemy;
@@ -167,7 +167,7 @@ function ConsiderBlinkStrike()
         if utility.IsHero(botTarget) and not npcBot:HasModifier("modifier_riki_tricks_of_the_trade_phase")
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
-                and GetUnitToUnitDistance(npcBot, botTarget) > attackRange and utility.SafeCast(botTarget, true)
+                and GetUnitToUnitDistance(npcBot, botTarget) > attackRange
             then
                 --npcBot:ActionImmediate_Chat("Использую  BlinkStrike по врагу в радиусе действия!",true);
                 return BOT_ACTION_DESIRE_HIGH, botTarget;

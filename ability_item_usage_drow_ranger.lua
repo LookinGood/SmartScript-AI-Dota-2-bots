@@ -110,7 +110,7 @@ function ConsiderGust()
 
     local castRangeAbility = ability:GetCastRange();
     local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
-    local enemyAbility = npcBot:GetNearbyHeroes((castRangeAbility + 200), true, BOT_MODE_NONE);
+    local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility + 200, true, BOT_MODE_NONE);
 
     -- Interrupt cast/Detect invisible
     if (#enemyAbility > 0)
@@ -130,7 +130,7 @@ function ConsiderGust()
     -- Attack use
     if utility.PvPMode(npcBot)
     then
-        if utility.IsHero(botTarget) and utility.CanCastOnMagicImmuneTarget(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= (castRangeAbility + 200)
+        if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= (castRangeAbility + 200)
             and not botTarget:IsSilenced() and not utility.IsDisabled(botTarget)
         then
             --npcBot:ActionImmediate_Chat("Использую Gust для нападения!", true);
@@ -142,7 +142,7 @@ function ConsiderGust()
         if (#enemyAbility > 0)
         then
             for _, enemy in pairs(enemyAbility) do
-                if utility.CanCastOnMagicImmuneTarget(enemy) and not utility.IsDisabled(enemy)
+                if utility.CanCastSpellOnTarget(ability, enemy) and not utility.IsDisabled(enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую Gust для отступления!", true);
                     return BOT_ACTION_DESIRE_HIGH, utility.GetTargetPosition(enemy, delayAbility);

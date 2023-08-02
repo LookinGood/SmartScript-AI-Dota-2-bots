@@ -184,7 +184,7 @@ function ConsiderLastWord()
             then
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    if not npcBot:HasScepter() and utility.SafeCast(enemy, true)
+                    if not npcBot:HasScepter()
                     then
                         --npcBot:ActionImmediate_Chat("Использую LastWord для убийства без аганима!", true);
                         return BOT_ACTION_DESIRE_HIGH, enemy, "target";
@@ -204,7 +204,6 @@ function ConsiderLastWord()
         if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= (castRangeAbility + 200)
-                and utility.SafeCast(botTarget, true)
             then
                 if not npcBot:HasScepter()
                 then
@@ -225,7 +224,7 @@ function ConsiderLastWord()
             for _, enemy in pairs(enemyAbility) do
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    if not npcBot:HasScepter() and utility.SafeCast(enemy, true)
+                    if not npcBot:HasScepter()
                     then
                         --npcBot:ActionImmediate_Chat("Использую LastWord для отступления без аганима!", true);
                         return BOT_ACTION_DESIRE_HIGH, enemy, "target";
@@ -267,7 +266,7 @@ function ConsiderGlobalSilence()
         if (#enemyAbility >= 2)
         then
             for _, enemy in pairs(enemyAbility) do
-                if utility.IsValidTarget(enemy) and not enemy:IsSilenced()
+                if utility.CanCastSpellOnTarget(ability, enemy) and not enemy:IsSilenced()
                 then
                     --npcBot:ActionImmediate_Chat("Использую GlobalSilence!", true);
                     return BOT_ACTION_DESIRE_HIGH;

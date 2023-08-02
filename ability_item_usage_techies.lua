@@ -113,7 +113,7 @@ function ConsiderStickyBomb()
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and not utility.TargetCantDie(enemy)
+            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType())
             then
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
@@ -216,7 +216,7 @@ function ConsiderBlastOff()
         if (#enemyAbility > 0)
         then
             for _, enemy in pairs(enemyAbility) do
-                if (utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and not utility.TargetCantDie(enemy)) or enemy:IsChanneling()
+                if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) or enemy:IsChanneling()
                 then
                     if utility.CanCastSpellOnTarget(ability, enemy)
                     then
@@ -344,12 +344,12 @@ function ConsiderProximityMines()
                 end
             end
         end
-    else
-        -- General use
-        if npcBot:DistanceFromFountain() > 1000 and not MineInRadius(placementRadius, npcBot:GetLocation())
-        then
-            --npcBot:ActionImmediate_Chat("Использую Proximity Mines для минирования!", true);
-            return BOT_MODE_DESIRE_LOW, npcBot:GetLocation() + RandomVector(placementRadius);
-        end
+    end
+
+    -- General use
+    if npcBot:DistanceFromFountain() > 1000 and not MineInRadius(placementRadius, npcBot:GetLocation())
+    then
+        --npcBot:ActionImmediate_Chat("Использую Proximity Mines для минирования!", true);
+        return BOT_MODE_DESIRE_LOW, npcBot:GetLocation() + RandomVector(placementRadius);
     end
 end

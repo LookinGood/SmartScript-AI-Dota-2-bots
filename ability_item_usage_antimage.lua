@@ -194,10 +194,10 @@ function ConsiderManaVoid()
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if utility.CanCastSpellOnTarget(ability, enemy) and utility.SafeCast(enemy, true)
+            local damageAbility = damagePercentMana * (enemy:GetMaxMana() - enemy:GetMana())
+            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) or enemy:GetMana() / enemy:GetMaxMana() <= 0.2 or enemy:IsChanneling()
             then
-                local damageAbility = damagePercentMana * (enemy:GetMaxMana() - enemy:GetMana())
-                if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) or enemy:GetMana() / enemy:GetMaxMana() <= 0.2 or enemy:IsChanneling()
+                if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     return BOT_MODE_DESIRE_VERYHIGH, enemy;
                 end

@@ -127,9 +127,9 @@ function ConsiderHomingMissile()
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if (utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and not utility.TargetCantDie(enemy)) or enemy:IsChanneling()
+            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) or enemy:IsChanneling()
             then
-                if utility.CanCastSpellOnTarget(ability, enemy) and utility.SafeCast(enemy, true)
+                if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy;
                 end
@@ -143,7 +143,6 @@ function ConsiderHomingMissile()
         if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
-                and utility.SafeCast(botTarget, true)
             then
                 --npcBot:ActionImmediate_Chat("Использую ColdFeet по врагу в радиусе действия!",true);
                 return BOT_MODE_DESIRE_HIGH, botTarget;
@@ -155,7 +154,7 @@ function ConsiderHomingMissile()
         if (#enemyAbility > 0)
         then
             for _, enemy in pairs(enemyAbility) do
-                if utility.CanCastSpellOnTarget(ability, enemy) and utility.SafeCast(enemy, true)
+                if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую ColdFeet что бы оторваться от врага", true);
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy;

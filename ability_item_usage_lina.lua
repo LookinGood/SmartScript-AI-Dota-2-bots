@@ -104,7 +104,7 @@ function ConsiderDragonSlave()
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and not utility.TargetCantDie(enemy)
+            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType())
             then
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
@@ -161,7 +161,7 @@ function ConsiderLightStrikeArray()
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if (utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and not utility.TargetCantDie(enemy)) or enemy:IsChanneling()
+            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) or enemy:IsChanneling()
             then
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
@@ -242,9 +242,9 @@ function ConsiderLagunaBlade()
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and not utility.TargetCantDie(enemy)
+            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType())
             then
-                if utility.CanCastSpellOnTarget(ability, enemy) and utility.SafeCast(enemy, true)
+                if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую LagunaBlade что бы убить цель!", true);
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy;
@@ -259,7 +259,7 @@ function ConsiderLagunaBlade()
         if utility.IsHero(botTarget)
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
-                and utility.SafeCast(botTarget, true) and botTarget:GetHealth() / botTarget:GetMaxHealth() <= 0.5
+                and botTarget:GetHealth() / botTarget:GetMaxHealth() <= 0.5
             then
                 --npcBot:ActionImmediate_Chat("Использую LagunaBlade для атаки!", true);
                 return BOT_ACTION_DESIRE_HIGH, botTarget;

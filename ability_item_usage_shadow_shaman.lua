@@ -104,7 +104,7 @@ function ConsiderEtherShock()
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and not utility.TargetCantDie(enemy)
+            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType())
             then
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
@@ -131,7 +131,7 @@ function ConsiderEtherShock()
         if #enemyCreeps >= 3 and (ManaPercentage >= 0.5)
         then
             for _, enemy in pairs(enemyCreeps) do
-                if utility.CanCastSpellOnTarget(ability, enemy) and utility.SafeCast(enemy, true)
+                if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую EtherShock по крипам!", true);
                     return BOT_MODE_DESIRE_VERYLOW, enemy;
@@ -163,7 +163,7 @@ function ConsiderHex()
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if utility.CanCastOnMagicImmuneTarget(enemy) and utility.SafeCast(enemy, true) and enemy:IsChanneling()
+            if utility.CanCastSpellOnTarget(ability, enemy) and enemy:IsChanneling()
             then
                 --npcBot:ActionImmediate_Chat("Использую Hex что бы сбить заклинание!",true);
                 return BOT_ACTION_DESIRE_VERYHIGH, enemy;
@@ -174,7 +174,7 @@ function ConsiderHex()
     -- Attack use
     if utility.PvPMode(npcBot)
     then
-        if utility.IsHero(botTarget) and utility.CanCastOnMagicImmuneTarget(botTarget) and utility.SafeCast(botTarget, false)
+        if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget)
             and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility + 200
         then
             if not utility.IsDisabled(botTarget)
@@ -185,7 +185,7 @@ function ConsiderHex()
                 if (#enemyAbility > 1)
                 then
                     for _, enemy in pairs(enemyAbility) do
-                        if utility.CanCastOnMagicImmuneTarget(enemy) and not utility.IsDisabled(enemy)
+                        if utility.CanCastSpellOnTarget(ability, enemy) and not utility.IsDisabled(enemy)
                         then
                             --npcBot:ActionImmediate_Chat("Использую Hex по второй цели!", true);
                             return BOT_MODE_DESIRE_HIGH, enemy;
@@ -200,7 +200,7 @@ function ConsiderHex()
         if (#enemyAbility > 0)
         then
             for _, enemy in pairs(enemyAbility) do
-                if utility.CanCastOnMagicImmuneTarget(enemy) and not utility.IsDisabled(enemy) and utility.SafeCast(enemy, false)
+                if utility.CanCastSpellOnTarget(ability, enemy) and not utility.IsDisabled(enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую Hex для отступления!", true);
                     return BOT_ACTION_DESIRE_HIGH, enemy;
@@ -224,9 +224,9 @@ function ConsiderShackles()
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if (utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and not utility.TargetCantDie(enemy)) or enemy:IsChanneling()
+            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) or enemy:IsChanneling()
             then
-                if utility.CanCastSpellOnTarget(ability, enemy) and utility.SafeCast(enemy, true)
+                if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую Shackles что бы убить цель!", true);
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy;
@@ -241,7 +241,7 @@ function ConsiderShackles()
         if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
-                and not utility.IsDisabled(botTarget) and utility.SafeCast(botTarget, true)
+                and not utility.IsDisabled(botTarget)
             then
                 --npcBot:ActionImmediate_Chat("Использую Shackles по врагу в радиусе действия!",true);
                 return BOT_MODE_DESIRE_HIGH, botTarget;
@@ -253,7 +253,7 @@ function ConsiderShackles()
         if (#enemyAbility == 1)
         then
             for _, enemy in pairs(enemyAbility) do
-                if utility.CanCastSpellOnTarget(ability, enemy) and not utility.IsDisabled(enemy) and utility.SafeCast(enemy, true)
+                if utility.CanCastSpellOnTarget(ability, enemy) and not utility.IsDisabled(enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую Shackles что бы оторваться от врага", true);
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy;

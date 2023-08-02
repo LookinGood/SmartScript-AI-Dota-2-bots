@@ -103,9 +103,9 @@ function ConsiderMalefice()
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if (utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and not utility.TargetCantDie(enemy)) or enemy:IsChanneling()
+            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) or enemy:IsChanneling()
             then
-                if utility.CanCastSpellOnTarget(ability, enemy) and utility.SafeCast(enemy, true)
+                if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую Malefice что бы убить цель!", true);
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy;
@@ -120,7 +120,6 @@ function ConsiderMalefice()
         if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
-                and utility.SafeCast(botTarget, true)
             then
                 --npcBot:ActionImmediate_Chat("Использую Malefice по врагу в радиусе действия!",true);
                 return BOT_MODE_DESIRE_HIGH, botTarget;
@@ -132,7 +131,7 @@ function ConsiderMalefice()
         if (#enemyAbility > 0)
         then
             for _, enemy in pairs(enemyAbility) do
-                if utility.CanCastSpellOnTarget(ability, enemy) and utility.SafeCast(enemy, true)
+                if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую Malefice что бы оторваться от врага", true);
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy;
@@ -208,19 +207,6 @@ function ConsiderMidnightPulse()
                 return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(botTarget, delayAbility);
             end
         end
-        -- Retreat or help ally use
-    elseif botMode == BOT_MODE_RETREAT or botMode == BOT_MODE_DEFEND_ALLY
-    then
-        if (#enemyAbility > 0)
-        then
-            for _, enemy in pairs(enemyAbility) do
-                if utility.CanCastSpellOnTarget(ability, enemy)
-                then
-                    --npcBot:ActionImmediate_Chat("Использую MidnightPulse для отступления!", true);
-                    return BOT_ACTION_DESIRE_HIGH, utility.GetTargetPosition(enemy, delayAbility);
-                end
-            end
-        end
         -- Cast if push/defend/farm
     elseif utility.PvEMode(npcBot) and (ManaPercentage >= 0.6)
     then
@@ -260,11 +246,11 @@ function ConsiderBlackHole()
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and not utility.TargetCantDie(enemy)
+            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType())
             then
                 if utility.CanCastSpellOnTarget(ability, enemy) and utility.SafeCast(enemy, true)
                 then
-                    --npcBot:ActionImmediate_Chat("Использую LagunaBlade что бы убить цель!", true);
+                    --npcBot:ActionImmediate_Chat("Использую BlackHole что бы убить цель!", true);
                     return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(enemy, delayAbility);
                 end
             end

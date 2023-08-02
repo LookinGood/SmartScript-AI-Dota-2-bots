@@ -95,9 +95,9 @@ function ConsiderStormHammer()
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if (utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and not utility.TargetCantDie(enemy)) or enemy:IsChanneling()
+            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) or enemy:IsChanneling()
             then
-                if utility.CanCastSpellOnTarget(ability, enemy) and utility.SafeCast(enemy, true)
+                if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую StormHammer что бы сбить заклинание или убить цель!",true);
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy;
@@ -112,7 +112,7 @@ function ConsiderStormHammer()
         if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
-                and not utility.IsDisabled(botTarget) and utility.SafeCast(botTarget, true)
+                and not utility.IsDisabled(botTarget)
             then
                 return BOT_MODE_DESIRE_HIGH, botTarget;
             end
@@ -123,7 +123,7 @@ function ConsiderStormHammer()
         if (#enemyAbility > 0)
         then
             for _, enemy in pairs(enemyAbility) do
-                if utility.CanCastSpellOnTarget(ability, enemy) and not utility.IsDisabled(enemy) and utility.SafeCast(enemy, true)
+                if utility.CanCastSpellOnTarget(ability, enemy) and not utility.IsDisabled(enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую StormHammer что бы оторваться от врага",true);
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy;

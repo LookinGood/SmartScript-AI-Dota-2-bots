@@ -2,6 +2,7 @@
 require(GetScriptDirectory() .. "/utility")
 require(GetScriptDirectory() .. "/ability_item_usage_generic")
 require(GetScriptDirectory() .. "/ability_levelup_generic")
+require(GetScriptDirectory() .. "/spell_usage_generic")
 
 function CourierUsageThink()
     ability_item_usage_generic.CourierUsageThink()
@@ -66,25 +67,38 @@ function AbilityUsageThink()
     if (castDevourDesire ~= nil)
     then
         npcBot:Action_UseAbilityOnEntity(Devour, castDevourTarget);
-        --return;
+        return;
     end
 
     if (castScorchedEarthDesire ~= nil)
     then
         npcBot:Action_UseAbility(ScorchedEarth);
-        --return;
+        return;
     end
 
     if (castInfernalBladeDesire ~= nil)
     then
         npcBot:Action_UseAbilityOnEntity(InfernalBlade, castInfernalBladeTarget);
-        --return;
+        return;
     end
 
     if (castDoomDesire ~= nil)
     then
         npcBot:Action_UseAbilityOnEntity(Doom, castDoomTarget);
-        --return;
+        return;
+    end
+
+    local ability4 = npcBot:GetAbilityInSlot(3)
+    local ability5 = npcBot:GetAbilityInSlot(4)
+
+    if ability4 ~= nil
+    then
+        spell_usage_generic.CastCustomSpell(ability4)
+    end
+
+    if ability5 ~= nil
+    then
+        spell_usage_generic.CastCustomSpell(ability5)
     end
 end
 
@@ -95,7 +109,6 @@ function ConsiderDevour()
     end
 
     local castRangeAbility = ability:GetCastRange();
-    local enemyCreeps = npcBot:GetNearbyCreeps(castRangeAbility, true);
     local creepMaxLevel = ability:GetSpecialValueInt("creep_level");
 
     if not ability:GetAutoCastState()
@@ -103,15 +116,34 @@ function ConsiderDevour()
         ability:ToggleAutoCast();
     end
 
-    -- General use
-    if (#enemyCreeps > 0) and not npcBot:HasModifier("modifier_doom_bringer_devour")
+    if not npcBot:HasModifier("modifier_doom_bringer_devour")
     then
-        for _, enemy in pairs(enemyCreeps) do
-            if (utility.CanCastOnMagicImmuneTarget(enemy) and not enemy:IsAncientCreep() and (enemy:GetHealth() / enemy:GetMaxHealth() >= 0.7))
-                and (enemy:GetLevel() <= creepMaxLevel and enemy:GetLevel() > 1)
+        if utility.PvPMode(npcBot) or botMode == BOT_MODE_RETREAT or botMode == BOT_MODE_LANING
+        then
+            local enemyCreeps = npcBot:GetNearbyCreeps(castRangeAbility, true);
+            if (#enemyCreeps > 0)
             then
-                --npcBot:ActionImmediate_Chat("Использую Devour!", true);
-                return BOT_ACTION_DESIRE_HIGH, enemy;
+                for _, enemy in pairs(enemyCreeps) do
+                    if (utility.CanCastOnMagicImmuneTarget(enemy) and not enemy:IsAncientCreep() and (enemy:GetHealth() / enemy:GetMaxHealth() >= 0.7))
+                        and enemy:GetLevel() <= creepMaxLevel
+                    then
+                        --npcBot:ActionImmediate_Chat("Использую Devour в атаке!", true);
+                        return BOT_ACTION_DESIRE_HIGH, enemy;
+                    end
+                end
+            end
+        else
+            local enemyCreeps = npcBot:GetNearbyNeutralCreeps(1600);
+            if (#enemyCreeps > 0)
+            then
+                for _, enemy in pairs(enemyCreeps) do
+                    if (utility.CanCastOnMagicImmuneTarget(enemy) and not enemy:IsAncientCreep() and (enemy:GetHealth() / enemy:GetMaxHealth() >= 0.7))
+                        and enemy:GetLevel() <= creepMaxLevel
+                    then
+                        --npcBot:ActionImmediate_Chat("Использую Devour!", true);
+                        return BOT_ACTION_DESIRE_HIGH, enemy;
+                    end
+                end
             end
         end
     end
@@ -139,11 +171,24 @@ function ConsiderScorchedEarth()
         -- Retreat use
     elseif botMode == BOT_MODE_RETREAT
     then
-        local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
-        if (HealthPercentage <= 0.8) and (#enemyAbility > 0)
+        local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility * 2, true, BOT_MODE_NONE);
+        if (HealthPercentage <= 0.9) and (#enemyAbility > 0)
         then
             --npcBot:ActionImmediate_Chat("Использую ScorchedEarth для отступления!", true);
             return BOT_ACTION_DESIRE_HIGH;
+        end
+    elseif utility.PvEMode(npcBot)
+    then
+        local enemyCreeps = npcBot:GetNearbyCreeps(radiusAbility, true);
+        if (#enemyCreeps > 2) and (ManaPercentage >= 0.6)
+        then
+            for _, enemy in pairs(enemyCreeps) do
+                if utility.CanCastSpellOnTarget(ability, enemy) and npcBot:GetAttackTarget() == enemy
+                then
+                    --npcBot:ActionImmediate_Chat("Использую ScorchedEarth против крипов", true);
+                    return BOT_ACTION_DESIRE_HIGH;
+                end
+            end
         end
     end
 end
@@ -157,21 +202,6 @@ function ConsiderInfernalBlade()
     local castRangeAbility = npcBot:GetAttackRange();
     local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility + 200, true, BOT_MODE_NONE);
 
-    -- Cast if can interrupt cast
-    if (#enemyAbility > 0)
-    then
-        for _, enemy in pairs(enemyAbility) do
-            if enemy:IsChanneling()
-            then
-                if utility.CanCastSpellOnTarget(ability, enemy) and utility.SafeCast(enemy, false)
-                then
-                    --npcBot:ActionImmediate_Chat("Использую InfernalBlade что бы сбить заклинание!",true);
-                    return BOT_ACTION_DESIRE_VERYHIGH, enemy;
-                end
-            end
-        end
-    end
-
     if (utility.IsHero(botTarget) or utility.IsRoshan(botTarget)) and utility.CanCastSpellOnTarget(ability, botTarget)
         and not utility.IsDisabled(botTarget)
     then
@@ -181,6 +211,37 @@ function ConsiderInfernalBlade()
     else
         if ability:GetAutoCastState() then
             ability:ToggleAutoCast()
+        end
+    end
+
+    if not npcBot:IsDisarmed()
+    then
+        -- Cast if can interrupt cast
+        if (#enemyAbility > 0)
+        then
+            for _, enemy in pairs(enemyAbility) do
+                if enemy:IsChanneling()
+                then
+                    if utility.CanCastSpellOnTarget(ability, enemy)
+                    then
+                        --npcBot:ActionImmediate_Chat("Использую InfernalBlade что бы сбить заклинание!",true);
+                        return BOT_ACTION_DESIRE_VERYHIGH, enemy;
+                    end
+                end
+            end
+        end
+
+        -- Retreat use
+        if botMode == BOT_MODE_RETREAT
+        then
+            local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
+            if (#enemyAbility > 0)
+            then
+                if utility.CanCastSpellOnTarget(ability, enemy) and not utility.IsDisabled(enemy)
+                then
+                    return BOT_ACTION_DESIRE_VERYHIGH, enemy;
+                end
+            end
         end
     end
 end
@@ -199,9 +260,9 @@ function ConsiderDoom()
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if (utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and not utility.TargetCantDie(enemy)) or enemy:IsChanneling()
+            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) or enemy:IsChanneling()
             then
-                if utility.CanCastSpellOnTarget(ability, enemy) and utility.SafeCast(enemy, true)
+                if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую Doom что бы сбить заклинание или убить цель!", true);
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy;
@@ -215,7 +276,7 @@ function ConsiderDoom()
     then
         if utility.IsHero(botTarget)
         then
-            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility and utility.SafeCast(botTarget, true)
+            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
                 and not botTarget:IsSilenced()
             then
                 return BOT_MODE_DESIRE_HIGH, botTarget;
@@ -227,8 +288,7 @@ function ConsiderDoom()
         if (#enemyAbility > 0) and HealthPercentage <= 0.5
         then
             for _, enemy in pairs(enemyAbility) do
-                if utility.CanCastSpellOnTarget(ability, enemy) and utility.SafeCast(enemy, true)
-                    and not enemy:IsSilenced()
+                if utility.CanCastSpellOnTarget(ability, enemy) and not enemy:IsSilenced()
                 then
                     --npcBot:ActionImmediate_Chat("Использую Doom что бы оторваться от врага",true);
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy;

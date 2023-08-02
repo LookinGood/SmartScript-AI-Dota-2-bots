@@ -114,7 +114,7 @@ function ConsiderWildAxes()
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and not utility.TargetCantDie(enemy)
+            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType())
             then
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
@@ -167,7 +167,7 @@ function ConsiderSummonBoar()
     then
         if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
         then
-            if utility.CanCastOnInvulnerableTarget(botTarget)
+            if utility.CanCastSpellOnTarget(ability, botTarget)
             then
                 --npcBot:ActionImmediate_Chat("Использую Summon Boar для нападения!", true);
                 return BOT_ACTION_DESIRE_HIGH;
@@ -260,7 +260,6 @@ function ConsiderDrumsOfSlom()
         return;
     end
 
-    local damageType = ability:GetDamageType();
     local radiusAbility = (ability:GetSpecialValueInt("radius"));
 
     -- Attack or retreat use
@@ -295,7 +294,7 @@ function ConsiderPrimalRoar()
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if (utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and not utility.TargetCantDie(enemy)) or enemy:IsChanneling()
+            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) or enemy:IsChanneling()
             then
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
@@ -311,7 +310,7 @@ function ConsiderPrimalRoar()
         if utility.IsHero(botTarget)
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
-                and not utility.IsDisabled(botTarget) and utility.SafeCast(botTarget, true)
+                and not utility.IsDisabled(botTarget)
             then
                 return BOT_MODE_DESIRE_HIGH, botTarget;
             end
@@ -322,7 +321,7 @@ function ConsiderPrimalRoar()
         if (#enemyAbility > 0) and (HealthPercentage <= 0.8)
         then
             for _, enemy in pairs(enemyAbility) do
-                if utility.CanCastSpellOnTarget(ability, enemy) and not utility.IsDisabled(enemy) and utility.SafeCast(enemy, true)
+                if utility.CanCastSpellOnTarget(ability, enemy) and not utility.IsDisabled(enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую WraithfireBlast что бы оторваться от врага",true);
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy;

@@ -112,7 +112,7 @@ function ConsiderStrokeOfFate()
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and not utility.TargetCantDie(enemy)
+            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType())
             then
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
@@ -181,9 +181,9 @@ function ConsiderPhantomsEmbrace()
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if (utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and not utility.TargetCantDie(enemy)) or enemy:IsChanneling()
+            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) or enemy:IsChanneling()
             then
-                if utility.CanCastSpellOnTarget(ability, enemy) and utility.SafeCast(enemy, true)
+                if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую PhantomsEmbrace что бы убить цель!", true);
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy;
@@ -198,7 +198,6 @@ function ConsiderPhantomsEmbrace()
         if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility + 200
-                and utility.SafeCast(botTarget, true)
             then
                 return BOT_MODE_DESIRE_HIGH, botTarget;
             end
@@ -209,7 +208,7 @@ function ConsiderPhantomsEmbrace()
         if (#enemyAbility > 0)
         then
             for _, enemy in pairs(enemyAbility) do
-                if utility.CanCastSpellOnTarget(ability, enemy) and not enemy:IsSilenced() and utility.SafeCast(enemy, true)
+                if utility.CanCastSpellOnTarget(ability, enemy) and not enemy:IsSilenced()
                 then
                     --npcBot:ActionImmediate_Chat("Использую PhantomsEmbrace что бы оторваться от врага", true);
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy;

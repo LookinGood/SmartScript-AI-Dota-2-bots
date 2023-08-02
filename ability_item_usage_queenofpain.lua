@@ -137,7 +137,7 @@ function ConsiderShadowStrike()
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= (castRangeAbility + 200)
             then
-                if not npcBot:HasScepter() and utility.SafeCast(botTarget, true)
+                if not npcBot:HasScepter()
                 then
                     --npcBot:ActionImmediate_Chat("Использую ShadowStrike для нападения без аганима!", true);
                     return BOT_ACTION_DESIRE_HIGH, botTarget, "target";
@@ -156,7 +156,7 @@ function ConsiderShadowStrike()
             for _, enemy in pairs(enemyAbility) do
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    if not npcBot:HasScepter() and utility.SafeCast(enemy, true)
+                    if not npcBot:HasScepter()
                     then
                         --npcBot:ActionImmediate_Chat("Использую ShadowStrike для отступления без аганима!",true);
                         return BOT_ACTION_DESIRE_HIGH, enemy, "target";
@@ -189,7 +189,7 @@ function ConsiderShadowStrike()
         local enemy = utility.GetWeakest(enemyAbility);
         if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)
         then
-            if not npcBot:HasScepter() and utility.SafeCast(enemy, true)
+            if not npcBot:HasScepter()
             then
                 --npcBot:ActionImmediate_Chat("Использую ShadowStrike для лайнинга без аганима!", true);
                 return BOT_ACTION_DESIRE_HIGH, enemy, "target";
@@ -262,7 +262,7 @@ function ConsiderScreamOfPain()
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and not utility.TargetCantDie(enemy)
+            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType())
             then
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
@@ -317,7 +317,7 @@ function ConsiderSonicWave()
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and not utility.TargetCantDie(enemy)
+            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType())
             then
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then

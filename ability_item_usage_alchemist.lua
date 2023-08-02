@@ -151,9 +151,9 @@ function ConsiderUnstableConcoction()
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if (utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and not utility.TargetCantDie(enemy)) or enemy:IsChanneling()
+            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) or enemy:IsChanneling()
             then
-                if utility.CanCastSpellOnTarget(ability, enemy) and utility.SafeCast(enemy, true)
+                if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     return BOT_ACTION_DESIRE_VERYHIGH;
                 end
@@ -167,7 +167,7 @@ function ConsiderUnstableConcoction()
         if utility.IsHero(botTarget)
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
-                and not utility.IsDisabled(botTarget) and utility.SafeCast(botTarget, true)
+                and not utility.IsDisabled(botTarget)
             then
                 --npcBot:ActionImmediate_Chat("Использую LightStrikeArray по цели!", true);
                 return BOT_ACTION_DESIRE_VERYHIGH;
@@ -203,7 +203,7 @@ function ConsiderUnstableConcoctionThrow()
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if utility.CanCastSpellOnTarget(ability, enemy) and utility.SafeCast(enemy, true)
+            if utility.CanCastSpellOnTarget(ability, enemy)
             then
                 if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and utility.PvPMode(npcBot)
                 then
@@ -231,7 +231,7 @@ function ConsiderUnstableConcoctionThrow()
     -- Attack use
     if utility.IsHero(botTarget)
     then
-        if utility.CanCastSpellOnTarget(ability, botTarget) and utility.SafeCast(botTarget, true) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+        if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
         then
             if botTarget:GetHealth() / botTarget:GetMaxHealth() >= 0.2
             then
@@ -256,7 +256,7 @@ function ConsiderUnstableConcoctionThrow()
         if (#enemyAbility > 0)
         then
             for _, enemy in pairs(enemyAbility) do
-                if utility.CanCastSpellOnTarget(ability, enemy) and utility.SafeCast(enemy, true)
+                if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую UnstableConcoctionThrow что бы оторваться от врага", true);
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy;
@@ -272,7 +272,7 @@ function ConsiderUnstableConcoctionThrow()
             if (#enemyAbility > 0)
             then
                 for _, enemy in pairs(enemyAbility) do
-                    if utility.CanCastSpellOnTarget(ability, enemy) and utility.SafeCast(enemy, true)
+                    if utility.CanCastSpellOnTarget(ability, enemy)
                     then
                         --npcBot:ActionImmediate_Chat("Использую UnstableConcoctionThrow что бы не взорватся",true);
                         return BOT_ACTION_DESIRE_VERYHIGH, enemy;

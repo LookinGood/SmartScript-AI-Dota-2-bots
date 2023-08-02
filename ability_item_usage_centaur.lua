@@ -102,7 +102,7 @@ function ConsiderHoofStomp()
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if (utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and not utility.TargetCantDie(enemy)) or enemy:IsChanneling()
+            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) or enemy:IsChanneling()
             then
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
@@ -137,7 +137,7 @@ function ConsiderDoubleEdge()
 
     local castRangeAbility = ability:GetCastRange() * 2;
     local strengthDamage = npcBot:GetAttributeValue(ATTRIBUTE_STRENGTH) / 100 *
-    ability:GetSpecialValueInt("strength_damage");
+        ability:GetSpecialValueInt("strength_damage");
     local damageAbility = ability:GetSpecialValueInt("edge_damage") + strengthDamage;
     local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
 
@@ -145,7 +145,7 @@ function ConsiderDoubleEdge()
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and not utility.TargetCantDie(enemy) and utility.SafeCast(enemy, true)
+            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType())
             then
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then

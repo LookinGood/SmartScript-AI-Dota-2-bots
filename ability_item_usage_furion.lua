@@ -277,8 +277,8 @@ function ConsiderWrathOfNature()
     if (#enemyAbility > 0)
     then
         for i = 1, #enemyAbility do
-            if utility.CanAbilityKillTarget(enemyAbility[i], damageAbility, ability:GetDamageType()) and not utility.TargetCantDie(enemyAbility[i])
-                and utility.CanCastSpellOnTarget(ability, enemyAbility[i]) and utility.SafeCast(enemyAbility[i], true)
+            if utility.CanAbilityKillTarget(enemyAbility[i], damageAbility, ability:GetDamageType())
+                and utility.CanCastSpellOnTarget(ability, enemyAbility[i])
             then
                 --npcBot:ActionImmediate_Chat("Использую WrathOfNature что бы убить цель!", true);
                 return BOT_ACTION_DESIRE_VERYHIGH, enemyAbility[i], "target";

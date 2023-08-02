@@ -114,18 +114,25 @@ function Think()
             if (#enemyCreeps > 0)
             then
                 mainCreep = utility.GetWeakest(enemyCreeps);
-                if GetUnitToUnitDistance(npcBot, mainCreep) > npcBot:GetAttackRange()
+                local enemyHeroes = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
+                if (#enemyHeroes <= 1)
                 then
-                    npcBot:Action_MoveToLocation(mainCreep:GetLocation());
-                else
                     npcBot:Action_AttackUnit(mainCreep, false);
+                else
+                    if GetUnitToUnitDistance(npcBot, mainCreep) > npcBot:GetAttackRange()
+                    then
+                        npcBot:Action_AttackMove(mainCreep:GetLocation());
+                        --npcBot:Action_MoveToLocation(mainCreep:GetLocation());
+                    else
+                        npcBot:Action_AttackUnit(mainCreep, false);
+                    end
                 end
             else
                 npcBot:Action_AttackMove(npcBot:GetLocation() + RandomVector(500));
                 --npcBot:Action_MoveToLocation(npcBot:GetLocation() + RandomVector(500));
             end
 
-    --[[         if mainCreep ~= nil
+            --[[         if mainCreep ~= nil
             then
                 if GetUnitToUnitDistance(npcBot, mainCreep) > npcBot:GetAttackRange()
                 then

@@ -226,7 +226,7 @@ function ConsiderHex()
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if utility.CanCastOnMagicImmuneTarget(enemy) and utility.SafeCast(enemy, true) and enemy:IsChanneling()
+            if utility.CanCastSpellOnTarget(ability, enemy) and enemy:IsChanneling()
             then
                 --npcBot:ActionImmediate_Chat("Использую Hex что бы сбить заклинание!",true);
                 return BOT_ACTION_DESIRE_VERYHIGH, enemy;
@@ -237,7 +237,7 @@ function ConsiderHex()
     -- Attack use
     if utility.PvPMode(npcBot)
     then
-        if utility.IsHero(botTarget) and utility.CanCastOnMagicImmuneTarget(botTarget) and utility.SafeCast(botTarget, false)
+        if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget)
             and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility + 200
         then
             if not utility.IsDisabled(botTarget)
@@ -248,7 +248,7 @@ function ConsiderHex()
                 if (#enemyAbility > 1)
                 then
                     for _, enemy in pairs(enemyAbility) do
-                        if utility.CanCastOnMagicImmuneTarget(enemy) and not utility.IsDisabled(enemy)
+                        if utility.CanCastSpellOnTarget(ability, enemy) and not utility.IsDisabled(enemy)
                         then
                             --npcBot:ActionImmediate_Chat("Использую Hex по второй цели!", true);
                             return BOT_MODE_DESIRE_HIGH, enemy;
@@ -263,7 +263,7 @@ function ConsiderHex()
         if (#enemyAbility > 0)
         then
             for _, enemy in pairs(enemyAbility) do
-                if utility.CanCastOnMagicImmuneTarget(enemy) and not utility.IsDisabled(enemy) and utility.SafeCast(enemy, false)
+                if utility.CanCastSpellOnTarget(ability, enemy) and not utility.IsDisabled(enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую Hex для отступления!", true);
                     return BOT_ACTION_DESIRE_HIGH, enemy;
@@ -293,8 +293,7 @@ function ConsiderManaDrain()
             if #enemyAbility > 0 and #enemyTower <= 0
             then
                 for _, enemy in pairs(enemyAbility) do
-                    if utility.CanCastOnMagicImmuneTarget(enemy) and utility.SafeCast(enemy, false)
-                        and enemy:GetMana() > 0 and enemy:GetMana() / enemy:GetMaxMana() >= 0.2
+                    if utility.CanCastSpellOnTarget(ability, enemy) and enemy:GetMana() > 0 and enemy:GetMana() / enemy:GetMaxMana() >= 0.2
                     then
                         --npcBot:ActionImmediate_Chat("Использую ManaDrain для высасывания маны из героя!",true);
                         return BOT_ACTION_DESIRE_HIGH, enemy;
@@ -304,8 +303,7 @@ function ConsiderManaDrain()
             if #enemyCreeps > 0 and #enemyTower <= 0 and npcBot:TimeSinceDamagedByCreep() >= 5.0
             then
                 for _, enemy in pairs(enemyCreeps) do
-                    if utility.CanCastOnMagicImmuneTarget(enemy) and utility.SafeCast(enemy, false)
-                        and enemy:GetMana() > 0 and enemy:GetMana() / enemy:GetMaxMana() >= 0.4
+                    if utility.CanCastSpellOnTarget(ability, enemy) and enemy:GetMana() > 0 and enemy:GetMana() / enemy:GetMaxMana() >= 0.4
                         and enemy:GetHealth() / enemy:GetMaxHealth() >= 0.4
                     then
                         --npcBot:ActionImmediate_Chat("Использую ManaDrain для высасывания маны из крипа!",true);
@@ -322,7 +320,7 @@ function ConsiderManaDrain()
         if (ManaPercentage <= 0.7) or npcBot:GetMana() < EarthSpike:GetManaCost()
             or npcBot:GetMana() < Hex:GetManaCost() or npcBot:GetMana() < FingerOfDeath:GetManaCost()
         then
-            if utility.IsHero(botTarget) and utility.CanCastOnMagicImmuneTarget(botTarget)
+            if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget)
                 and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
             then
                 --npcBot:ActionImmediate_Chat("Использую ManaDrain для нападения!", true);
@@ -346,9 +344,9 @@ function ConsiderFingerOfDeath()
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and not utility.TargetCantDie(enemy)
+            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType())
             then
-                if utility.CanCastSpellOnTarget(ability, enemy) and utility.SafeCast(enemy, true)
+                if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую LagunaBlade что бы убить цель!", true);
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy;
@@ -363,7 +361,7 @@ function ConsiderFingerOfDeath()
         if utility.IsHero(botTarget)
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
-                and utility.SafeCast(botTarget, true) and botTarget:GetHealth() / botTarget:GetMaxHealth() <= 0.5
+                and botTarget:GetHealth() / botTarget:GetMaxHealth() <= 0.5
             then
                 --npcBot:ActionImmediate_Chat("Использую LagunaBlade для атаки!", true);
                 return BOT_ACTION_DESIRE_HIGH, botTarget;

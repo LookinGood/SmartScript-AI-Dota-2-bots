@@ -144,7 +144,7 @@ function ConsiderScatterblast()
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if utility.CanCastSpellOnTarget(ability, enemy) and not utility.TargetCantDie(enemy)
+            if utility.CanCastSpellOnTarget(ability, enemy)
             then
                 if GetUnitToUnitDistance(npcBot, enemy) <= (castRangeAbility + 200)
                 then

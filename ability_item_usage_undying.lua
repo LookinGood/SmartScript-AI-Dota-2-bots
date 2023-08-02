@@ -176,7 +176,7 @@ function ConsiderSoulRip()
         if utility.PvPMode(npcBot)
         then
             if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget)
-                and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility and utility.SafeCast(botTarget, true)
+                and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
             then
                 --npcBot:ActionImmediate_Chat("Использую Soul Rip по врагу в радиусе действия!",true);
                 return BOT_ACTION_DESIRE_HIGH, botTarget;

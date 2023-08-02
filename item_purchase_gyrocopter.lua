@@ -36,11 +36,6 @@ local ItemsToBuy =
 	"item_demon_edge",
 	"item_recipe_greater_crit",
 
-	"item_point_booster",
-	"item_ogre_axe",
-	"item_staff_of_wizardry",
-	"item_blade_of_alacrity",
-
 	"item_blade_of_alacrity",
 	"item_boots_of_elves",
 	"item_recipe_yasha",
@@ -50,6 +45,11 @@ local ItemsToBuy =
 
 	"item_hyperstone",
 	"item_recipe_mjollnir",
+
+	"item_point_booster",
+	"item_ogre_axe",
+	"item_staff_of_wizardry",
+	"item_blade_of_alacrity",
 
 	"item_hyperstone",
 	"item_hyperstone",

@@ -116,7 +116,7 @@ function ConsiderReflection()
     -- Attack use
     if utility.PvPMode(npcBot)
     then
-        if utility.CanCastOnMagicImmuneTarget(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+        if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
         then
             --npcBot:ActionImmediate_Chat("Использую Reflection для нападения!", true);
             return BOT_ACTION_DESIRE_HIGH, botTarget:GetLocation();
@@ -128,7 +128,7 @@ function ConsiderReflection()
         if (#enemyAbility > 0)
         then
             for _, enemy in pairs(enemyAbility) do
-                if utility.CanCastOnMagicImmuneTarget(enemy)
+                if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую Reflection для отступления!", true);
                     return BOT_ACTION_DESIRE_HIGH, enemy:GetLocation();
@@ -175,9 +175,7 @@ function ConsiderMetamorphosis()
         return;
     end
 
-    local baseAttackRange = npcBot:GetAttackRange();
-    local bonusAttackRange = ability:GetSpecialValueInt("bonus_range");
-    local attackRange = baseAttackRange + bonusAttackRange;
+    local attackRange = npcBot:GetAttackRange() + ability:GetSpecialValueInt("bonus_range");
 
     -- Attack use
     if utility.PvPMode(npcBot)
@@ -226,14 +224,14 @@ function ConsiderTerrorWave()
         return;
     end
 
-    local radiusAbility = (ability:GetSpecialValueInt("scepter_radius"));
+    local radiusAbility = ability:GetSpecialValueInt("scepter_radius");
     local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
 
     -- Interrupt cast
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if utility.CanCastOnMagicImmuneTarget(enemy) and enemy:IsChanneling()
+            if utility.CanCastSpellOnTarget(ability, enemy) and enemy:IsChanneling()
             then
                 --npcBot:ActionImmediate_Chat("Использую TerrorWave что бы сбить заклинание цели!",true);
                 return BOT_ACTION_DESIRE_VERYHIGH;
@@ -244,7 +242,7 @@ function ConsiderTerrorWave()
     -- Attack use
     if utility.PvPMode(npcBot)
     then
-        if utility.IsHero(botTarget) and utility.CanCastOnMagicImmuneTarget(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= radiusAbility
+        if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= radiusAbility
         then
             --npcBot:ActionImmediate_Chat("Использую TerrorWave для нападения!", true);
             return BOT_ACTION_DESIRE_HIGH;
@@ -255,7 +253,7 @@ function ConsiderTerrorWave()
         if (#enemyAbility > 0) and (HealthPercentage <= 0.6) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
         then
             for _, enemy in pairs(enemyAbility) do
-                if utility.CanCastOnMagicImmuneTarget(enemy)
+                if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую TerrorWave для отступления!", true);
                     return BOT_ACTION_DESIRE_HIGH;
@@ -280,7 +278,7 @@ function ConsiderSunder()
     if (#enemyAbility > 0) and (HealthPercentage <= 0.2)
     then
         for _, enemy in pairs(enemyAbility) do
-            if utility.CanCastOnMagicImmuneTarget(enemy) and (enemy:GetHealth() / enemy:GetMaxHealth()) > 0.3
+            if utility.CanCastSpellOnTarget(ability, enemy) and (enemy:GetHealth() / enemy:GetMaxHealth()) > 0.3
             then
                 --npcBot:ActionImmediate_Chat("Использую Sunder на врага со здоровьем ниже 30%!",true);
                 return BOT_MODE_DESIRE_VERYHIGH, enemy;

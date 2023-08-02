@@ -147,8 +147,7 @@ function ConsiderEnchant()
     -- Attack use
     if utility.PvPMode(npcBot)
     then
-        if utility.IsHero(botTarget) and utility.CanCastOnMagicImmuneTarget(botTarget) and not utility.IsDisabled(botTarget)
-            and utility.SafeCast(botTarget, false)
+        if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget) and not utility.IsDisabled(botTarget)
         then
             if GetUnitToUnitDistance(npcBot, botTarget) > attackRange and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility + 200
             then
@@ -159,7 +158,7 @@ function ConsiderEnchant()
                 if (#enemyCreeps > 0)
                 then
                     for _, enemy in pairs(enemyCreeps) do
-                        if utility.CanCastOnMagicImmuneTarget(enemy) and not enemy:IsAncientCreep() and utility.SafeCast(enemy, true)
+                        if utility.CanCastSpellOnTarget(ability,enemy) and not enemy:IsAncientCreep() and utility.SafeCast(enemy, true)
                             and (enemy:GetLevel() <= creepMaxLevel and (enemy:GetLevel() > 1))
                         then
                             --npcBot:ActionImmediate_Chat("Использую Enchant для подчинения крипа в атаке!",true);
@@ -176,7 +175,7 @@ function ConsiderEnchant()
         if (#enemyAbility > 0)
         then
             for _, enemy in pairs(enemyAbility) do
-                if utility.CanCastOnMagicImmuneTarget(enemy) and not utility.IsDisabled(enemy)
+                if utility.CanCastSpellOnTarget(ability, enemy) and not utility.IsDisabled(enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую Enchant для отступления!", true);
                     return BOT_ACTION_DESIRE_HIGH, enemy;
@@ -189,7 +188,7 @@ function ConsiderEnchant()
         if (#enemyCreeps > 0) and (ManaPercentage >= 0.6)
         then
             for _, enemy in pairs(enemyCreeps) do
-                if utility.CanCastOnMagicImmuneTarget(enemy) and not enemy:IsAncientCreep() and utility.SafeCast(enemy, true)
+                if utility.CanCastSpellOnTarget(ability, enemy) and not enemy:IsAncientCreep() and utility.SafeCast(enemy, true)
                     and (enemy:GetLevel() <= creepMaxLevel and (enemy:GetLevel() > 1))
                 then
                     --npcBot:ActionImmediate_Chat("Использую Enchant для подчинения крипа!", true);
@@ -265,7 +264,7 @@ function ConsiderLittleFriends()
     -- Attack use
     if utility.PvPMode(npcBot)
     then
-        if utility.IsHero(botTarget) and utility.CanCastOnMagicImmuneTarget(botTarget) and utility.SafeCast(botTarget, false)
+        if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget)
         then
             local allyCreeps = botTarget:GetNearbyCreeps(radiusAbility, true);
             local enemyCreeps = botTarget:GetNearbyCreeps(radiusAbility, false);
@@ -283,7 +282,7 @@ function ConsiderLittleFriends()
         if (#enemyAbility > 0)
         then
             for _, enemy in pairs(enemyAbility) do
-                if utility.CanCastOnMagicImmuneTarget(enemy)
+                if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     local allyCreeps = enemy:GetNearbyCreeps(radiusAbility, true);
                     local enemyCreeps = enemy:GetNearbyCreeps(radiusAbility, false);

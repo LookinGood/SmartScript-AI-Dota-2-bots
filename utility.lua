@@ -406,10 +406,16 @@ end
 function TargetCantDie(npcTarget)
 	return IsValidTarget(npcTarget) and npcTarget:GetHealth() / npcTarget:GetMaxHealth() <= 0.3 and
 		(npcTarget:HasModifier("modifier_dazzle_shallow_grave") or
-			npcTarget:HasModifier("modifier_oracle_false_promise_timer") or
+			npcTarget:HasModifier("modifier_oracle_false_promise_timer"))
+end
+
+function IsTargetInvulnerable(npcTarget)
+	return IsValidTarget(npcTarget) and
+		(npcTarget:IsInvulnerable() or
 			npcTarget:HasModifier("modifier_item_aeon_disk_buff") or
 			npcTarget:HasModifier("modifier_templar_assassin_refraction_absorb") or
-			npcTarget:HasModifier("modifier_abaddon_aphotic_shield"));
+			npcTarget:HasModifier("modifier_abaddon_aphotic_shield") or
+			npcTarget:HasModifier("modifier_abaddon_borrowed_time"));
 end
 
 function CanBeHeal(npcTarget)
@@ -463,6 +469,37 @@ end ]]
 function CanCastSpellOnTarget(spell, npcTarget)
 	local damageType = spell:GetDamageType();
 
+	if spell ~= nil and IsValidTarget(npcTarget)
+	then
+		if SafeCast(npcTarget)
+		then
+			if damageType == DAMAGE_TYPE_MAGICAL or damageType == DAMAGE_TYPE_PHYSICAL or damageType == DAMAGE_TYPE_PURE
+			then
+				if not IsTargetInvulnerable(npcTarget) and not TargetCantDie(npcTarget)
+				then
+					if damageType == DAMAGE_TYPE_MAGICAL
+					then
+						return CanCastOnMagicImmuneTarget(npcTarget);
+					elseif damageType == DAMAGE_TYPE_PHYSICAL
+					then
+						return CanCastOnInvulnerableTarget(npcTarget)
+					elseif damageType == DAMAGE_TYPE_PURE
+					then
+						return not npcTarget:HasModifier("modifier_black_king_bar_immune");
+					end
+				end
+			else
+				return CanCastOnMagicImmuneTarget(npcTarget);
+			end
+		end
+	end
+
+	return false;
+end
+
+--[[ function CanCastSpellOnTarget(spell, npcTarget)
+	local damageType = spell:GetDamageType();
+
 	if damageType == DAMAGE_TYPE_MAGICAL
 	then
 		return CanCastOnMagicImmuneTarget(npcTarget);
@@ -475,9 +512,18 @@ function CanCastSpellOnTarget(spell, npcTarget)
 	else
 		return IsValidTarget(npcTarget);
 	end
+end ]]
+
+function SafeCast(npcTarget)
+	return IsValidTarget(npcTarget)
+		and (not npcTarget:HasModifier("modifier_antimage_counterspell")
+			and not npcTarget:HasModifier("modifier_item_sphere_target")
+			and not npcTarget:HasModifier("modifier_item_lotus_orb_active")
+			and not npcTarget:HasModifier("modifier_item_blade_mail_reflect")
+			and not npcTarget:HasModifier("modifier_nyx_assassin_spiked_carapace"));
 end
 
-function SafeCast(npcTarget, bfullSafe)
+--[[ function SafeCast(npcTarget, bfullSafe)
 	if IsValidTarget(npcTarget) and
 		(npcTarget:HasModifier("modifier_antimage_counterspell")
 			or npcTarget:HasModifier("modifier_item_sphere_target")
@@ -495,7 +541,7 @@ function SafeCast(npcTarget, bfullSafe)
 	else
 		return true;
 	end
-end
+end ]]
 
 function PvPMode(npcBot)
 	local botMode = npcBot:GetActiveMode();
@@ -792,7 +838,7 @@ end
 
 function PurchaseInfusedRaindrop(npcBot)
 	if npcBot:GetGold() < GetItemCost("item_infused_raindrop") or IsItemSlotsFull() or GetItemStockCount("item_infused_raindrop") < 1
-		or DotaTime() < 3 * 60 or npcBot:GetLevel() > 10
+		or npcBot:GetLevel() > 10
 	then
 		return;
 	end

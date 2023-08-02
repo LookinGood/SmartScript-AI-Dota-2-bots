@@ -112,9 +112,9 @@ function ConsiderArcLightning()
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and not utility.TargetCantDie(enemy)
+            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType())
             then
-                if utility.CanCastSpellOnTarget(ability, enemy) and utility.SafeCast(enemy, true)
+                if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую ArcLightning что бы сбить заклинание или убить цель!",true);
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy;
@@ -129,7 +129,6 @@ function ConsiderArcLightning()
         if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
-                and not utility.IsDisabled(botTarget) and utility.SafeCast(botTarget, true)
             then
                 return BOT_MODE_DESIRE_HIGH, botTarget;
             end
@@ -142,7 +141,6 @@ function ConsiderArcLightning()
         then
             for _, enemy in pairs(enemyCreeps) do
                 if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and utility.CanCastSpellOnTarget(ability, enemy)
-                    and utility.SafeCast(enemy, true)
                 then
                     --npcBot:ActionImmediate_Chat("Использую ArcLightning что бы добить крипа!",true);
                     return BOT_ACTION_DESIRE_LOW, enemy;
@@ -176,7 +174,7 @@ function ConsiderLightningBolt()
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if (utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and not utility.TargetCantDie(enemy))
+            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType())
                 or enemy:IsChanneling() or enemy:IsInvisible()
             then
                 if utility.CanCastSpellOnTarget(ability, enemy)
@@ -262,7 +260,7 @@ function ConsiderNimbus()
 
     -- Cast if can kill somebody
     for i = 1, #enemyAbility do
-        if utility.CanAbilityKillTarget(enemyAbility[i], damageAbility, ability:GetDamageType()) and not utility.TargetCantDie(enemyAbility[i])
+        if utility.CanAbilityKillTarget(enemyAbility[i], damageAbility, ability:GetDamageType())
             and utility.CanCastSpellOnTarget(ability, enemyAbility[i])
         then
             --npcBot:ActionImmediate_Chat("Использую Nimbus что бы добить врага!", true);
@@ -346,7 +344,7 @@ function ConsiderThundergodWrath()
 
     -- Generic use if can kill enemy hero
     for i = 1, #enemyAbility do
-        if utility.CanAbilityKillTarget(enemyAbility[i], damageAbility, ability:GetDamageType()) and not utility.TargetCantDie(enemyAbility[i])
+        if utility.CanAbilityKillTarget(enemyAbility[i], damageAbility, ability:GetDamageType())
             and utility.CanCastSpellOnTarget(ability, enemyAbility[i])
         then
             --npcBot:ActionImmediate_Chat("Использую ThundergodWrath что бы добить врага!", true);

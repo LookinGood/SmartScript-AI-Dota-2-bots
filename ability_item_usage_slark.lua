@@ -95,7 +95,8 @@ function ConsiderDarkPact()
     end
 
     local radiusAbility = ability:GetSpecialValueInt("radius");
-    local selfDamageAbility = ability:GetSpecialValueInt("total_damage") * ability:GetSpecialValueInt("self_damage_pct") / 100;
+    local selfDamageAbility = ability:GetSpecialValueInt("total_damage") * ability:GetSpecialValueInt("self_damage_pct") /
+    100;
 
     -- Attack use
     if not utility.CanAbilityKillTarget(npcBot, selfDamageAbility, ability:GetDamageType())
@@ -115,10 +116,10 @@ function ConsiderDarkPact()
                 --npcBot:ActionImmediate_Chat("Использую DarkPact для отхода!", true);
                 return BOT_ACTION_DESIRE_HIGH;
             end
-        elseif utility.PvEMode(npcBot) and (ManaPercentage >= 0.6)
+        elseif utility.PvEMode(npcBot)
         then
             local enemyCreeps = npcBot:GetNearbyCreeps(radiusAbility, true);
-            if (#enemyCreeps > 2)
+            if (#enemyCreeps > 2) and (ManaPercentage >= 0.6)
             then
                 for _, enemy in pairs(enemyCreeps) do
                     if utility.CanCastSpellOnTarget(ability, enemy) and npcBot:GetAttackTarget() == enemy

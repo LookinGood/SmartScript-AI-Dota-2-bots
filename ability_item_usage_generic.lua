@@ -275,13 +275,16 @@ function ItemUsageThink()
 	local tps = npcBot:GetItemInSlot(15);
 	if tps ~= nil and tps:IsFullyCastable()
 	then
-		local tpLocation = nil;
-		local shouldTP = false;
-		shouldTP, tpLocation = teleportation_usage_generic.ShouldTP()
-		if shouldTP
+		if not npcBot:IsInvisible()
 		then
-			npcBot:Action_UseAbilityOnLocation(tps, tpLocation + RandomVector(100));
-			--return;
+			local tpLocation = nil;
+			local shouldTP = false;
+			shouldTP, tpLocation = teleportation_usage_generic.ShouldTP()
+			if shouldTP
+			then
+				npcBot:Action_UseAbilityOnLocation(tps, tpLocation + RandomVector(100));
+				--return;
+			end
 		end
 	end
 
@@ -289,13 +292,16 @@ function ItemUsageThink()
 	local wardObserver = IsItemAvailable("item_ward_observer");
 	if wardObserver ~= nil and wardObserver:IsFullyCastable()
 	then
-		local wardLocation = nil;
-		local shouldUseWard = false;
-		shouldUseWard, wardLocation = ward_usage_generic.ShouldUseWard()
-		if shouldUseWard
+		if not utility.PvPMode(npcBot) and botMode ~= BOT_MODE_RETREAT
 		then
-			npcBot:Action_UseAbilityOnLocation(wardObserver, wardLocation + RandomVector(50));
-			--return;
+			local wardLocation = nil;
+			local shouldUseWard = false;
+			shouldUseWard, wardLocation = ward_usage_generic.ShouldUseWard()
+			if shouldUseWard
+			then
+				npcBot:Action_UseAbilityOnLocation(wardObserver, wardLocation + RandomVector(50));
+				--return;
+			end
 		end
 	end
 

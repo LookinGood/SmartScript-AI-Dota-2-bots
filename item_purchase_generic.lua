@@ -193,7 +193,10 @@ function SellExtraItem()
 		if (DotaTime() > 20 * 60)
 		then
 			SellSpecifiedItem("item_magic_wand")
-			SellSpecifiedItem("item_infused_raindrop")
+			if npcBot:GetLevel() > 10
+			then
+				SellSpecifiedItem("item_infused_raindrop")
+			end
 		end
 		if (DotaTime() > 30 * 60)
 		then

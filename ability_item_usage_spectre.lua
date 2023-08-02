@@ -119,7 +119,7 @@ function ConsiderSpectralDagger()
         for _, enemy in pairs(enemyAbility) do
             if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType())
             then
-                if utility.CanCastSpellOnTarget(ability, enemy) and utility.SafeCast(enemy, true) and GetUnitToUnitDistance(npcBot, enemy) <= castRangeAbility
+                if utility.CanCastSpellOnTarget(ability, enemy) and GetUnitToUnitDistance(npcBot, enemy) <= castRangeAbility
                 then
                     --npcBot:ActionImmediate_Chat("Использую SpectralDagger что бы убить цель!", true);
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy, "target";
@@ -134,7 +134,6 @@ function ConsiderSpectralDagger()
         if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
-                and utility.SafeCast(botTarget, true)
             then
                 --npcBot:ActionImmediate_Chat("Использую SpectralDagger по врагу в радиусе действия!",true);
                 return BOT_MODE_DESIRE_HIGH, botTarget, "target";
@@ -148,7 +147,7 @@ function ConsiderSpectralDagger()
             if (#enemyAbility > 0)
             then
                 for _, enemy in pairs(enemyAbility) do
-                    if utility.CanCastSpellOnTarget(ability, enemy) and utility.SafeCast(enemy, true) and GetUnitToUnitDistance(npcBot, enemy) <= castRangeAbility
+                    if utility.CanCastSpellOnTarget(ability, enemy) and GetUnitToUnitDistance(npcBot, enemy) <= castRangeAbility
                     then
                         --npcBot:ActionImmediate_Chat("Использую SpectralDagger для отхода, по врагу!", true);
                         return BOT_ACTION_DESIRE_VERYHIGH, enemy, "target";
@@ -248,7 +247,7 @@ function ConsiderShadowStep()
     -- Attack use
     if utility.PvPMode(npcBot)
     then
-        if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(SpectralDagger, botTarget) and utility.SafeCast(botTarget, true)
+        if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(SpectralDagger, botTarget)
         then
             --npcBot:ActionImmediate_Chat("Использую ShadowStep по врагу в радиусе действия!",true);
             return BOT_MODE_DESIRE_HIGH, botTarget;
@@ -259,7 +258,7 @@ function ConsiderShadowStep()
         if (#closeEnemyAbility > 0)
         then
             for _, enemy in pairs(closeEnemyAbility) do
-                if utility.CanCastSpellOnTarget(SpectralDagger, enemy) and utility.SafeCast(enemy, true)
+                if utility.CanCastSpellOnTarget(SpectralDagger, enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую ShadowStep что бы оторваться от врага",true);
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy;

@@ -102,9 +102,9 @@ function ConsiderThunderStrike()
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and not utility.TargetCantDie(enemy)
+            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType())
             then
-                if utility.CanCastSpellOnTarget(ability, enemy) and utility.SafeCast(enemy, true)
+                if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     npcBot:ActionImmediate_Chat("Использую ThunderStrike что бы убить цель!", true);
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy;
@@ -119,7 +119,6 @@ function ConsiderThunderStrike()
         if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
-                and utility.SafeCast(botTarget, true)
             then
                 --npcBot:ActionImmediate_Chat("Использую ThunderStrike по врагу в радиусе действия!",true);
                 return BOT_MODE_DESIRE_HIGH, botTarget;
@@ -131,7 +130,7 @@ function ConsiderThunderStrike()
         if (#enemyAbility > 0)
         then
             for _, enemy in pairs(enemyAbility) do
-                if utility.CanCastSpellOnTarget(ability, enemy) and utility.SafeCast(enemy, true)
+                if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую ThunderStrike что бы оторваться от врага", true);
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy;
@@ -145,7 +144,7 @@ function ConsiderThunderStrike()
         if #enemyCreeps > 1 and (ManaPercentage >= 0.5)
         then
             for _, enemy in pairs(enemyCreeps) do
-                if utility.CanCastSpellOnTarget(ability, enemy) and utility.SafeCast(enemy, true)
+                if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     return BOT_MODE_DESIRE_VERYLOW, enemy;
                 end
@@ -155,7 +154,7 @@ function ConsiderThunderStrike()
     elseif npcBot:GetActiveMode() == BOT_MODE_LANING
     then
         local enemy = utility.GetWeakest(enemyAbility);
-        if utility.CanCastSpellOnTarget(ability, enemy) and utility.SafeCast(enemy, true) and (ManaPercentage >= 0.7)
+        if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)
         then
             --npcBot:ActionImmediate_Chat("Использую ThunderStrike по цели на ЛАЙНЕ!", true);
             return BOT_ACTION_DESIRE_VERYHIGH, enemy;
@@ -176,7 +175,7 @@ function ConsiderGlimpse()
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if utility.CanCastSpellOnTarget(ability, enemy) and utility.SafeCast(enemy, true) and enemy:IsChanneling()
+            if utility.CanCastSpellOnTarget(ability, enemy) and enemy:IsChanneling()
             then
                 return BOT_ACTION_DESIRE_HIGH, enemy;
             end
@@ -187,7 +186,7 @@ function ConsiderGlimpse()
     if utility.PvPMode(npcBot)
     then
         if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget) and
-            GetUnitToUnitDistance(npcBot, botTarget) > (npcBot:GetAttackRange() * 2) and utility.SafeCast(botTarget, false)
+            GetUnitToUnitDistance(npcBot, botTarget) > (npcBot:GetAttackRange() * 2)
         then
             return BOT_ACTION_DESIRE_HIGH, botTarget;
         end
@@ -197,7 +196,7 @@ function ConsiderGlimpse()
         if (#enemyAbility > 0)
         then
             for _, enemy in pairs(enemyAbility) do
-                if utility.CanCastSpellOnTarget(ability, enemy) and utility.SafeCast(enemy, true)
+                if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     return BOT_ACTION_DESIRE_HIGH, enemy;
                 end

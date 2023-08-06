@@ -29,19 +29,22 @@ function GetDesire()
 
     for _, rune in pairs(runeList)
     do
-        local runeStatus = GetRuneStatus(rune);
-        if runeStatus == RUNE_STATUS_AVAILABLE
+        if IsRadiusVisible(GetRuneSpawnLocation(rune), 200)
         then
-            local runeLocation = GetRuneSpawnLocation(rune);
-            local runeDistance = GetUnitToLocationDistance(npcBot, runeLocation);
-            if runeDistance <= 3000
+            local runeStatus = GetRuneStatus(rune);
+            if runeStatus == RUNE_STATUS_AVAILABLE
             then
-                return BOT_MODE_DESIRE_HIGH;
+                local runeLocation = GetRuneSpawnLocation(rune);
+                local runeDistance = GetUnitToLocationDistance(npcBot, runeLocation);
+                if runeDistance <= 3000
+                then
+                    return BOT_MODE_DESIRE_HIGH;
+                else
+                    return BOT_MODE_DESIRE_NONE;
+                end
             else
                 return BOT_MODE_DESIRE_NONE;
             end
-        else
-            return BOT_MODE_DESIRE_NONE;
         end
     end
 end
@@ -88,9 +91,9 @@ function Think()
             local runeDistance = GetUnitToLocationDistance(npcBot, runeLocation);
             if runeDistance <= 3000
             then
-                if GetUnitToLocationDistance(npcBot, runeLocation) >= 100
+                if GetUnitToLocationDistance(npcBot, runeLocation) >= 10
                 then
-                    npcBot:Action_MoveToLocation(runeLocation + RandomVector(99));
+                    npcBot:Action_MoveToLocation(runeLocation + RandomVector(9));
                     --return;
                 else
                     npcBot:ActionImmediate_Ping(runeLocation.x, runeLocation.y, true);

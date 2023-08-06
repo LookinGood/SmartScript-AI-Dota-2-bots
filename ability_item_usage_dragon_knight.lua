@@ -283,6 +283,8 @@ function ConsiderElderDragonForm()
 
     local attackRange = npcBot:GetAttackRange() + ability:GetSpecialValueInt("bonus_attack_range");
 
+    if not npcBot:HasModifier("modifier_dragon_knight_corrosive_breath")
+    then
     -- Attack use
     if utility.PvPMode(npcBot)
     then
@@ -303,4 +305,5 @@ function ConsiderElderDragonForm()
             return BOT_ACTION_DESIRE_HIGH;
         end
     end
+end
 end

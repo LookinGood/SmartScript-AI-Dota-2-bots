@@ -219,11 +219,81 @@ function IsItemAvailable(item_name)
 	return nil;
 end
 
+function Contains(set, key) -- Содержит ли таблица указанный коюч
+	for index, value in ipairs(set) do
+		if tostring(value) == tostring(key)
+		then
+			return true
+		end
+	end
+end
+
+-- Имена способностей для использования которых необходимо использовать item_refresher
+local _tableOfUltimatesAbility =
+{
+	"abaddon_borrowed_time",
+	"antimage_mana_void",
+	"bane_fiends_grip",
+	"batrider_flaming_lasso",
+	"beastmaster_primal_roar",
+	"bloodseeker_rupture",
+	"brewmaster_primal_split",
+	"chen_hand_of_god",
+	"crystal_maiden_freezing_field",
+	"dark_seer_wall_of_replica",
+	"dark_willow_terrorize",
+	"dazzle_shallow_grave",
+	"death_prophet_exorcism",
+	"doom_bringer_doom",
+	"earthshaker_echo_slam",
+	"elder_titan_earth_splitter",
+	"enigma_black_hole",
+	"faceless_void_chronosphere",
+	"gyrocopter_call_down",
+	"jakiro_macropyre",
+	"juggernaut_omni_slash",
+	"kunkka_ghostship",
+	"lich_chain_frost",
+	"lion_finger_of_death",
+	"luna_eclipse",
+	"magnataur_reverse_polarity",
+	"medusa_stone_gaze",
+	"monkey_king_wukongs_command",
+	"necrolyte_reapers_scythe",
+	"nevermore_requiem",
+	"obsidian_destroyer_sanity_eclipse",
+	"omniknight_guardian_angel",
+	"oracle_false_promise",
+	"phoenix_supernova",
+	"queenofpain_sonic_wave",
+	"sandking_epicenter",
+	"shadow_shaman_mass_serpent_ward",
+	"silencer_global_silence",
+	"skeleton_king_reincarnation",
+	"skywrath_mage_mystic_flare",
+	"slark_shadow_dance",
+	"snapfire_mortimer_kisses",
+	"spectre_haunt",
+	"spirit_breaker_nether_strike",
+	"sven_gods_strength",
+	"terrorblade_metamorphosis",
+	"tidehunter_ravage",
+	"treant_overgrowth",
+	"tusk_walrus_punch",
+	"undying_tombstone",
+	"venomancer_noxious_plague",
+	"warlock_rain_of_chaos",
+	"winter_wyvern_winters_curse",
+	"witch_doctor_death_ward",
+	"zuus_thundergods_wrath",
+}
+
 function ItemUsageThink()
 	local npcBot = GetBot();
 	GlyphUsageThink(npcBot)
 
 	if not npcBot:IsAlive() or npcBot:IsMuted() or npcBot:IsDominated() or npcBot:IsStunned() or npcBot:IsHexed() or npcBot:IsNightmared()
+		or npcBot:IsInvisible()
 	then
 		return;
 	end
@@ -266,7 +336,7 @@ function ItemUsageThink()
 	end
 
 	-- INTERRUPT CAST ITEMS
-	if npcBot:IsChanneling() or npcBot:IsUsingAbility() or npcBot:IsCastingAbility()
+	if npcBot:IsChanneling() or npcBot:IsUsingAbility()
 	then
 		return;
 	end
@@ -1974,8 +2044,61 @@ function ItemUsageThink()
 		end
 	end
 
+	--#Region Основной алгоритм
+	local refresher = IsItemAvailable("item_refresher");                                                               -- Получение item_refresher
+	local refresherShard = IsItemAvailable("item_refresher_shard");                                                    -- Получение item_refresher_shard
+	if (refresher ~= nil and refresher:IsFullyCastable()) or (refresherShard ~= nil and refresherShard:IsFullyCastable()) -- Проверка доступности item_refresher/shard
+	then
+		if utility.CanCast(npcBot)
+		then
+			local _messageRefresherUsage = "Использую refresher!"; -- Сообщение при использовании item_refresher
+			local _countMaxOfSlots = 26; -- Максимальное количество слотов
+			local _countBonusManaValue = 350; -- Запас маны для каста
+			local _kCD = 0.5; -- Коэффициент величины отката способности
 
-
+			for i = 0, _countMaxOfSlots, 1 do -- Итерация по всем слотам
+				local ability = npcBot:GetAbilityInSlot(i) -- Получение способности
+				if ability ~= nil
+					and not ability:IsTalent() -- Не является талантом
+					and not ability:IsPassive() -- Не пассивная
+					and not ability:IsHidden() -- Не скрытая
+				then
+					local abilityManaCost = ability:GetManaCost(); -- Получение величины стоимости способности
+					if npcBot:GetMana() >= abilityManaCost + _countBonusManaValue -- Проверка маны
+					then
+						if Contains(_tableOfUltimatesAbility, ability:GetName()) --Проеверка содержания иназвания в способности в вышеопределенном списке
+						then
+							local abilityCD = ability:GetCooldown(); -- Получение величины времени отката способности
+							if ability:GetCooldownTimeRemaining() >= abilityCD * _kCD -- Проверка отката
+							then
+								if refresher ~= nil
+								then
+									npcBot:ActionImmediate_Chat(_messageRefresherUsage, true); -- Оставление отладочного сообщения в часте
+									npcBot:Action_UseAbility(refresher); -- Использование refresher_item
+								elseif refresherShard ~= nil
+								then
+									npcBot:ActionImmediate_Chat("Использую рефрешер шард", true); -- Оставление отладочного сообщения в часте
+									npcBot:Action_UseAbility(refresherShard); -- Использование refresher_shard_item
+								end
+							end
+						elseif ability:GetCooldownTimeRemaining() >= 50
+						then
+							if refresher ~= nil
+							then
+								--npcBot:ActionImmediate_Chat(_messageRefresherUsage, true); -- Оставление отладочного сообщения в часте
+								npcBot:Action_UseAbility(refresher); -- Использование refresher_item
+							elseif refresherShard ~= nil
+							then
+								--npcBot:ActionImmediate_Chat("Использую рефрешер шард", true); -- Оставление отладочного сообщения в часте
+								npcBot:Action_UseAbility(refresherShard); -- Использование refresher_shard_item
+							end
+						end
+					end
+				end
+			end
+		end
+	end
+	--#endregion Основной алгоритм
 
 
 	------------
@@ -1984,249 +2107,3 @@ end
 --#endregion
 
 for k, v in pairs(ability_item_usage_generic) do _G._savedEnv[k] = v end
-
-
---[[ function ItemUsageThinkTEST()
-	local npcBot = GetBot()
-
-	if npcBot:IsChanneling() or npcBot:IsUsingAbility() or npcBot:IsInvisible() or npcBot:IsMuted() or npcBot:HasModifier("modifier_doom_bringer_doom")
-	then
-		return;
-	end
-
-	local incomingSpells = npcBot:GetIncomingTrackingProjectiles()
-	local allysHero = npcBot:GetNearbyHeroes(1200, false, BOT_MODE_NONE);
-
-
-	-- item_tango
-	item = npcBot:GetItemByName("item_tango", false, false);
-	if item ~= nil and item:IsFullyCastable() then
-		local itemRange = item:GetCastRange();
-		if npcBot:GetHealth() < npcBot:GetMaxHealth() - 200 and (not npcBot:HasModifier("modifier_tango_heal")) then
-			local trees = npcBot:GetNearbyTrees(itemRange * 2);
-			if (#trees > 0) then
-				npcBot:ActionImmediate_Chat("Использую предмет tango что бы подлечить себя!",
-					true);
-				npcBot:ActionPush_UseAbilityOnTree(item, trees[1]);
-				return;
-			end
-		end
-	end
-
-	-- item_clarity
-	local item = npcBot:GetItemByName("item_clarity", false, false);
-	if item ~= nil and item:IsFullyCastable() then
-		local itemRange = item:GetCastRange();
-		local allysClarity = npcBot:GetNearbyHeroes(itemRange, false, BOT_MODE_NONE);
-		for _, aItemTarget in pairs(allysClarity)
-		do
-			if aItemTarget:GetMana() / aItemTarget:GetMaxMana() <= 0.4 and aItemTarget:HaveManaRegenBuff() == false then
-				npcBot:ActionImmediate_Chat("Использую предмет clarity что бы восстановить цели ману!",
-					true);
-				npcBot:ActionPush_UseAbilityOnEntity(item, aItemTarget);
-				return;
-			end
-		end
-	end
-
-	-- item_flask
-	local item = npcBot:GetItemByName("item_flask", false, false);
-	if item ~= nil and item:IsFullyCastable() then
-		local itemRange = item:GetCastRange();
-		local allysFlask = npcBot:GetNearbyHeroes(itemRange, false, BOT_MODE_NONE);
-		for _, aItemTarget in pairs(allysFlask)
-		do
-			if aItemTarget:GetHealth() / aItemTarget:GetMaxHealth() <= 0.4 and aItemTarget:HaveHealthRegenBuff() == false then
-				npcBot:ActionImmediate_Chat("Использую предмет Flask что бы восстановить цели здоровье!",
-					true);
-				npcBot:ActionPush_UseAbilityOnEntity(item, aItemTarget);
-				return;
-			end
-		end
-	end
-end ]]
---[[
-		local mainSlotItem = {
-		npcBot:GetItemInSlot(0),
-		npcBot:GetItemInSlot(1),
-		npcBot:GetItemInSlot(2),
-		npcBot:GetItemInSlot(3),
-		npcBot:GetItemInSlot(4),
-		npcBot:GetItemInSlot(5),
-		npcBot:GetItemInSlot(15),
-	}
-
-
-for i = 1, #mainSlotItem do
-	local item = npcBot:GetItemInSlot(i);
-
-	-- item_tango
-	if (item) and item:GetName() == "item_tango" and item:IsFullyCastable() then
-		local itemRange = item:GetCastRange();
-		if npcBot:GetHealth() < npcBot:GetMaxHealth() - 200 and (not npcBot:HasModifier("modifier_tango_heal")) then
-			local trees = npcBot:GetNearbyTrees(itemRange * 2);
-			if (#trees > 0) then
-				npcBot:ActionImmediate_Chat("Использую предмет tango что бы подлечить себя!",
-					true);
-				npcBot:ActionPush_UseAbilityOnTree(item, trees[1]);
-				return;
-			end
-		end
-	end
-
-	-- item_clarity
-	if (item) and item:GetName() == "item_clarity" and item:IsFullyCastable() then
-		local itemRange = item:GetCastRange();
-		local allysClarity = npcBot:GetNearbyHeroes(itemRange, false, BOT_MODE_NONE);
-		for _, aItemTarget in pairs(allysClarity)
-		do
-			if aItemTarget:GetMana() / aItemTarget:GetMaxMana() <= 0.4 and aItemTarget:HaveManaRegenBuff() == false then
-				npcBot:ActionImmediate_Chat("Использую предмет clarity что бы восстановить цели ману!",
-					true);
-				npcBot:ActionPush_UseAbilityOnEntity(item, aItemTarget);
-				return;
-			end
-		end
-	end
-
-	-- item_flask
-	if (item) and item:GetName() == "item_flask" and item:IsFullyCastable() then
-		local itemRange = item:GetCastRange();
-		local allysFlask = npcBot:GetNearbyHeroes(itemRange, false, BOT_MODE_NONE);
-		for _, aItemTarget in pairs(allysFlask)
-		do
-			if aItemTarget:GetHealth() / aItemTarget:GetMaxHealth() <= 0.4 and aItemTarget:HaveHealthRegenBuff() == false then
-				npcBot:ActionImmediate_Chat("Использую предмет Flask что бы восстановить цели здоровье!",
-					true);
-				npcBot:ActionPush_UseAbilityOnEntity(item, aItemTarget);
-				return;
-			end
-		end
-	end ]]
---[[ function GetTheItem(sItem)
-	for i = 1, #npcBot.mainSlotItem do
-		if npcBot.mainSlotItem[i] ~= nil and npcBot.mainSlotItem[i]:GetName() == sItem then
-			return npcBot.mainSlotItem[i];
-		end
-	end
-	return nil;
-end
-
-function CanUseItem(sItem)
-	local item = GetTheItem(sItem);
-	if item ~= nil and item:IsFullyCastable() then
-		return item;
-	end
-	return false;
-end
-
-function ItemUsageThinks()
-	local npcBot = GetBot()
-
-	if npcBot:IsChanneling() or npcBot:IsUsingAbility() or npcBot:IsInvisible() or npcBot:IsMuted() or npcBot:HasModifier("modifier_doom_bringer_doom")
-	then
-		return;
-	end
-
-	local incomingSpells = npcBot:GetIncomingTrackingProjectiles()
-
-
-	-- item_courier
-	local itemToUse = CanUseItem('item_courier');
-	if itemToUse ~= false then
-		npcBot:Action_UseAbility(itemToUse);
-		return;
-	end
-
-	-- item_tome_of_knowledge
-	local itemToUse = CanUseItem('item_tome_of_knowledge');
-	if itemToUse ~= false then
-		npcBot:ActionImmediate_Chat("Использую предмет tome_of_knowledge!", true);
-		npcBot:Action_UseAbility(itemToUse);
-		return;
-	end
-
-	-- item_tango
-	local itemToUse = CanUseItem('item_tango');
-	if itemToUse ~= false then
-		if npcBot:GetHealth() < npcBot:GetMaxHealth() - 200 and (not npcBot:HasModifier("modifier_tango_heal")) then
-			local trees = npcBot:GetNearbyTrees(300);
-			if (#trees > 0) then
-				npcBot:ActionImmediate_Chat("Использую предмет tango что бы подлечить себя!",
-					true);
-				npcBot:Action_UseAbilityOnTree(item, trees[1]);
-				return;
-			end
-		end
-	end
-
-	--item_clarity
-	local itemToUse = CanUseItem('item_clarity');
-	local allysClarity = npcBot:GetNearbyHeroes(250, false, BOT_MODE_NONE);
-	if itemToUse ~= false and #incomingSpells == 0 and npcBot:GetActiveMode() ~= BOT_MODE_RETREAT
-	then
-		for _, aClarity in pairs(allysClarity)
-		do
-			if aClarity:GetMana() / aClarity:GetMaxMana() <= 0.4 and aClarity:HaveManaRegenBuff() == false then
-				npcBot:ActionImmediate_Chat("Использую предмет clarity что бы восстановить цели ману!",
-					true);
-				npcBot:Action_UseAbilityOnEntity(itemToUse, aClarity);
-			end
-		end
-	end
-
-	--item_flask
-	local itemToUse = CanUseItem('item_flask');
-	local allysFlask = npcBot:GetNearbyHeroes(250, false, BOT_MODE_NONE);
-	if itemToUse ~= false and #incomingSpells == 0 and npcBot:GetActiveMode() ~= BOT_MODE_RETREAT
-	then
-		for _, aFlask in pairs(allysFlask)
-		do
-			if aFlask:GetHealt() / aFlask:GetMaxHealth() <= 0.5 and aFlask:HaveHealthRegenBuff() == false then
-				npcBot:ActionImmediate_Chat("Использую предмет flask что бы восстановить цели здоровье!",
-					true);
-				npcBot:Action_UseAbilityOnEntity(itemToUse, aFlask);
-			end
-		end
-	end
-end
- ]]
---[[  function BuybackUsageThink()
-	local npcBot = GetBot()
-
-	if npcBot:IsAlive() and npcBot:IsInvulnerable() or not npcBot:IsHero() or npcBot:IsIllusion() then
-		return;
-	end
-
-	if npcBot:IsAlive() and TimeDeath ~= nil then
-		TimeDeath = nil;
-	end
-
-	if not npcBot:HasBuyback() then
-		return;
-	end
-
-	if not npcBot:IsAlive() then
-		if TimeDeath == nil then
-			TimeDeath = DotaTime();
-		end
-	end
-
-	local RespawnTime = GetRemainingRespawnTime();
-
-	if RespawnTime < 15 then
-		return;
-	end
-
-	local ancient = GetAncient(GetTeam());
-
-	if ancient ~= nil
-	then
-		local nEnemies = GetNumEnemyNearby(ancient);
-		if nEnemies > 0 and nEnemies >= GetNumOfAliveHeroes(GetTeam()) then
-			npcBot:ActionImmediate_Buyback();
-			npcBot:ActionImmediate_Chat("Выкупаюсь!", true);
-			return;
-		end
-	end
-end ]]

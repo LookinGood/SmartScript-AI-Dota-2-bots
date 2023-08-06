@@ -289,7 +289,7 @@ function ConsiderNoxiousPlague()
     -- Attack use
     if utility.PvPMode(npcBot)
     then
-        if utility.IsHero(botTarget)
+        if utility.IsHero(botTarget) and not botTarget:HasModifier("modifier_venomancer_noxious_plague_primary")
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
             then
@@ -303,7 +303,7 @@ function ConsiderNoxiousPlague()
         if (#enemyAbility > 0) and (HealthPercentage <= 0.7)
         then
             for _, enemy in pairs(enemyAbility) do
-                if utility.CanCastSpellOnTarget(ability, enemy)
+                if utility.CanCastSpellOnTarget(ability, enemy) and not enemy:HasModifier("modifier_venomancer_noxious_plague_primary")
                 then
                     --npcBot:ActionImmediate_Chat("Использую LatentToxicity что бы оторваться от врага",true);
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy;

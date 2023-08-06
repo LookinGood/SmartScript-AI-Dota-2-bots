@@ -184,7 +184,8 @@ function ConsiderHitchARide()
         then
             for _, ally in pairs(allyAbility)
             do
-                if ally ~= npcBot and utility.IsHero(ally) and not ally:IsChanneling() and (ally:GetHealth() / ally:GetMaxHealth() <= 0.8)
+                if ally ~= npcBot and utility.IsHero(ally) and not ally:IsChanneling() and not ally:HasModifier("modifier_centaur_mounted")
+                    and (ally:GetHealth() / ally:GetMaxHealth() <= 0.8)
                 then
                     --npcBot:ActionImmediate_Chat("Использую Hitch a Ride на союзного героя со здоровьем ниже 80%!", true);
                     return BOT_ACTION_DESIRE_HIGH, ally;
@@ -203,22 +204,25 @@ function ConsiderStampede()
 
     local attackRange = npcBot:GetAttackRange();
 
-    -- Attack use
-    if utility.PvPMode(npcBot)
+    if not npcBot:HasModifier("modifier_centaur_stampede")
     then
-        if utility.IsHero(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) > (attackRange * 2) and GetUnitToUnitDistance(npcBot, botTarget) < 3000
+        -- Attack use
+        if utility.PvPMode(npcBot)
         then
-            --npcBot:ActionImmediate_Chat("Использую Stampede для нападения!", true);
-            return BOT_ACTION_DESIRE_HIGH;
-        end
-        -- Retreat use
-    elseif botMode == BOT_MODE_RETREAT
-    then
-        local enemyAbility = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
-        if (#enemyAbility > 0) and (HealthPercentage <= 0.6)
+            if utility.IsHero(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) > (attackRange * 2) and GetUnitToUnitDistance(npcBot, botTarget) < 3000
+            then
+                --npcBot:ActionImmediate_Chat("Использую Stampede для нападения!", true);
+                return BOT_ACTION_DESIRE_HIGH;
+            end
+            -- Retreat use
+        elseif botMode == BOT_MODE_RETREAT
         then
-            --npcBot:ActionImmediate_Chat("Использую Stampede для отступления!", true);
-            return BOT_ACTION_DESIRE_HIGH;
+            local enemyAbility = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
+            if (#enemyAbility > 0) and (HealthPercentage <= 0.6)
+            then
+                --npcBot:ActionImmediate_Chat("Использую Stampede для отступления!", true);
+                return BOT_ACTION_DESIRE_HIGH;
+            end
         end
     end
 end

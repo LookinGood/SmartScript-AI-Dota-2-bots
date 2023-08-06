@@ -4,8 +4,8 @@ module("utility", package.seeall)
 require(GetScriptDirectory() .. "/hero_role_generic")
 
 function IsValidTarget(target)
-	return target ~= nil and
-		target:CanBeSeen() and
+	return target:CanBeSeen() and
+		target ~= nil and
 		target:IsAlive() and
 		not target:IsInvulnerable()
 end
@@ -377,7 +377,7 @@ function CanCast(npcTarget)
 	return npcTarget:IsAlive() and
 		--not npcTarget:IsUsingAbility() and
 		not npcTarget:IsCastingAbility() and
-		--not npcTarget:IsChanneling() and
+		not npcTarget:IsChanneling() and
 		not npcTarget:IsSilenced() and
 		not npcTarget:IsDominated() and
 		not npcTarget:IsStunned() and
@@ -647,7 +647,7 @@ end
 end ]]
 
 function PurchaseWardObserver(npcBot)
-	if npcBot:GetGold() < GetItemCost("item_ward_observer") or IsItemSlotsFull() or GetItemStockCount("item_ward_observer") < 1
+	if npcBot:GetGold() < GetItemCost("item_ward_observer") or IsItemSlotsFull() or IsStashSlotsFull() or GetItemStockCount("item_ward_observer") < 1
 	then
 		return;
 	end
@@ -837,7 +837,7 @@ function HaveMagesInEnemyTeam()
 end
 
 function PurchaseInfusedRaindrop(npcBot)
-	if npcBot:GetGold() < GetItemCost("item_infused_raindrop") or IsItemSlotsFull() or GetItemStockCount("item_infused_raindrop") < 1
+	if npcBot:GetGold() < GetItemCost("item_infused_raindrop") or IsItemSlotsFull() or IsStashSlotsFull() or GetItemStockCount("item_infused_raindrop") < 1
 		or npcBot:GetLevel() > 10
 	then
 		return;
@@ -928,7 +928,7 @@ function UpdateInvisEnemyStatus(bot)
 end
 
 function PurchaseDust(npcBot)
-	if npcBot:GetGold() < GetItemCost("item_dust") or IsItemSlotsFull() or DotaTime() < 5 * 60
+	if npcBot:GetGold() < GetItemCost("item_dust") or IsItemSlotsFull() or IsStashSlotsFull() or DotaTime() < 5 * 60
 	then
 		return;
 	end

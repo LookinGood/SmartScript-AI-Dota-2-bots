@@ -38,6 +38,8 @@ local ItemsToBuy =
 	"item_broadsword",
 	"item_recipe_lesser_crit",
 
+	"item_recipe_silver_edge",
+
 	"item_blitz_knuckles",
 	"item_staff_of_wizardry",
 	"item_cornucopia",
@@ -45,8 +47,6 @@ local ItemsToBuy =
 
 	"item_hyperstone",
 	"item_recipe_mjollnir",
-
-	"item_recipe_silver_edge",
 
 	"item_quarterstaff",
 	"item_sobi_mask",

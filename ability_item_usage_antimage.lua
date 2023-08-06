@@ -128,11 +128,11 @@ function ConsiderBlink()
         end
     end
 
-    -- If going somewhere
+--[[     -- If going somewhere
     if not utility.IsHero(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) > (attackRange * 2)
     then
         return BOT_ACTION_DESIRE_VERYLOW, botTarget:GetLocation();
-    end
+    end ]]
 end
 
 function ConsiderSpellShield()

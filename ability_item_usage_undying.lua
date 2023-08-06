@@ -227,21 +227,24 @@ function ConsiderFleshGolem()
 
     local attackRange = npcBot:GetAttackRange();
 
-    -- Attack use
-    if utility.PvPMode(npcBot)
+    if not npcBot:HasModifier("modifier_undying_flesh_golem")
     then
-        if utility.IsHero(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= (attackRange * 2)
+        -- Attack use
+        if utility.PvPMode(npcBot)
         then
-            --npcBot:ActionImmediate_Chat("Использую Flesh Golem для нападения!", true);
-            return BOT_ACTION_DESIRE_HIGH;
-        end
-        -- Retreat use
-    elseif botMode == BOT_MODE_RETREAT
-    then
-        if (HealthPercentage <= 0.6) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
+            if utility.IsHero(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= (attackRange * 4)
+            then
+                --npcBot:ActionImmediate_Chat("Использую Flesh Golem для нападения!", true);
+                return BOT_ACTION_DESIRE_HIGH;
+            end
+            -- Retreat use
+        elseif botMode == BOT_MODE_RETREAT
         then
-            --npcBot:ActionImmediate_Chat("Использую Flesh Golem для отступления!", true);
-            return BOT_ACTION_DESIRE_HIGH;
+            if (HealthPercentage <= 0.6) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
+            then
+                --npcBot:ActionImmediate_Chat("Использую Flesh Golem для отступления!", true);
+                return BOT_ACTION_DESIRE_HIGH;
+            end
         end
     end
 end

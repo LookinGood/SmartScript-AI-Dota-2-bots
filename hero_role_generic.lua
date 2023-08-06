@@ -49,6 +49,8 @@ S["supportHeroes"] = {
     ["npc_dota_hero_leshrac"] = 1,
     ["npc_dota_hero_lina"] = 1,
     ["npc_dota_hero_shadow_shaman"] = 1,
+    ["npc_dota_hero_warlock"] = 1,
+    ["npc_dota_hero_ogre_magi"] = 1,
 }
 
 

@@ -103,6 +103,7 @@ function ConsiderArcaneCurse()
     if utility.PvPMode(npcBot)
     then
         if utility.CanCastSpellOnTarget(ability, botTarget) and utility.IsHero(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= (castRangeAbility + 200)
+            and not botTarget:HasModifier("modifier_silencer_curse_of_the_silent")
         then
             --npcBot:ActionImmediate_Chat("Использую ArcaneCurse для нападения!", true);
             return BOT_ACTION_DESIRE_HIGH, utility.GetTargetPosition(botTarget, delayAbility);
@@ -114,7 +115,7 @@ function ConsiderArcaneCurse()
         if (#enemyAbility > 0)
         then
             for _, enemy in pairs(enemyAbility) do
-                if utility.CanCastSpellOnTarget(ability, enemy)
+                if utility.CanCastSpellOnTarget(ability, enemy) and not enemy:HasModifier("modifier_silencer_curse_of_the_silent")
                 then
                     --npcBot:ActionImmediate_Chat("Использую ArcaneCurse для отступления!", true);
                     return BOT_ACTION_DESIRE_HIGH, utility.GetTargetPosition(enemy, delayAbility);
@@ -136,7 +137,7 @@ function ConsiderArcaneCurse()
     elseif botMode == BOT_MODE_LANING and (ManaPercentage >= 0.7)
     then
         local enemy = utility.GetWeakest(enemyAbility);
-        if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)
+        if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7) and not enemy:HasModifier("modifier_silencer_curse_of_the_silent")
         then
             --npcBot:ActionImmediate_Chat("Использую ArcaneCurse по цели на ЛАЙНЕ!", true);
             return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(enemy, delayAbility);
@@ -182,7 +183,7 @@ function ConsiderLastWord()
         for _, enemy in pairs(enemyAbility) do
             if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType())
             then
-                if utility.CanCastSpellOnTarget(ability, enemy)
+                if utility.CanCastSpellOnTarget(ability, enemy) and not enemy:HasModifier("modifier_silencer_last_word")
                 then
                     if not npcBot:HasScepter()
                     then
@@ -204,6 +205,7 @@ function ConsiderLastWord()
         if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= (castRangeAbility + 200)
+                and not botTarget:HasModifier("modifier_silencer_last_word")
             then
                 if not npcBot:HasScepter()
                 then
@@ -222,7 +224,7 @@ function ConsiderLastWord()
         if (#enemyAbility > 0)
         then
             for _, enemy in pairs(enemyAbility) do
-                if utility.CanCastSpellOnTarget(ability, enemy)
+                if utility.CanCastSpellOnTarget(ability, enemy) and not enemy:HasModifier("modifier_silencer_last_word")
                 then
                     if not npcBot:HasScepter()
                     then

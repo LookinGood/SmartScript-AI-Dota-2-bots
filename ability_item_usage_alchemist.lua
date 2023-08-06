@@ -297,7 +297,7 @@ function ConsiderBerserkPotion()
     then
         for _, ally in pairs(allyAbility)
         do
-            if utility.IsHero(ally) and ally:GetHealth() / ally:GetMaxHealth() <= 0.8
+            if utility.IsHero(ally) and not ally:HasModifier("modifier_alchemist_berserk_potion") and ally:GetHealth() / ally:GetMaxHealth() <= 0.8
             then
                 if ally:WasRecentlyDamagedByAnyHero(2.0) or
                     ally:WasRecentlyDamagedByCreep(5.0) or
@@ -320,11 +320,14 @@ function ConsiderBerserkPotion()
             then
                 for _, ally in pairs(allyAbility)
                 do
-                    if utility.IsHero(ally) and GetUnitToUnitDistance(ally, botTarget) <= ally:GetAttackRange() * 2
-                        or GetUnitToUnitDistance(ally, botTarget) > (ally:GetAttackRange() * 2)
+                    if not ally:HasModifier("modifier_alchemist_berserk_potion")
                     then
-                        --npcBot:ActionImmediate_Chat("Использую BerserkPotion на союзника!", true);
-                        return BOT_MODE_DESIRE_HIGH, ally;
+                        if utility.IsHero(ally) and GetUnitToUnitDistance(ally, botTarget) <= ally:GetAttackRange() * 2
+                            or GetUnitToUnitDistance(ally, botTarget) > (ally:GetAttackRange() * 2)
+                        then
+                            --npcBot:ActionImmediate_Chat("Использую BerserkPotion на союзника!", true);
+                            return BOT_MODE_DESIRE_HIGH, ally;
+                        end
                     end
                 end
             end
@@ -338,22 +341,25 @@ function ConsiderChemicalRage()
         return;
     end
 
-    -- Attack use
-    if utility.PvPMode(npcBot)
+    if not npcBot:HasModifier("modifier_alchemist_chemical_rage")
     then
-        if utility.IsHero(botTarget) and utility.CanCastOnInvulnerableTarget(botTarget)
-            and GetUnitToUnitDistance(npcBot, botTarget) <= npcBot:GetAttackRange() * 4
+        -- Attack use
+        if utility.PvPMode(npcBot)
         then
-            --npcBot:ActionImmediate_Chat("Использую ChemicalRage для нападения!", true);
-            return BOT_ACTION_DESIRE_HIGH;
-        end
-        -- Retreat use
-    elseif botMode == BOT_MODE_RETREAT
-    then
-        if (HealthPercentage <= 0.7) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
+            if utility.IsHero(botTarget) and utility.CanCastOnInvulnerableTarget(botTarget)
+                and GetUnitToUnitDistance(npcBot, botTarget) <= npcBot:GetAttackRange() * 4
+            then
+                --npcBot:ActionImmediate_Chat("Использую ChemicalRage для нападения!", true);
+                return BOT_ACTION_DESIRE_HIGH;
+            end
+            -- Retreat use
+        elseif botMode == BOT_MODE_RETREAT
         then
-            --npcBot:ActionImmediate_Chat("Использую ChemicalRage для отступления!", true);
-            return BOT_ACTION_DESIRE_HIGH;
+            if (HealthPercentage <= 0.7) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
+            then
+                --npcBot:ActionImmediate_Chat("Использую ChemicalRage для отступления!", true);
+                return BOT_ACTION_DESIRE_HIGH;
+            end
         end
     end
 end

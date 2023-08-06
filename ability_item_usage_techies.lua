@@ -31,10 +31,10 @@ local AbilityToLevelUp =
     Abilities[6],
     Abilities[2],
     Abilities[2],
-    Talents[4],
+    Talents[3],
     Abilities[2],
     Abilities[6],
-    Talents[5],
+    Talents[6],
     Talents[8],
 }
 
@@ -177,25 +177,28 @@ function ConsiderReactiveTazer()
 
     local radiusAbility = ability:GetSpecialValueInt("stun_radius");
 
-    -- Attack use
-    if utility.PvPMode(npcBot)
+    if not npcBot:HasModifier("modifier_techies_reactive_tazer")
     then
-        local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
-        if (#enemyAbility > 0)
+        -- Attack use
+        if utility.PvPMode(npcBot)
         then
-            for _, enemy in pairs(enemyAbility) do
-                if utility.CanCastOnMagicImmuneTarget(enemy)
-                then
-                    --npcBot:ActionImmediate_Chat("Использую Reactive Tazer для нападения!", true);
-                    return BOT_ACTION_DESIRE_HIGH;
+            local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
+            if (#enemyAbility > 0)
+            then
+                for _, enemy in pairs(enemyAbility) do
+                    if utility.CanCastOnMagicImmuneTarget(enemy)
+                    then
+                        --npcBot:ActionImmediate_Chat("Использую Reactive Tazer для нападения!", true);
+                        return BOT_ACTION_DESIRE_HIGH;
+                    end
                 end
             end
+            -- Retreat use
+        elseif botMode == BOT_MODE_RETREAT and (HealthPercentage <= 0.8) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
+        then
+            --npcBot:ActionImmediate_Chat("Использую Reactive Tazer для отступления!", true);
+            return BOT_ACTION_DESIRE_HIGH;
         end
-        -- Retreat use
-    elseif botMode == BOT_MODE_RETREAT and (HealthPercentage <= 0.8) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
-    then
-        --npcBot:ActionImmediate_Chat("Использую Reactive Tazer для отступления!", true);
-        return BOT_ACTION_DESIRE_HIGH;
     end
 end
 

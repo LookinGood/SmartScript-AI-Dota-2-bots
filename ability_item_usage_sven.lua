@@ -198,14 +198,17 @@ function ConsiderGodsStrength()
         return;
     end
 
-    -- Attack use
-    if utility.PvPMode(npcBot) and not npcBot:IsDisarmed()
+    if not npcBot:HasModifier("modifier_sven_gods_strength")
     then
-        if utility.IsHero(botTarget) and utility.CanCastOnInvulnerableTarget(botTarget)
-            and GetUnitToUnitDistance(npcBot, botTarget) <= npcBot:GetAttackRange() * 4
+        -- Attack use
+        if utility.PvPMode(npcBot) and not npcBot:IsDisarmed()
         then
-            --npcBot:ActionImmediate_Chat("Использую GodsStrength для нападения!", true);
-            return BOT_ACTION_DESIRE_HIGH;
+            if utility.IsHero(botTarget) and utility.CanCastOnInvulnerableTarget(botTarget)
+                and GetUnitToUnitDistance(npcBot, botTarget) <= npcBot:GetAttackRange() * 4
+            then
+                --npcBot:ActionImmediate_Chat("Использую GodsStrength для нападения!", true);
+                return BOT_ACTION_DESIRE_HIGH;
+            end
         end
     end
 end

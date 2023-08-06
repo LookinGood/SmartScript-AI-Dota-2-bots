@@ -208,7 +208,7 @@ function ConsiderDisseminate()
     if utility.PvPMode(npcBot)
     then
         if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget) and
-            GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility + 200
+            GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility + 200 and not botTarget:HasModifier("modifier_shadow_demon_disseminate")
         then
             -- npcBot:ActionImmediate_Chat("Использую Disseminate по вражескому герою!", true);
             return BOT_ACTION_DESIRE_HIGH, botTarget;
@@ -220,7 +220,7 @@ function ConsiderDisseminate()
     then
         for _, ally in pairs(allyAbility)
         do
-            if utility.IsHero(ally) and ally:WasRecentlyDamagedByAnyHero(2.0)
+            if utility.IsHero(ally) and ally:WasRecentlyDamagedByAnyHero(2.0) and not ally:HasModifier("modifier_shadow_demon_disseminate")
             then
                 local enemyAbility = ally:GetNearbyHeroes(damageRadiusAbility, true, BOT_MODE_NONE);
                 if (#enemyAbility > 0)

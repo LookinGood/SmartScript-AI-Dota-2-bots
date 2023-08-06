@@ -208,7 +208,7 @@ function SellExtraItem()
 			SellSpecifiedItem("item_falcon_blade")
 			SellSpecifiedItem("item_soul_ring")
 		end
-		if (DotaTime() > 40 * 60)
+		if (DotaTime() > 50 * 60)
 		then
 			SellSpecifiedItem("item_hand_of_midas")
 			SellSpecifiedItem("item_pavise")

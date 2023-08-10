@@ -8,6 +8,8 @@ local ItemsToBuy =
     "item_branches",
     "item_branches",
     "item_faerie_fire",
+    "item_wind_lace",
+
     "item_flask",
 
     "item_recipe_magic_wand",
@@ -18,11 +20,23 @@ local ItemsToBuy =
 
     "item_boots",
     "item_ring_of_regen",
-    "item_wind_lace",
 
-    "item_ogre_axe",
-    "item_mithril_hammer",
-    "item_recipe_black_king_bar",
+    "item_sobi_mask",
+    "item_recipe_ring_of_basilius",
+
+    "item_ring_of_protection",
+    "item_recipe_buckler",
+
+    "item_wind_lace",
+    "item_belt_of_strength",
+    "item_robe",
+    "item_recipe_ancient_janggo",
+
+    "item_lifesteal",
+    "item_blades_of_attack",
+    "item_recipe_vladmir",
+
+    "item_recipe_boots_of_bearing",
 
     "item_belt_of_strength",
     "item_ogre_axe",
@@ -35,15 +49,11 @@ local ItemsToBuy =
     "item_diadem",
     "item_recipe_helm_of_the_dominator",
 
-    "item_ring_of_protection",
-    "item_recipe_buckler",
+    "item_aghanims_shard",
 
-    "item_sobi_mask",
-    "item_recipe_ring_of_basilius",
-
-    "item_lifesteal",
-    "item_blades_of_attack",
-    "item_recipe_vladmir",
+    "item_ogre_axe",
+    "item_mithril_hammer",
+    "item_recipe_black_king_bar",
 
     "item_recipe_helm_of_the_overlord",
 
@@ -51,13 +61,6 @@ local ItemsToBuy =
     "item_ogre_axe",
     "item_staff_of_wizardry",
     "item_blade_of_alacrity",
-
-    "item_wind_lace",
-    "item_belt_of_strength",
-    "item_robe",
-    "item_recipe_ancient_janggo",
-
-    "item_recipe_boots_of_bearing",
 
     "item_ring_of_protection",
     "item_recipe_buckler",
@@ -68,8 +71,6 @@ local ItemsToBuy =
 
     "item_hyperstone",
     "item_hyperstone",
-
-    "item_aghanims_shard",
 }
 
 function ItemPurchaseThink()

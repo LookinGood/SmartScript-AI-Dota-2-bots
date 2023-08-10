@@ -61,7 +61,7 @@ function AbilityUsageThink()
     ManaPercentage = npcBot:GetMana() / npcBot:GetMaxMana();
 
     local castStickyBombDesire, castStickyBombLocation = ConsiderStickyBomb();
-    local castReactiveTazerDesire = ConsiderReactiveTazer();
+    local castReactiveTazerDesire, castReactiveTazerTarget, castReactiveTazerTargetType = ConsiderReactiveTazer();
     local castBlastOffDesire, castBlastOffLocation = ConsiderBlastOff();
     local castMinefieldSignDesire, castMinefieldSignLocation = ConsiderMinefieldSign();
     local castProximityMinesDesire, castProximityMinesLocation = ConsiderProximityMines();
@@ -74,8 +74,15 @@ function AbilityUsageThink()
 
     if (castReactiveTazerDesire ~= nil)
     then
-        npcBot:Action_UseAbility(ReactiveTazer);
-        return;
+        if (castReactiveTazerTargetType == nil)
+        then
+            npcBot:Action_UseAbility(ReactiveTazer);
+            return;
+        elseif (castReactiveTazerTargetType == "target")
+        then
+            npcBot:Action_UseAbilityOnEntity(ReactiveTazer, castReactiveTazerTarget);
+            return;
+        end
     end
 
     if (castBlastOffDesire ~= nil)
@@ -175,29 +182,54 @@ function ConsiderReactiveTazer()
         return;
     end
 
+    local castRangeAbility = ability:GetCastRange();
     local radiusAbility = ability:GetSpecialValueInt("stun_radius");
 
-    if not npcBot:HasModifier("modifier_techies_reactive_tazer")
+    if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_NO_TARGET)
     then
-        -- Attack use
-        if utility.PvPMode(npcBot)
+        if not npcBot:HasModifier("modifier_techies_reactive_tazer")
         then
-            local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
-            if (#enemyAbility > 0)
+            -- Attack use
+            if utility.PvPMode(npcBot)
             then
-                for _, enemy in pairs(enemyAbility) do
-                    if utility.CanCastOnMagicImmuneTarget(enemy)
+                local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
+                if (#enemyAbility > 0)
+                then
+                    for _, enemy in pairs(enemyAbility) do
+                        if utility.CanCastOnMagicImmuneTarget(enemy)
+                        then
+                            --npcBot:ActionImmediate_Chat("Использую Reactive Tazer для нападения!", true);
+                            return BOT_ACTION_DESIRE_HIGH, nil, nil;
+                        end
+                    end
+                end
+                -- Retreat use
+            elseif botMode == BOT_MODE_RETREAT and (HealthPercentage <= 0.8) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
+            then
+                --npcBot:ActionImmediate_Chat("Использую Reactive Tazer для отступления!", true);
+                return BOT_ACTION_DESIRE_HIGH, nil, nil;
+            end
+        end
+    elseif utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_UNIT_TARGET)
+    then
+        local allyAbility = npcBot:GetNearbyHeroes(castRangeAbility, false, BOT_MODE_NONE);
+        if (#allyAbility > 0)
+        then
+            for _, ally in pairs(allyAbility)
+            do
+                if utility.IsHero(ally) and not ally:HasModifier("modifier_techies_reactive_tazer") and ally:GetHealth() / ally:GetMaxHealth() <= 0.8
+                then
+                    local enemyAbility = ally:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
+                    if ally:WasRecentlyDamagedByAnyHero(2.0) or
+                        ally:WasRecentlyDamagedByCreep(5.0) or
+                        ally:WasRecentlyDamagedByTower(2.0) or
+                        (#enemyAbility > 0)
                     then
-                        --npcBot:ActionImmediate_Chat("Использую Reactive Tazer для нападения!", true);
-                        return BOT_ACTION_DESIRE_HIGH;
+                        --npcBot:ActionImmediate_Chat("Использую Reactive Tazer на союзника!", true);
+                        return BOT_MODE_DESIRE_HIGH, ally, "target";
                     end
                 end
             end
-            -- Retreat use
-        elseif botMode == BOT_MODE_RETREAT and (HealthPercentage <= 0.8) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
-        then
-            --npcBot:ActionImmediate_Chat("Использую Reactive Tazer для отступления!", true);
-            return BOT_ACTION_DESIRE_HIGH;
         end
     end
 end

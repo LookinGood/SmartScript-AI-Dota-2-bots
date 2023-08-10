@@ -46,7 +46,8 @@ local ItemsToBuy =
 
     "item_recipe_boots_of_bearing",
 
-    "item_vitality_booster",
+    "item_crown",
+	"item_crown",
     "item_recipe_spirit_vessel",
 
     "item_point_booster",

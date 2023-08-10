@@ -22,18 +22,18 @@ local AbilityToLevelUp =
     Abilities[3],
     Abilities[1],
     Abilities[1],
-    Abilities[6],
+    Abilities[7],
     Abilities[1],
     Abilities[2],
     Abilities[2],
     Talents[2],
     Abilities[2],
-    Abilities[6],
+    Abilities[7],
     Abilities[3],
     Abilities[3],
     Talents[4],
     Abilities[3],
-    Abilities[6],
+    Abilities[7],
     Talents[5],
     Talents[8],
 }
@@ -53,6 +53,15 @@ function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
         return;
     end
+
+--[[     print(npcBot:GetAbilityInSlot(0):GetName())
+    print(npcBot:GetAbilityInSlot(1):GetName())
+    print(npcBot:GetAbilityInSlot(2):GetName())
+    print(npcBot:GetAbilityInSlot(3):GetName())
+    print(npcBot:GetAbilityInSlot(4):GetName())
+    print(npcBot:GetAbilityInSlot(5):GetName())
+    print(npcBot:GetAbilityInSlot(6):GetName())
+    print(npcBot:GetAbilityInSlot(7):GetName()) ]]
 
     botMode = npcBot:GetActiveMode();
     botTarget = npcBot:GetTarget();

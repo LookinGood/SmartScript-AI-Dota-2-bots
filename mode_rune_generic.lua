@@ -24,7 +24,7 @@ function GetDesire()
 
     if GetGameState() == GAME_STATE_PRE_GAME
     then
-        return BOT_MODE_DESIRE_ABSOLUTE;
+        return BOT_MODE_DESIRE_VERYHIGH;
     end
 
     for _, rune in pairs(runeList)

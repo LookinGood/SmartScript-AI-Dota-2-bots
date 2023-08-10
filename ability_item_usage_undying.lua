@@ -60,7 +60,7 @@ function AbilityUsageThink()
 
     local castDecayDesire, castDecayLocation = ConsiderDecay();
     local castSoulRipDesire, castSoulRipTarget = ConsiderSoulRip();
-    local castTombstoneDesire, castTombstoneLocation = ConsiderTombstone();
+    local castTombstoneDesire, castTombstoneTarget, castTombstoneTargetType = ConsiderTombstone();
     local castFleshGolemDesire = ConsiderFleshGolem();
 
     if (castDecayDesire ~= nil)
@@ -77,8 +77,15 @@ function AbilityUsageThink()
 
     if (castTombstoneDesire ~= nil)
     then
-        npcBot:Action_UseAbilityOnLocation(Tombstone, castTombstoneLocation + RandomVector(200));
-        return;
+        if (castTombstoneTargetType == "location")
+        then
+            npcBot:Action_UseAbilityOnLocation(Tombstone, castTombstoneTarget + RandomVector(200));
+            return;
+        elseif (castTombstoneTargetType == "target")
+        then
+            npcBot:Action_UseAbilityOnEntity(Tombstone, castTombstoneTarget);
+            return;
+        end
     end
 
     if (castFleshGolemDesire ~= nil)
@@ -194,25 +201,47 @@ function ConsiderTombstone()
     local castRangeAbility = ability:GetCastRange();
     local radiusAbility = ability:GetSpecialValueInt("radius");
 
-    -- Cast if attack enemy
-    if utility.PvPMode(npcBot)
+    if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_POINT)
     then
-        if utility.IsHero(botTarget) and utility.CanCastOnInvulnerableTarget(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+        -- Cast if attack enemy
+        if utility.PvPMode(npcBot)
         then
-            -- npcBot:ActionImmediate_Chat("Использую Tombstone для нападения!", true);
-            return BOT_ACTION_DESIRE_HIGH, botTarget:GetLocation();
+            if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+            then
+                -- npcBot:ActionImmediate_Chat("Использую Tombstone для нападения!", true);
+                return BOT_ACTION_DESIRE_HIGH, botTarget:GetLocation(), "location";
+            end
+            -- Use if need retreat
+        elseif botMode == BOT_MODE_RETREAT
+        then
+            local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
+            if (#enemyAbility > 0) and (HealthPercentage <= 0.6)
+            then
+                for _, enemy in pairs(enemyAbility) do
+                    if utility.CanCastSpellOnTarget(ability, enemy)
+                    then
+                        --npcBot:ActionImmediate_Chat("Использую Tombstone что бы оторваться от врага!", true);
+                        return BOT_ACTION_DESIRE_HIGH, npcBot:GetLocation(), "location";
+                    end
+                end
+            end
         end
-        -- Use if need retreat
-    elseif botMode == BOT_MODE_RETREAT
+    end
+
+    if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_UNIT_TARGET)
     then
-        local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
-        if (#enemyAbility > 0) and (HealthPercentage <= 0.6)
+        -- General use on allied heroes
+        if (#allyAbility > 0)
         then
-            for _, enemy in pairs(enemyAbility) do
-                if utility.CanCastOnInvulnerableTarget(enemy)
+            for _, ally in pairs(allyAbility)
+            do
+                if utility.IsHero(ally) and not ally:IsChanneling()
                 then
-                    --npcBot:ActionImmediate_Chat("Использую Tombstone что бы оторваться от врага!", true);
-                    return BOT_ACTION_DESIRE_HIGH, npcBot:GetLocation();
+                    if utility.IsDisabled(ally) and (ally:GetHealth() / ally:GetMaxHealth() <= 0.5) and ally:WasRecentlyDamagedByAnyHero(2.0)
+                    then
+                        --npcBot:ActionImmediate_Chat("Использую Tombstone на союзника в стане!", true);
+                        return BOT_ACTION_DESIRE_HIGH, ally, "target";
+                    end
                 end
             end
         end

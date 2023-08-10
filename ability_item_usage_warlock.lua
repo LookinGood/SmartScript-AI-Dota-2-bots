@@ -117,7 +117,7 @@ function ConsiderFatalBonds()
     elseif utility.PvEMode(npcBot)
     then
         local enemyCreeps = npcBot:GetNearbyCreeps(castRangeAbility, true);
-        if (#enemyCreeps > 0)
+        if (#enemyCreeps > 0) and (ManaPercentage >= 0.7)
         then
             for _, enemy in pairs(enemyCreeps) do
                 local enemyCreepsAoe = enemy:GetNearbyCreeps(radiusAbility, false);

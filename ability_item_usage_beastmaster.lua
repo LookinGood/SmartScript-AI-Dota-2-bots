@@ -63,7 +63,7 @@ function AbilityUsageThink()
 
     local castWildAxesDesire, castWildAxesLocation = ConsiderWildAxes();
     local castSummonBoarDesire = ConsiderSummonBoar();
-    local castSummonHawkDesire, castSummonHawkLocation = ConsiderSummonHawk();
+    local castSummonHawkDesire = ConsiderSummonHawk();
     local castDrumsOfSlomDesire = ConsiderDrumsOfSlom();
     local castPrimalRoarDesire, castPrimalRoarTarget = ConsiderPrimalRoar();
 
@@ -81,7 +81,7 @@ function AbilityUsageThink()
 
     if (castSummonHawkDesire ~= nil)
     then
-        npcBot:Action_UseAbilityOnLocation(SummonHawk, castSummonHawkLocation + RandomVector(100));
+        npcBot:Action_UseAbility(SummonHawk);
         return;
     end
 
@@ -199,55 +199,34 @@ function ConsiderSummonHawk()
         return;
     end
 
-    local castRangeAbility = ability:GetCastRange();
+    local radiusAbility = ability:GetSpecialValueInt("radius");
+    local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
 
-    -- Use for exploration
-    if not utility.PvPMode(npcBot) and botMode ~= BOT_MODE_RETREAT
+    -- Cast if can interrupt cast
+    if (#enemyAbility > 0)
     then
-        local neutralCreeps = npcBot:GetNearbyNeutralCreeps(castRangeAbility);
-        if (#neutralCreeps > 0) and (ManaPercentage >= 0.5)
-        then
-            for _, enemy in pairs(neutralCreeps) do
-                if utility.IsValidTarget(enemy)
+        for _, enemy in pairs(enemyAbility) do
+            if enemy:IsChanneling()
+            then
+                if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    --npcBot:ActionImmediate_Chat("Использую Summon Hawk для разведки!", true);
-                    return BOT_ACTION_DESIRE_VERYLOW, enemy:GetLocation();
+                    return BOT_ACTION_DESIRE_VERYHIGH;
                 end
             end
         end
     end
 
-    if ability:GetBehavior() == ABILITY_BEHAVIOR_AUTOCAST
+    -- General use
+    if utility.PvPMode(npcBot) or botMode == BOT_MODE_RETREAT
     then
-        if not ability:GetAutoCastState()
+        if (#enemyAbility > 0)
         then
-            ability:ToggleAutoCast();
-        end
-    end
-
-    if ability:GetAutoCastState()
-    then
-        if utility.PvPMode(npcBot)
-        then
-            if utility.CanCastOnMagicImmuneAndInvulnerableTarget(botTarget)
-            then
-                npcBot:ActionImmediate_Chat("Использую Summon Hawk по врагу в радиусе действия!",
-                    true);
-                return BOT_ACTION_DESIRE_HIGH, botTarget:GetLocation();
-            end
-            -- Use if need retreat
-        elseif botMode == BOT_MODE_RETREAT
-        then
-            local enemyAbility = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
-            if (#enemyAbility > 0)
-            then
-                for _, enemy in pairs(enemyAbility) do
-                    if (utility.CanCastOnMagicImmuneAndInvulnerableTarget(enemy))
-                    then
-                        npcBot:ActionImmediate_Chat("Использую Summon Hawk что бы оторваться от врага!",
-                            true);
-                        return BOT_ACTION_DESIRE_HIGH, enemy:GetLocation();
-                    end
+            for _, enemy in pairs(enemyAbility)
+            do
+                if utility.CanCastSpellOnTarget(ability, enemy) and not utility.IsDisabled(enemy)
+                then
+                    --npcBot:ActionImmediate_Chat("Использую SummonHawk против врага в радиусе действия!", true);
+                    return BOT_ACTION_DESIRE_HIGH;
                 end
             end
         end
@@ -330,3 +309,65 @@ function ConsiderPrimalRoar()
         end
     end
 end
+
+--[[ OLD VERSION
+function ConsiderSummonHawk()
+    local ability = SummonHawk;
+    if not utility.IsAbilityAvailable(ability) then
+        return;
+    end
+
+    local castRangeAbility = ability:GetCastRange();
+
+    -- Use for exploration
+    if not utility.PvPMode(npcBot) and botMode ~= BOT_MODE_RETREAT
+    then
+        local neutralCreeps = npcBot:GetNearbyNeutralCreeps(castRangeAbility);
+        if (#neutralCreeps > 0) and (ManaPercentage >= 0.5)
+        then
+            for _, enemy in pairs(neutralCreeps) do
+                if utility.IsValidTarget(enemy)
+                then
+                    --npcBot:ActionImmediate_Chat("Использую Summon Hawk для разведки!", true);
+                    return BOT_ACTION_DESIRE_VERYLOW, enemy:GetLocation();
+                end
+            end
+        end
+    end
+
+    if ability:GetBehavior() == ABILITY_BEHAVIOR_AUTOCAST
+    then
+        if not ability:GetAutoCastState()
+        then
+            ability:ToggleAutoCast();
+        end
+    end
+
+    if ability:GetAutoCastState()
+    then
+        if utility.PvPMode(npcBot)
+        then
+            if utility.CanCastOnMagicImmuneAndInvulnerableTarget(botTarget)
+            then
+                npcBot:ActionImmediate_Chat("Использую Summon Hawk по врагу в радиусе действия!",
+                    true);
+                return BOT_ACTION_DESIRE_HIGH, botTarget:GetLocation();
+            end
+            -- Use if need retreat
+        elseif botMode == BOT_MODE_RETREAT
+        then
+            local enemyAbility = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
+            if (#enemyAbility > 0)
+            then
+                for _, enemy in pairs(enemyAbility) do
+                    if (utility.CanCastOnMagicImmuneAndInvulnerableTarget(enemy))
+                    then
+                        npcBot:ActionImmediate_Chat("Использую Summon Hawk что бы оторваться от врага!",
+                            true);
+                        return BOT_ACTION_DESIRE_HIGH, enemy:GetLocation();
+                    end
+                end
+            end
+        end
+    end
+end ]]

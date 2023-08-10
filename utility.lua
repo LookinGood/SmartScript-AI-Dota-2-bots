@@ -4,10 +4,9 @@ module("utility", package.seeall)
 require(GetScriptDirectory() .. "/hero_role_generic")
 
 function IsValidTarget(target)
-	return target:CanBeSeen() and
-		target ~= nil and
-		target:IsAlive() and
-		not target:IsInvulnerable()
+	return target ~= nil and
+		target:CanBeSeen() and
+		target:IsAlive()
 end
 
 function GetWeakest(units)
@@ -345,26 +344,62 @@ function CountUnitAroundTarget(target, unitName, bEnemy, radius)
 	if bEnemy == true
 	then
 		local unitList = GetUnitList(UNIT_LIST_ENEMY_CREEPS);
-		for _, creep in pairs(unitList)
-		do
-			if creep:GetUnitName() == unitName
-			then
-				if GetUnitToUnitDistance(creep, target) <= radius
+		if #unitList > 0
+		then
+			for _, creep in pairs(unitList)
+			do
+				if IsValidTarget(creep) and creep:GetUnitName() == unitName
 				then
-					count = count + 1;
+					if GetUnitToUnitDistance(creep, target) <= radius
+					then
+						count = count + 1;
+					end
+				end
+			end
+		end
+
+		local wardList = GetUnitList(UNIT_LIST_ENEMY_WARDS);
+		if #wardList > 0
+		then
+			for _, creep in pairs(wardList)
+			do
+				if IsValidTarget(creep) and creep:GetUnitName() == unitName
+				then
+					if GetUnitToUnitDistance(creep, target) <= radius
+					then
+						count = count + 1;
+					end
 				end
 			end
 		end
 	elseif bEnemy == false
 	then
 		local unitList = GetUnitList(UNIT_LIST_ALLIED_CREEPS);
-		for _, creep in pairs(unitList)
-		do
-			if creep:GetUnitName() == unitName
-			then
-				if GetUnitToUnitDistance(creep, target) <= radius
+		if #unitList > 0
+		then
+			for _, creep in pairs(unitList)
+			do
+				if IsValidTarget(creep) and creep:GetUnitName() == unitName
 				then
-					count = count + 1;
+					if GetUnitToUnitDistance(creep, target) <= radius
+					then
+						count = count + 1;
+					end
+				end
+			end
+		end
+
+		local wardList = GetUnitList(UNIT_LIST_ALLIED_WARDS);
+		if #wardList > 0
+		then
+			for _, creep in pairs(wardList)
+			do
+				if IsValidTarget(creep) and creep:GetUnitName() == unitName
+				then
+					if GetUnitToUnitDistance(creep, target) <= radius
+					then
+						count = count + 1;
+					end
 				end
 			end
 		end
@@ -383,6 +418,10 @@ function CanCast(npcTarget)
 		not npcTarget:IsStunned() and
 		not npcTarget:IsHexed() and
 		not npcTarget:IsNightmared()
+end
+
+function CheckFlag(bitfield, flag)
+	return ((bitfield / flag) % 2) >= 1;
 end
 
 function GetTargetPosition(npcTarget, fdelay)

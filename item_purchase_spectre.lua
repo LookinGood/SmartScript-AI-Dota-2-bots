@@ -48,10 +48,10 @@ local ItemsToBuy =
 	"item_relic",
 
 	"item_point_booster",
-	"item_blade_of_alacrity",
-	"item_staff_of_wizardry",
 	"item_ogre_axe",
-
+	"item_staff_of_wizardry",
+	"item_blade_of_alacrity",
+	
 	"item_demon_edge",
 	"item_recipe_disperser",
 
@@ -61,8 +61,10 @@ local ItemsToBuy =
 	"item_recipe_travel_boots",
 	"item_boots",
 
-	"item_recipe_travel_boots_2",
+	"item_recipe_travel_boots",
 
+	"item_demon_edge",
+	"item_relic",
 }
 
 function ItemPurchaseThink()

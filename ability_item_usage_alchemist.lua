@@ -197,7 +197,7 @@ function ConsiderUnstableConcoctionThrow()
     local castRangeAbility = ability:GetCastRange();
     local damageAbility = ability:GetSpecialValueInt("max_damage");
     local brewTime = ability:GetSpecialValueInt("brew_time");
-    local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility + 200, true, BOT_MODE_NONE);
+    local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
 
     -- Cast if can kill somebody/Interrup cast
     if (#enemyAbility > 0)

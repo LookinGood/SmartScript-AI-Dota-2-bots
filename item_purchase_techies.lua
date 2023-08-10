@@ -25,14 +25,16 @@ local ItemsToBuy =
 	"item_void_stone",
 	"item_recipe_aether_lens",
 
+	"item_void_stone",
+	"item_staff_of_wizardry",
+	"item_recipe_cyclone",
+
 	"item_point_booster",
 	"item_ogre_axe",
 	"item_staff_of_wizardry",
 	"item_blade_of_alacrity",
 
-	"item_void_stone",
-	"item_staff_of_wizardry",
-	"item_recipe_cyclone",
+	"item_aghanims_shard",
 
 	"item_voodoo_mask",
 	"item_point_booster",

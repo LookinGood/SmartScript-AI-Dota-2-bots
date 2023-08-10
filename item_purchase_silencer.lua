@@ -26,8 +26,7 @@ local ItemsToBuy =
 	"item_recipe_force_staff",
 
 	"item_staff_of_wizardry",
-	"item_crown",
-	"item_crown",
+	"item_vitality_booster",
 	"item_recipe_rod_of_atos",
 
 	"item_aghanims_shard",

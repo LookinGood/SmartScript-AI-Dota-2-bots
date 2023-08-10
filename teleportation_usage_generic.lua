@@ -6,6 +6,55 @@ require(GetScriptDirectory() .. "/utility")
 
 --local utility = require(GetScriptDirectory() .. "/utility")
 
+function IsValidTower(target)
+    return target ~= nil and
+        target:CanBeSeen() and
+        target:IsAlive() and
+        not target:IsInvulnerable()
+end
+
+function ClosestSafeBuilding(unit, distance, enemyRadius, enemyCount)
+    local npcBot = GetBot();
+    local allyBuildings = GetUnitList(UNIT_LIST_ALLIED_BUILDINGS);
+    local safeBuilding = nil;
+
+    local enemyHeroes = utility.CountEnemyHeroAroundUnit(unit, enemyRadius);
+    if enemyHeroes <= enemyCount
+    then
+        safeBuilding = unit;
+    else
+        if #allyBuildings > 0
+        then
+            for i = 1, #allyBuildings do
+                if allyBuildings[i] ~= unit and GetUnitToUnitDistance(allyBuildings[i], unit) < GetUnitToUnitDistance(npcBot, unit)
+                    and GetUnitToUnitDistance(npcBot, allyBuildings[i]) > distance
+                then
+                    local enemyHeroes = utility.CountEnemyHeroAroundUnit(allyBuildings[i], enemyRadius);
+                    if enemyHeroes <= enemyCount
+                    then
+                        safeBuilding = allyBuildings[i];
+                    end
+                end
+            end
+        end
+    end
+
+
+    --[[     if #allyBuildings > 0
+    then
+        for _, ally in pairs(allyBuildings) do
+            local enemyHeroes = utility.CountEnemyHeroAroundUnit(ally, enemyRadius);
+            if ally ~= nil and GetUnitToUnitDistance(ally, unit) < GetUnitToUnitDistance(npcBot, unit) and GetUnitToUnitDistance(npcBot, ally) > distance
+                and enemyHeroes <= enemyCount
+            then
+                safeBuilding = ally;
+            end
+        end
+    end ]]
+
+    return safeBuilding;
+end
+
 function ShouldTP()
     local npcBot = GetBot();
     if utility.IsHaveMaxSpeed(npcBot)
@@ -19,7 +68,7 @@ function ShouldTP()
         return false, nil;
     end
 
-    local tpLocation = nil;
+    --local tpLocation = nil;
     local towerLaning = nil;
     local towerDefend = nil;
     local towerPush = nil;
@@ -30,7 +79,7 @@ function ShouldTP()
     local allyHeroes = npcBot:GetNearbyHeroes(1600, false, BOT_MODE_NONE);
     local allyBuildings = GetUnitList(UNIT_LIST_ALLIED_BUILDINGS);
     local tpDistance = 4000;
-    local minTpDistance = 3000;
+    local minTpDistance = 6000;
     local ancient = GetAncient(GetTeam());
     local enemyAncient = GetAncient(GetOpposingTeam());
     local topTower1 = GetTower(GetTeam(), TOWER_TOP_1);
@@ -50,9 +99,8 @@ function ShouldTP()
             if (npcBot:GetHealth() / npcBot:GetMaxHealth() <= 0.6 and npcBot:WasRecentlyDamagedByAnyHero(2.0)) or (npcBot:GetHealth() / npcBot:GetMaxHealth() <= 0.4)
                 or (not utility.CanMove(npcBot) and (#allyHeroes < 2) and (npcBot:GetHealth() / npcBot:GetMaxHealth() <= 0.6))
             then
-                tpLocation = utility.SafeLocation(npcBot);
                 --npcBot:ActionImmediate_Chat("Использую tpscroll для отступления!", true);
-                return true, tpLocation;
+                return true, utility.SafeLocation(npcBot);
             end
         end
     end
@@ -68,37 +116,38 @@ function ShouldTP()
         then
             if assignedLane == LANE_TOP
             then
-                if utility.IsValidTarget(topTower1)
+                if IsValidTower(topTower1)
                 then
                     towerLaning = topTower1;
-                elseif utility.IsValidTarget(topTower2)
+                    --npcBot:SetTarget(topTower1)
+                elseif IsValidTower(topTower2)
                 then
                     towerLaning = topTower2;
-                elseif utility.IsValidTarget(topTower3)
+                elseif IsValidTower(topTower3)
                 then
                     towerLaning = topTower3;
                 end
             elseif assignedLane == LANE_MID
             then
-                if utility.IsValidTarget(midTower1)
+                if IsValidTower(midTower1)
                 then
                     towerLaning = midTower1;
-                elseif utility.IsValidTarget(midTower2)
+                elseif IsValidTower(midTower2)
                 then
                     towerLaning = midTower2;
-                elseif utility.IsValidTarget(midTower3)
+                elseif IsValidTower(midTower3)
                 then
                     towerLaning = midTower3;
                 end
             elseif assignedLane == LANE_BOT
             then
-                if utility.IsValidTarget(botTower1)
+                if IsValidTower(botTower1)
                 then
                     towerLaning = botTower1;
-                elseif utility.IsValidTarget(botTower2)
+                elseif IsValidTower(botTower2)
                 then
                     towerLaning = botTower2;
-                elseif utility.IsValidTarget(botTower3)
+                elseif IsValidTower(botTower3)
                 then
                     towerLaning = botTower3;
                 end
@@ -112,20 +161,11 @@ function ShouldTP()
             local laneFront = GetLaneFrontAmount(botTeam, assignedLane, false);
             if GetUnitToUnitDistance(npcBot, towerLaning) >= tpDistance and (botAmount.distance >= tpDistance or botAmount.amount < laneFront / 5)
             then
-                local enemyHeroes = utility.CountEnemyHeroAroundUnit(towerLaning, 1000);
-                if (enemyHeroes <= 2)
+                local tpTarget = ClosestSafeBuilding(towerLaning, minTpDistance, 1000, 2)
+                if tpTarget ~= nil
                 then
-                    return true, utility.GetEscapeLocation(towerLaning, 800);
-                else
-                    for _, ally in pairs(allyBuildings) do
-                        local enemyHeroes = utility.CountEnemyHeroAroundUnit(ally, 1000);
-                        if GetUnitToUnitDistance(ally, towerLaning) < GetUnitToUnitDistance(npcBot, towerLaning) and
-                            GetUnitToUnitDistance(npcBot, ally) >= minTpDistance and (enemyHeroes <= 2)
-                        then
-                            --npcBot:ActionImmediate_Chat("Использую tpscroll для лайнинга на линии!",true);
-                            return true, utility.GetEscapeLocation(ally, 800);
-                        end
-                    end
+                    --npcBot:ActionImmediate_Chat("Использую tpscroll для лайнинга на линии!", true);
+                    return true, utility.GetEscapeLocation(tpTarget, 800);
                 end
             end
         end
@@ -135,13 +175,13 @@ function ShouldTP()
     then
         if towerDefend == nil
         then
-            if utility.IsValidTarget(topTower1)
+            if IsValidTower(topTower1)
             then
                 towerDefend = topTower1;
-            elseif utility.IsValidTarget(topTower2)
+            elseif IsValidTower(topTower2)
             then
                 towerDefend = topTower2;
-            elseif utility.IsValidTarget(topTower3)
+            elseif IsValidTower(topTower3)
             then
                 towerDefend = topTower3;
             else
@@ -155,20 +195,11 @@ function ShouldTP()
             local laneFront = GetLaneFrontAmount(botTeam, LANE_TOP, false);
             if GetUnitToUnitDistance(npcBot, towerDefend) >= tpDistance and (botAmount.distance >= tpDistance or botAmount.amount < laneFront / 5)
             then
-                local enemyHeroes = utility.CountEnemyHeroAroundUnit(towerDefend, 1000);
-                if (enemyHeroes <= 2)
+                local tpTarget = ClosestSafeBuilding(towerDefend, minTpDistance, 1000, 2)
+                if tpTarget ~= nil
                 then
-                    return true, utility.GetEscapeLocation(towerDefend, 800);
-                else
-                    for _, ally in pairs(allyBuildings) do
-                        local enemyHeroes = utility.CountEnemyHeroAroundUnit(ally, 1000);
-                        if GetUnitToUnitDistance(ally, towerDefend) < GetUnitToUnitDistance(npcBot, towerDefend) and
-                            GetUnitToUnitDistance(npcBot, ally) >= minTpDistance and (enemyHeroes <= 1)
-                        then
-                            --npcBot:ActionImmediate_Chat("Использую tpscroll для дефа топа!", true);
-                            return true, utility.GetEscapeLocation(ally, 800);
-                        end
-                    end
+                    --npcBot:ActionImmediate_Chat("Использую tpscroll для дефа топа!", true);
+                    return true, utility.GetEscapeLocation(tpTarget, 800);
                 end
             end
         end
@@ -176,13 +207,13 @@ function ShouldTP()
     then
         if towerDefend == nil
         then
-            if utility.IsValidTarget(midTower1)
+            if IsValidTower(midTower1)
             then
                 towerDefend = midTower1;
-            elseif utility.IsValidTarget(midTower2)
+            elseif IsValidTower(midTower2)
             then
                 towerDefend = midTower2;
-            elseif utility.IsValidTarget(midTower3)
+            elseif IsValidTower(midTower3)
             then
                 towerDefend = midTower3;
             else
@@ -196,20 +227,11 @@ function ShouldTP()
             local laneFront = GetLaneFrontAmount(botTeam, LANE_MID, false);
             if GetUnitToUnitDistance(npcBot, towerDefend) >= tpDistance and (botAmount.distance >= tpDistance or botAmount.amount < laneFront / 5)
             then
-                local enemyHeroes = utility.CountEnemyHeroAroundUnit(towerDefend, 1000);
-                if (enemyHeroes <= 2)
+                local tpTarget = ClosestSafeBuilding(towerDefend, minTpDistance, 1000, 2)
+                if tpTarget ~= nil
                 then
-                    return true, utility.GetEscapeLocation(towerDefend, 800);
-                else
-                    for _, ally in pairs(allyBuildings) do
-                        local enemyHeroes = utility.CountEnemyHeroAroundUnit(ally, 1000);
-                        if GetUnitToUnitDistance(ally, towerDefend) < GetUnitToUnitDistance(npcBot, towerDefend) and
-                            GetUnitToUnitDistance(npcBot, ally) >= minTpDistance and (enemyHeroes <= 1)
-                        then
-                            --npcBot:ActionImmediate_Chat("Использую tpscroll для дефа мида!", true);
-                            return true, utility.GetEscapeLocation(ally, 800);
-                        end
-                    end
+                    --npcBot:ActionImmediate_Chat("Использую tpscroll для дефа мида!", true);
+                    return true, utility.GetEscapeLocation(tpTarget, 800);
                 end
             end
         end
@@ -217,13 +239,13 @@ function ShouldTP()
     then
         if towerDefend == nil
         then
-            if utility.IsValidTarget(botTower1)
+            if IsValidTower(botTower1)
             then
                 towerDefend = botTower1;
-            elseif utility.IsValidTarget(botTower2)
+            elseif IsValidTower(botTower2)
             then
                 towerDefend = botTower2;
-            elseif utility.IsValidTarget(botTower3)
+            elseif IsValidTower(botTower3)
             then
                 towerDefend = botTower3;
             else
@@ -237,20 +259,11 @@ function ShouldTP()
             local laneFront = GetLaneFrontAmount(botTeam, LANE_BOT, false);
             if GetUnitToUnitDistance(npcBot, towerDefend) >= tpDistance and (botAmount.distance >= tpDistance or botAmount.amount < laneFront / 5)
             then
-                local enemyHeroes = utility.CountEnemyHeroAroundUnit(towerDefend, 1000);
-                if (enemyHeroes <= 2)
+                local tpTarget = ClosestSafeBuilding(towerDefend, minTpDistance, 1000, 2)
+                if tpTarget ~= nil
                 then
-                    return true, utility.GetEscapeLocation(towerDefend, 800);
-                else
-                    for _, ally in pairs(allyBuildings) do
-                        local enemyHeroes = utility.CountEnemyHeroAroundUnit(ally, 1000);
-                        if GetUnitToUnitDistance(ally, towerDefend) < GetUnitToUnitDistance(npcBot, towerDefend) and
-                            GetUnitToUnitDistance(npcBot, ally) >= minTpDistance and (enemyHeroes <= 1)
-                        then
-                            --npcBot:ActionImmediate_Chat("Использую tpscroll для дефа бота!", true);
-                            return true, utility.GetEscapeLocation(ally, 800);
-                        end
-                    end
+                   -- npcBot:ActionImmediate_Chat("Использую tpscroll для дефа бота!", true);
+                    return true, utility.GetEscapeLocation(tpTarget, 800);
                 end
             end
         end
@@ -263,13 +276,13 @@ function ShouldTP()
         local enemytopTower3 = GetTower(GetOpposingTeam(), TOWER_TOP_3);
         if towerPush == nil
         then
-            if utility.IsValidTarget(enemytopTower1)
+            if IsValidTower(enemytopTower1)
             then
                 towerPush = enemytopTower1;
-            elseif utility.IsValidTarget(enemytopTower2)
+            elseif IsValidTower(enemytopTower2)
             then
                 towerPush = enemytopTower2;
-            elseif utility.IsValidTarget(enemytopTower3)
+            elseif IsValidTower(enemytopTower3)
             then
                 towerPush = enemytopTower3;
             else
@@ -305,13 +318,13 @@ function ShouldTP()
         local enemymidTower3 = GetTower(GetOpposingTeam(), TOWER_MID_3);
         if towerPush == nil
         then
-            if utility.IsValidTarget(enemymidTower1)
+            if IsValidTower(enemymidTower1)
             then
                 towerPush = enemymidTower1;
-            elseif utility.IsValidTarget(enemymidTower2)
+            elseif IsValidTower(enemymidTower2)
             then
                 towerPush = enemymidTower2;
-            elseif utility.IsValidTarget(enemymidTower3)
+            elseif IsValidTower(enemymidTower3)
             then
                 towerPush = enemymidTower3;
             else
@@ -347,13 +360,13 @@ function ShouldTP()
         local enemybotTower3 = GetTower(GetOpposingTeam(), TOWER_BOT_3);
         if towerPush == nil
         then
-            if utility.IsValidTarget(enemybotTower1)
+            if IsValidTower(enemybotTower1)
             then
                 towerPush = enemybotTower1;
-            elseif utility.IsValidTarget(enemybotTower2)
+            elseif IsValidTower(enemybotTower2)
             then
                 towerPush = enemybotTower2;
-            elseif utility.IsValidTarget(enemybotTower3)
+            elseif IsValidTower(enemybotTower3)
             then
                 towerPush = enemybotTower3;
             else

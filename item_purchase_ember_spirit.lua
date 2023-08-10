@@ -7,7 +7,7 @@ local ItemsToBuy =
 	"item_magic_stick",
 	"item_branches",
 	"item_branches",
-	"item_faerie_fire",
+	"item_quelling_blade",
 
 	"item_flask",
 
@@ -17,9 +17,14 @@ local ItemsToBuy =
 	"item_slippers",
 	"item_recipe_wraith_band",
 
-	"item_boots",
-	"item_gloves",
-	"item_boots_of_elves",
+    "item_boots",
+    "item_blades_of_attack",
+    "item_chainmail",
+
+	"item_cornucopia",
+	"item_broadsword",
+	"item_claymore",
+	"item_recipe_bfury",
 
 	"item_mithril_hammer",
 	"item_javelin",
@@ -28,21 +33,14 @@ local ItemsToBuy =
 	"item_mithril_hammer",
 	"item_recipe_black_king_bar",
 
-	"item_aghanims_shard",
-
 	"item_blades_of_attack",
 	"item_broadsword",
 	"item_recipe_lesser_crit",
 
+	"item_aghanims_shard",
+
 	"item_demon_edge",
 	"item_recipe_greater_crit",
-
-	"item_blade_of_alacrity",
-	"item_boots_of_elves",
-	"item_recipe_yasha",
-
-	"item_ultimate_orb",
-	"item_recipe_manta",
 
 	"item_hyperstone",
 	"item_recipe_mjollnir",
@@ -67,3 +65,7 @@ local ItemsToBuy =
 function ItemPurchaseThink()
 	purchase.ItemPurchase(ItemsToBuy)
 end
+
+
+--"item_talisman_of_evasion",
+--"item_relic",

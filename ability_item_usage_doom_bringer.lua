@@ -32,7 +32,7 @@ local AbilityToLevelUp =
     Abilities[6],
     Abilities[3],
     Abilities[3],
-    Talents[3],
+    Talents[4],
     Abilities[3],
     Abilities[6],
     Talents[6],
@@ -91,15 +91,8 @@ function AbilityUsageThink()
     local ability4 = npcBot:GetAbilityInSlot(3)
     local ability5 = npcBot:GetAbilityInSlot(4)
 
-    if ability4 ~= nil
-    then
-        spell_usage_generic.CastCustomSpell(ability4)
-    end
-
-    if ability5 ~= nil
-    then
-        spell_usage_generic.CastCustomSpell(ability5)
-    end
+    spell_usage_generic.CastCustomSpell(ability4)
+    spell_usage_generic.CastCustomSpell(ability5)
 end
 
 function ConsiderDevour()
@@ -124,11 +117,22 @@ function ConsiderDevour()
             if (#enemyCreeps > 0)
             then
                 for _, enemy in pairs(enemyCreeps) do
-                    if (utility.CanCastOnMagicImmuneTarget(enemy) and not enemy:IsAncientCreep() and (enemy:GetHealth() / enemy:GetMaxHealth() >= 0.7))
+                    if (utility.CanCastOnMagicImmuneTarget(enemy) and (enemy:GetHealth() / enemy:GetMaxHealth() >= 0.7))
                         and enemy:GetLevel() <= creepMaxLevel
                     then
-                        --npcBot:ActionImmediate_Chat("Использую Devour в атаке!", true);
-                        return BOT_ACTION_DESIRE_HIGH, enemy;
+                        if utility.CheckFlag(ability:GetTargetFlags(), ABILITY_TARGET_FLAG_NOT_ANCIENTS)
+                        then
+                            if not enemy:IsAncientCreep()
+                            then
+                                npcBot:ActionImmediate_Chat("Использую devour на обычного крипа!",
+                                    true);
+                                return BOT_ACTION_DESIRE_HIGH, enemy;
+                            end
+                        else
+                            npcBot:ActionImmediate_Chat("Использую devour на обычного/древнего крипа!",
+                                true);
+                            return BOT_ACTION_DESIRE_HIGH, enemy;
+                        end
                     end
                 end
             end
@@ -137,11 +141,22 @@ function ConsiderDevour()
             if (#enemyCreeps > 0)
             then
                 for _, enemy in pairs(enemyCreeps) do
-                    if (utility.CanCastOnMagicImmuneTarget(enemy) and not enemy:IsAncientCreep() and (enemy:GetHealth() / enemy:GetMaxHealth() >= 0.7))
+                    if (utility.CanCastOnMagicImmuneTarget(enemy) and (enemy:GetHealth() / enemy:GetMaxHealth() >= 0.7))
                         and enemy:GetLevel() <= creepMaxLevel
                     then
-                        --npcBot:ActionImmediate_Chat("Использую Devour!", true);
-                        return BOT_ACTION_DESIRE_HIGH, enemy;
+                        if utility.CheckFlag(ability:GetTargetFlags(), ABILITY_TARGET_FLAG_NOT_ANCIENTS)
+                        then
+                            if not enemy:IsAncientCreep()
+                            then
+                                npcBot:ActionImmediate_Chat("Использую devour на обычного нейтрального крипа!",
+                                    true);
+                                return BOT_ACTION_DESIRE_HIGH, enemy;
+                            end
+                        else
+                            npcBot:ActionImmediate_Chat("Использую devour на обычного/древнего нейтрального крипа!",
+                                true);
+                            return BOT_ACTION_DESIRE_HIGH, enemy;
+                        end
                     end
                 end
             end

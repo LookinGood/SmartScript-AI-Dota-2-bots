@@ -263,8 +263,7 @@ function ConsiderWarStomp()
             then
                 if (utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and not utility.TargetCantDie(enemy)) or enemy:IsChanneling()
                 then
-                    npcBot:ActionImmediate_Chat("Использую WarStomp что бы убить цель или сбить каст!",
-                        true);
+                    --npcBot:ActionImmediate_Chat("Использую WarStomp что бы убить цель или сбить каст!", true);
                     return BOT_ACTION_DESIRE_VERYHIGH;
                 end
             end
@@ -280,7 +279,7 @@ function ConsiderWarStomp()
             do
                 if utility.CanCastSpellOnTarget(ability, enemy) and not utility.IsDisabled(enemy)
                 then
-                    npcBot:ActionImmediate_Chat("Использую WarStomp по цели!", true);
+                    --npcBot:ActionImmediate_Chat("Использую WarStomp по цели!", true);
                     return BOT_ACTION_DESIRE_HIGH;
                 end
             end
@@ -303,18 +302,16 @@ function ConsiderOgreSmash()
         for _, enemy in pairs(enemyAbility) do
             if enemy:CanBeSeen() and enemy:IsChanneling()
             then
-                npcBot:ActionImmediate_Chat("Использую OgreSmash что бы сбить заклинание!",
-                    true);
+                --npcBot:ActionImmediate_Chat("Использую OgreSmash что бы сбить заклинание!",true);
                 return BOT_ACTION_DESIRE_VERYHIGH, enemy:GetLocation();
             end
         end
     end
 
     -- Cast if attack enemy
-    if utility.CanCastSpellOnTarget(ability, botTarget) and utility.IsHero(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+    if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
     then
-        npcBot:ActionImmediate_Chat("Использую OgreSmash по врагу в радиусе действия!",
-            true);
+        --npcBot:ActionImmediate_Chat("Использую OgreSmash по врагу в радиусе действия!",true);
         return BOT_ACTION_DESIRE_HIGH, botTarget:GetLocation();
     end
 end
@@ -337,7 +334,7 @@ function ConsiderIntimidate()
             do
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    npcBot:ActionImmediate_Chat("Использую Intimidate по цели!", true);
+                    --npcBot:ActionImmediate_Chat("Использую Intimidate по цели!", true);
                     return BOT_ACTION_DESIRE_HIGH;
                 end
             end
@@ -362,8 +359,7 @@ function ConsiderHaunt()
             then
                 if enemy:IsChanneling()
                 then
-                    npcBot:ActionImmediate_Chat("Использую Haunt что бы сбить заклинание цели!",
-                        true);
+                    npcBot:ActionImmediate_Chat("Использую Haunt что бы сбить заклинание цели!",true);
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy;
                 end
             end
@@ -484,7 +480,7 @@ function ConsiderEnsnare()
     -- Cast if attack enemy
     if utility.PvPMode(npcBot)
     then
-        if utility.IsValidTarget(botTarget) and utility.IsHero(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+        if utility.IsHero(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
             and not utility.IsDisabled(botTarget)
         then
             npcBot:ActionImmediate_Chat("Использую Ensnare по врагу в радиусе действия!",
@@ -519,7 +515,7 @@ function ConsiderRaiseDead()
     -- General use
     if utility.PvPMode(npcBot) or utility.PvEMode(npcBot) or botMode == BOT_MODE_RETREAT
     then
-        npcBot:ActionImmediate_Chat("Использую RaiseDead!", true);
+        --npcBot:ActionImmediate_Chat("Использую RaiseDead!", true);
         return BOT_ACTION_DESIRE_HIGH;
     end
 end
@@ -540,10 +536,9 @@ function ConsiderSeedShot()
         for _, enemy in pairs(enemyAbility) do
             if utility.CanCastOnMagicImmuneTarget(enemy)
             then
-                if (utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and not utility.TargetCantDie(enemy))
+                if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType())
                 then
-                    npcBot:ActionImmediate_Chat("Использую SeedShot что бы убить цель!",
-                        true);
+                    --npcBot:ActionImmediate_Chat("Использую SeedShot что бы убить цель!", true);
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy;
                 end
             end
@@ -556,8 +551,7 @@ function ConsiderSeedShot()
         if utility.IsHero(botTarget) and utility.CanCastOnMagicImmuneTarget(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
             and not utility.IsDisabled(botTarget)
         then
-            npcBot:ActionImmediate_Chat("Использую SeedShot по врагу в радиусе действия!",
-                true);
+            --npcBot:ActionImmediate_Chat("Использую SeedShot по врагу в радиусе действия!", true);
             return BOT_ACTION_DESIRE_HIGH, botTarget;
         end
     end
@@ -571,7 +565,7 @@ function ConsiderSeedShot()
             do
                 if utility.CanCastOnMagicImmuneTarget(enemy) and not utility.IsDisabled(enemy)
                 then
-                    npcBot:ActionImmediate_Chat("Использую SeedShot для отхода!", true);
+                    --npcBot:ActionImmediate_Chat("Использую SeedShot для отхода!", true);
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy;
                 end
             end
@@ -594,8 +588,7 @@ function ConsiderHurlBoulder()
         for _, enemy in pairs(enemyAbility) do
             if utility.IsValidTarget(enemy) and enemy:IsChanneling()
             then
-                npcBot:ActionImmediate_Chat("Использую HurlBoulder что бы сбить заклинание!",
-                    true);
+                --npcBot:ActionImmediate_Chat("Использую HurlBoulder что бы сбить заклинание!", true);
                 return BOT_ACTION_DESIRE_VERYHIGH, enemy;
             end
         end
@@ -604,11 +597,10 @@ function ConsiderHurlBoulder()
     -- Cast if attack enemy
     if utility.PvPMode(npcBot)
     then
-        if utility.IsValidTarget(botTarget) and utility.IsHero(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+        if utility.IsHero(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
             and not utility.IsDisabled(botTarget)
         then
-            npcBot:ActionImmediate_Chat("Использую HurlBoulder по врагу в радиусе действия!",
-                true);
+            --npcBot:ActionImmediate_Chat("Использую HurlBoulder по врагу в радиусе действия!", true);
             return BOT_ACTION_DESIRE_HIGH, botTarget;
         end
     end
@@ -622,7 +614,7 @@ function ConsiderHurlBoulder()
             do
                 if utility.IsValidTarget(enemy) and not utility.IsDisabled(enemy)
                 then
-                    npcBot:ActionImmediate_Chat("Использую HurlBoulder для отхода!", true);
+                    --npcBot:ActionImmediate_Chat("Использую HurlBoulder для отхода!", true);
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy;
                 end
             end
@@ -643,7 +635,7 @@ function ConsiderIncendiaryBomb()
     then
         if utility.IsHero(botTarget) or utility.IsBuilding(botTarget)
         then
-            if utility.IsValidTarget(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+            if GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
             then
                 npcBot:ActionImmediate_Chat("Использую IncendiaryBomb по врагу в радиусе действия!",
                     true);
@@ -689,7 +681,7 @@ function ConsiderHurricane()
             do
                 if utility.IsValidTarget(enemy) and not utility.IsDisabled(enemy)
                 then
-                    npcBot:ActionImmediate_Chat("Использую Hurricane для отхода!", true);
+                    --npcBot:ActionImmediate_Chat("Использую Hurricane для отхода!", true);
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy;
                 end
             end
@@ -750,7 +742,7 @@ function ConsiderManaBurn()
         do
             if utility.CanCastOnMagicImmuneTarget(enemy) and enemy:GetMana() >= ability:GetSpecialValueInt("burn_amount")
             then
-                npcBot:ActionImmediate_Chat("Использую ManaBurn!", true);
+                --npcBot:ActionImmediate_Chat("Использую ManaBurn!", true);
                 return BOT_ACTION_DESIRE_VERYHIGH, enemy;
             end
         end
@@ -773,10 +765,9 @@ function ConsiderShockwave()
         for _, enemy in pairs(enemyAbility) do
             if utility.CanCastOnMagicImmuneTarget(enemy)
             then
-                if (utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and not utility.TargetCantDie(enemy))
+                if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType())
                 then
-                    npcBot:ActionImmediate_Chat("Использую Shockwave что бы убить цель!",
-                        true);
+                    --npcBot:ActionImmediate_Chat("Использую Shockwave что бы убить цель!",true);
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy:GetLocation();
                 end
             end
@@ -788,8 +779,7 @@ function ConsiderShockwave()
     then
         if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
         then
-            npcBot:ActionImmediate_Chat("Использую Shockwave по врагу в радиусе действия!",
-                true);
+            --npcBot:ActionImmediate_Chat("Использую Shockwave по врагу в радиусе действия!",true);
             return BOT_ACTION_DESIRE_HIGH, botTarget:GetLocation();
         end
     end
@@ -814,7 +804,7 @@ function ConsiderHeal()
         for _, ally in pairs(allyAbility) do
             if ally:GetHealth() / ally:GetMaxHealth() <= 0.8
             then
-                npcBot:ActionImmediate_Chat("Использую Heal!", true);
+                --npcBot:ActionImmediate_Chat("Использую Heal!", true);
                 return BOT_ACTION_DESIRE_VERYHIGH, ally;
             end
         end
@@ -868,7 +858,7 @@ function ConsiderChainLightning()
         for _, enemy in pairs(enemyAbility) do
             if utility.CanCastSpellOnTarget(ability, enemy)
             then
-                if (utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and not utility.TargetCantDie(enemy))
+                if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType())
                 then
                     npcBot:ActionImmediate_Chat("Использую ChainLightning что бы убить цель!",
                         true);

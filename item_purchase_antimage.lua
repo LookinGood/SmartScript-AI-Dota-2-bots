@@ -21,11 +21,11 @@ local ItemsToBuy =
 	"item_gloves",
 	"item_boots_of_elves",
 
-	"item_gloves",
-	"item_recipe_hand_of_midas",
-
 	"item_ring_of_health",
 	"item_vitality_booster",
+
+	"item_gloves",
+	"item_recipe_hand_of_midas",
 
 	"item_cornucopia",
 	"item_broadsword",
@@ -62,6 +62,9 @@ local ItemsToBuy =
 	"item_boots",
 
 	"item_recipe_travel_boots",
+
+	"item_demon_edge",
+	"item_relic",
 }
 
 function ItemPurchaseThink()

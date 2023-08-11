@@ -36,14 +36,14 @@ local ItemsToBuy =
     "item_blades_of_attack",
     "item_recipe_vladmir",
 
-    "item_recipe_boots_of_bearing",
-
     "item_belt_of_strength",
     "item_ogre_axe",
     "item_recipe_sange",
 
     "item_talisman_of_evasion",
     "item_recipe_heavens_halberd",
+
+    "item_recipe_boots_of_bearing",
 
     "item_helm_of_iron_will",
     "item_diadem",

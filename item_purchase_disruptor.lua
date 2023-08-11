@@ -45,16 +45,16 @@ local ItemsToBuy =
 	"item_recipe_aeon_disk",
 
 	"item_point_booster",
-	"item_ogre_axe",
-	"item_staff_of_wizardry",
-	"item_blade_of_alacrity",
-
-	"item_point_booster",
     "item_energy_booster",
     "item_vitality_booster",
 	"item_void_stone",
 	"item_void_stone",
 	"item_recipe_octarine_core",
+
+	"item_point_booster",
+	"item_ogre_axe",
+	"item_staff_of_wizardry",
+	"item_blade_of_alacrity",
 }
 
 function ItemPurchaseThink()

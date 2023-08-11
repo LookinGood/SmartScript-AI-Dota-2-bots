@@ -490,21 +490,6 @@ function CanCastOnMagicImmuneAndInvulnerableTarget(npcTarget)
 	return CanCastOnMagicImmuneTarget(npcTarget) and CanCastOnInvulnerableTarget(npcTarget);
 end
 
---[[ function CanCastSpellOnTarget(npcTarget, damageType)
-	if damageType == DAMAGE_TYPE_MAGICAL
-	then
-		return CanCastOnMagicImmuneTarget(npcTarget);
-	elseif damageType == DAMAGE_TYPE_PHYSICAL
-	then
-		return CanCastOnInvulnerableTarget(npcTarget);
-	elseif damageType == DAMAGE_TYPE_PURE
-	then
-		return IsValidTarget(npcTarget) and not npcTarget:HasModifier("modifier_black_king_bar_immune");
-	else
-		return IsValidTarget(npcTarget);
-	end
-end ]]
-
 function CanCastSpellOnTarget(spell, npcTarget)
 	local damageType = spell:GetDamageType();
 
@@ -536,23 +521,6 @@ function CanCastSpellOnTarget(spell, npcTarget)
 	return false;
 end
 
---[[ function CanCastSpellOnTarget(spell, npcTarget)
-	local damageType = spell:GetDamageType();
-
-	if damageType == DAMAGE_TYPE_MAGICAL
-	then
-		return CanCastOnMagicImmuneTarget(npcTarget);
-	elseif damageType == DAMAGE_TYPE_PHYSICAL
-	then
-		return CanCastOnInvulnerableTarget(npcTarget);
-	elseif damageType == DAMAGE_TYPE_PURE
-	then
-		return IsValidTarget(npcTarget) and not npcTarget:HasModifier("modifier_black_king_bar_immune");
-	else
-		return IsValidTarget(npcTarget);
-	end
-end ]]
-
 function SafeCast(npcTarget)
 	return IsValidTarget(npcTarget)
 		and (not npcTarget:HasModifier("modifier_antimage_counterspell")
@@ -561,26 +529,6 @@ function SafeCast(npcTarget)
 			and not npcTarget:HasModifier("modifier_item_blade_mail_reflect")
 			and not npcTarget:HasModifier("modifier_nyx_assassin_spiked_carapace"));
 end
-
---[[ function SafeCast(npcTarget, bfullSafe)
-	if IsValidTarget(npcTarget) and
-		(npcTarget:HasModifier("modifier_antimage_counterspell")
-			or npcTarget:HasModifier("modifier_item_sphere_target")
-			or npcTarget:HasModifier("modifier_item_lotus_orb_active")
-			or npcTarget:HasModifier("modifier_nyx_assassin_spiked_carapace"))
-	then
-		return false;
-	elseif bfullSafe == true
-	then
-		if IsValidTarget(npcTarget) and npcTarget:HasModifier("modifier_abaddon_borrowed_time")
-		then
-			return false;
-		end
-		return true;
-	else
-		return true;
-	end
-end ]]
 
 function PvPMode(npcBot)
 	local botMode = npcBot:GetActiveMode();
@@ -603,6 +551,12 @@ function PvEMode(npcBot)
 		botMode == BOT_MODE_SECRET_SHOP or
 		botMode == BOT_MODE_SIDE_SHOP or
 		botMode == BOT_MODE_ROSHAN);
+end
+
+function RetreatMode(npcBot)
+	local botMode = npcBot:GetActiveMode();
+	return (botMode == BOT_MODE_RETREAT or
+		botMode == BOT_MODE_EVASIVE_MANEUVERS);
 end
 
 -- Looks for an item in the inventory, and if wanted in backpack or stash.

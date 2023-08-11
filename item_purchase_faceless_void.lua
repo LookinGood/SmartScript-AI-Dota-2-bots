@@ -5,6 +5,7 @@ local ItemsToBuy =
 {
 	"item_tango",
 	"item_magic_stick",
+	"item_quelling_blade",
 	"item_branches",
 	"item_branches",
 
@@ -16,41 +17,43 @@ local ItemsToBuy =
 	"item_slippers",
 	"item_recipe_wraith_band",
 
-	"item_boots",
-	"item_gloves",
-	"item_boots_of_elves",
+    "item_boots",
+    "item_blades_of_attack",
+    "item_chainmail",
 
-	"item_blade_of_alacrity",
-	"item_belt_of_strength",
-	"item_recipe_dragon_lance",
+	"item_lifesteal",
+	"item_quarterstaff",
+
+	"item_cornucopia",
+	"item_broadsword",
+	"item_claymore",
+	"item_recipe_bfury",
 
 	"item_ogre_axe",
 	"item_mithril_hammer",
 	"item_recipe_black_king_bar",
 
+	"item_sobi_mask",
+	"item_robe",
+	"item_quarterstaff",
+	"item_ogre_axe",
+
+	"item_blades_of_attack",
+	"item_broadsword",
+	"item_recipe_lesser_crit",
+
+	"item_demon_edge",
+	"item_recipe_greater_crit",
+
 	"item_blade_of_alacrity",
 	"item_boots_of_elves",
 	"item_recipe_yasha",
 
-	"item_aghanims_shard",
-
 	"item_ultimate_orb",
 	"item_recipe_manta",
 
-	"item_point_booster",
-	"item_ogre_axe",
-	"item_staff_of_wizardry",
-	"item_blade_of_alacrity",
-	
-	"item_quarterstaff",
-	"item_talisman_of_evasion",
-	"item_eagle",
-
-	"item_fluffy_hat",
-	"item_staff_of_wizardry",
-	"item_recipe_force_staff",
-
-	"item_recipe_hurricane_pike",
+	"item_diadem",
+	"item_recipe_harpoon",
 
 	"item_hyperstone",
 	"item_hyperstone",
@@ -62,6 +65,8 @@ local ItemsToBuy =
 
 	"item_demon_edge",
 	"item_relic",
+
+	"item_aghanims_shard",
 }
 
 function ItemPurchaseThink()

@@ -16,38 +16,42 @@ local ItemsToBuy =
 	"item_slippers",
 	"item_recipe_wraith_band",
 
-	"item_boots",
-	"item_gloves",
+    "item_boots",
+    "item_blades_of_attack",
+    "item_chainmail",
+
+	"item_javelin",
+	"item_mithril_hammer",
+
+	"item_ring_of_health",
+	"item_vitality_booster",
+
+	"item_aghanims_shard",
+
+	"item_blade_of_alacrity",
 	"item_boots_of_elves",
+	"item_recipe_yasha",
+
+	"item_ultimate_orb",
+	"item_recipe_manta",
 
 	"item_point_booster",
 	"item_ogre_axe",
 	"item_staff_of_wizardry",
 	"item_blade_of_alacrity",
 
-	"item_blade_of_alacrity",
-	"item_boots_of_elves",
-	"item_recipe_yasha",
-
-	"item_aghanims_shard",
-
-	"item_ultimate_orb",
-	"item_recipe_manta",
-
-	"item_ogre_axe",
 	"item_mithril_hammer",
-	"item_recipe_black_king_bar",
+	"item_belt_of_strength",
+	"item_recipe_basher",
 
-	"item_broadsword",
-	"item_blades_of_attack",
-	"item_recipe_lesser_crit",
+	"item_recipe_abyssal_blade",
 
-	"item_demon_edge",
-	"item_recipe_greater_crit",
+	"item_quarterstaff",
+	"item_talisman_of_evasion",
+	"item_eagle",
 
-	"item_point_booster",
-	"item_ultimate_orb",
-	"item_ultimate_orb",
+	"item_hyperstone",
+	"item_recipe_mjollnir",
 
 	"item_hyperstone",
 	"item_hyperstone",

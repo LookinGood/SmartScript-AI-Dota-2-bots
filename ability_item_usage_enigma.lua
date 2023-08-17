@@ -44,7 +44,7 @@ end
 
 -- Abilities
 local Malefice = AbilitiesReal[1]
-local DemonicConversion = AbilitiesReal[2]
+local DemonicSummoning = AbilitiesReal[2]
 local MidnightPulse = AbilitiesReal[3]
 local BlackHole = AbilitiesReal[6]
 
@@ -59,7 +59,7 @@ function AbilityUsageThink()
     ManaPercentage = npcBot:GetMana() / npcBot:GetMaxMana();
 
     local castMaleficeDesire, castMaleficeTarget = ConsiderMalefice();
-    local castDemonicConversionDesire, castDemonicConversionTarget = ConsiderDemonicConversion();
+    local castDemonicSummoningDesire, castDemonicSummoningLocation = ConsiderDemonicSummoning();
     local castMidnightPulseDesire, castMidnightPulseLocation = ConsiderMidnightPulse();
     local castBlackHoleDesire, castBlackHoleLocation = ConsiderBlackHole();
 
@@ -69,9 +69,9 @@ function AbilityUsageThink()
         return;
     end
 
-    if (castDemonicConversionDesire ~= nil)
+    if (castDemonicSummoningDesire ~= nil)
     then
-        npcBot:Action_UseAbilityOnEntity(DemonicConversion, castDemonicConversionTarget);
+        npcBot:Action_UseAbilityOnLocation(DemonicSummoning, castDemonicSummoningLocation);
         return;
     end
 
@@ -83,7 +83,9 @@ function AbilityUsageThink()
 
     if (castBlackHoleDesire ~= nil)
     then
-        npcBot:Action_UseAbilityOnLocation(BlackHole, castBlackHoleLocation);
+        npcBot:Action_ClearActions(false);
+        npcBot:ActionQueue_UseAbilityOnLocation(BlackHole, castBlackHoleLocation);
+        npcBot:ActionQueue_Delay(5.0);
         return;
     end
 end
@@ -125,8 +127,8 @@ function ConsiderMalefice()
                 return BOT_MODE_DESIRE_HIGH, botTarget;
             end
         end
-        -- Retreat or help ally use
-    elseif botMode == BOT_MODE_RETREAT or botMode == BOT_MODE_DEFEND_ALLY
+        -- Retreat use
+    elseif utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -150,37 +152,88 @@ function ConsiderMalefice()
     end
 end
 
-function ConsiderDemonicConversion()
-    local ability = DemonicConversion;
+function ConsiderDemonicSummoning()
+    local ability = DemonicSummoning;
     if not utility.IsAbilityAvailable(ability) then
         return;
     end
 
     local castRangeAbility = ability:GetCastRange();
-    local enemyCreeps = npcBot:GetNearbyCreeps(castRangeAbility, true);
-    local allyCreeps = npcBot:GetNearbyCreeps(castRangeAbility, false);
-    local creepMaxLevel = ability:GetSpecialValueInt("creep_max_level");
+    local minionAttackRange = ability:GetSpecialValueInt("eidolon_attack_range");
 
-    -- General use
-    if botMode ~= BOT_MODE_LANING and (ManaPercentage > 0.5)
+    -- Attack use
+    if utility.PvPMode(npcBot) or npcBot:GetActiveMode() == BOT_MODE_ROSHAN
     then
-        if (#enemyCreeps > 0)
+        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
         then
-            for _, enemy in pairs(enemyCreeps) do
-                if (utility.CanCastOnMagicImmuneTarget(enemy) and not enemy:IsAncientCreep() and not enemy:HasModifier("modifier_creep_bonus_xp")
-                        and (enemy:GetHealth() / enemy:GetMaxHealth() >= 0.8)) and (enemy:GetLevel() <= creepMaxLevel and (enemy:GetLevel() > 1))
+            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= (castRangeAbility + minionAttackRange)
+            then
+                return BOT_MODE_DESIRE_MODERATE, utility.GetMaxRangeCastLocation(npcBot, botTarget, castRangeAbility);
+            end
+        end
+        -- Retreat use
+    elseif utility.RetreatMode(npcBot)
+    then
+        local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
+        if (#enemyAbility > 0)
+        then
+            for _, enemy in pairs(enemyAbility) do
+                if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    return BOT_ACTION_DESIRE_HIGH, enemy;
+                    return BOT_MODE_DESIRE_MODERATE, enemy:GetLocation();
                 end
             end
         end
-        if (#allyCreeps > 0)
+        --  Pushing/defending/Farm
+    elseif utility.PvEMode(npcBot)
+    then
+        local enemyCreeps = npcBot:GetNearbyCreeps(castRangeAbility, true);
+        local enemyTower = npcBot:GetNearbyTowers(castRangeAbility, true);
+        local frendlyTower = npcBot:GetNearbyTowers(castRangeAbility, false);
+        local enemyBarracks = npcBot:GetNearbyBarracks(castRangeAbility, true);
+        local frendlyBarracks = npcBot:GetNearbyBarracks(castRangeAbility, false);
+        if (#enemyCreeps > 0)
         then
-            for _, ally in pairs(allyCreeps) do
-                if (utility.CanCastOnMagicImmuneTarget(ally) and not ally:IsAncientCreep() and not ally:HasModifier("modifier_creep_bonus_xp")
-                        and (ally:GetHealth() / ally:GetMaxHealth() <= 0.2)) and ally:GetLevel() <= creepMaxLevel
+            for _, enemy in pairs(enemyCreeps) do
+                if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    return BOT_ACTION_DESIRE_HIGH, ally;
+                    return BOT_MODE_DESIRE_VERYLOW, enemy:GetLocation() + RandomVector(minionAttackRange);
+                end
+            end
+        end
+        if (#enemyTower > 0)
+        then
+            for _, enemy in pairs(enemyTower) do
+                if utility.CanCastSpellOnTarget(ability, enemy)
+                then
+                    return BOT_MODE_DESIRE_LOW, enemy:GetLocation() + RandomVector(minionAttackRange);
+                end
+            end
+            if (#frendlyTower > 0)
+            then
+                for _, ally in pairs(frendlyTower) do
+                    if utility.CanCastSpellOnTarget(ability, ally)
+                    then
+                        return BOT_MODE_DESIRE_LOW, ally:GetLocation() + RandomVector(minionAttackRange);
+                    end
+                end
+            end
+            if (#enemyBarracks > 0)
+            then
+                for _, enemy in pairs(enemyBarracks) do
+                    if utility.CanCastSpellOnTarget(ability, enemy)
+                    then
+                        return BOT_MODE_DESIRE_LOW, enemy:GetLocation() + RandomVector(minionAttackRange);
+                    end
+                end
+            end
+            if (#frendlyBarracks > 0)
+            then
+                for _, ally in pairs(frendlyBarracks) do
+                    if utility.CanCastSpellOnTarget(ability, ally)
+                    then
+                        return BOT_MODE_DESIRE_LOW, ally:GetLocation() + RandomVector(minionAttackRange);
+                    end
                 end
             end
         end
@@ -269,3 +322,42 @@ function ConsiderBlackHole()
         end
     end
 end
+
+-- OLD ABILITIES
+
+--[[ function ConsiderDemonicConversion()
+    local ability = DemonicConversion;
+    if not utility.IsAbilityAvailable(ability) then
+        return;
+    end
+
+    local castRangeAbility = ability:GetCastRange();
+    local enemyCreeps = npcBot:GetNearbyCreeps(castRangeAbility, true);
+    local allyCreeps = npcBot:GetNearbyCreeps(castRangeAbility, false);
+    local creepMaxLevel = ability:GetSpecialValueInt("creep_max_level");
+
+    -- General use
+    if botMode ~= BOT_MODE_LANING and (ManaPercentage > 0.5)
+    then
+        if (#enemyCreeps > 0)
+        then
+            for _, enemy in pairs(enemyCreeps) do
+                if (utility.CanCastOnMagicImmuneTarget(enemy) and not enemy:IsAncientCreep() and not enemy:HasModifier("modifier_creep_bonus_xp")
+                        and (enemy:GetHealth() / enemy:GetMaxHealth() >= 0.8)) and (enemy:GetLevel() <= creepMaxLevel and (enemy:GetLevel() > 1))
+                then
+                    return BOT_ACTION_DESIRE_HIGH, enemy;
+                end
+            end
+        end
+        if (#allyCreeps > 0)
+        then
+            for _, ally in pairs(allyCreeps) do
+                if (utility.CanCastOnMagicImmuneTarget(ally) and not ally:IsAncientCreep() and not ally:HasModifier("modifier_creep_bonus_xp")
+                        and (ally:GetHealth() / ally:GetMaxHealth() <= 0.2)) and ally:GetLevel() <= creepMaxLevel
+                then
+                    return BOT_ACTION_DESIRE_HIGH, ally;
+                end
+            end
+        end
+    end
+end ]]

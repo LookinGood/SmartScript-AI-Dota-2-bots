@@ -29,6 +29,7 @@ C["carryHeroes"] = {
     ["npc_dota_hero_dragon_knight"] = 1,
     ["npc_dota_hero_ember_spirit"] = 1,
     ["npc_dota_hero_faceless_void"] = 1,
+    ["npc_dota_hero_juggernaut"] = 1,
 }
 
 local S = {}
@@ -56,6 +57,7 @@ S["supportHeroes"] = {
     ["npc_dota_hero_lich"] = 1,
     ["npc_dota_hero_abyssal_underlord"] = 1,
     ["npc_dota_hero_necrolyte"] = 1,
+    ["npc_dota_hero_crystal_maiden"] = 1,
 }
 
 function IsHeroCarry(npcBot)

@@ -317,6 +317,7 @@ function ItemUsageThink()
 				if utility.IsHero(ally) and not ally:IsInvisible()
 				then
 					if (ally:GetHealth() / ally:GetMaxHealth() <= 0.8 and ally:WasRecentlyDamagedByAnyHero(2.0)) or ally:IsChanneling()
+					or ally:HasModifier("modifier_crystal_maiden_freezing_field")
 					then
 						if shadowAmulet ~= nil and not ally:HasModifier("modifier_item_shadow_amulet_fade")
 						then
@@ -1205,31 +1206,34 @@ function ItemUsageThink()
 	local blackKingBar = IsItemAvailable("item_black_king_bar");
 	if blackKingBar ~= nil and blackKingBar:IsFullyCastable()
 	then
-		if utility.PvPMode(npcBot)
+		if utility.CanCastOnMagicImmuneTarget(npcBot)
 		then
-			if utility.IsHero(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= (attackRange * 2)
+			if utility.PvPMode(npcBot)
 			then
-				npcBot:Action_UseAbility(blackKingBar);
-				--npcBot:ActionImmediate_Chat("Использую предмет black King Bar для нападения!",true);
-				--return;
-			end
-		elseif botMode == BOT_MODE_RETREAT
-		then
-			if (npcBot:GetHealth() / npcBot:GetMaxHealth() <= 0.8) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
-			then
-				npcBot:Action_UseAbility(blackKingBar);
-				--npcBot:ActionImmediate_Chat("Использую предмет black King Bar для отступления!",true);
-				--return;
-			end
-		end
-		if (#incomingSpells > 0)
-		then
-			for _, eSpell in pairs(incomingSpells)
-			do
-				if GetUnitToLocationDistance(npcBot, eSpell.location) <= 500 and eSpell.is_attack == false
+				if utility.IsHero(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= (attackRange * 2)
 				then
 					npcBot:Action_UseAbility(blackKingBar);
-					--npcBot:ActionImmediate_Chat("Использую предмет black King Bar для блока заклинания!",true);
+					--npcBot:ActionImmediate_Chat("Использую предмет black King Bar для нападения!",true);
+					--return;
+				end
+			elseif botMode == BOT_MODE_RETREAT
+			then
+				if (npcBot:GetHealth() / npcBot:GetMaxHealth() <= 0.8) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
+				then
+					npcBot:Action_UseAbility(blackKingBar);
+					--npcBot:ActionImmediate_Chat("Использую предмет black King Bar для отступления!",true);
+					--return;
+				end
+			end
+			if (#incomingSpells > 0)
+			then
+				for _, eSpell in pairs(incomingSpells)
+				do
+					if GetUnitToLocationDistance(npcBot, eSpell.location) <= 500 and eSpell.is_attack == false
+					then
+						npcBot:Action_UseAbility(blackKingBar);
+						--npcBot:ActionImmediate_Chat("Использую предмет black King Bar для блока заклинания!",true);
+					end
 				end
 			end
 		end

@@ -213,6 +213,7 @@ function SellExtraItem()
 			SellSpecifiedItem("item_hand_of_midas")
 			SellSpecifiedItem("item_pavise")
 			SellSpecifiedItem("item_mask_of_madness")
+			SellSpecifiedItem("item_veil_of_discord")
 		end
 	end
 	if utility.HaveTravelBoots(npcBot)
@@ -223,7 +224,7 @@ function SellExtraItem()
 		SellSpecifiedItem("item_phase_boots")
 		SellSpecifiedItem("item_tranquil_boots")
 		SellSpecifiedItem("item_boots_of_bearing")
-		SellSpecifiedItem("item_guardian_greaves")
+		SellSpecifiedItem("item_guardian_greaves") 
 	end
 end
 

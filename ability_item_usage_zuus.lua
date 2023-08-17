@@ -64,7 +64,7 @@ function AbilityUsageThink()
     local castLightningBoltDesire, castLightningBoltLocation = ConsiderLightningBolt();
     local castHeavenlyJumpDesire = ConsiderHeavenlyJump();
     local castNimbusDesire, castNimbusLocation = ConsiderNimbus();
-    ConsiderLightningHands();
+    local castLightningHandsDesire = ConsiderLightningHands();
     local castThundergodWrathDesire = ConsiderThundergodWrath();
 
     if (castArcLightningDesire ~= nil)
@@ -88,6 +88,12 @@ function AbilityUsageThink()
     if (castNimbusDesire ~= nil)
     then
         npcBot:Action_UseAbilityOnLocation(Nimbus, castNimbusLocation);
+        return;
+    end
+
+    if (castLightningHandsDesire ~= nil)
+    then
+        npcBot:Action_UseAbility(LightningHands);
         return;
     end
 
@@ -327,10 +333,15 @@ function ConsiderLightningHands()
         return;
     end
 
-    if not ability:GetAutoCastState()
+    if ability:GetToggleState() == false
+    then
+        return BOT_ACTION_DESIRE_HIGH;
+    end
+
+  --[[   if not ability:GetAutoCastState()
     then
         ability:ToggleAutoCast();
-    end
+    end ]]
 end
 
 function ConsiderThundergodWrath()

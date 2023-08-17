@@ -7,6 +7,7 @@ local ItemsToBuy =
 	"item_magic_stick",
 	"item_branches",
 	"item_branches",
+	"item_wind_lace",
 
 	"item_flask",
 	"item_clarity",
@@ -19,8 +20,6 @@ local ItemsToBuy =
 
 	"item_boots",
 	"item_energy_booster",
-
-	"item_wind_lace",
 
 	"item_cloak",
 	"item_shadow_amulet",
@@ -47,10 +46,13 @@ local ItemsToBuy =
 	"item_staff_of_wizardry",
 	"item_blade_of_alacrity",
 
+	"item_mystic_staff",
+	"item_recipe_wind_waker",
+
 	"item_recipe_travel_boots",
 	"item_boots",
 
-	"item_recipe_travel_boots_2",
+	"item_recipe_travel_boots",
 }
 
 function ItemPurchaseThink()

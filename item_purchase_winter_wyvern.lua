@@ -35,7 +35,7 @@ local ItemsToBuy =
 
 	"item_aghanims_shard",
 
-	"item_crown",
+	"item_fluffy_hat",
 	"item_crown",
 	"item_recipe_spirit_vessel",
 

@@ -208,7 +208,7 @@ function ConsiderNaturesAttendants()
     local radiusAbility = ability:GetSpecialValueInt("radius");
     local allyAbility = npcBot:GetNearbyHeroes(radiusAbility, false, BOT_MODE_NONE);
 
-    -- Use to buff damaged ally
+    -- Use to heal damaged ally
     if (#allyAbility > 0)
     then
         for _, ally in pairs(allyAbility)

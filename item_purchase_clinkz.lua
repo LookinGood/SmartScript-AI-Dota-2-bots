@@ -8,6 +8,7 @@ local ItemsToBuy =
 	"item_branches",
 	"item_branches",
 	"item_faerie_fire",
+	"item_blight_stone",
 
 	"item_flask",
 
@@ -26,7 +27,6 @@ local ItemsToBuy =
 	"item_gloves",
 	"item_boots_of_elves",
 
-	"item_blight_stone",
 	"item_mithril_hammer",
 	"item_mithril_hammer",
 
@@ -69,6 +69,9 @@ local ItemsToBuy =
 	"item_boots",
 
 	"item_recipe_travel_boots",
+
+	"item_demon_edge",
+	"item_relic",
 }
 
 function ItemPurchaseThink()

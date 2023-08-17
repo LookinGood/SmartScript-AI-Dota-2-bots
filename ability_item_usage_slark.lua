@@ -94,9 +94,15 @@ function ConsiderDarkPact()
         return;
     end
 
-    local radiusAbility = ability:GetSpecialValueInt("radius");
     local selfDamageAbility = ability:GetSpecialValueInt("total_damage") * ability:GetSpecialValueInt("self_damage_pct") /
-    100;
+        100;
+
+    if utility.CanAbilityKillTarget(npcBot, selfDamageAbility, ability:GetDamageType())
+    then
+        return;
+    end
+
+    local radiusAbility = ability:GetSpecialValueInt("radius");
 
     -- Attack use
     if not utility.CanAbilityKillTarget(npcBot, selfDamageAbility, ability:GetDamageType())
@@ -109,7 +115,7 @@ function ConsiderDarkPact()
                 return BOT_ACTION_DESIRE_HIGH;
             end
             -- Retreat use
-        elseif botMode == BOT_MODE_RETREAT
+        elseif utility.RetreatMode(npcBot)
         then
             if (HealthPercentage <= 0.8) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
             then
@@ -153,7 +159,7 @@ function ConsiderPounce()
             return BOT_ACTION_DESIRE_HIGH;
         end
         -- Retreat use
-    elseif botMode == BOT_MODE_RETREAT
+    elseif utility.RetreatMode(npcBot)
     then
         if (HealthPercentage <= 0.8) and npcBot:WasRecentlyDamagedByAnyHero(2.0) and npcBot:IsFacingLocation(utility.SafeLocation(npcBot), 40)
         then
@@ -209,7 +215,7 @@ function ConsiderShadowDance()
                 return BOT_ACTION_DESIRE_HIGH;
             end
             -- Retreat use
-        elseif botMode == BOT_MODE_RETREAT
+        elseif utility.RetreatMode(npcBot)
         then
             if (HealthPercentage <= 0.7) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
             then

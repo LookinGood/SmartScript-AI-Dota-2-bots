@@ -168,15 +168,20 @@ function ConsiderPlagueWard()
     end
 
     local castRangeAbility = ability:GetCastRange();
+    local minionAttackRange = 600;
 
-    -- General use
-    if utility.PvPMode(npcBot)
+    -- Attack use
+    if utility.PvPMode(npcBot) or npcBot:GetActiveMode() == BOT_MODE_ROSHAN
     then
-        if utility.CanCastSpellOnTarget(ability, botTarget)
+        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
         then
-            return BOT_MODE_DESIRE_MODERATE, botTarget:GetLocation();
+            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= (castRangeAbility + minionAttackRange)
+            then
+                return BOT_MODE_DESIRE_MODERATE, utility.GetMaxRangeCastLocation(npcBot, botTarget, castRangeAbility);
+            end
         end
-    elseif botMode == BOT_MODE_RETREAT or botMode == BOT_MODE_DEFEND_ALLY
+        -- Retreat use
+    elseif utility.RetreatMode(npcBot)
     then
         local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
         if (#enemyAbility > 0)
@@ -201,7 +206,7 @@ function ConsiderPlagueWard()
             for _, enemy in pairs(enemyCreeps) do
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    return BOT_MODE_DESIRE_VERYLOW, enemy:GetLocation() + RandomVector(100);
+                    return BOT_MODE_DESIRE_VERYLOW, enemy:GetLocation() + RandomVector(minionAttackRange);
                 end
             end
         end
@@ -210,7 +215,7 @@ function ConsiderPlagueWard()
             for _, enemy in pairs(enemyTower) do
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    return BOT_MODE_DESIRE_LOW, enemy:GetLocation() + RandomVector(100);
+                    return BOT_MODE_DESIRE_LOW, enemy:GetLocation() + RandomVector(minionAttackRange);
                 end
             end
             if (#frendlyTower > 0)
@@ -218,7 +223,7 @@ function ConsiderPlagueWard()
                 for _, ally in pairs(frendlyTower) do
                     if utility.CanCastSpellOnTarget(ability, ally)
                     then
-                        return BOT_MODE_DESIRE_LOW, ally:GetLocation() + RandomVector(100);
+                        return BOT_MODE_DESIRE_LOW, ally:GetLocation() + RandomVector(minionAttackRange);
                     end
                 end
             end
@@ -227,7 +232,7 @@ function ConsiderPlagueWard()
                 for _, enemy in pairs(enemyBarracks) do
                     if utility.CanCastSpellOnTarget(ability, enemy)
                     then
-                        return BOT_MODE_DESIRE_LOW, enemy:GetLocation() + RandomVector(100);
+                        return BOT_MODE_DESIRE_LOW, enemy:GetLocation() + RandomVector(minionAttackRange);
                     end
                 end
             end
@@ -236,7 +241,7 @@ function ConsiderPlagueWard()
                 for _, ally in pairs(frendlyBarracks) do
                     if utility.CanCastSpellOnTarget(ability, ally)
                     then
-                        return BOT_MODE_DESIRE_LOW, ally:GetLocation() + RandomVector(100);
+                        return BOT_MODE_DESIRE_LOW, ally:GetLocation() + RandomVector(minionAttackRange);
                     end
                 end
             end
@@ -255,20 +260,20 @@ function ConsiderLatentToxicity()
     -- Attack use
     if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
     then
-        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
+        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget) and not botTarget:HasModifier("modifier_venomancer_latent_poison")
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
             then
                 return BOT_MODE_DESIRE_HIGH, botTarget;
             end
         end
-        -- Retreat or help ally use
-    elseif botMode == BOT_MODE_RETREAT or botMode == BOT_MODE_DEFEND_ALLY
+        -- Retreat use
+    elseif utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
             for _, enemy in pairs(enemyAbility) do
-                if utility.CanCastSpellOnTarget(ability, enemy)
+                if utility.CanCastSpellOnTarget(ability, enemy) and not enemy:HasModifier("modifier_venomancer_latent_poison")
                 then
                     --npcBot:ActionImmediate_Chat("Использую LatentToxicity что бы оторваться от врага",true);
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy;
@@ -296,8 +301,8 @@ function ConsiderNoxiousPlague()
                 return BOT_MODE_DESIRE_HIGH, botTarget;
             end
         end
-        -- Retreat or help ally use
-    elseif botMode == BOT_MODE_RETREAT or botMode == BOT_MODE_DEFEND_ALLY
+        -- Retreat use
+    elseif  utility.RetreatMode(npcBot)
     then
         local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
         if (#enemyAbility > 0) and (HealthPercentage <= 0.7)

@@ -117,8 +117,8 @@ function ConsiderMagicMissile()
                 return BOT_MODE_DESIRE_HIGH, botTarget;
             end
         end
-        -- Retreat or help ally use
-    elseif botMode == BOT_MODE_RETREAT or botMode == BOT_MODE_DEFEND_ALLY
+        -- Retreat use
+    elseif utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then

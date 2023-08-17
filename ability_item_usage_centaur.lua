@@ -31,7 +31,7 @@ local AbilityToLevelUp =
     Abilities[6],
     Abilities[3],
     Abilities[3],
-    Talents[3],
+    Talents[4],
     Abilities[3],
     Abilities[6],
     Talents[6],
@@ -45,7 +45,8 @@ end
 -- Abilities
 local HoofStomp = AbilitiesReal[1]
 local DoubleEdge = AbilitiesReal[2]
-local HitchARide = AbilitiesReal[4]
+local WorkHorse = AbilitiesReal[4]
+local HitchARide = npcBot:GetAbilityByName("centaur_work_horse");
 local Stampede = AbilitiesReal[6]
 
 function AbilityUsageThink()
@@ -60,18 +61,25 @@ function AbilityUsageThink()
 
     local castHoofStompDesire = ConsiderHoofStomp();
     local castDoubleEdgeDesire, castDoubleEdgeTarget = ConsiderDoubleEdge();
+    local castWorkHorseDesire = ConsiderWorkHorse();
     local castHitchARideDesire, castHitchARideTarget = ConsiderHitchARide();
     local castStampedeDesire = ConsiderStampede();
 
     if (castHoofStompDesire ~= nil)
     then
         npcBot:Action_UseAbility(HoofStomp);
-        return
+        return;
     end
 
     if (castDoubleEdgeDesire ~= nil)
     then
         npcBot:Action_UseAbilityOnEntity(DoubleEdge, castDoubleEdgeTarget);
+        return;
+    end
+
+    if (castWorkHorseDesire ~= nil)
+    then
+        npcBot:Action_UseAbility(WorkHorse);
         return;
     end
 
@@ -84,7 +92,7 @@ function AbilityUsageThink()
     if (castStampedeDesire ~= nil)
     then
         npcBot:Action_UseAbility(Stampede);
-        return
+        return;
     end
 end
 
@@ -96,7 +104,7 @@ function ConsiderHoofStomp()
 
     local castRadiusAbility = ability:GetSpecialValueInt("radius");
     local damageAbility = ability:GetSpecialValueInt("stomp_damage");
-    local enemyAbility = npcBot:GetNearbyHeroes(castRadiusAbility - 100, true, BOT_MODE_NONE);
+    local enemyAbility = npcBot:GetNearbyHeroes(castRadiusAbility, true, BOT_MODE_NONE);
 
     -- Cast if can kill somebody/interrupt cast
     if (#enemyAbility > 0)
@@ -168,6 +176,38 @@ function ConsiderDoubleEdge()
     end
 end
 
+function ConsiderWorkHorse()
+    local ability = WorkHorse;
+    if not utility.IsAbilityAvailable(ability)
+    then
+        return;
+    end
+
+    local attackRange = npcBot:GetAttackRange();
+
+    if not npcBot:HasModifier("modifier_centaur_stampede")
+    then
+        -- Attack use
+        if utility.PvPMode(npcBot)
+        then
+            if utility.IsHero(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) > (attackRange * 2) and GetUnitToUnitDistance(npcBot, botTarget) < 3000
+            then
+                --npcBot:ActionImmediate_Chat("Использую WorkHorse для нападения!", true);
+                return BOT_ACTION_DESIRE_HIGH;
+            end
+            -- Retreat use
+        elseif botMode == BOT_MODE_RETREAT
+        then
+            local enemyAbility = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
+            if (#enemyAbility > 0) and (HealthPercentage <= 0.6)
+            then
+                --npcBot:ActionImmediate_Chat("Использую WorkHorse для отступления!", true);
+                return BOT_ACTION_DESIRE_HIGH;
+            end
+        end
+    end
+end
+
 function ConsiderHitchARide()
     local ability = HitchARide;
     if not utility.IsAbilityAvailable(ability) then
@@ -184,7 +224,7 @@ function ConsiderHitchARide()
         then
             for _, ally in pairs(allyAbility)
             do
-                if ally ~= npcBot and utility.IsHero(ally) and not ally:IsChanneling() and not ally:HasModifier("modifier_centaur_mounted")
+                if ally ~= npcBot and utility.IsHero(ally) and not ally:IsChanneling() and not ally:HasModifier("modifier_centaur_hitch_into_cart")
                     and (ally:GetHealth() / ally:GetMaxHealth() <= 0.8)
                 then
                     --npcBot:ActionImmediate_Chat("Использую Hitch a Ride на союзного героя со здоровьем ниже 80%!", true);

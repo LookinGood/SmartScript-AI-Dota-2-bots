@@ -44,7 +44,7 @@ function GetDesire()
         else
             if (#neutralCreeps > 0)
             then
-                local allyHeroes = npcBot:GetNearbyHeroes(500, false, BOT_MODE_NONE);
+                local allyHeroes = npcBot:GetNearbyHeroes(700, false, BOT_MODE_NONE);
                 if (#allyHeroes > 1)
                 then
                     for _, ally in pairs(allyHeroes)

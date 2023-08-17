@@ -236,6 +236,7 @@ end
 
 function IsAbilityAvailable(ability)
 	return ability:IsFullyCastable() and
+		--ability:IsActivated() and
 		not ability:IsHidden() and
 		not ability:IsPassive()
 end
@@ -434,12 +435,7 @@ function GetTargetPosition(npcTarget, fdelay)
 end
 
 function CanAbilityKillTarget(npcTarget, damage, damagetype)
-	if IsValidTarget(npcTarget) and npcTarget:GetActualIncomingDamage(damage, damagetype) >= npcTarget:GetHealth()
-	then
-		return true;
-	else
-		return false;
-	end
+	return IsValidTarget(npcTarget) and npcTarget:GetActualIncomingDamage(damage, damagetype) >= npcTarget:GetHealth()
 end
 
 function TargetCantDie(npcTarget)
@@ -478,12 +474,13 @@ end
 
 function CanCastOnMagicImmuneTarget(npcTarget)
 	return IsValidTarget(npcTarget) and not npcTarget:IsMagicImmune() and
-		not npcTarget:HasModifier("modifier_black_king_bar_immune");
+		not npcTarget:HasModifier("modifier_black_king_bar_immune") and
+		not npcTarget:HasModifier("modifier_juggernaut_blade_fury") and
+		not npcTarget:HasModifier("modifier_life_stealer_rage");
 end
 
 function CanCastOnInvulnerableTarget(npcTarget)
-	return IsValidTarget(npcTarget) and not npcTarget:IsInvulnerable() and
-		not npcTarget:HasModifier("modifier_invulnerable");
+	return IsValidTarget(npcTarget) and not IsTargetInvulnerable(npcTarget);
 end
 
 function CanCastOnMagicImmuneAndInvulnerableTarget(npcTarget)
@@ -491,6 +488,7 @@ function CanCastOnMagicImmuneAndInvulnerableTarget(npcTarget)
 end
 
 function CanCastSpellOnTarget(spell, npcTarget)
+	local npcBot = GetBot();
 	local damageType = spell:GetDamageType();
 
 	if spell ~= nil and IsValidTarget(npcTarget)
@@ -499,7 +497,7 @@ function CanCastSpellOnTarget(spell, npcTarget)
 		then
 			if damageType == DAMAGE_TYPE_MAGICAL or damageType == DAMAGE_TYPE_PHYSICAL or damageType == DAMAGE_TYPE_PURE
 			then
-				if not IsTargetInvulnerable(npcTarget) and not TargetCantDie(npcTarget)
+				if not IsTargetInvulnerable(npcTarget) and not TargetCantDie(npcTarget) and not npcBot:HasModifier("modifier_item_aeon_disk_buff")
 				then
 					if damageType == DAMAGE_TYPE_MAGICAL
 					then
@@ -609,7 +607,7 @@ function GetItemCount(npc, item_name)
 end
 
 function GetModifierCount(npcTarget, modifier)
-	if npcTarget:CanBeSeen()
+	if IsValidTarget(npcTarget)
 	then
 		local modifier = npcTarget:GetModifierByName(modifier)
 		if (modifier ~= nil)
@@ -754,9 +752,11 @@ end
 
 function SafeLocation(npcBot)
 	local BotTeam = npcBot:GetTeam();
-	if BotTeam == TEAM_RADIANT then
+	if BotTeam == TEAM_RADIANT
+	then
 		return Vector(-7232.0, -6888.0, 364.5);
-	elseif BotTeam == TEAM_DIRE then
+	elseif BotTeam == TEAM_DIRE
+	then
 		return Vector(7168.0, 6836.4, 423.6);
 	end
 end
@@ -765,6 +765,13 @@ function GetEscapeLocation(bot, maxAbilityRadius)
 	local botLocation = bot:GetLocation()
 	local direction = (SafeLocation(bot) - botLocation):Normalized();
 	return botLocation + (direction * maxAbilityRadius)
+end
+
+function GetMaxRangeCastLocation(npcBot, npcTarget, maxAbilityRange)
+	local botLocation = npcBot:GetLocation();
+	local targetLocation = npcTarget:GetLocation();
+	local direction = (targetLocation - botLocation):Normalized();
+	return botLocation + (direction * maxAbilityRange)
 end
 
 -- Mage enemy check

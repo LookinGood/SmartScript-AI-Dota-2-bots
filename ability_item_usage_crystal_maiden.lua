@@ -227,7 +227,7 @@ function ConsiderCrystalClone()
     then
         for _, spell in pairs(incomingSpells)
         do
-            if GetUnitToLocationDistance(npcBot, spell.location) <= 300 and spell.is_attack == false
+            if not utility.IsAlly(npcBot, spell.caster) and GetUnitToLocationDistance(npcBot, spell.location) <= 300 and spell.is_attack == false
             then
                 if utility.RetreatMode(npcBot)
                 then

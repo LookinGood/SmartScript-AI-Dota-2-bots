@@ -105,7 +105,7 @@ function ConsiderSummonWolves()
             end
         end
         -- Retreat use
-    elseif botMode == BOT_MODE_RETREAT
+    elseif utility.RetreatMode(npcBot)
     then
         local enemyAbility = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
         if (#enemyAbility > 0) and (HealthPercentage < 0.7) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
@@ -114,10 +114,13 @@ function ConsiderSummonWolves()
             return BOT_ACTION_DESIRE_HIGH;
         end
         -- Cast if push/defend/farm/roshan
-    elseif utility.PvEMode(npcBot) and (npcBot:DistanceFromFountain() > 1000)
+    elseif utility.PvEMode(npcBot)
     then
-        --npcBot:ActionImmediate_Chat("Использую Summon Wolves против вражеских сил!", true);
-        return BOT_ACTION_DESIRE_LOW;
+        if (npcBot:DistanceFromFountain() > 1000)
+        then
+            --npcBot:ActionImmediate_Chat("Использую Summon Wolves против вражеских сил!", true);
+            return BOT_ACTION_DESIRE_LOW;
+        end
     end
 end
 
@@ -131,7 +134,7 @@ function ConsiderHowl()
     local radiusAbility = ability:GetSpecialValueInt("radius");
 
     -- General use
-    if utility.PvPMode(npcBot) or botMode == BOT_MODE_RETREAT
+    if utility.PvPMode(npcBot) or utility.RetreatMode(npcBot)
     then
         local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
         if (#enemyAbility > 0)
@@ -145,11 +148,11 @@ function ConsiderHowl()
                 end
             end
         end
-    elseif npcBot:GetActiveMode() == BOT_MODE_ROSHAN
+    elseif botMode == BOT_MODE_ROSHAN
     then
         if utility.IsRoshan(botTarget)
         then
-            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= attackRang
+            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= attackRange
             then
                 -- npcBot:ActionImmediate_Chat("Использую Howl против Рошана!", true);
                 return BOT_ACTION_DESIRE_HIGH;
@@ -167,7 +170,7 @@ function ConsiderWolfBite()
     local castRangeAbility = ability:GetCastRange();
 
     -- General use
-    if utility.PvPMode(npcBot) or botMode == BOT_MODE_RETREAT
+    if utility.PvPMode(npcBot) or utility.RetreatMode(npcBot)
     then
         local allyAbility = npcBot:GetNearbyHeroes(castRangeAbility, false, BOT_MODE_NONE);
         if (#allyAbility > 1)
@@ -190,26 +193,28 @@ function ConsiderShapeshift()
         return;
     end
 
-    if not npcBot:HasModifier("modifier_lycan_shapeshift")
+    if npcBot:HasModifier("modifier_lycan_shapeshift")
     then
-        -- Attack use
-        if utility.PvPMode(npcBot)
+        return;
+    end
+
+    -- Attack use
+    if utility.PvPMode(npcBot)
+    then
+        if utility.IsHero(botTarget) and utility.CanCastOnInvulnerableTarget(botTarget)
+            and GetUnitToUnitDistance(npcBot, botTarget) <= 3000
         then
-            if utility.CanCastOnInvulnerableTarget(botTarget) and utility.IsHero(botTarget)
-                and GetUnitToUnitDistance(npcBot, botTarget) <= 3000
-            then
-                --npcBot:ActionImmediate_Chat("Использую Shapeshift для нападения!", true);
-                return BOT_ACTION_DESIRE_HIGH;
-            end
-            -- Retreat use
-        elseif botMode == BOT_MODE_RETREAT
+            --npcBot:ActionImmediate_Chat("Использую Shapeshift для нападения!", true);
+            return BOT_ACTION_DESIRE_HIGH;
+        end
+        -- Retreat use
+    elseif utility.RetreatMode(npcBot)
+    then
+        local enemyAbility = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
+        if (#enemyAbility > 0) and (HealthPercentage < 0.5)
         then
-            local enemyAbility = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
-            if (#enemyAbility > 0) and (HealthPercentage < 0.5)
-            then
-                --npcBot:ActionImmediate_Chat("Использую Shapeshift для отступления!", true);
-                return BOT_ACTION_DESIRE_HIGH;
-            end
+            --npcBot:ActionImmediate_Chat("Использую Shapeshift для отступления!", true);
+            return BOT_ACTION_DESIRE_HIGH;
         end
     end
 end

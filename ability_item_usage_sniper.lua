@@ -113,7 +113,7 @@ function ConsiderShrapnel()
     then
         local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility, radiusAbility,
             0, 0);
-        if (ManaPercentage >= 0.5) and (locationAoE.count >= 3)
+        if locationAoE ~= nil and (ManaPercentage >= 0.5) and (locationAoE.count >= 3)
         then
             --npcBot:ActionImmediate_Chat("Использую Shrapnel по вражеским крипам!", true);
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
@@ -173,8 +173,9 @@ function ConsiderConcussiveGrenade()
     end
 
     -- Retreat use
-    if botMode == BOT_MODE_RETREAT
+    if utility.RetreatMode(npcBot)
     then
+        local fountainLocation = utility.SafeLocation(npcBot);
         local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
         if (#enemyAbility > 0)
         then

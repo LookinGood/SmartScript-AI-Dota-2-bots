@@ -165,51 +165,53 @@ function ConsiderScatterblast()
         end
     end
 
-    -- Attack use
-    if not npcBot:HasModifier("modifier_snapfire_mortimer_kisses")
+    if npcBot:HasModifier("modifier_snapfire_mortimer_kisses")
     then
-        if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
+        return;
+    end
+
+    -- Attack use
+    if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
+    then
+        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
         then
-            if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
+            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
             then
-                if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+                --npcBot:ActionImmediate_Chat("Использую Scatterblast по врагу в радиусе действия!",true);
+                return BOT_MODE_DESIRE_HIGH, utility.GetTargetPosition(botTarget, delayAbility);
+            end
+        end
+        -- Retreat mode
+    elseif utility.RetreatMode(npcBot)
+    then
+        if (#enemyAbility > 0)
+        then
+            for _, enemy in pairs(enemyAbility) do
+                if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    --npcBot:ActionImmediate_Chat("Использую Scatterblast по врагу в радиусе действия!",true);
-                    return BOT_MODE_DESIRE_HIGH, utility.GetTargetPosition(botTarget, delayAbility);
+                    --npcBot:ActionImmediate_Chat("Использую Scatterblast что бы оторваться от врага",true);
+                    return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(enemy, delayAbility);
                 end
             end
-        elseif botMode == BOT_MODE_RETREAT or botMode == BOT_MODE_DEFEND_ALLY
+        end
+        -- Cast if push/defend/farm
+    elseif utility.PvEMode(npcBot)
+    then
+        local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility, radiusAbility,
+            0, 0);
+        if locationAoE ~= nil and (ManaPercentage >= 0.5) and (locationAoE.count >= 3)
         then
-            if (#enemyAbility > 0)
-            then
-                for _, enemy in pairs(enemyAbility) do
-                    if utility.CanCastSpellOnTarget(ability, enemy)
-                    then
-                        --npcBot:ActionImmediate_Chat("Использую Scatterblast что бы оторваться от врага",true);
-                        return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(enemy, delayAbility);
-                    end
-                end
-            end
-            -- Cast if push/defend/farm
-        elseif utility.PvEMode(npcBot)
+            --npcBot:ActionImmediate_Chat("Использую Scatterblast по вражеским крипам!", true);
+            return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
+        end
+        -- Cast when laning
+    elseif botMode == BOT_MODE_LANING
+    then
+        local enemy = utility.GetWeakest(enemyAbility);
+        if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)
         then
-            local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility, radiusAbility,
-                0,
-                0);
-            if (ManaPercentage >= 0.5) and (locationAoE.count >= 3)
-            then
-                --npcBot:ActionImmediate_Chat("Использую Scatterblast по вражеским крипам!", true);
-                return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
-            end
-            -- Cast when laning
-        elseif botMode == BOT_MODE_LANING
-        then
-            local enemy = utility.GetWeakest(enemyAbility);
-            if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)
-            then
-                --npcBot:ActionImmediate_Chat("Использую Scatterblast по цели на ЛАЙНЕ!", true);
-                return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(enemy, delayAbility);
-            end
+            --npcBot:ActionImmediate_Chat("Использую Scatterblast по цели на ЛАЙНЕ!", true);
+            return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(enemy, delayAbility);
         end
     end
 end
@@ -220,6 +222,11 @@ function ConsiderFiresnapCookie()
         return;
     end
 
+    if npcBot:HasModifier("modifier_snapfire_mortimer_kisses")
+    then
+        return;
+    end
+
     local castRangeAbility = ability:GetCastRange();
     local allyHeroAbility = npcBot:GetNearbyHeroes(castRangeAbility, false, BOT_MODE_NONE);
     local allyCreepsAbility = npcBot:GetNearbyCreeps(castRangeAbility, false);
@@ -227,49 +234,45 @@ function ConsiderFiresnapCookie()
     local jumpRadiusAbility = ability:GetSpecialValueInt("impact_radius");
 
     -- Attack use
-    if not npcBot:HasModifier("modifier_snapfire_mortimer_kisses")
+    if utility.PvPMode(npcBot)
     then
-        if utility.PvPMode(npcBot)
+        if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget)
         then
-            if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget)
+            if (#allyHeroAbility > 0)
             then
-                if (#allyHeroAbility > 0)
-                then
-                    for _, ally in pairs(allyHeroAbility)
-                    do
-                        if ally:IsFacingLocation(botTarget:GetLocation(), 10) and GetUnitToUnitDistance(ally, botTarget) <= (jumpRangeAbility + (jumpRadiusAbility / 2))
-                            and not ally:IsChanneling()
-                        then
-                            --npcBot:ActionImmediate_Chat("Использую FiresnapCookie для АТАКИ на союзного героя!", true);
-                            return BOT_ACTION_DESIRE_HIGH, ally;
-                        end
+                for _, ally in pairs(allyHeroAbility)
+                do
+                    if ally:IsFacingLocation(botTarget:GetLocation(), 10) and GetUnitToUnitDistance(ally, botTarget) <= (jumpRangeAbility + (jumpRadiusAbility / 2))
+                        and not ally:IsChanneling()
+                    then
+                        --npcBot:ActionImmediate_Chat("Использую FiresnapCookie для АТАКИ на союзного героя!", true);
+                        return BOT_ACTION_DESIRE_HIGH, ally;
                     end
                 end
-                if (#allyCreepsAbility > 0)
-                then
-                    for _, ally in pairs(allyCreepsAbility)
-                    do
-                        if ally:IsFacingLocation(botTarget:GetLocation(), 10) and GetUnitToUnitDistance(ally, botTarget) <= jumpRangeAbility
-                        then
-                            --npcBot:ActionImmediate_Chat("Использую FiresnapCookie для АТАКИна союзного крипа!", true);
-                            return BOT_ACTION_DESIRE_HIGH, ally;
-                        end
+            end
+            if (#allyCreepsAbility > 0)
+            then
+                for _, ally in pairs(allyCreepsAbility)
+                do
+                    if ally:IsFacingLocation(botTarget:GetLocation(), 10) and GetUnitToUnitDistance(ally, botTarget) <= jumpRangeAbility
+                    then
+                        --npcBot:ActionImmediate_Chat("Использую FiresnapCookie для АТАКИна союзного крипа!", true);
+                        return BOT_ACTION_DESIRE_HIGH, ally;
                     end
                 end
             end
         end
-
-        -- Retreat use
-        if (#allyHeroAbility > 0)
-        then
-            for _, ally in pairs(allyHeroAbility)
-            do
-                if (ally:GetHealth() / ally:GetMaxHealth() <= 0.7) and utility.IsHero(ally) and ally:WasRecentlyDamagedByAnyHero(2.0)
-                    and ally:IsFacingLocation(utility.SafeLocation(npcBot), 40) and not ally:IsChanneling()
-                then
-                    --npcBot:ActionImmediate_Chat("Использую FiresnapCookie для отступления!",true);
-                    return BOT_ACTION_DESIRE_HIGH, ally;
-                end
+    end
+    -- Retreat use
+    if (#allyHeroAbility > 0)
+    then
+        for _, ally in pairs(allyHeroAbility)
+        do
+            if (ally:GetHealth() / ally:GetMaxHealth() <= 0.7) and utility.IsHero(ally) and ally:WasRecentlyDamagedByAnyHero(2.0)
+                and ally:IsFacingLocation(utility.SafeLocation(npcBot), 40) and not ally:IsChanneling()
+            then
+                --npcBot:ActionImmediate_Chat("Использую FiresnapCookie для отступления!",true);
+                return BOT_ACTION_DESIRE_HIGH, ally;
             end
         end
     end
@@ -281,20 +284,22 @@ function ConsiderLilShredder()
         return;
     end
 
+    if npcBot:HasModifier("modifier_snapfire_mortimer_kisses")
+    then
+        return;
+    end
+
     local attackRange = npcBot:GetAttackRange() + (ability:GetSpecialValueInt("attack_range_bonus"));
 
     -- Attack use
-    if not npcBot:HasModifier("modifier_snapfire_mortimer_kisses")
+    if utility.PvPMode(npcBot) or npcBot:GetActiveMode() == BOT_MODE_ROSHAN
     then
-        if utility.PvPMode(npcBot) or npcBot:GetActiveMode() == BOT_MODE_ROSHAN
+        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
         then
-            if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
+            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= attackRange
             then
-                if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= attackRange
-                then
-                    --npcBot:ActionImmediate_Chat("Использую LilShredder против врага!", true);
-                    return BOT_ACTION_DESIRE_HIGH;
-                end
+                --npcBot:ActionImmediate_Chat("Использую LilShredder против врага!", true);
+                return BOT_ACTION_DESIRE_HIGH;
             end
         end
     end
@@ -306,35 +311,37 @@ function ConsiderGobbleUp()
         return;
     end
 
+    if npcBot:HasModifier("modifier_snapfire_mortimer_kisses")
+    then
+        return;
+    end
+
     local castRangeAbility = ability:GetCastRange() * 2;
     local spitDistance = SpitOut:GetCastRange();
     local allyHeroAbility = npcBot:GetNearbyHeroes(castRangeAbility, false, BOT_MODE_NONE);
     local allyCreepsAbility = npcBot:GetNearbyCreeps(castRangeAbility, false);
 
     -- Attack use
-    if not npcBot:HasModifier("modifier_snapfire_mortimer_kisses")
+    if utility.PvPMode(npcBot)
     then
-        if utility.PvPMode(npcBot)
+        if utility.IsHero(botTarget) and utility.CanCastOnMagicImmuneTarget(botTarget)
+            and GetUnitToUnitDistance(npcBot, botTarget) <= spitDistance
         then
-            if utility.IsHero(botTarget) and utility.CanCastOnMagicImmuneTarget(botTarget)
-                and GetUnitToUnitDistance(npcBot, botTarget) <= spitDistance
+            if (#allyCreepsAbility > 0)
             then
-                if (#allyCreepsAbility > 0)
-                then
-                    for _, ally in pairs(allyHeroAbility)
-                    do
-                        --npcBot:ActionImmediate_Chat("Использую GobbleUp на союзного крипа!", true);
+                for _, ally in pairs(allyHeroAbility)
+                do
+                    --npcBot:ActionImmediate_Chat("Использую GobbleUp на союзного крипа!", true);
+                    return BOT_ACTION_DESIRE_HIGH, ally;
+                end
+            elseif (#allyHeroAbility > 1)
+            then
+                for _, ally in pairs(allyHeroAbility)
+                do
+                    if ally ~= npcBot and not ally:IsChanneling() and (ally:GetHealth() / ally:GetMaxHealth() >= 0.7)
+                    then
+                        --npcBot:ActionImmediate_Chat("Использую GobbleUp на союзного героя!", true);
                         return BOT_ACTION_DESIRE_HIGH, ally;
-                    end
-                elseif (#allyHeroAbility > 1)
-                then
-                    for _, ally in pairs(allyHeroAbility)
-                    do
-                        if ally ~= npcBot and not ally:IsChanneling() and (ally:GetHealth() / ally:GetMaxHealth() >= 0.7)
-                        then
-                            --npcBot:ActionImmediate_Chat("Использую GobbleUp на союзного героя!", true);
-                            return BOT_ACTION_DESIRE_HIGH, ally;
-                        end
                     end
                 end
             end
@@ -348,8 +355,13 @@ function ConsiderSpitOut()
         return;
     end
 
+    if npcBot:HasModifier("modifier_snapfire_mortimer_kisses")
+    then
+        return;
+    end
+
     -- Generic use
-    if npcBot:HasModifier("modifier_snapfire_gobble_up_belly_has_unit") and not npcBot:HasModifier("modifier_snapfire_mortimer_kisses")
+    if npcBot:HasModifier("modifier_snapfire_gobble_up_belly_has_unit")
     then
         if utility.IsValidTarget(botTarget)
         then

@@ -116,7 +116,7 @@ function ConsiderDecay()
             return BOT_ACTION_DESIRE_HIGH, utility.GetTargetPosition(botTarget, delayAbility);
         end
         -- Use if need retreat
-    elseif botMode == BOT_MODE_RETREAT
+    elseif utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -133,7 +133,7 @@ function ConsiderDecay()
     then
         local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility, radiusAbility, 0,
             0);
-        if (damageAbility > 0) and (ManaPercentage >= 0.5) and (locationAoE.count >= 2)
+        if locationAoE ~= nil and (ManaPercentage >= 0.5) and (locationAoE.count >= 2) and (damageAbility > 0)
         then
             --npcBot:ActionImmediate_Chat("Использую Decay по вражеским крипам!", true);
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
@@ -165,7 +165,7 @@ function ConsiderSoulRip()
     local enemyHeroAbility = npcBot:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
     local unitAroundMe = #allyCreepsAbility + #allyHeroAbility + #enemyCreepsAbility + #enemyHeroAbility;
 
-    if unitAroundMe > 1
+    if (unitAroundMe > 1)
     then
         -- Cast to heal ally hero
         if #allyHeroAbilityHeal > 0
@@ -212,7 +212,7 @@ function ConsiderTombstone()
                 return BOT_ACTION_DESIRE_HIGH, botTarget:GetLocation(), "location";
             end
             -- Use if need retreat
-        elseif botMode == BOT_MODE_RETREAT
+        elseif utility.RetreatMode(npcBot)
         then
             local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
             if (#enemyAbility > 0) and (HealthPercentage <= 0.6)
@@ -254,26 +254,28 @@ function ConsiderFleshGolem()
         return;
     end
 
+    if npcBot:HasModifier("modifier_undying_flesh_golem")
+    then
+        return;
+    end
+
     local attackRange = npcBot:GetAttackRange();
 
-    if not npcBot:HasModifier("modifier_undying_flesh_golem")
+    -- Attack use
+    if utility.PvPMode(npcBot)
     then
-        -- Attack use
-        if utility.PvPMode(npcBot)
+        if utility.IsHero(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= (attackRange * 4)
         then
-            if utility.IsHero(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= (attackRange * 4)
-            then
-                --npcBot:ActionImmediate_Chat("Использую Flesh Golem для нападения!", true);
-                return BOT_ACTION_DESIRE_HIGH;
-            end
-            -- Retreat use
-        elseif botMode == BOT_MODE_RETREAT
+            --npcBot:ActionImmediate_Chat("Использую Flesh Golem для нападения!", true);
+            return BOT_ACTION_DESIRE_HIGH;
+        end
+        -- Retreat use
+    elseif utility.RetreatMode(npcBot)
+    then
+        if (HealthPercentage <= 0.6) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
         then
-            if (HealthPercentage <= 0.6) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
-            then
-                --npcBot:ActionImmediate_Chat("Использую Flesh Golem для отступления!", true);
-                return BOT_ACTION_DESIRE_HIGH;
-            end
+            --npcBot:ActionImmediate_Chat("Использую Flesh Golem для отступления!", true);
+            return BOT_ACTION_DESIRE_HIGH;
         end
     end
 end

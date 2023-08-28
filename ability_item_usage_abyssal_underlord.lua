@@ -108,7 +108,7 @@ function ConsiderFirestorm()
     then
         local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility, radiusAbility,
             0, 0);
-        if (ManaPercentage >= 0.7) and (locationAoE.count >= 3)
+        if locationAoE ~= nil and (ManaPercentage >= 0.7) and (locationAoE.count >= 3)
         then
             --npcBot:ActionImmediate_Chat("Использую Firestorm по вражеским крипам!", true);
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
@@ -161,8 +161,8 @@ function ConsiderPitOfMalice()
                 return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(botTarget, delayAbility);
             end
         end
-        -- Retreat or help ally use
-    elseif botMode == BOT_MODE_RETREAT or botMode == BOT_MODE_DEFEND_ALLY
+        -- Retreat use
+    elseif utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -205,13 +205,13 @@ function ConsiderFiendsGate()
                 end
             end
         end
-    elseif botMode == BOT_MODE_RETREAT
+    elseif utility.RetreatMode(npcBot)
     then
         if (HealthPercentage <= 0.6) and npcBot:WasRecentlyDamagedByAnyHero(2.0) and npcBot:DistanceFromFountain() > minDistance
         then
             --npcBot:ActionImmediate_Chat("Использую FiendsGate для отхода!", true);
             --return BOT_ACTION_DESIRE_VERYHIGH, utility.SafeLocation(npcBot) + RandomVector(npcBot:GetAttackRange() * 4);
-            return BOT_ACTION_DESIRE_VERYHIGH, utility.GetEscapeLocation(ancient, 900) + RandomVector(100);
+            return BOT_ACTION_DESIRE_VERYHIGH, utility.GetEscapeLocation(ancient, 1000) + RandomVector(100);
         end
     end
 end

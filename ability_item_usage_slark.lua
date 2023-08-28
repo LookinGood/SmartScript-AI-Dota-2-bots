@@ -201,27 +201,29 @@ function ConsiderShadowDance()
         return;
     end
 
+    if npcBot:HasModifier("modifier_slark_depth_shroud") or npcBot:HasModifier("modifier_slark_shadow_dance")
+    then
+        return;
+    end
+
     local attackRange = npcBot:GetAttackRange();
 
-    if not npcBot:HasModifier("modifier_slark_depth_shroud") or not npcBot:HasModifier("modifier_slark_shadow_dance")
+    -- Attack use
+    if utility.PvPMode(npcBot)
     then
-        -- Attack use
-        if utility.PvPMode(npcBot)
+        if utility.IsValidTarget(botTarget) and utility.IsHero(botTarget) and
+            GetUnitToUnitDistance(npcBot, botTarget) <= (attackRange * 2)
         then
-            if utility.IsValidTarget(botTarget) and utility.IsHero(botTarget) and
-                GetUnitToUnitDistance(npcBot, botTarget) <= (attackRange * 2)
-            then
-                --npcBot:ActionImmediate_Chat("Использую ShadowDance для нападения!", true);
-                return BOT_ACTION_DESIRE_HIGH;
-            end
-            -- Retreat use
-        elseif utility.RetreatMode(npcBot)
+            --npcBot:ActionImmediate_Chat("Использую ShadowDance для нападения!", true);
+            return BOT_ACTION_DESIRE_HIGH;
+        end
+        -- Retreat use
+    elseif utility.RetreatMode(npcBot)
+    then
+        if (HealthPercentage <= 0.7) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
         then
-            if (HealthPercentage <= 0.7) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
-            then
-                --npcBot:ActionImmediate_Chat("Использую ShadowDance для отступления!", true);
-                return BOT_ACTION_DESIRE_HIGH;
-            end
+            --npcBot:ActionImmediate_Chat("Использую ShadowDance для отступления!", true);
+            return BOT_ACTION_DESIRE_HIGH;
         end
     end
 end

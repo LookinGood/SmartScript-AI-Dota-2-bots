@@ -124,8 +124,8 @@ function ConsiderPoisonTouch()
                 return BOT_MODE_DESIRE_HIGH, botTarget;
             end
         end
-        -- Retreat or help ally use
-    elseif botMode == BOT_MODE_RETREAT or botMode == BOT_MODE_DEFEND_ALLY
+        -- Retreat use
+    elseif utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -289,10 +289,10 @@ function ConsiderBadJuju()
     end
 
     -- General use
-    if botMode ~= BOT_MODE_RETREAT and utility.TargetCantDie(npcBot)
+    if utility.PvPMode(npcBot)
     then
-        if (not PoisonTouch:IsCooldownReady() or
-                not ShallowGrave:IsCooldownReady() or
+        if (not PoisonTouch:IsCooldownReady() and
+                not ShallowGrave:IsCooldownReady() and
                 not ShadowWave:IsCooldownReady())
         then
             --npcBot:ActionImmediate_Chat("Использую BadJuju пока другая способность на кулдауне!",true);

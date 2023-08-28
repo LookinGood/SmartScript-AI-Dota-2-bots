@@ -117,8 +117,8 @@ function ConsiderSmokeScreen()
                 return BOT_ACTION_DESIRE_HIGH, utility.GetTargetPosition(botTarget, delayAbility);
             end
         end
-        -- Retreat or help ally use
-    elseif botMode == BOT_MODE_RETREAT or botMode == BOT_MODE_DEFEND_ALLY
+        -- Retreat use
+    elseif utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -173,8 +173,8 @@ function ConsiderBlinkStrike()
                 return BOT_ACTION_DESIRE_HIGH, botTarget;
             end
         end
-        -- Use if need retreat
-    elseif botMode == BOT_MODE_RETREAT
+        -- Retreat use
+    elseif utility.RetreatMode(npcBot)
     then
         if (HealthPercentage <= 0.8) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
         then
@@ -261,8 +261,8 @@ function ConsiderTricksOfTheTrade()
             --npcBot:ActionImmediate_Chat("Использую TricksOfTheTrade для атаки!", true);
             return BOT_ACTION_DESIRE_HIGH, utility.GetTargetPosition(botTarget, delayAbility);
         end
-        -- Retreat
-    elseif botMode == BOT_MODE_RETREAT
+        -- Retreat use
+    elseif utility.RetreatMode(npcBot)
     then
         if (HealthPercentage <= 0.8) and npcBot:WasRecentlyDamagedByAnyHero(2.0) and npcBot:DistanceFromFountain() >= castRangeAbility
         then

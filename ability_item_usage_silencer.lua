@@ -108,8 +108,8 @@ function ConsiderArcaneCurse()
             --npcBot:ActionImmediate_Chat("Использую ArcaneCurse для нападения!", true);
             return BOT_ACTION_DESIRE_HIGH, utility.GetTargetPosition(botTarget, delayAbility);
         end
-        -- Retreat or help ally use
-    elseif botMode == BOT_MODE_RETREAT or botMode == BOT_MODE_DEFEND_ALLY
+        -- Retreat use
+    elseif utility.RetreatMode(npcBot)
     then
         local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility + 200, true, BOT_MODE_NONE);
         if (#enemyAbility > 0)
@@ -123,12 +123,12 @@ function ConsiderArcaneCurse()
             end
         end
         -- Cast if push/defend/farm
-    elseif utility.PvEMode(npcBot) and (ManaPercentage >= 0.6)
+    elseif utility.PvEMode(npcBot)
     then
         local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility,
             radiusAbility,
             0, 0);
-        if (locationAoE.count >= 3)
+        if locationAoE ~= nil and (locationAoE.count >= 3) and (ManaPercentage >= 0.6)
         then
             --npcBot:ActionImmediate_Chat("Использую ArcaneCurse по вражеским крипам!", true);
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc, "location";
@@ -218,8 +218,8 @@ function ConsiderLastWord()
                 end
             end
         end
-        -- Retreat or help ally use
-    elseif botMode == BOT_MODE_RETREAT or botMode == BOT_MODE_DEFEND_ALLY
+        -- Retreat use
+    elseif utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -241,12 +241,12 @@ function ConsiderLastWord()
         -- Cast if push/defend/farm
     elseif utility.PvEMode(npcBot)
     then
-        if npcBot:HasScepter() and (ManaPercentage >= 0.8)
+        if npcBot:HasScepter()
         then
             local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility,
                 radiusAbility,
                 0, 0);
-            if (locationAoE.count >= 2)
+            if locationAoE ~= nil and (locationAoE.count >= 2) and (ManaPercentage >= 0.8)
             then
                 --npcBot:ActionImmediate_Chat("Использую LastWord по вражеским крипам!", true);
                 return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc, "location";

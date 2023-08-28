@@ -72,8 +72,8 @@ function AbilityUsageThink()
     if (castMultishotDesire ~= nil)
     then
         npcBot:Action_ClearActions(false);
+        npcBot:ActionQueue_Delay(1.0);
         npcBot:ActionQueue_UseAbilityOnLocation(Multishot,  castMultishotLocation);
-        npcBot:ActionQueue_Delay(5.0);
         return;
     end
 
@@ -138,8 +138,8 @@ function ConsiderGust()
             --npcBot:ActionImmediate_Chat("Использую Gust для нападения!", true);
             return BOT_ACTION_DESIRE_HIGH, utility.GetTargetPosition(botTarget, delayAbility);
         end
-        -- Retreat or help ally use
-    elseif botMode == BOT_MODE_RETREAT or botMode == BOT_MODE_DEFEND_ALLY
+        -- Retreat use
+    elseif utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -179,7 +179,7 @@ function ConsiderMultishot()
         local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility,
             radiusAbility,
             0, 0);
-        if (locationAoE.count >= 3)
+        if locationAoE ~= nil and (ManaPercentage >= 0.5) and (locationAoE.count >= 3)
         then
             --npcBot:ActionImmediate_Chat("Использую Multishot по вражеским крипам!", true);
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc, "location";

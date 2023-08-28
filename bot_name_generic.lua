@@ -14,10 +14,10 @@ function GetBotName()
     elseif (GetTeam() == TEAM_DIRE) then
         name =
         {
-            "Sezam",
-            "Gwinblade",
-            "Spartacus",
-            "Bortel",
+            "Cursed account",
+            "GPT-4",
+            "Road_to_228_MMR",
+            "<<Acc Buyer>>",
             "iadmireyou",
         }
     end

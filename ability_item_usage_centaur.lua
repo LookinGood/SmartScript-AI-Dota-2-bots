@@ -102,9 +102,9 @@ function ConsiderHoofStomp()
         return;
     end
 
-    local castRadiusAbility = ability:GetSpecialValueInt("radius");
+    local radiusAbility = ability:GetSpecialValueInt("radius");
     local damageAbility = ability:GetSpecialValueInt("stomp_damage");
-    local enemyAbility = npcBot:GetNearbyHeroes(castRadiusAbility, true, BOT_MODE_NONE);
+    local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
 
     -- Cast if can kill somebody/interrupt cast
     if (#enemyAbility > 0)
@@ -114,14 +114,14 @@ function ConsiderHoofStomp()
             then
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    return BOT_ACTION_DESIRE_VERYHIGH, enemy;
+                    return BOT_ACTION_DESIRE_VERYHIGH;
                 end
             end
         end
     end
 
     -- General use
-    if utility.PvPMode(npcBot) or botMode == BOT_MODE_RETREAT
+    if utility.PvPMode(npcBot) or utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -183,27 +183,29 @@ function ConsiderWorkHorse()
         return;
     end
 
+    if npcBot:HasModifier("modifier_centaur_stampede")
+    then
+        return;
+    end
+
     local attackRange = npcBot:GetAttackRange();
 
-    if not npcBot:HasModifier("modifier_centaur_stampede")
+    -- Attack use
+    if utility.PvPMode(npcBot)
     then
-        -- Attack use
-        if utility.PvPMode(npcBot)
+        if utility.IsHero(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) > (attackRange * 2) and GetUnitToUnitDistance(npcBot, botTarget) < 3000
         then
-            if utility.IsHero(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) > (attackRange * 2) and GetUnitToUnitDistance(npcBot, botTarget) < 3000
-            then
-                --npcBot:ActionImmediate_Chat("Использую WorkHorse для нападения!", true);
-                return BOT_ACTION_DESIRE_HIGH;
-            end
-            -- Retreat use
-        elseif botMode == BOT_MODE_RETREAT
+            --npcBot:ActionImmediate_Chat("Использую WorkHorse для нападения!", true);
+            return BOT_ACTION_DESIRE_HIGH;
+        end
+        -- Retreat use
+    elseif utility.RetreatMode(npcBot)
+    then
+        local enemyAbility = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
+        if (#enemyAbility > 0) and (HealthPercentage <= 0.6)
         then
-            local enemyAbility = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
-            if (#enemyAbility > 0) and (HealthPercentage <= 0.6)
-            then
-                --npcBot:ActionImmediate_Chat("Использую WorkHorse для отступления!", true);
-                return BOT_ACTION_DESIRE_HIGH;
-            end
+            --npcBot:ActionImmediate_Chat("Использую WorkHorse для отступления!", true);
+            return BOT_ACTION_DESIRE_HIGH;
         end
     end
 end
@@ -217,7 +219,7 @@ function ConsiderHitchARide()
     local castRangeAbility = ability:GetCastRange();
 
     -- General use
-    if utility.PvPMode(npcBot) or botMode == BOT_MODE_RETREAT
+    if utility.PvPMode(npcBot) or utility.RetreatMode(npcBot)
     then
         local allyAbility = npcBot:GetNearbyHeroes(castRangeAbility, false, BOT_MODE_NONE);
         if (#allyAbility > 1)
@@ -242,27 +244,29 @@ function ConsiderStampede()
         return;
     end
 
+    if npcBot:HasModifier("modifier_centaur_stampede")
+    then
+        return;
+    end
+
     local attackRange = npcBot:GetAttackRange();
 
-    if not npcBot:HasModifier("modifier_centaur_stampede")
+    -- Attack use
+    if utility.PvPMode(npcBot)
     then
-        -- Attack use
-        if utility.PvPMode(npcBot)
+        if utility.IsHero(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) > (attackRange * 2) and GetUnitToUnitDistance(npcBot, botTarget) < 3000
         then
-            if utility.IsHero(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) > (attackRange * 2) and GetUnitToUnitDistance(npcBot, botTarget) < 3000
-            then
-                --npcBot:ActionImmediate_Chat("Использую Stampede для нападения!", true);
-                return BOT_ACTION_DESIRE_HIGH;
-            end
-            -- Retreat use
-        elseif botMode == BOT_MODE_RETREAT
+            --npcBot:ActionImmediate_Chat("Использую Stampede для нападения!", true);
+            return BOT_ACTION_DESIRE_HIGH;
+        end
+        -- Retreat use
+    elseif utility.RetreatMode(npcBot)
+    then
+        local enemyAbility = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
+        if (#enemyAbility > 0) and (HealthPercentage <= 0.6)
         then
-            local enemyAbility = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
-            if (#enemyAbility > 0) and (HealthPercentage <= 0.6)
-            then
-                --npcBot:ActionImmediate_Chat("Использую Stampede для отступления!", true);
-                return BOT_ACTION_DESIRE_HIGH;
-            end
+            --npcBot:ActionImmediate_Chat("Использую Stampede для отступления!", true);
+            return BOT_ACTION_DESIRE_HIGH;
         end
     end
 end

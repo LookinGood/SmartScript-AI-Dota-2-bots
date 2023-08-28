@@ -44,6 +44,7 @@ end
 
 -- Abilities
 local LucentBeam = AbilitiesReal[1]
+local MoonGlaives = AbilitiesReal[2]
 local Eclipse = AbilitiesReal[6]
 
 function AbilityUsageThink()
@@ -57,11 +58,18 @@ function AbilityUsageThink()
     ManaPercentage = npcBot:GetMana() / npcBot:GetMaxMana();
 
     local castLucentBeamDesire, castLucentBeamTarget = ConsiderLucentBeam();
-    local castEclipseDesire, castEclipseTarget, castEclipseTargetType = ConsiderEclipse();
+    local castMoonGlaivesDesire = ConsiderMoonGlaives();
+    local castEclipseDesire, castEclipseLocation, castEclipseTargetType = ConsiderEclipse();
 
     if (castLucentBeamDesire ~= nil)
     then
         npcBot:Action_UseAbilityOnEntity(LucentBeam, castLucentBeamTarget);
+        return;
+    end
+
+    if (castMoonGlaivesDesire ~= nil)
+    then
+        npcBot:Action_UseAbility(MoonGlaives);
         return;
     end
 
@@ -73,7 +81,7 @@ function AbilityUsageThink()
             return;
         elseif (castEclipseTargetType == "location")
         then
-            npcBot:Action_UseAbilityOnLocation(Eclipse, castEclipseTarget);
+            npcBot:Action_UseAbilityOnLocation(Eclipse, castEclipseLocation);
             return;
         end
     end
@@ -93,7 +101,7 @@ function ConsiderLucentBeam()
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType())  or enemy:IsChanneling()
+            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) or enemy:IsChanneling()
             then
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
@@ -115,8 +123,8 @@ function ConsiderLucentBeam()
                 return BOT_MODE_DESIRE_HIGH, botTarget;
             end
         end
-        -- Retreat or help ally use
-    elseif botMode == BOT_MODE_RETREAT or botMode == BOT_MODE_DEFEND_ALLY
+        -- Retreat use
+    elseif utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -128,6 +136,38 @@ function ConsiderLucentBeam()
                 end
             end
         end
+    end
+end
+
+function ConsiderMoonGlaives()
+    local ability = MoonGlaives;
+    if not utility.IsAbilityAvailable(ability) then
+        return;
+    end
+
+    if not utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_NO_TARGET)
+    then
+        return;
+    end
+
+    local radiusAbility = ability:GetSpecialValueInt("rotating_glaives_movement_radius");
+
+    -- Attack use
+    if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
+    then
+        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
+        then
+            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= radiusAbility
+            then
+                --npcBot:ActionImmediate_Chat("Использую MoonGlaives против врага!", true);
+                return BOT_ACTION_DESIRE_HIGH;
+            end
+        end
+        -- Retreat use
+    elseif utility.RetreatMode(npcBot)
+    then
+        --npcBot:ActionImmediate_Chat("Использую MoonGlaives для отступления!", true);
+        return BOT_ACTION_DESIRE_HIGH;
     end
 end
 

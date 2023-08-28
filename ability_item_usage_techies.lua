@@ -46,6 +46,7 @@ end
 -- Abilities
 local StickyBomb = AbilitiesReal[1]
 local ReactiveTazer = AbilitiesReal[2]
+local DetonateTazer = npcBot:GetAbilityByName("techies_reactive_tazer_stop");
 local BlastOff = AbilitiesReal[3]
 local MinefieldSign = AbilitiesReal[5]
 local ProximityMines = AbilitiesReal[6]
@@ -62,6 +63,7 @@ function AbilityUsageThink()
 
     local castStickyBombDesire, castStickyBombLocation = ConsiderStickyBomb();
     local castReactiveTazerDesire, castReactiveTazerTarget, castReactiveTazerTargetType = ConsiderReactiveTazer();
+    local castDetonateTazerDesire = ConsiderDetonateTazer();
     local castBlastOffDesire, castBlastOffLocation = ConsiderBlastOff();
     local castMinefieldSignDesire, castMinefieldSignLocation = ConsiderMinefieldSign();
     local castProximityMinesDesire, castProximityMinesLocation = ConsiderProximityMines();
@@ -83,6 +85,12 @@ function AbilityUsageThink()
             npcBot:Action_UseAbilityOnEntity(ReactiveTazer, castReactiveTazerTarget);
             return;
         end
+    end
+
+    if (castDetonateTazerDesire ~= nil)
+    then
+        npcBot:Action_UseAbility(DetonateTazer);
+        return;
     end
 
     if (castBlastOffDesire ~= nil)
@@ -141,8 +149,8 @@ function ConsiderStickyBomb()
                 return BOT_ACTION_DESIRE_HIGH, utility.GetTargetPosition(botTarget, delayAbility);
             end
         end
-        -- Retreat or help ally use
-    elseif botMode == BOT_MODE_RETREAT or botMode == BOT_MODE_DEFEND_ALLY
+        -- Retreat use
+    elseif utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -155,11 +163,11 @@ function ConsiderStickyBomb()
             end
         end
         -- Cast if push/defend/farm
-    elseif utility.PvEMode(npcBot) and (ManaPercentage >= 0.6)
+    elseif utility.PvEMode(npcBot)
     then
         local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility, radiusAbility, 0,
             0);
-        if (locationAoE.count >= 2)
+        if locationAoE ~= nil and (locationAoE.count >= 2) and (ManaPercentage >= 0.6)
         then
             --npcBot:ActionImmediate_Chat("Использую StickyBomb по вражеским крипам!", true);
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
@@ -204,10 +212,13 @@ function ConsiderReactiveTazer()
                     end
                 end
                 -- Retreat use
-            elseif botMode == BOT_MODE_RETREAT and (HealthPercentage <= 0.8) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
+            elseif utility.RetreatMode(npcBot)
             then
-                --npcBot:ActionImmediate_Chat("Использую Reactive Tazer для отступления!", true);
-                return BOT_ACTION_DESIRE_HIGH, nil, nil;
+                if (HealthPercentage <= 0.8) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
+                then
+                    --npcBot:ActionImmediate_Chat("Использую Reactive Tazer для отступления!", true);
+                    return BOT_ACTION_DESIRE_HIGH, nil, nil;
+                end
             end
         end
     elseif utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_UNIT_TARGET)
@@ -234,6 +245,33 @@ function ConsiderReactiveTazer()
     end
 end
 
+function ConsiderDetonateTazer()
+    local ability = DetonateTazer;
+    if not utility.IsAbilityAvailable(ability) then
+        return;
+    end
+
+    local radiusAbility = ReactiveTazer:GetSpecialValueInt("stun_radius");
+    local allyHeroes = GetUnitList(UNIT_LIST_ALLIED_HEROES);
+
+    -- Use if around ally has enemy hero
+    for _, ally in pairs(allyHeroes) do
+        if ally:HasModifier("modifier_techies_reactive_tazer")
+        then
+            local enemyHeroes = ally:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
+            if (#enemyHeroes > 0)
+            then
+                for _, enemy in pairs(enemyHeroes) do
+                    if utility.CanCastSpellOnTarget(InkSwell, enemy) and not utility.IsDisabled(enemy)
+                    then
+                        return BOT_ACTION_DESIRE_HIGH;
+                    end
+                end
+            end
+        end
+    end
+end
+
 function ConsiderBlastOff()
     local ability = BlastOff;
     if not utility.IsAbilityAvailable(ability) then
@@ -245,7 +283,7 @@ function ConsiderBlastOff()
     local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
 
     -- Cast if can kill somebody/interrupt cast
-    if botMode ~= BOT_MODE_RETREAT
+    if not utility.RetreatMode(npcBot)
     then
         local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
         if (#enemyAbility > 0)
@@ -263,19 +301,22 @@ function ConsiderBlastOff()
     end
 
     -- Attack use
-    if utility.PvPMode(npcBot) and (HealthPercentage >= 0.1)
+    if utility.PvPMode(npcBot)
     then
         if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget)
-            and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+            and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility and (HealthPercentage >= 0.1)
         then
             --npcBot:ActionImmediate_Chat("Использую Blast Off для нападения!", true);
             return BOT_ACTION_DESIRE_HIGH, utility.GetTargetPosition(botTarget, delayAbility);
         end
         -- Cast if need retreat
-    elseif botMode == BOT_MODE_RETREAT and npcBot:DistanceFromFountain() >= castRangeAbility and (HealthPercentage <= 0.7) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
+    elseif utility.RetreatMode(npcBot)
     then
-        --npcBot:ActionImmediate_Chat("Использую BlastOff для отступления!", true);
-        return BOT_ACTION_DESIRE_HIGH, utility.GetEscapeLocation(npcBot, castRangeAbility);
+        if npcBot:DistanceFromFountain() >= castRangeAbility and (HealthPercentage <= 0.7) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
+        then
+            --npcBot:ActionImmediate_Chat("Использую BlastOff для отступления!", true);
+            return BOT_ACTION_DESIRE_HIGH, utility.GetEscapeLocation(npcBot, castRangeAbility);
+        end
     end
 end
 
@@ -314,8 +355,8 @@ function ConsiderMinefieldSign()
                 return BOT_ACTION_DESIRE_HIGH, botTarget:GetLocation();
             end
         end
-        -- Retreat or help ally use
-        if botMode == BOT_MODE_RETREAT or botMode == BOT_MODE_DEFEND_ALLY
+        -- Retreat use
+        if utility.RetreatMode(npcBot)
         then
             local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
             if (#enemyAbility > 0)
@@ -365,8 +406,8 @@ function ConsiderProximityMines()
             --npcBot:ActionImmediate_Chat("Использую Proximity Mines для атаки по врагу!", true);
             return BOT_MODE_DESIRE_LOW, botTarget:GetLocation();
         end
-        -- Retreat or help ally use
-    elseif botMode == BOT_MODE_RETREAT or botMode == BOT_MODE_DEFEND_ALLY
+        -- Retreat use
+    elseif utility.RetreatMode(npcBot)
     then
         local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
         if (#enemyAbility > 0)

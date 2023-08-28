@@ -163,7 +163,7 @@ function ConsiderDisruption()
             end
         end
         -- Use if need retreat
-    elseif botMode == BOT_MODE_RETREAT
+    elseif utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -255,7 +255,7 @@ function ConsiderShadowPoison()
     then
         local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility,
             radiusAbility, 0, 0);
-        if (ManaPercentage >= 0.5) and (locationAoE.count >= 2)
+        if locationAoE ~= nil and (ManaPercentage >= 0.5) and (locationAoE.count >= 2)
         then
             --npcBot:ActionImmediate_Chat("Использую Shadow Poison по крипам врага на линии!", true);
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
@@ -295,7 +295,7 @@ function ConsiderShadowPoisonRelease()
     end
 
     -- Use if enemy creeps has stacks
-    if not utility.PvPMode(npcBot) and botMode ~= BOT_MODE_RETREAT
+    if not utility.PvPMode(npcBot) and not utility.RetreatMode(npcBot)
     then
         for _, enemy in pairs(creepsAbility) do
             if utility.GetModifierCount(enemy, "modifier_shadow_demon_shadow_poison") >= 3 and utility.CanCastOnMagicImmuneTarget(enemy)
@@ -359,7 +359,7 @@ function ConsiderDemonicPurge()
     end
 
     -- General use
-    if utility.PvPMode(npcBot) or botMode == BOT_MODE_RETREAT
+    if utility.PvPMode(npcBot) or utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then

@@ -125,7 +125,7 @@ function ConsiderBreatheFire()
             end
         end
         -- Retreat or help ally use
-    elseif botMode == BOT_MODE_RETREAT or botMode == BOT_MODE_DEFEND_ALLY
+    elseif utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -138,12 +138,12 @@ function ConsiderBreatheFire()
             end
         end
         -- Cast if push/defend/farm
-    elseif utility.PvEMode(npcBot) and (ManaPercentage >= 0.6)
+    elseif utility.PvEMode(npcBot)
     then
         local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility,
             radiusAbility,
             0, 0);
-        if (locationAoE.count >= 3)
+        if locationAoE ~= nil and (ManaPercentage >= 0.6) and (locationAoE.count >= 3)
         then
             --npcBot:ActionImmediate_Chat("Использую BreatheFire по вражеским крипам!", true);
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc, "location";
@@ -196,8 +196,8 @@ function ConsiderDragonTail()
                 return BOT_MODE_DESIRE_HIGH, botTarget;
             end
         end
-        -- Retreat or help ally use
-    elseif botMode == BOT_MODE_RETREAT or botMode == BOT_MODE_DEFEND_ALLY
+        -- Retreat use
+    elseif utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -239,8 +239,8 @@ function ConsiderFireball()
                 return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(botTarget, delayAbility);
             end
         end
-        -- Retreat or help ally use
-    elseif botMode == BOT_MODE_RETREAT or botMode == BOT_MODE_DEFEND_ALLY
+        -- Retreat use
+    elseif utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -253,12 +253,12 @@ function ConsiderFireball()
             end
         end
         -- Cast if push/defend/farm
-    elseif utility.PvEMode(npcBot) and (ManaPercentage >= 0.6)
+    elseif utility.PvEMode(npcBot)
     then
         local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility,
             radiusAbility,
             0, 0);
-        if (locationAoE.count >= 4)
+        if locationAoE ~= nil and (ManaPercentage >= 0.6) and (locationAoE.count >= 4)
         then
             --npcBot:ActionImmediate_Chat("Использую Fireball по вражеским крипам!", true);
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc, "location";
@@ -281,10 +281,13 @@ function ConsiderElderDragonForm()
         return;
     end
 
+    if npcBot:HasModifier("modifier_dragon_knight_corrosive_breath")
+    then
+        return;
+    end
+
     local attackRange = npcBot:GetAttackRange() + ability:GetSpecialValueInt("bonus_attack_range");
 
-    if not npcBot:HasModifier("modifier_dragon_knight_corrosive_breath")
-    then
     -- Attack use
     if utility.PvPMode(npcBot)
     then
@@ -297,7 +300,7 @@ function ConsiderElderDragonForm()
             end
         end
         -- Retreat use
-    elseif botMode == BOT_MODE_RETREAT
+    elseif utility.RetreatMode(npcBot)
     then
         if (HealthPercentage <= 0.6) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
         then
@@ -305,5 +308,4 @@ function ConsiderElderDragonForm()
             return BOT_ACTION_DESIRE_HIGH;
         end
     end
-end
 end

@@ -125,8 +125,8 @@ function ConsiderVenomousGale()
                 return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(botTarget, delayAbility);
             end
         end
-        -- Retreat or help ally use
-    elseif botMode == BOT_MODE_RETREAT or botMode == BOT_MODE_DEFEND_ALLY
+        -- Retreat use
+    elseif utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -139,12 +139,11 @@ function ConsiderVenomousGale()
             end
         end
         -- Cast if push/defend/farm
-    elseif utility.PvEMode(npcBot) and (ManaPercentage >= 0.6)
+    elseif utility.PvEMode(npcBot)
     then
         local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility,
-            radiusAbility,
-            0, 0);
-        if (locationAoE.count >= 3)
+            radiusAbility, 0, 0);
+        if locationAoE ~= nil and (locationAoE.count >= 3) and (ManaPercentage >= 0.6)
         then
             --npcBot:ActionImmediate_Chat("Использую VenomousGale по вражеским крипам!", true);
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc, "location";
@@ -302,7 +301,7 @@ function ConsiderNoxiousPlague()
             end
         end
         -- Retreat use
-    elseif  utility.RetreatMode(npcBot)
+    elseif utility.RetreatMode(npcBot)
     then
         local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
         if (#enemyAbility > 0) and (HealthPercentage <= 0.7)

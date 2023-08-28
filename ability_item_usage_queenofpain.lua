@@ -148,8 +148,8 @@ function ConsiderShadowStrike()
                 end
             end
         end
-        -- Retreat or help ally use
-    elseif botMode == BOT_MODE_RETREAT or botMode == BOT_MODE_DEFEND_ALLY
+        -- Retreat use
+    elseif utility.RetreatMode(npcBot)
     then
         if (enemyAbility > 0)
         then
@@ -172,12 +172,12 @@ function ConsiderShadowStrike()
         -- Cast if push/defend/farm
     elseif utility.PvEMode(npcBot)
     then
-        if npcBot:HasScepter() and (ManaPercentage >= 0.6)
+        if npcBot:HasScepter()
         then
             local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility,
                 radiusAbility,
                 0, 0);
-            if (locationAoE.count >= 2)
+            if locationAoE ~= nil and (ManaPercentage >= 0.6) and (locationAoE.count >= 2)
             then
                 --npcBot:ActionImmediate_Chat("Использую ShadowStrike по вражеским крипам!",true);
                 return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc, "location";
@@ -218,7 +218,8 @@ function ConsiderBlink()
     then
         for _, spell in pairs(incomingSpells)
         do
-            if GetUnitToLocationDistance(npcBot, spell.location) <= 700 and spell.is_attack == false and spell.is_dodgeable == true
+            if not utility.IsAlly(npcBot, spell.caster) and GetUnitToLocationDistance(npcBot, spell.location) <= 700 and spell.is_attack == false
+                and spell.is_dodgeable == true
             then
                 --npcBot:ActionImmediate_Chat("Использую Blink для уклонения от снарядов!",true);
                 return BOT_ACTION_DESIRE_HIGH, utility.GetEscapeLocation(npcBot, castRangeAbility);
@@ -241,10 +242,13 @@ function ConsiderBlink()
             end
         end
         -- Cast if need retreat
-    elseif botMode == BOT_MODE_RETREAT and npcBot:DistanceFromFountain() >= castRangeAbility
+    elseif botMode == BOT_MODE_RETREAT
     then
-        --npcBot:ActionImmediate_Chat("Использую Blink для отступления!", true);
-        return BOT_ACTION_DESIRE_ABSOLUTE, utility.GetEscapeLocation(npcBot, castRangeAbility);
+        if npcBot:DistanceFromFountain() >= castRangeAbility
+        then
+            --npcBot:ActionImmediate_Chat("Использую Blink для отступления!", true);
+            return BOT_ACTION_DESIRE_ABSOLUTE, utility.GetEscapeLocation(npcBot, castRangeAbility);
+        end
     end
 end
 
@@ -273,7 +277,7 @@ function ConsiderScreamOfPain()
     end
 
     -- Attack use
-    if utility.PvPMode(npcBot) or botMode == BOT_MODE_RETREAT
+    if utility.PvPMode(npcBot) or utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -285,10 +289,10 @@ function ConsiderScreamOfPain()
                 end
             end
         end
-    elseif utility.PvEMode(npcBot) and (ManaPercentage >= 0.6)
+    elseif utility.PvEMode(npcBot)
     then
         local enemyCreeps = npcBot:GetNearbyCreeps(radiusAbility, true);
-        if (#enemyCreeps > 2)
+        if (#enemyCreeps > 2) and (ManaPercentage >= 0.6)
         then
             for _, enemy in pairs(enemyCreeps) do
                 if utility.CanCastSpellOnTarget(ability, enemy)
@@ -308,7 +312,7 @@ function ConsiderSonicWave()
     end
 
     local castRangeAbility = ability:GetCastRange();
-    --local radiusAbility = (ability:GetSpecialValueInt("final_aoe"));
+    local radiusAbility = ability:GetSpecialValueInt("final_aoe");
     local damageAbility = ability:GetSpecialValueInt("damage");
     local delayAbility = 0.5;
     local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE)
@@ -335,6 +339,14 @@ function ConsiderSonicWave()
         then
             --npcBot:ActionImmediate_Chat("Использую Sonic Wave по врагу в радиусе действия!",true);
             return BOT_ACTION_DESIRE_HIGH, utility.GetTargetPosition(botTarget, delayAbility);
+        end
+        -- Cast if enemy >=2
+        local locationAoE = npcBot:FindAoELocation(true, true, npcBot:GetLocation(), castRangeAbility, radiusAbility, 0,
+            0);
+        if locationAoE ~= nil and (locationAoE.count >= 2)
+        then
+            --npcBot:ActionImmediate_Chat("Использую SonicWave по врагам!", true);
+            return BOT_ACTION_DESIRE_HIGH, locationAoE.targetloc;
         end
         -- Retreat use
     elseif botMode == BOT_MODE_RETREAT

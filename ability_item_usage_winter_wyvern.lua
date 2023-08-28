@@ -129,7 +129,7 @@ function ConsiderArcticBurn()
             end
         end
         -- Retreat use
-    elseif botMode == BOT_MODE_RETREAT
+    elseif utility.RetreatMode(npcBot)
     then
         if (HealthPercentage <= 0.7) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
         then
@@ -221,10 +221,10 @@ function ConsiderSplinterBlast()
             end
         end
         --  Pushing/defending/Farm
-    elseif utility.PvEMode(npcBot) and (ManaPercentage >= 0.5)
+    elseif utility.PvEMode(npcBot)
     then
         local enemyCreeps = npcBot:GetNearbyCreeps(radiusAbility, true);
-        if (#enemyCreeps > 2)
+        if (#enemyCreeps > 2) and (ManaPercentage >= 0.5)
         then
             for _, enemy in pairs(enemyCreeps) do
                 if utility.CanCastSpellOnTarget(ability, enemy)
@@ -235,7 +235,7 @@ function ConsiderSplinterBlast()
             end
         end
         -- Retreat use
-    elseif botMode == BOT_MODE_RETREAT
+    elseif utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -319,7 +319,7 @@ function ConsiderWintersCurse()
             end
         end
         -- Retreat use
-    elseif botMode == BOT_MODE_RETREAT
+    elseif utility.RetreatMode(npcBot)
     then
         if (HealthPercentage <= 0.6) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
         then

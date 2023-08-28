@@ -238,9 +238,8 @@ function ConsiderUpheaval()
         end
 
         -- Cast if enemy >=2
-        local locationAoE = npcBot:FindAoELocation(true, true, npcBot:GetLocation(), castRangeAbility, radiusAbility, 0,
-            0);
-        if (locationAoE.count >= 2)
+        local locationAoE = npcBot:FindAoELocation(true, true, npcBot:GetLocation(), castRangeAbility, radiusAbility, 0, 0);
+        if locationAoE ~= nil and (locationAoE.count >= 2)
         then
             --npcBot:ActionImmediate_Chat("Использую Upheaval по врагам!", true);
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
@@ -271,15 +270,14 @@ function ConsiderChaoticOffering()
             end
         end
 
-        local locationAoE = npcBot:FindAoELocation(true, true, npcBot:GetLocation(), castRangeAbility, radiusAbility, 0,
-            0);
-        if (locationAoE.count >= 2)
+        local locationAoE = npcBot:FindAoELocation(true, true, npcBot:GetLocation(), castRangeAbility, radiusAbility, 0, 0);
+        if locationAoE ~= nil and (locationAoE.count >= 2)
         then
             --npcBot:ActionImmediate_Chat("Использую ChaoticOffering по врагам!", true);
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
         end
-        -- Retreat or help ally use
-    elseif botMode == BOT_MODE_RETREAT or botMode == BOT_MODE_DEFEND_ALLY
+        -- Retreat use
+    elseif utility.RetreatMode(npcBot)
     then
         local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
         if (#enemyAbility > 0)

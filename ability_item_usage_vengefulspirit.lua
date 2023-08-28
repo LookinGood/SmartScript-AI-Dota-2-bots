@@ -174,7 +174,7 @@ function ConsiderWaveOfTerror()
     then
         local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility, radiusAbility,
             0, 0);
-        if (ManaPercentage >= 0.5) and (locationAoE.count >= 3)
+        if locationAoE ~= nil and (ManaPercentage >= 0.5) and (locationAoE.count >= 3)
         then
             --npcBot:ActionImmediate_Chat("Использую WaveOfTerror по вражеским крипам!", true);
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
@@ -224,7 +224,7 @@ function ConsiderNetherSwap()
             end
         end
         -- Use if need retreat
-    elseif botMode == BOT_MODE_RETREAT
+    elseif utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -243,7 +243,7 @@ function ConsiderNetherSwap()
     end
 
     -- Try to safe ally
-    if botMode ~= BOT_MODE_RETREAT and (#allyAbility > 0)
+    if not utility.RetreatMode(npcBot) and (#allyAbility > 0)
     then
         for _, ally in pairs(allyAbility)
         do

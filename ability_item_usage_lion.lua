@@ -166,8 +166,8 @@ function ConsiderEarthSpike()
                 end
             end
         end
-        -- Retreat or help ally use
-    elseif botMode == BOT_MODE_RETREAT or botMode == BOT_MODE_DEFEND_ALLY
+        -- Retreat use
+    elseif utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -190,7 +190,7 @@ function ConsiderEarthSpike()
     then
         local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility, radiusAbility,
             0, 0);
-        if (ManaPercentage >= 0.6) and (locationAoE.count >= 3)
+        if locationAoE ~= nil and (ManaPercentage >= 0.6) and (locationAoE.count >= 3)
         then
             --npcBot:ActionImmediate_Chat("Использую EarthSpike по вражеским крипам!", true);
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc, "location";
@@ -258,7 +258,7 @@ function ConsiderHex()
             end
         end
         -- Retreat or help ally use
-    elseif botMode == BOT_MODE_RETREAT or botMode == BOT_MODE_DEFEND_ALLY
+    elseif utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -283,7 +283,7 @@ function ConsiderManaDrain()
     local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
 
     -- Use if need restore mana
-    if botMode ~= BOT_MODE_RETREAT and (HealthPercentage >= 0.6)
+    if not utility.RetreatMode(npcBot) and (HealthPercentage >= 0.6)
     then
         if (ManaPercentage <= 0.7) or npcBot:GetMana() < EarthSpike:GetManaCost()
             or npcBot:GetMana() < Hex:GetManaCost() or npcBot:GetMana() < FingerOfDeath:GetManaCost()

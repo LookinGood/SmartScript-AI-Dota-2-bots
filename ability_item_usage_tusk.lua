@@ -75,7 +75,8 @@ function AbilityUsageThink()
 
     if (castSnowballDesire ~= nil)
     then
-        npcBot:Action_UseAbilityOnEntity(Snowball, castSnowballTarget);
+        npcBot:Action_ClearActions(false);
+        npcBot:ActionQueue_UseAbilityOnEntity(Snowball, castSnowballTarget);
         npcBot:ActionQueue_UseAbility(LaunchSnowball);
         return;
     end

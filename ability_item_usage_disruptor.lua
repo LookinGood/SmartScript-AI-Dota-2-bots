@@ -124,8 +124,8 @@ function ConsiderThunderStrike()
                 return BOT_MODE_DESIRE_HIGH, botTarget;
             end
         end
-        -- Retreat or help ally use
-    elseif botMode == BOT_MODE_RETREAT or botMode == BOT_MODE_DEFEND_ALLY
+        -- Retreat use
+    elseif utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -151,7 +151,7 @@ function ConsiderThunderStrike()
             end
         end
         -- Cast when laning
-    elseif npcBot:GetActiveMode() == BOT_MODE_LANING
+    elseif botMode == BOT_MODE_LANING
     then
         local enemy = utility.GetWeakest(enemyAbility);
         if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)
@@ -190,8 +190,8 @@ function ConsiderGlimpse()
         then
             return BOT_ACTION_DESIRE_HIGH, botTarget;
         end
-        -- Retreat or help ally use
-    elseif botMode == BOT_MODE_RETREAT or botMode == BOT_MODE_DEFEND_ALLY
+        -- Retreat use
+    elseif utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -215,15 +215,15 @@ function ConsiderKineticField()
     local delayAbility = ability:GetSpecialValueInt("formation_time");
     local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
 
-    -- Use when attack
+    -- Attack use
     if utility.PvPMode(npcBot)
     then
         if utility.IsHero(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
         then
             return BOT_ACTION_DESIRE_HIGH, utility.GetTargetPosition(botTarget, delayAbility);
         end
-        -- Use if need retreat
-    elseif botMode == BOT_MODE_RETREAT or botMode == BOT_MODE_DEFEND_ALLY
+        -- Retreat use
+    elseif utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -265,7 +265,7 @@ function ConsiderStaticStorm()
     then
         local locationAoE = npcBot:FindAoELocation(true, true, npcBot:GetLocation(), castRangeAbility,
             radiusAbility, 0, 0);
-        if (locationAoE.count >= 2)
+        if locationAoE ~= nil and (locationAoE.count >= 2)
         then
             --npcBot:ActionImmediate_Chat("Использую StaticStorm по врагам!", true);
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;

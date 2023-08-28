@@ -170,7 +170,7 @@ function ConsiderSleightOfFist()
     then
         for _, spell in pairs(incomingSpells)
         do
-            if GetUnitToLocationDistance(npcBot, spell.location) <= 300 and spell.is_attack == false
+            if not utility.IsAlly(npcBot, spell.caster) and GetUnitToLocationDistance(npcBot, spell.location) <= 300 and spell.is_attack == false
             then
                 local enemyCreeps = npcBot:GetNearbyCreeps(castRangeAbility, true);
                 if (#enemyAbility > 0)
@@ -209,7 +209,7 @@ function ConsiderSleightOfFist()
     then
         local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility, radiusAbility, 0,
             0);
-        if (ManaPercentage >= 0.7) and (locationAoE.count >= 3)
+        if locationAoE ~= nil and (ManaPercentage >= 0.7) and (locationAoE.count >= 3)
         then
             --npcBot:ActionImmediate_Chat("Использую SleightOfFist по вражеским крипам!", true);
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
@@ -232,32 +232,34 @@ function ConsiderFlameGuard()
         return;
     end
 
+    if npcBot:HasModifier("modifier_ember_spirit_flame_guard")
+    then
+        return;
+    end
+
     local radiusAbility = ability:GetSpecialValueInt("radius");
 
-    if not npcBot:HasModifier("modifier_ember_spirit_flame_guard")
+    -- Attack use
+    if utility.PvPMode(npcBot)
     then
-        -- Attack use
-        if utility.PvPMode(npcBot)
+        local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
+        if (#enemyAbility > 0)
         then
-            local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
-            if (#enemyAbility > 0)
-            then
-                for _, enemy in pairs(enemyAbility) do
-                    if utility.CanCastSpellOnTarget(ability, enemy)
-                    then
-                        --npcBot:ActionImmediate_Chat("Использую FlameGuard для нападения!", true);
-                        return BOT_ACTION_DESIRE_HIGH;
-                    end
+            for _, enemy in pairs(enemyAbility) do
+                if utility.CanCastSpellOnTarget(ability, enemy)
+                then
+                    --npcBot:ActionImmediate_Chat("Использую FlameGuard для нападения!", true);
+                    return BOT_ACTION_DESIRE_HIGH;
                 end
             end
-            -- Retreat use
-        elseif botMode == BOT_MODE_RETREAT
+        end
+        -- Retreat use
+    elseif utility.RetreatMode(npcBot)
+    then
+        if (HealthPercentage <= 0.9) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
         then
-            if (HealthPercentage <= 0.9) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
-            then
-                --npcBot:ActionImmediate_Chat("Использую FlameGuard для отступления!", true);
-                return BOT_ACTION_DESIRE_HIGH;
-            end
+            --npcBot:ActionImmediate_Chat("Использую FlameGuard для отступления!", true);
+            return BOT_ACTION_DESIRE_HIGH;
         end
     end
 end
@@ -289,7 +291,7 @@ function ConsiderActivateFireRemnant()
             end
         end
         -- Use if need retreat
-    elseif botMode == BOT_MODE_RETREAT
+    elseif utility.RetreatMode(npcBot)
     then
         if #allyUnits > 0
         then
@@ -337,7 +339,7 @@ function ConsiderFireRemnant()
             end
         end
         -- Use if need retreat
-    elseif botMode == BOT_MODE_RETREAT
+    elseif utility.RetreatMode(npcBot)
     then
         if not npcBot:HasModifier("modifier_ember_spirit_fire_remnant_timer") and (HealthPercentage <= 0.9)
             and npcBot:WasRecentlyDamagedByAnyHero(2.0) and npcBot:DistanceFromFountain() > castRangeAbility / 2

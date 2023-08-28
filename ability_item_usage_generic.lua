@@ -6,7 +6,7 @@ module("ability_item_usage_generic", package.seeall)
 local wardUsage = require(GetScriptDirectory() .. "/ward_usage_generic")
 local teleportUsage = require(GetScriptDirectory() .. "/teleportation_usage_generic") ]]
 require(GetScriptDirectory() .. "/utility")
-require(GetScriptDirectory() .. "/ward_usage_generic")
+--require(GetScriptDirectory() .. "/ward_usage_generic")
 require(GetScriptDirectory() .. "/teleportation_usage_generic")
 
 --#region COURIER THINK
@@ -317,7 +317,7 @@ function ItemUsageThink()
 				if utility.IsHero(ally) and not ally:IsInvisible()
 				then
 					if (ally:GetHealth() / ally:GetMaxHealth() <= 0.8 and ally:WasRecentlyDamagedByAnyHero(2.0)) or ally:IsChanneling()
-					or ally:HasModifier("modifier_crystal_maiden_freezing_field")
+						or ally:HasModifier("modifier_crystal_maiden_freezing_field")
 					then
 						if shadowAmulet ~= nil and not ally:HasModifier("modifier_item_shadow_amulet_fade")
 						then
@@ -360,10 +360,10 @@ function ItemUsageThink()
 	end
 
 	-- item_ward_observer
-	local wardObserver = IsItemAvailable("item_ward_observer");
+	--[[ 	local wardObserver = IsItemAvailable("item_ward_observer");
 	if wardObserver ~= nil and wardObserver:IsFullyCastable()
 	then
-		if not utility.PvPMode(npcBot) and botMode ~= BOT_MODE_RETREAT
+		if not utility.PvPMode(npcBot) and not utility.RetreatMode(npcBot)
 		then
 			local wardLocation = nil;
 			local shouldUseWard = false;
@@ -374,7 +374,7 @@ function ItemUsageThink()
 				--return;
 			end
 		end
-	end
+	end ]]
 
 	-- item_tango/item_tango_single
 	local tango = IsItemAvailable("item_tango");
@@ -404,7 +404,7 @@ function ItemUsageThink()
 					--return;
 				end
 			end
-		elseif not utility.PvPMode(npcBot) or botMode ~= BOT_MODE_RETREAT
+		elseif not utility.PvPMode(npcBot) or not utility.RetreatMode(npcBot)
 		then
 			if tango ~= nil and npcBot:DistanceFromFountain() > 3000
 			then
@@ -591,7 +591,7 @@ function ItemUsageThink()
 	local battleFury = IsItemAvailable('item_bfury');
 	if (quellingBlade ~= nil and quellingBlade:IsFullyCastable()) or (battleFury ~= nil and battleFury:IsFullyCastable())
 	then
-		if not utility.PvPMode(npcBot) and botMode ~= BOT_MODE_RETREAT and not npcBot:IsInvisible()
+		if not utility.PvPMode(npcBot) and not utility.RetreatMode(npcBot) and not npcBot:IsInvisible()
 		then
 			local trees = npcBot:GetNearbyTrees(350);
 			if trees[1] ~= nil and (IsLocationVisible(GetTreeLocation(trees[1])) or IsLocationPassable(GetTreeLocation(trees[1])))
@@ -622,12 +622,13 @@ function ItemUsageThink()
 				npcBot:Action_UseAbility(powerTreads);
 			end
 		else
-			if botMode == BOT_MODE_RETREAT and powerTreads:GetPowerTreadsStat() ~= ATTRIBUTE_STRENGTH
+			if utility.RetreatMode(npcBot) and powerTreads:GetPowerTreadsStat() ~= ATTRIBUTE_STRENGTH
 			then
 				npcBot:Action_UseAbility(powerTreads);
 			end
-			if botMode ~= BOT_MODE_RETREAT
+			if not utility.RetreatMode(npcBot)
 			then
+				local biggerAttribute = utility.GetBiggerAttribute(npcBot);
 				if npcBot:GetPrimaryAttribute() == ATTRIBUTE_STRENGTH and powerTreads:GetPowerTreadsStat() ~= ATTRIBUTE_STRENGTH
 				then
 					npcBot:Action_UseAbility(powerTreads);
@@ -637,16 +638,24 @@ function ItemUsageThink()
 				elseif npcBot:GetPrimaryAttribute() == ATTRIBUTE_INTELLECT and powerTreads:GetPowerTreadsStat() ~= ATTRIBUTE_AGILITY
 				then
 					npcBot:Action_UseAbility(powerTreads);
-				elseif (npcBot:GetPrimaryAttribute() ~= ATTRIBUTE_STRENGTH and
-						npcBot:GetPrimaryAttribute() ~= ATTRIBUTE_AGILITY and
-						npcBot:GetPrimaryAttribute() ~= ATTRIBUTE_INTELLECT)
-					and powerTreads:GetPowerTreadsStat() ~= ATTRIBUTE_AGILITY
+				elseif npcBot:GetPrimaryAttribute() ~= ATTRIBUTE_STRENGTH and
+					npcBot:GetPrimaryAttribute() ~= ATTRIBUTE_AGILITY and
+					npcBot:GetPrimaryAttribute() ~= ATTRIBUTE_INTELLECT and
+					powerTreads:GetPowerTreadsStat() ~= biggerAttribute
 				then
 					npcBot:Action_UseAbility(powerTreads);
 				end
 			end
 		end
 	end
+
+	--[[ 				elseif (npcBot:GetPrimaryAttribute() ~= ATTRIBUTE_STRENGTH and
+						npcBot:GetPrimaryAttribute() ~= ATTRIBUTE_AGILITY and
+						npcBot:GetPrimaryAttribute() ~= ATTRIBUTE_INTELLECT)
+					and powerTreads:GetPowerTreadsStat() ~= ATTRIBUTE_AGILITY
+				then
+					npcBot:Action_UseAbility(powerTreads);
+				end ]]
 
 	-- item_arcane_boots
 	local arcaneBoots = IsItemAvailable("item_arcane_boots");
@@ -670,9 +679,7 @@ function ItemUsageThink()
 	local phaseBoots = IsItemAvailable("item_phase_boots");
 	if phaseBoots ~= nil and phaseBoots:IsFullyCastable() and not npcBot:IsInvisible()
 	then
-		if npcBot:GetCurrentActionType() ~= BOT_ACTION_TYPE_IDLE and
-			npcBot:GetCurrentActionType() ~= BOT_ACTION_TYPE_DELAY and
-			npcBot:GetCurrentActionType() ~= BOT_ACTION_TYPE_NONE
+		if utility.IsMoving(npcBot)
 		then
 			npcBot:Action_UseAbility(phaseBoots);
 			--npcBot:ActionImmediate_Chat("Использую предмет phaseBoots!",true);
@@ -812,7 +819,7 @@ function ItemUsageThink()
 	if shivasGuard ~= nil and shivasGuard:IsFullyCastable()
 	then
 		local itemRadius = 900;
-		if utility.PvPMode(npcBot) or botMode == BOT_MODE_RETREAT
+		if utility.PvPMode(npcBot) or utility.RetreatMode(npcBot)
 		then
 			local enemys = npcBot:GetNearbyHeroes(itemRadius, true, BOT_MODE_NONE);
 			if (#enemys > 0)
@@ -887,7 +894,7 @@ function ItemUsageThink()
 					--return;
 				end
 			end
-		elseif botMode == BOT_MODE_RETREAT
+		elseif utility.RetreatMode(npcBot)
 		then
 			local allies = npcBot:GetNearbyHeroes(itemRange, false, BOT_MODE_NONE);
 			if (#allies > 0)
@@ -929,7 +936,7 @@ function ItemUsageThink()
 					--return;
 				end
 			end
-		elseif botMode == BOT_MODE_RETREAT
+		elseif utility.RetreatMode(npcBot)
 		then
 			local enemys = npcBot:GetNearbyHeroes(pikeEnemyRange, true, BOT_MODE_NONE);
 			if (#enemys > 0)
@@ -983,7 +990,7 @@ function ItemUsageThink()
 					--return;
 				end
 			end
-		elseif botMode ~= BOT_MODE_RETREAT
+		elseif not utility.RetreatMode(npcBot)
 		then
 			local allies = npcBot:GetNearbyHeroes(itemRange, false, BOT_MODE_NONE);
 			if (#allies > 1)
@@ -1028,19 +1035,19 @@ function ItemUsageThink()
 		end
 		if utility.PvPMode(npcBot)
 		then
-			if utility.IsHero(botTarget) and not utility.IsDisabled(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= (itemRange)
+			if utility.IsHero(botTarget) and not utility.IsDisabled(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= itemRange
 			then
 				npcBot:Action_UseAbilityOnEntity(abyssalBlade, botTarget);
 				--npcBot:ActionImmediate_Chat("Использую предмет abyssal blade на враге!", true);
 				--return;
 			end
-		elseif botMode == BOT_MODE_RETREAT
+		elseif utility.RetreatMode(npcBot)
 		then
 			if (#enemys > 0)
 			then
 				for _, enemy in pairs(enemys)
 				do
-					if enemy:CanBeSeen() and not utility.IsDisabled(enemy)
+					if utility.IsValidTarget(enemy) and not utility.IsDisabled(enemy)
 					then
 						npcBot:Action_UseAbilityOnEntity(abyssalBlade, enemy);
 						--npcBot:ActionImmediate_Chat("Использую предмет abyssal blade для оступления!",true);
@@ -1061,7 +1068,7 @@ function ItemUsageThink()
 		then
 			for _, enemy in pairs(enemys)
 			do
-				if enemy:CanBeSeen() and not utility.IsDisabled(enemy) and not enemy:IsDisarmed()
+				if utility.IsValidTarget(enemy) and not utility.IsDisabled(enemy) and not enemy:IsDisarmed()
 				then
 					local enemyAttackTarget = enemy:GetAttackTarget();
 					if enemyAttackTarget ~= nil and utility.IsHero(enemyAttackTarget)
@@ -1096,14 +1103,14 @@ function ItemUsageThink()
 					--return;
 				end
 			end
-		elseif botMode == BOT_MODE_RETREAT
+		elseif utility.RetreatMode(npcBot)
 		then
 			local enemys = npcBot:GetNearbyHeroes(itemRange, true, BOT_MODE_NONE);
 			if (#enemys > 0)
 			then
 				for _, enemy in pairs(enemys)
 				do
-					if enemy:CanBeSeen() and utility.SafeCast(enemy) and not enemy:IsSilenced()
+					if utility.IsValidTarget(enemy) and utility.SafeCast(enemy) and not enemy:IsSilenced()
 					then
 						if orchid ~= nil
 						then
@@ -1216,7 +1223,7 @@ function ItemUsageThink()
 					--npcBot:ActionImmediate_Chat("Использую предмет black King Bar для нападения!",true);
 					--return;
 				end
-			elseif botMode == BOT_MODE_RETREAT
+			elseif utility.RetreatMode(npcBot)
 			then
 				if (npcBot:GetHealth() / npcBot:GetMaxHealth() <= 0.8) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
 				then
@@ -1251,7 +1258,7 @@ function ItemUsageThink()
 				--npcBot:ActionImmediate_Chat("Использую предмет manta style для нападения!",true);
 				--return;
 			end
-		elseif botMode == BOT_MODE_RETREAT
+		elseif utility.RetreatMode(npcBot)
 		then
 			if (npcBot:GetHealth() / npcBot:GetMaxHealth() <= 0.8) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
 			then
@@ -1286,7 +1293,7 @@ function ItemUsageThink()
 				--npcBot:ActionImmediate_Chat("Использую предмет blade Mail для нападения!",true);
 				--return;
 			end
-		elseif botMode == BOT_MODE_RETREAT
+		elseif utility.RetreatMode(npcBot)
 		then
 			if (npcBot:GetHealth() / npcBot:GetMaxHealth() <= 0.8) and npcBot:WasRecentlyDamagedByAnyHero(5.0)
 			then
@@ -1309,7 +1316,7 @@ function ItemUsageThink()
 				--npcBot:ActionImmediate_Chat("Использую предмет bloodstone для нападения!",true);
 				--return;
 			end
-		elseif botMode == BOT_MODE_RETREAT
+		elseif utility.RetreatMode(npcBot)
 		then
 			if (npcBot:GetHealth() / npcBot:GetMaxHealth() <= 0.5) and npcBot:WasRecentlyDamagedByAnyHero(5.0)
 			then
@@ -1357,7 +1364,7 @@ function ItemUsageThink()
 						--return;
 					end
 				end
-			elseif botMode == BOT_MODE_RETREAT and npcBot:DistanceFromFountain() >= 400
+			elseif utility.RetreatMode(npcBot) and npcBot:DistanceFromFountain() >= (itemRange / 2)
 			then
 				if blink ~= nil
 				then
@@ -1662,7 +1669,7 @@ function ItemUsageThink()
 						--return;
 					end
 				end
-			elseif botMode == BOT_MODE_RETREAT
+			elseif utility.RetreatMode(npcBot)
 			then
 				local enemys = npcBot:GetNearbyHeroes(itemRange, true, BOT_MODE_NONE);
 				if (#enemys > 0)
@@ -1733,7 +1740,7 @@ function ItemUsageThink()
 					--return;
 				end
 			end
-		elseif botMode == BOT_MODE_RETREAT
+		elseif utility.RetreatMode(npcBot)
 		then
 			if ghost ~= nil
 			then
@@ -1784,7 +1791,7 @@ function ItemUsageThink()
 					--return;
 				end
 			end
-		elseif botMode == BOT_MODE_RETREAT
+		elseif utility.RetreatMode(npcBot)
 		then
 			if (npcBot:GetHealth() / npcBot:GetMaxHealth() <= 0.8) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
 			then
@@ -1846,7 +1853,7 @@ function ItemUsageThink()
 					--return;
 				end
 			end
-		elseif botMode == BOT_MODE_RETREAT
+		elseif utility.RetreatMode(npcBot)
 		then
 			local enemys = npcBot:GetNearbyHeroes(itemRange, true, BOT_MODE_NONE);
 			if (#enemys > 0)
@@ -1910,7 +1917,7 @@ function ItemUsageThink()
 		if not npcBot:IsInvisible()
 		then
 			local enemy = utility.GetStrongestCreep(npcBot, 600 + 200);
-			if utility.CanCastOnMagicImmuneTarget(enemy) and not enemy:IsAncientCreep() and (enemy:GetLevel() >= 3)
+			if utility.CanCastOnMagicImmuneTarget(enemy) and not enemy:IsAncientCreep() and (enemy:GetLevel() > 1)
 				and (enemy:GetHealth() / enemy:GetMaxHealth() >= 0.8)
 			then
 				npcBot:Action_UseAbilityOnEntity(handOfMidas, enemy);
@@ -1946,7 +1953,7 @@ function ItemUsageThink()
 				--npcBot:ActionImmediate_Chat("Использую предмет scytheOfVyse на враге!", true);
 				--return;
 			end
-		elseif botMode == BOT_MODE_RETREAT
+		elseif utility.RetreatMode(npcBot)
 		then
 			if (#enemys > 0)
 			then
@@ -1977,7 +1984,7 @@ function ItemUsageThink()
 					--npcBot:ActionImmediate_Chat("Использую предмет maskOfMadness для нападения!",true);
 				end
 			end
-		elseif botMode == BOT_MODE_RETREAT
+		elseif utility.RetreatMode(npcBot)
 		then
 			if npcBot:DistanceFromFountain() > 1000 and npcBot:WasRecentlyDamagedByAnyHero(2.0)
 			then

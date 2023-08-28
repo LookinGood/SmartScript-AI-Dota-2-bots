@@ -84,8 +84,8 @@ function AbilityUsageThink()
     if (castBlackHoleDesire ~= nil)
     then
         npcBot:Action_ClearActions(false);
+        npcBot:ActionQueue_Delay(1.0);
         npcBot:ActionQueue_UseAbilityOnLocation(BlackHole, castBlackHoleLocation);
-        npcBot:ActionQueue_Delay(5.0);
         return;
     end
 end
@@ -261,12 +261,12 @@ function ConsiderMidnightPulse()
             end
         end
         -- Cast if push/defend/farm
-    elseif utility.PvEMode(npcBot) and (ManaPercentage >= 0.6)
+    elseif utility.PvEMode(npcBot)
     then
         local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility,
             radiusAbility,
             0, 0);
-        if (locationAoE.count >= 3)
+        if locationAoE ~= nil and (locationAoE.count >= 3) and (ManaPercentage >= 0.6)
         then
             --npcBot:ActionImmediate_Chat("Использую MidnightPulse по вражеским крипам!", true);
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc, "location";
@@ -301,7 +301,7 @@ function ConsiderBlackHole()
         for _, enemy in pairs(enemyAbility) do
             if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType())
             then
-                if utility.CanCastSpellOnTarget(ability, enemy) and utility.SafeCast(enemy, true)
+                if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую BlackHole что бы убить цель!", true);
                     return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(enemy, delayAbility);
@@ -315,7 +315,7 @@ function ConsiderBlackHole()
     then
         local locationAoE = npcBot:FindAoELocation(true, true, npcBot:GetLocation(), castRangeAbility,
             radiusAbility, 0, 0);
-        if (locationAoE.count >= 2)
+        if locationAoE ~= nil and (locationAoE.count >= 2)
         then
             --npcBot:ActionImmediate_Chat("Использую BlackHole по 2+ врагам!", true);
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;

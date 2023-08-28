@@ -88,6 +88,7 @@ function ConsiderTimeWalk()
 
     local attackRange = npcBot:GetAttackRange();
     local castRangeAbility = ability:GetSpecialValueInt("range");
+    local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
 
     -- Cast if enemy hero too far away
     if utility.PvPMode(npcBot)
@@ -95,12 +96,15 @@ function ConsiderTimeWalk()
         if utility.IsHero(botTarget) and utility.CanCastOnInvulnerableTarget(botTarget) and
             GetUnitToUnitDistance(npcBot, botTarget) > (attackRange * 2)
         then
-            return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(botTarget, ability);
+            return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(botTarget, delayAbility);
         end
         -- Cast if need retreat
-    elseif botMode == BOT_MODE_RETREAT and npcBot:DistanceFromFountain() >= castRangeAbility
+    elseif utility.RetreatMode(npcBot)
     then
-        return BOT_ACTION_DESIRE_HIGH, utility.GetEscapeLocation(npcBot, castRangeAbility);
+        if npcBot:DistanceFromFountain() >= castRangeAbility
+        then
+            return BOT_ACTION_DESIRE_HIGH, utility.GetEscapeLocation(npcBot, castRangeAbility);
+        end
     end
 end
 

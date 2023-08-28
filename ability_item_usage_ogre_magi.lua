@@ -141,8 +141,8 @@ function ConsiderFireblast()
                 return BOT_MODE_DESIRE_HIGH, botTarget;
             end
         end
-        -- Retreat or help ally use
-    elseif botMode == BOT_MODE_RETREAT or botMode == BOT_MODE_DEFEND_ALLY
+        -- Retreat use
+    elseif utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -193,8 +193,8 @@ function ConsiderIgnite()
                 return BOT_MODE_DESIRE_HIGH, botTarget;
             end
         end
-        -- Retreat or help ally use
-    elseif botMode == BOT_MODE_RETREAT or botMode == BOT_MODE_DEFEND_ALLY
+        -- Retreat use
+    elseif utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -296,7 +296,7 @@ function ConsiderBloodlust()
     end
 
     -- Cast to buff ally towers
-    if botMode ~= BOT_MODE_RETREAT
+    if not utility.RetreatMode(npcBot)
     then
         local allyTowers = npcBot:GetNearbyTowers(castRangeAbility, false);
         if (#allyTowers > 0)
@@ -354,8 +354,8 @@ function ConsiderUnrefinedFireblast()
                 return BOT_MODE_DESIRE_HIGH, botTarget;
             end
         end
-        -- Retreat or help ally use
-    elseif botMode == BOT_MODE_RETREAT or botMode == BOT_MODE_DEFEND_ALLY
+        -- Retreat use
+    elseif utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then

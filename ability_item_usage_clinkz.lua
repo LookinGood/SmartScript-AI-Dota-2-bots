@@ -111,7 +111,7 @@ function ConsiderStrafe()
     end
 
     local attackTarget = npcBot:GetAttackTarget();
-    local attackRange = npcBot:GetAttackRange() + (ability:GetSpecialValueInt("attack_range_bonus"));
+    local attackRange = npcBot:GetAttackRange() + ability:GetSpecialValueInt("attack_range_bonus");
 
     -- Attack use
     if utility.PvPMode(npcBot) or npcBot:GetActiveMode() == BOT_MODE_ROSHAN
@@ -127,7 +127,7 @@ function ConsiderStrafe()
     end
 
     -- Use when attack building
-    if utility.IsBuilding(attackTarget)
+    if utility.IsBuilding(attackTarget) and utility.CanCastOnInvulnerableTarget(attackTarget)
     then
         if (attackTarget:GetHealth() / attackTarget:GetMaxHealth() >= 0.3) and ManaPercentage >= 0.4
         then
@@ -144,7 +144,7 @@ function ConsiderTarBomb()
     end
 
     local castRangeAbility = ability:GetCastRange();
-    local enemyAbility = npcBot:GetNearbyHeroes((castRangeAbility + 200), true, BOT_MODE_NONE);
+    local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility + 200, true, BOT_MODE_NONE);
 
     if not npcBot:IsInvisible()
     then
@@ -158,8 +158,8 @@ function ConsiderTarBomb()
                     return BOT_MODE_DESIRE_HIGH, botTarget;
                 end
             end
-            -- Retreat or help ally use
-        elseif botMode == BOT_MODE_RETREAT or botMode == BOT_MODE_DEFEND_ALLY
+            -- Retreat use
+        elseif utility.RetreatMode(npcBot)
         then
             if (#enemyAbility > 0)
             then
@@ -251,7 +251,7 @@ function ConsiderBurningArmy()
                 end
             end
             -- Retreat use
-        elseif botMode == BOT_MODE_RETREAT
+        elseif utility.RetreatMode(npcBot)
         then
             local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
             if (enemyAbility > 0) and (HealthPercentage <= 0.7)
@@ -295,30 +295,28 @@ function ConsiderSkeletonWalk()
         return;
     end
 
+    if npcBot:IsInvisible()
+    then
+        return;
+    end
+
     local attackRange = npcBot:GetAttackRange();
 
-    if not npcBot:IsInvisible()
+    -- Attack use
+    if utility.PvPMode(npcBot)
     then
-        -- Attack use
-        if utility.PvPMode(npcBot)
+        if utility.IsHero(botTarget)
         then
-            if utility.IsHero(botTarget)
+            if GetUnitToUnitDistance(npcBot, botTarget) > attackRange and GetUnitToUnitDistance(npcBot, botTarget) <= 2000
             then
-                if GetUnitToUnitDistance(npcBot, botTarget) > attackRange and GetUnitToUnitDistance(npcBot, botTarget) <= 2000
-                then
-                    --npcBot:ActionImmediate_Chat("Использую SkeletonWalk для нападения!", true);
-                    return BOT_MODE_DESIRE_HIGH;
-                end
-            end
-            -- Retreat use
-        elseif botMode == BOT_MODE_RETREAT
-        then
-            local enemyAbility = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
-            if #enemyAbility > 0
-            then
-                --npcBot:ActionImmediate_Chat("Использую SkeletonWalk для отхода!", true);
+                --npcBot:ActionImmediate_Chat("Использую SkeletonWalk для нападения!", true);
                 return BOT_MODE_DESIRE_HIGH;
             end
         end
+        -- Retreat use
+    elseif utility.RetreatMode(npcBot)
+    then
+        --npcBot:ActionImmediate_Chat("Использую SkeletonWalk для отхода!", true);
+        return BOT_MODE_DESIRE_HIGH;
     end
 end

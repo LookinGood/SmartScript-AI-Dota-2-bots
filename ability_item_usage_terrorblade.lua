@@ -121,8 +121,8 @@ function ConsiderReflection()
             --npcBot:ActionImmediate_Chat("Использую Reflection для нападения!", true);
             return BOT_ACTION_DESIRE_HIGH, botTarget:GetLocation();
         end
-        -- Retreat or help ally use
-    elseif botMode == BOT_MODE_RETREAT or botMode == BOT_MODE_DEFEND_ALLY
+        -- Retreat use
+    elseif utility.RetreatMode(npcBot)
     then
         local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility + 200, true, BOT_MODE_NONE);
         if (#enemyAbility > 0)
@@ -153,7 +153,7 @@ function ConsiderConjureImage()
             return BOT_ACTION_DESIRE_HIGH;
         end
         -- Retreat use
-    elseif botMode == BOT_MODE_RETREAT
+    elseif utility.RetreatMode(npcBot)
     then
         local enemyAbility = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
         if (#enemyAbility > 0) and (HealthPercentage <= 0.6) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
@@ -162,10 +162,13 @@ function ConsiderConjureImage()
             return BOT_ACTION_DESIRE_HIGH;
         end
         -- Cast if push/defend/farm/roshan
-    elseif utility.PvEMode(npcBot) and (npcBot:DistanceFromFountain() > 1000) and (ManaPercentage >= 0.4)
+    elseif utility.PvEMode(npcBot)
     then
-        --npcBot:ActionImmediate_Chat("Использую ConjureImage против вражеских сил!", true);
-        return BOT_ACTION_DESIRE_LOW;
+        if (npcBot:DistanceFromFountain() > 1000) and (ManaPercentage >= 0.4)
+        then
+            --npcBot:ActionImmediate_Chat("Использую ConjureImage против вражеских сил!", true);
+            return BOT_ACTION_DESIRE_LOW;
+        end
     end
 end
 
@@ -207,7 +210,7 @@ function ConsiderDemonZeal()
             return BOT_ACTION_DESIRE_HIGH;
         end
         -- Retreat use
-    elseif botMode == BOT_MODE_RETREAT
+    elseif utility.RetreatMode(npcBot)
     then
         local enemyAbility = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
         if (#enemyAbility > 0) and (HealthPercentage > 0.2) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
@@ -248,7 +251,7 @@ function ConsiderTerrorWave()
             return BOT_ACTION_DESIRE_HIGH;
         end
         -- Retreat use
-    elseif botMode == BOT_MODE_RETREAT
+    elseif utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0) and (HealthPercentage <= 0.6) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
         then

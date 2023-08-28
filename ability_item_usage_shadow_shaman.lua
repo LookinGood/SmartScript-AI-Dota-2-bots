@@ -194,8 +194,8 @@ function ConsiderHex()
                 end
             end
         end
-        -- Retreat or help ally use
-    elseif botMode == BOT_MODE_RETREAT or botMode == BOT_MODE_DEFEND_ALLY
+        -- Retreat use
+    elseif utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -247,8 +247,8 @@ function ConsiderShackles()
                 return BOT_MODE_DESIRE_HIGH, botTarget;
             end
         end
-        -- Retreat or help ally use
-    elseif botMode == BOT_MODE_RETREAT or botMode == BOT_MODE_DEFEND_ALLY
+        -- Retreat use
+    elseif utility.RetreatMode(npcBot)
     then
         if (#enemyAbility == 1)
         then
@@ -272,7 +272,7 @@ function ConsiderMassSerpentWard()
     local castRangeAbility = ability:GetCastRange();
     local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
 
-    -- Cast if attack enemy
+    -- Attack use
     if utility.PvPMode(npcBot)
     then
         if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
@@ -280,8 +280,8 @@ function ConsiderMassSerpentWard()
         then
             return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(botTarget, delayAbility);
         end
-        -- Use if need retreat
-    elseif botMode == BOT_MODE_RETREAT
+        -- Retreat use
+    elseif utility.RetreatMode(npcBot)
     then
         local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
         if (#enemyAbility > 0) and (HealthPercentage <= 0.7)

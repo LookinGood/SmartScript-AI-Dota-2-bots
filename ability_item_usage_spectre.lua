@@ -140,7 +140,7 @@ function ConsiderSpectralDagger()
             end
         end
         -- Retreat use
-    elseif botMode == BOT_MODE_RETREAT
+    elseif utility.RetreatMode(npcBot)
     then
         if (HealthPercentage < 0.7) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
         then
@@ -253,8 +253,8 @@ function ConsiderShadowStep()
             --npcBot:ActionImmediate_Chat("Использую ShadowStep по врагу в радиусе действия!",true);
             return BOT_MODE_DESIRE_HIGH, botTarget;
         end
-        -- Retreat or help ally use
-    elseif botMode == BOT_MODE_RETREAT or botMode == BOT_MODE_DEFEND_ALLY
+        -- Retreat use
+    elseif utility.RetreatMode(npcBot)
     then
         local closeEnemyAbility = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
         if (#closeEnemyAbility > 0)

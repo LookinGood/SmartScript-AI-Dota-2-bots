@@ -46,6 +46,7 @@ end
 local StrokeOfFate = AbilitiesReal[1]
 local PhantomsEmbrace = AbilitiesReal[2]
 local InkSwell = AbilitiesReal[3]
+local InkExplosion = npcBot:GetAbilityByName("grimstroke_return");
 local DarkPortrait = AbilitiesReal[4]
 local Soulbind = AbilitiesReal[6]
 
@@ -62,6 +63,7 @@ function AbilityUsageThink()
     local castStrokeOfFateDesire, castStrokeOfFateLocation = ConsiderStrokeOfFate();
     local castPhantomsEmbraceDesire, castPhantomsEmbraceTarget = ConsiderPhantomsEmbrace();
     local castInkSwellDesire, castInkSwellTarget = ConsiderInkSwell();
+    local castInkExplosionDesire = ConsiderInkExplosion();
     local castDarkPortraitDesire, castDarkPortraitTarget = ConsiderDarkPortrait();
     local castSoulbindDesire, castSoulbindTarget = ConsiderSoulbind();
 
@@ -80,6 +82,12 @@ function AbilityUsageThink()
     if (castInkSwellDesire ~= nil)
     then
         npcBot:Action_UseAbilityOnEntity(InkSwell, castInkSwellTarget);
+        return;
+    end
+
+    if (castInkExplosionDesire ~= nil)
+    then
+        npcBot:Action_UseAbility(InkExplosion);
         return;
     end
 
@@ -132,8 +140,8 @@ function ConsiderStrokeOfFate()
                 return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(botTarget, delayAbility);
             end
         end
-        -- Retreat or help ally use
-    elseif botMode == BOT_MODE_RETREAT or botMode == BOT_MODE_DEFEND_ALLY
+        -- Retreat use
+    elseif utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -149,7 +157,7 @@ function ConsiderStrokeOfFate()
     then
         local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility, radiusAbility,
             0, 0);
-        if (ManaPercentage >= 0.5) and (locationAoE.count >= 3)
+        if locationAoE ~= nil and (ManaPercentage >= 0.5) and (locationAoE.count >= 3)
         then
             --npcBot:ActionImmediate_Chat("Использую StrokeOfFate по вражеским крипам!", true);
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
@@ -202,8 +210,8 @@ function ConsiderPhantomsEmbrace()
                 return BOT_MODE_DESIRE_HIGH, botTarget;
             end
         end
-        -- Retreat or help ally use
-    elseif botMode == BOT_MODE_RETREAT or botMode == BOT_MODE_DEFEND_ALLY
+        -- Retreat use
+    elseif utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -264,6 +272,33 @@ function ConsiderInkSwell()
     end
 end
 
+function ConsiderInkExplosion()
+    local ability = InkExplosion;
+    if not utility.IsAbilityAvailable(ability) then
+        return;
+    end
+
+    local radiusAbility = InkSwell:GetSpecialValueInt("radius");
+    local allyHeroes = GetUnitList(UNIT_LIST_ALLIED_HEROES);
+
+    -- Use if around ally has enemy hero
+    for _, ally in pairs(allyHeroes) do
+        if ally:HasModifier("modifier_grimstroke_spirit_walk_buff")
+        then
+            local enemyHeroes = ally:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
+            if (#enemyHeroes > 0)
+            then
+                for _, enemy in pairs(enemyHeroes) do
+                    if utility.CanCastSpellOnTarget(InkSwell, enemy) and not utility.IsDisabled(enemy)
+                    then
+                        return BOT_ACTION_DESIRE_HIGH;
+                    end
+                end
+            end
+        end
+    end
+end
+
 function ConsiderDarkPortrait()
     local ability = DarkPortrait;
     if not utility.IsAbilityAvailable(ability) then
@@ -274,7 +309,7 @@ function ConsiderDarkPortrait()
     local enemyAbility = npcBot:GetNearbyHeroes((castRangeAbility + 200), true, BOT_MODE_NONE);
 
     -- General use
-    if utility.PvPMode(npcBot) or botMode == BOT_MODE_RETREAT
+    if utility.PvPMode(npcBot) or utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then

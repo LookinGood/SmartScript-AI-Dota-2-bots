@@ -117,8 +117,8 @@ function ConsiderStormHammer()
                 return BOT_MODE_DESIRE_HIGH, botTarget;
             end
         end
-        -- Retreat or help ally use
-    elseif botMode == BOT_MODE_RETREAT or botMode == BOT_MODE_DEFEND_ALLY
+        -- Retreat use
+    elseif utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -198,17 +198,19 @@ function ConsiderGodsStrength()
         return;
     end
 
-    if not npcBot:HasModifier("modifier_sven_gods_strength")
+    if npcBot:HasModifier("modifier_sven_gods_strength") or npcBot:IsDisarmed()
     then
-        -- Attack use
-        if utility.PvPMode(npcBot) and not npcBot:IsDisarmed()
+        return;
+    end
+
+    -- Attack use
+    if utility.PvPMode(npcBot)
+    then
+        if utility.IsHero(botTarget) and utility.CanCastOnInvulnerableTarget(botTarget)
+            and GetUnitToUnitDistance(npcBot, botTarget) <= npcBot:GetAttackRange() * 4
         then
-            if utility.IsHero(botTarget) and utility.CanCastOnInvulnerableTarget(botTarget)
-                and GetUnitToUnitDistance(npcBot, botTarget) <= npcBot:GetAttackRange() * 4
-            then
-                --npcBot:ActionImmediate_Chat("Использую GodsStrength для нападения!", true);
-                return BOT_ACTION_DESIRE_HIGH;
-            end
+            --npcBot:ActionImmediate_Chat("Использую GodsStrength для нападения!", true);
+            return BOT_ACTION_DESIRE_HIGH;
         end
     end
 end

@@ -96,8 +96,8 @@ function ConsiderBlink()
     end
 
     local attackRange = npcBot:GetAttackRange();
-    local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
     local castRangeAbility = ability:GetSpecialValueInt("AbilityCastRange");
+    local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
 
     -- Cast if enemy hero too far away
     if utility.PvPMode(npcBot)
@@ -108,9 +108,12 @@ function ConsiderBlink()
             return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(botTarget, delayAbility);
         end
         -- Cast if need retreat
-    elseif botMode == BOT_MODE_RETREAT and npcBot:DistanceFromFountain() >= castRangeAbility
+    elseif utility.RetreatMode(npcBot)
     then
-        return BOT_ACTION_DESIRE_HIGH, utility.GetEscapeLocation(npcBot, castRangeAbility);
+        if npcBot:DistanceFromFountain() >= castRangeAbility
+        then
+            return BOT_ACTION_DESIRE_HIGH, utility.GetEscapeLocation(npcBot, castRangeAbility);
+        end
     end
     -- Cast if get incoming spell
     if not utility.IsAbilityAvailable(SpellShield)
@@ -120,7 +123,8 @@ function ConsiderBlink()
         then
             for _, spell in pairs(incomingSpells)
             do
-                if GetUnitToLocationDistance(npcBot, spell.location) <= 700 and spell.is_attack == false and spell.is_dodgeable == true
+                if not utility.IsAlly(npcBot, spell.caster) and GetUnitToLocationDistance(npcBot, spell.location) <= 700
+                    and spell.is_attack == false and spell.is_dodgeable == true
                 then
                     return BOT_ACTION_DESIRE_HIGH, utility.GetEscapeLocation(npcBot, castRangeAbility);
                 end
@@ -128,7 +132,7 @@ function ConsiderBlink()
         end
     end
 
---[[     -- If going somewhere
+    --[[     -- If going somewhere
     if not utility.IsHero(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) > (attackRange * 2)
     then
         return BOT_ACTION_DESIRE_VERYLOW, botTarget:GetLocation();
@@ -148,7 +152,7 @@ function ConsiderSpellShield()
     then
         for _, spell in pairs(incomingSpells)
         do
-            if GetUnitToLocationDistance(npcBot, spell.location) <= 300 and spell.is_attack == false
+            if not utility.IsAlly(npcBot, spell.caster) and GetUnitToLocationDistance(npcBot, spell.location) <= 300 and spell.is_attack == false
             then
                 return BOT_ACTION_DESIRE_VERYHIGH;
             end

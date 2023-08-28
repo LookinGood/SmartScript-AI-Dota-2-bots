@@ -110,6 +110,30 @@ end
 	return unitList;
 end ]]
 
+function GetBiggerAttribute(npcTarget)
+	if not utility.IsHero(npcTarget)
+	then
+		return nil;
+	end
+
+	local targetStrenght = npcTarget:GetAttributeValue(ATTRIBUTE_STRENGTH);
+	local targetAgility = npcTarget:GetAttributeValue(ATTRIBUTE_AGILITY);
+	local targetIntellect = npcTarget:GetAttributeValue(ATTRIBUTE_INTELLECT);
+
+	if (targetStrenght > targetAgility) and (targetStrenght > targetIntellect)
+	then
+		return ATTRIBUTE_STRENGTH;
+	elseif (targetAgility > targetStrenght) and (targetAgility > targetIntellect)
+	then
+		return ATTRIBUTE_AGILITY;
+	elseif (targetIntellect > targetStrenght) and (targetIntellect > targetAgility)
+	then
+		return ATTRIBUTE_INTELLECT;
+	else
+		return nil;
+	end
+end
+
 function GetItemSlotsCount()
 	local npcBot = GetBot();
 	local itemCount = 0;
@@ -191,6 +215,10 @@ function IsIllusion(npcTarget)
 			npcTarget:HasModifier("modifier_phantom_lancer_juxtapose_illusion"))
 end
 
+function IsAlly(npcBot, npcTarget)
+	return npcBot:GetTeam() == npcTarget:GetTeam();
+end
+
 function IsHero(npcTarget)
 	return IsValidTarget(npcTarget) and npcTarget:IsHero() and not IsIllusion(npcTarget);
 end
@@ -215,13 +243,13 @@ end
 
 function IsMoving(npcTarget)
 	return IsValidTarget(npcTarget) and
+		npcTarget:GetBaseMovementSpeed() > 0 and
 		npcTarget:GetCurrentActionType() ~= BOT_ACTION_TYPE_IDLE and
 		npcTarget:GetCurrentActionType() ~= BOT_ACTION_TYPE_DELAY and
 		npcTarget:GetCurrentActionType() ~= BOT_ACTION_TYPE_NONE and
 		not npcTarget:IsRooted() and
 		not npcTarget:IsStunned() and
 		not npcTarget:IsNightmared()
-		and npcTarget:GetBaseMovementSpeed() > 0
 end
 
 function IsHaveMaxSpeed(npcTarget)
@@ -294,6 +322,36 @@ function CountEnemyCreepAroundUnit(unit, radius)
 	return count;
 end
 
+function CountAllyTowerAroundUnit(unit, radius)
+	local count = 0;
+	local allyCreeps = GetUnitList(UNIT_LIST_ALLIED_BUILDINGS);
+
+	for _, ally in pairs(allyCreeps)
+	do
+		if GetUnitToUnitDistance(unit, ally) <= radius and ally:IsTower()
+		then
+			count = count + 1;
+		end
+	end
+
+	return count;
+end
+
+function CountAllyTowerAroundPosition(position, radius)
+	local count = 0;
+	local allyCreeps = GetUnitList(UNIT_LIST_ALLIED_BUILDINGS);
+
+	for _, ally in pairs(allyCreeps)
+	do
+		if GetUnitToLocationDistance(ally, position) <= radius and ally:IsTower()
+		then
+			count = count + 1;
+		end
+	end
+
+	return count;
+end
+
 function CountEnemyTowerAroundUnit(unit, radius)
 	local count = 0;
 	local enemyCreeps = GetUnitList(UNIT_LIST_ENEMY_BUILDINGS);
@@ -301,6 +359,21 @@ function CountEnemyTowerAroundUnit(unit, radius)
 	for _, enemy in pairs(enemyCreeps)
 	do
 		if GetUnitToUnitDistance(unit, enemy) <= radius and enemy:IsTower()
+		then
+			count = count + 1;
+		end
+	end
+
+	return count;
+end
+
+function CountEnemyTowerAroundPosition(position, radius)
+	local count = 0;
+	local enemyCreeps = GetUnitList(UNIT_LIST_ENEMY_BUILDINGS);
+
+	for _, enemy in pairs(enemyCreeps)
+	do
+		if GetUnitToLocationDistance(enemy, position) <= radius and enemy:IsTower()
 		then
 			count = count + 1;
 		end

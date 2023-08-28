@@ -94,7 +94,7 @@ function ConsiderBladeFury()
         return;
     end
 
-    if not utility.CanCastOnMagicImmuneTarget(npcBot) or npcBot:HasModifier("modifier_juggernaut_blade_fury")
+    if not utility.CanCastOnMagicImmuneTarget(npcBot)
     then
         return;
     end
@@ -164,6 +164,7 @@ function ConsiderHealingWard()
         for _, ally in pairs(allyAbility)
         do
             if utility.IsHero(ally) and utility.CanBeHeal(ally) and (ally:GetHealth() / ally:GetMaxHealth() < 0.7)
+                and not ally:HasModifier("modifier_juggernaut_healing_ward_heal")
             then
                 --npcBot:ActionImmediate_Chat("Использую HealingWard!", true);
                 return BOT_ACTION_DESIRE_HIGH, ally:GetLocation();

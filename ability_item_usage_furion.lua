@@ -70,9 +70,8 @@ function AbilityUsageThink()
         if (castSproutType == "combo")
         then
             npcBot:Action_ClearActions(false);
-            npcBot:Action_UseAbilityOnEntity(Sprout, npcBot);
-            npcBot:Action_Delay(0.5);
-            npcBot:Action_UseAbilityOnLocation(Teleportation, utility.SafeLocation(npcBot));
+            npcBot:ActionQueue_UseAbilityOnEntity(Sprout, npcBot);
+            npcBot:ActionQueue_UseAbilityOnLocation(Teleportation, utility.SafeLocation(npcBot));
             return;
         elseif (castSproutType == "nil")
         then
@@ -134,22 +133,22 @@ function ConsiderSprout()
             end
         end
         -- Retreat use
-    elseif botMode == BOT_MODE_RETREAT
+    elseif utility.RetreatMode(npcBot)
     then
         local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
         if (#enemyAbility > 0)
         then
-            --[[             if Teleportation:IsFullyCastable() and npcBot:GetMana() >= ability:GetManaCost() + Teleportation:GetManaCost()
+            if utility.IsAbilityAvailable(Teleportation) and npcBot:GetMana() >= ability:GetManaCost() + Teleportation:GetManaCost()
             then
                 --npcBot:ActionImmediate_Chat("Использую Sprout для отступления в комбе с телепортом!",true);
                 return BOT_ACTION_DESIRE_VERYHIGH, nil, "combo";
-            else ]]
-            for _, enemy in pairs(enemyAbility) do
-                if not utility.IsDisabled(enemy)
-                then
-                    --npcBot:ActionImmediate_Chat("Использую Sprout для отступления!", true);
-                    return BOT_ACTION_DESIRE_HIGH, enemy:GetLocation(), "nil";
-                    --end
+            else
+                for _, enemy in pairs(enemyAbility) do
+                    if not utility.IsDisabled(enemy)
+                    then
+                        --npcBot:ActionImmediate_Chat("Использую Sprout для отступления!", true);
+                        return BOT_ACTION_DESIRE_HIGH, enemy:GetLocation(), "nil";
+                    end
                 end
             end
         end
@@ -244,7 +243,7 @@ function ConsiderCurseOfTheOldgrowth()
     local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
 
     -- General use
-    if utility.PvPMode(npcBot) or botMode == BOT_MODE_RETREAT
+    if utility.PvPMode(npcBot) or utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then

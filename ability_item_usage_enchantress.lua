@@ -91,7 +91,7 @@ function AbilityUsageThink()
 
     if npcBot:HasModifier("modifier_enchantress_natures_attendants")
     then
-        if botMode ~= BOT_MODE_ATTACK and botMode ~= BOT_MODE_RETREAT
+        if not utility.PvPMode(npcBot) and not utility.RetreatMode(npcBot)
         then
             local allyAbility = npcBot:GetNearbyHeroes(NaturesAttendants:GetSpecialValueInt("radius") * 2, false,
                 BOT_MODE_NONE);
@@ -153,12 +153,11 @@ function ConsiderEnchant()
             then
                 --npcBot:ActionImmediate_Chat("Использую Enchant для нападения!", true);
                 return BOT_ACTION_DESIRE_HIGH, botTarget;
-            elseif GetUnitToUnitDistance(npcBot, botTarget) <= attackRange
-            then
+            else
                 if (#enemyCreeps > 0)
                 then
                     for _, enemy in pairs(enemyCreeps) do
-                        if utility.CanCastSpellOnTarget(ability,enemy) and not enemy:IsAncientCreep() and utility.SafeCast(enemy, true)
+                        if utility.CanCastSpellOnTarget(ability, enemy) and not enemy:IsAncientCreep()
                             and (enemy:GetLevel() <= creepMaxLevel and (enemy:GetLevel() > 1))
                         then
                             --npcBot:ActionImmediate_Chat("Использую Enchant для подчинения крипа в атаке!",true);
@@ -188,7 +187,7 @@ function ConsiderEnchant()
         if (#enemyCreeps > 0) and (ManaPercentage >= 0.6)
         then
             for _, enemy in pairs(enemyCreeps) do
-                if utility.CanCastSpellOnTarget(ability, enemy) and not enemy:IsAncientCreep() and utility.SafeCast(enemy, true)
+                if utility.CanCastSpellOnTarget(ability, enemy) and not enemy:IsAncientCreep()
                     and (enemy:GetLevel() <= creepMaxLevel and (enemy:GetLevel() > 1))
                 then
                     --npcBot:ActionImmediate_Chat("Использую Enchant для подчинения крипа!", true);
@@ -214,6 +213,7 @@ function ConsiderNaturesAttendants()
         for _, ally in pairs(allyAbility)
         do
             if utility.IsHero(ally) and utility.CanBeHeal(ally) and (ally:GetHealth() / ally:GetMaxHealth() < 0.8)
+                and not ally:HasModifier("modifier_enchantress_natures_attendants")
             then
                 --npcBot:ActionImmediate_Chat("Использую NaturesAttendants!", true);
                 return BOT_ACTION_DESIRE_HIGH;
@@ -242,7 +242,7 @@ function ConsiderSproink()
     end
 
     -- Retreat use
-    if botMode == BOT_MODE_RETREAT
+    if utility.RetreatMode(npcBot)
     then
         if (HealthPercentage <= 0.9) and not npcBot:IsFacingLocation(utility.SafeLocation(npcBot), 80)
         then
@@ -276,7 +276,7 @@ function ConsiderLittleFriends()
             end
         end
         -- Retreat use
-    elseif botMode == BOT_MODE_RETREAT or botMode == BOT_MODE_DEFEND_ALLY
+    elseif utility.RetreatMode(npcBot)
     then
         local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
         if (#enemyAbility > 0)

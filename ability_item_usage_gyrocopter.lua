@@ -94,11 +94,11 @@ function ConsiderRocketBarrage()
         return;
     end
 
-    local castRadiusAbility = ability:GetSpecialValueInt("radius");
-    local enemyAbility = npcBot:GetNearbyHeroes(castRadiusAbility, true, BOT_MODE_NONE);
+    local radiusAbility = ability:GetSpecialValueInt("radius");
+    local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
 
     -- General use
-    if utility.PvPMode(npcBot) or botMode == BOT_MODE_RETREAT
+    if utility.PvPMode(npcBot) or utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -121,7 +121,7 @@ function ConsiderHomingMissile()
 
     local castRangeAbility = ability:GetCastRange();
     local damageAbility = ability:GetAbilityDamage();
-    local enemyAbility = npcBot:GetNearbyHeroes((castRangeAbility + 200), true, BOT_MODE_NONE);
+    local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility + 200, true, BOT_MODE_NONE);
 
     -- Cast if can kill somebody/interrupt cast
     if (#enemyAbility > 0)
@@ -144,19 +144,19 @@ function ConsiderHomingMissile()
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
             then
-                --npcBot:ActionImmediate_Chat("Использую ColdFeet по врагу в радиусе действия!",true);
+                --npcBot:ActionImmediate_Chat("Использую HomingMissile по врагу в радиусе действия!",true);
                 return BOT_MODE_DESIRE_HIGH, botTarget;
             end
         end
-        -- Retreat or help ally use
-    elseif botMode == BOT_MODE_RETREAT or botMode == BOT_MODE_DEFEND_ALLY
+        -- Retreat use
+    elseif utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
             for _, enemy in pairs(enemyAbility) do
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    --npcBot:ActionImmediate_Chat("Использую ColdFeet что бы оторваться от врага", true);
+                    --npcBot:ActionImmediate_Chat("Использую HomingMissile что бы оторваться от врага", true);
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy;
                 end
             end
@@ -216,7 +216,7 @@ function ConsiderCallDown()
     then
         local locationAoE = npcBot:FindAoELocation(true, true, npcBot:GetLocation(), castRangeAbility, radiusAbility, 0,
             0);
-        if (locationAoE.count >= 2)
+        if locationAoE ~= nil and (locationAoE.count >= 2)
         then
             --npcBot:ActionImmediate_Chat("Использую CallDown по врагам!", true);
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;

@@ -19,8 +19,8 @@ local Abilities, Talents, AbilitiesReal = ability_levelup_generic.GetHeroAbiliti
 local AbilityToLevelUp =
 {
     Abilities[2],
-    Abilities[3],
     Abilities[1],
+    Abilities[3],
     Abilities[2],
     Abilities[2],
     Abilities[6],
@@ -32,7 +32,7 @@ local AbilityToLevelUp =
     Abilities[6],
     Abilities[3],
     Abilities[3],
-    Talents[4],
+    Talents[3],
     Abilities[3],
     Abilities[6],
     Talents[6],
@@ -101,63 +101,43 @@ function ConsiderDevour()
         return;
     end
 
+    if npcBot:HasModifier("modifier_doom_bringer_devour")
+    then
+        return;
+    end
+
     local castRangeAbility = ability:GetCastRange();
     local creepMaxLevel = ability:GetSpecialValueInt("creep_level");
 
-    if not ability:GetAutoCastState()
+    --[[     if not ability:GetAutoCastState()
     then
         ability:ToggleAutoCast();
-    end
+    end ]]
 
-    if not npcBot:HasModifier("modifier_doom_bringer_devour")
+    if utility.PvPMode(npcBot) or utility.RetreatMode(npcBot) or botMode == BOT_MODE_LANING
     then
-        if utility.PvPMode(npcBot) or botMode == BOT_MODE_RETREAT or botMode == BOT_MODE_LANING
+        local enemyCreeps = npcBot:GetNearbyCreeps(castRangeAbility, true);
+        if (#enemyCreeps > 0)
         then
-            local enemyCreeps = npcBot:GetNearbyCreeps(castRangeAbility, true);
-            if (#enemyCreeps > 0)
-            then
-                for _, enemy in pairs(enemyCreeps) do
-                    if (utility.CanCastOnMagicImmuneTarget(enemy) and (enemy:GetHealth() / enemy:GetMaxHealth() >= 0.7))
-                        and enemy:GetLevel() <= creepMaxLevel
-                    then
-                        if utility.CheckFlag(ability:GetTargetFlags(), ABILITY_TARGET_FLAG_NOT_ANCIENTS)
-                        then
-                            if not enemy:IsAncientCreep()
-                            then
-                                npcBot:ActionImmediate_Chat("Использую devour на обычного крипа!",
-                                    true);
-                                return BOT_ACTION_DESIRE_HIGH, enemy;
-                            end
-                        else
-                            npcBot:ActionImmediate_Chat("Использую devour на обычного/древнего крипа!",
-                                true);
-                            return BOT_ACTION_DESIRE_HIGH, enemy;
-                        end
-                    end
+            for _, enemy in pairs(enemyCreeps) do
+                if (utility.CanCastOnMagicImmuneTarget(enemy) and (enemy:GetHealth() / enemy:GetMaxHealth() >= 0.7))
+                    and not enemy:IsAncientCreep() and enemy:GetLevel() <= creepMaxLevel
+                then
+                    --npcBot:ActionImmediate_Chat("Использую devour на обычного/древнего крипа!", true);
+                    return BOT_ACTION_DESIRE_HIGH, enemy;
                 end
             end
-        else
-            local enemyCreeps = npcBot:GetNearbyNeutralCreeps(1600);
-            if (#enemyCreeps > 0)
-            then
-                for _, enemy in pairs(enemyCreeps) do
-                    if (utility.CanCastOnMagicImmuneTarget(enemy) and (enemy:GetHealth() / enemy:GetMaxHealth() >= 0.7))
-                        and enemy:GetLevel() <= creepMaxLevel
-                    then
-                        if utility.CheckFlag(ability:GetTargetFlags(), ABILITY_TARGET_FLAG_NOT_ANCIENTS)
-                        then
-                            if not enemy:IsAncientCreep()
-                            then
-                                npcBot:ActionImmediate_Chat("Использую devour на обычного нейтрального крипа!",
-                                    true);
-                                return BOT_ACTION_DESIRE_HIGH, enemy;
-                            end
-                        else
-                            npcBot:ActionImmediate_Chat("Использую devour на обычного/древнего нейтрального крипа!",
-                                true);
-                            return BOT_ACTION_DESIRE_HIGH, enemy;
-                        end
-                    end
+        end
+    else
+        local enemyCreeps = npcBot:GetNearbyNeutralCreeps(1600);
+        if (#enemyCreeps > 0)
+        then
+            for _, enemy in pairs(enemyCreeps) do
+                if (utility.CanCastOnMagicImmuneTarget(enemy) and (enemy:GetHealth() / enemy:GetMaxHealth() >= 0.7))
+                    and not enemy:IsAncientCreep() and enemy:GetLevel() <= creepMaxLevel
+                then
+                    --npcBot:ActionImmediate_Chat("Использую devour на обычного/древнего нейтрального крипа!", true);
+                    return BOT_ACTION_DESIRE_HIGH, enemy;
                 end
             end
         end
@@ -184,7 +164,7 @@ function ConsiderScorchedEarth()
             end
         end
         -- Retreat use
-    elseif botMode == BOT_MODE_RETREAT
+    elseif utility.RetreatMode(npcBot)
     then
         local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility * 2, true, BOT_MODE_NONE);
         if (HealthPercentage <= 0.9) and (#enemyAbility > 0)
@@ -214,6 +194,11 @@ function ConsiderInfernalBlade()
         return;
     end
 
+    if npcBot:IsDisarmed()
+    then
+        return;
+    end
+
     local castRangeAbility = npcBot:GetAttackRange();
     local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility + 200, true, BOT_MODE_NONE);
 
@@ -229,33 +214,30 @@ function ConsiderInfernalBlade()
         end
     end
 
-    if not npcBot:IsDisarmed()
+    -- Cast if can interrupt cast
+    if (#enemyAbility > 0)
     then
-        -- Cast if can interrupt cast
-        if (#enemyAbility > 0)
-        then
-            for _, enemy in pairs(enemyAbility) do
-                if enemy:IsChanneling()
+        for _, enemy in pairs(enemyAbility) do
+            if enemy:IsChanneling()
+            then
+                if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    if utility.CanCastSpellOnTarget(ability, enemy)
-                    then
-                        --npcBot:ActionImmediate_Chat("Использую InfernalBlade что бы сбить заклинание!",true);
-                        return BOT_ACTION_DESIRE_VERYHIGH, enemy;
-                    end
+                    --npcBot:ActionImmediate_Chat("Использую InfernalBlade что бы сбить заклинание!",true);
+                    return BOT_ACTION_DESIRE_VERYHIGH, enemy;
                 end
             end
         end
+    end
 
-        -- Retreat use
-        if botMode == BOT_MODE_RETREAT
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
+    then
+        local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
+        if (#enemyAbility > 0)
         then
-            local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
-            if (#enemyAbility > 0)
+            if utility.CanCastSpellOnTarget(ability, enemy) and not utility.IsDisabled(enemy)
             then
-                if utility.CanCastSpellOnTarget(ability, enemy) and not utility.IsDisabled(enemy)
-                then
-                    return BOT_ACTION_DESIRE_VERYHIGH, enemy;
-                end
+                return BOT_ACTION_DESIRE_VERYHIGH, enemy;
             end
         end
     end

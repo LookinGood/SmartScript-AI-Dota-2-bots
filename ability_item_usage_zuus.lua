@@ -140,7 +140,7 @@ function ConsiderArcLightning()
             end
         end
         -- Last hit
-    elseif not utility.PvPMode(npcBot) and botMode ~= BOT_MODE_RETREAT and (ManaPercentage >= 0.4)
+    elseif not utility.PvPMode(npcBot) and not utility.RetreatMode(npcBot) and (ManaPercentage >= 0.4)
     then
         local enemyCreeps = npcBot:GetNearbyCreeps(castRangeAbility, true);
         if (#enemyCreeps > 0)
@@ -204,9 +204,8 @@ function ConsiderLightningBolt()
         -- Cast if push/defend/farm
     elseif utility.PvEMode(npcBot)
     then
-        local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility, radiusAbility,
-            0, 0);
-        if (ManaPercentage >= 0.7) and (locationAoE.count >= 3)
+        local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility, radiusAbility,0, 0);
+        if locationAoE ~= nil and (ManaPercentage >= 0.7) and (locationAoE.count >= 3)
         then
             --npcBot:ActionImmediate_Chat("Использую LightningBolt по вражеским крипам!", true);
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
@@ -241,7 +240,7 @@ function ConsiderHeavenlyJump()
             return BOT_ACTION_DESIRE_HIGH;
         end
         -- Retreat use
-    elseif botMode == BOT_MODE_RETREAT
+    elseif utility.RetreatMode(npcBot)
     then
         local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
         if (#enemyAbility > 0) and npcBot:IsFacingLocation(utility.SafeLocation(npcBot), 40)
@@ -285,7 +284,7 @@ function ConsiderNimbus()
             end
         end
         -- Retreat use
-    elseif botMode == BOT_MODE_RETREAT
+    elseif utility.RetreatMode(npcBot)
     then
         local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
         if (#enemyAbility > 0)

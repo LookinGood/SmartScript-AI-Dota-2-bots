@@ -696,8 +696,10 @@ function ItemUsageThink()
 		then
 			for _, ally in pairs(allies)
 			do
-				if utility.IsHero(ally) and ally:GetHealth() / ally:GetMaxHealth() <= 0.8 and ally:WasRecentlyDamagedByAnyHero(2.0)
-					and not ally:HasModifier("modifier_item_pavise_shield")
+				if utility.IsHero(ally) and ally:GetHealth() / ally:GetMaxHealth() <= 0.8 and not ally:HasModifier("modifier_item_pavise_shield") and
+					(ally:WasRecentlyDamagedByAnyHero(2.0) or
+						ally:WasRecentlyDamagedByTower(2.0) or
+						ally:WasRecentlyDamagedByCreep(2.0))
 				then
 					npcBot:Action_UseAbilityOnEntity(pavise, ally);
 					--npcBot:ActionImmediate_Chat("Использую предмет pavise!",true);
@@ -1721,7 +1723,6 @@ function ItemUsageThink()
 		end
 	end
 
-
 	-- 	item_ghost/item_ethereal_blade
 	local ghost = IsItemAvailable("item_ghost");
 	local etherealBlade = IsItemAvailable("item_ethereal_blade");
@@ -1926,7 +1927,6 @@ function ItemUsageThink()
 			end
 		end
 	end
-
 
 	-- item_sheepstick
 	local scytheOfVyse = IsItemAvailable("item_sheepstick");

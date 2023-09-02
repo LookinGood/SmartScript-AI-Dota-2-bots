@@ -112,6 +112,7 @@ function ShouldTP()
 
     if botMode == BOT_MODE_LANING
     then
+        local assignedLane = npcBot:GetAssignedLane();
         if towerLaning == nil
         then
             if assignedLane == LANE_TOP
@@ -153,10 +154,8 @@ function ShouldTP()
                 end
             end
         end
-
         if towerLaning ~= nil
         then
-            local assignedLane = npcBot:GetAssignedLane();
             local botAmount = GetAmountAlongLane(assignedLane, botLoc);
             local laneFront = GetLaneFrontAmount(botTeam, assignedLane, false);
             if GetUnitToUnitDistance(npcBot, towerLaning) >= tpDistance and (botAmount.distance >= tpDistance or botAmount.amount < laneFront / 5)

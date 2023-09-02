@@ -56,6 +56,8 @@ require(GetScriptDirectory() .. "/bot_name_generic")
 	"npc_dota_hero_juggernaut",
 	"npc_dota_hero_crystal_maiden",
 	"npc_dota_hero_pangolier",
+	"npc_dota_hero_monkey_king",
+	"npc_dota_hero_spirit_breaker",
 ]]
 --#endregion
 
@@ -112,6 +114,8 @@ hero_pool_my =
 	"npc_dota_hero_juggernaut",
 	"npc_dota_hero_crystal_maiden",
 	"npc_dota_hero_pangolier",
+	"npc_dota_hero_monkey_king",
+	"npc_dota_hero_spirit_breaker",
 }
 
 
@@ -166,7 +170,7 @@ function Think()
 
 	-- Insert here hero hame and set "testmode = true" if you want the bot to choose a specific hero
 	testmode = false;
-	testHero = "npc_dota_hero_lycan"
+	testHero = "npc_dota_hero_spirit_breaker"
 
 	if testmode
 	then

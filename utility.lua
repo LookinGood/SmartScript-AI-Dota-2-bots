@@ -264,7 +264,7 @@ end
 
 function IsAbilityAvailable(ability)
 	return ability:IsFullyCastable() and
-		--ability:IsActivated() and
+		ability:IsActivated() and
 		not ability:IsHidden() and
 		not ability:IsPassive()
 end

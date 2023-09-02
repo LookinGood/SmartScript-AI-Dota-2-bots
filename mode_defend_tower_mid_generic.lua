@@ -5,16 +5,18 @@ require(GetScriptDirectory() .. "/utility")
 
 function GetDesire()
     local npcBot = GetBot();
+    local botMode = npcBot:GetActiveMode();
 
-    if not utility.CanMove(npcBot)
+    if not utility.CanMove(npcBot) or botMode == BOT_MODE_DEFEND_TOWER_BOT or botMode == BOT_MODE_DEFEND_TOWER_TOP
     then
         return BOT_ACTION_DESIRE_NONE;
     end
 
     --local botHealth = npcBot:GetHealth() / npcBot:GetMaxHealth();
-    --local botMode = npcBot:GetActiveMode();
     --local botDesire = npcBot:GetActiveModeDesire();
+    
     local radiusUnit = 3000;
+
 
     local towers = {
         TOWER_MID_1,
@@ -104,7 +106,8 @@ function Think()
     if mainBuilding ~= nil
     then
         local defendZone = utility.GetEscapeLocation(mainBuilding, 700);
-        if GetUnitToLocationDistance(npcBot, defendZone) > 700
+        if GetUnitToLocationDistance(npcBot, defendZone) > 700 and npcBot:GetCurrentActionType() ~= BOT_ACTION_TYPE_ATTACK
+        and npcBot:GetCurrentActionType() ~= BOT_ACTION_TYPE_ATTACKMOVE
         then
             npcBot:Action_MoveToLocation(defendZone);
         else

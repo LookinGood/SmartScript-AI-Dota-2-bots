@@ -44,8 +44,9 @@ end
 
 -- Abilities
 local Blink = AbilitiesReal[2]
-local SpellShield = AbilitiesReal[3]
+local Counterspell = AbilitiesReal[3]
 local BlinkFragment = AbilitiesReal[4]
+local CounterspellAlly = AbilitiesReal[5]
 local ManaVoid = AbilitiesReal[6]
 
 -- Ability Use
@@ -60,15 +61,10 @@ function AbilityUsageThink()
     ManaPercentage = npcBot:GetMana() / npcBot:GetMaxMana();
 
     local castBlinkDesire, castBlinkLocation = ConsiderBlink();
-    local castSpellshieldDesire = ConsiderSpellShield();
+    local castCounterspellDesire = ConsiderCounterspell();
     local castBlinkFragmentDesire, castBlinkFragmentLocation = ConsiderBlinkFragment();
+    local castCounterspellAllyDesire, castCounterspellAllyTarget = ConsiderCounterspellAlly();
     local castManaVoidDesire, castManaVoidTarget = ConsiderManaVoid();
-
-    if (castManaVoidDesire ~= nil)
-    then
-        npcBot:Action_UseAbilityOnEntity(ManaVoid, castManaVoidTarget);
-        return;
-    end
 
     if (castBlinkDesire ~= nil)
     then
@@ -76,15 +72,27 @@ function AbilityUsageThink()
         return;
     end
 
-    if (castSpellshieldDesire ~= nil)
+    if (castCounterspellDesire ~= nil)
     then
-        npcBot:Action_UseAbility(SpellShield);
+        npcBot:Action_UseAbility(Counterspell);
         return;
     end
 
     if (castBlinkFragmentDesire ~= nil)
     then
         npcBot:Action_UseAbilityOnLocation(BlinkFragment, castBlinkFragmentLocation);
+        return;
+    end
+
+    if (castCounterspellAllyDesire ~= nil)
+    then
+        npcBot:Action_UseAbilityOnEntity(CounterspellAlly, castCounterspellAllyTarget);
+        return;
+    end
+
+    if (castManaVoidDesire ~= nil)
+    then
+        npcBot:Action_UseAbilityOnEntity(ManaVoid, castManaVoidTarget);
         return;
     end
 end
@@ -116,7 +124,7 @@ function ConsiderBlink()
         end
     end
     -- Cast if get incoming spell
-    if not utility.IsAbilityAvailable(SpellShield)
+    if not utility.IsAbilityAvailable(Counterspell)
     then
         local incomingSpells = npcBot:GetIncomingTrackingProjectiles();
         if (#incomingSpells > 0)
@@ -139,8 +147,8 @@ function ConsiderBlink()
     end ]]
 end
 
-function ConsiderSpellShield()
-    local ability = SpellShield;
+function ConsiderCounterspell()
+    local ability = Counterspell;
     if not utility.IsAbilityAvailable(ability) then
         return;
     end
@@ -152,7 +160,10 @@ function ConsiderSpellShield()
     then
         for _, spell in pairs(incomingSpells)
         do
-            if not utility.IsAlly(npcBot, spell.caster) and GetUnitToLocationDistance(npcBot, spell.location) <= 300 and spell.is_attack == false
+            if not utility.IsAlly(npcBot, spell.caster) and GetUnitToLocationDistance(npcBot, spell.location) <= 300 and spell.is_attack == false and
+                not npcBot:HasModifier("modifier_antimage_counterspell") and
+                not npcBot:HasModifier("modifier_item_sphere_target") and
+                not npcBot:HasModifier("modifier_item_lotus_orb_active")
             then
                 return BOT_ACTION_DESIRE_VERYHIGH;
             end
@@ -169,7 +180,7 @@ function ConsiderBlinkFragment()
     local castRangeAbility = ability:GetCastRange();
 
     -- General use
-    if utility.PvPMode(npcBot) or botMode == BOT_MODE_RETREAT
+    if utility.PvPMode(npcBot) or utility.RetreatMode(npcBot)
     then
         local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
         if (#enemyAbility > 0)
@@ -178,6 +189,41 @@ function ConsiderBlinkFragment()
                 if utility.IsValidTarget(enemy)
                 then
                     return BOT_MODE_DESIRE_MODERATE, enemy:GetLocation();
+                end
+            end
+        end
+    end
+end
+
+function ConsiderCounterspellAlly()
+    local ability = CounterspellAlly;
+    if not utility.IsAbilityAvailable(ability) then
+        return;
+    end
+
+    local castRangeAbility = ability:GetCastRange();
+    local allyAbility = npcBot:GetNearbyHeroes(castRangeAbility, false, BOT_MODE_NONE);
+
+    -- General use
+    if (#allyAbility > 1)
+    then
+        for _, ally in pairs(allyAbility)
+        do
+            if ally ~= npcBot and utility.IsHero(ally) and
+                not ally:HasModifier("modifier_antimage_counterspell") and
+                not ally:HasModifier("modifier_item_sphere_target") and
+                not ally:HasModifier("modifier_item_lotus_orb_active")
+            then
+                local incomingSpells = ally:GetIncomingTrackingProjectiles();
+                if (#incomingSpells > 0)
+                then
+                    for _, spell in pairs(incomingSpells)
+                    do
+                        if not utility.IsAlly(ally, spell.caster) and GetUnitToLocationDistance(ally, spell.location) <= 300 and spell.is_attack == false
+                        then
+                            return BOT_ACTION_DESIRE_VERYHIGH, ally;
+                        end
+                    end
                 end
             end
         end

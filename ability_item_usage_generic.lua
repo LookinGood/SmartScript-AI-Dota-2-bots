@@ -318,6 +318,7 @@ function ItemUsageThink()
 				then
 					if (ally:GetHealth() / ally:GetMaxHealth() <= 0.8 and ally:WasRecentlyDamagedByAnyHero(2.0)) or ally:IsChanneling()
 						or ally:HasModifier("modifier_crystal_maiden_freezing_field")
+						or ally:HasModifier("modifier_spirit_breaker_charge_of_darkness")
 					then
 						if shadowAmulet ~= nil and not ally:HasModifier("modifier_item_shadow_amulet_fade")
 						then

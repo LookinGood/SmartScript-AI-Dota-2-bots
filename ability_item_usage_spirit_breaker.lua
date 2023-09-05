@@ -54,10 +54,14 @@ function AbilityUsageThink()
         return;
     end
 
-    if npcBot:HasModifier("modifier_spirit_breaker_charge_of_darkness")
+    if npcBot:HasModifier("modifier_spirit_breaker_charge_of_darkness") or
+        npcBot:HasModifier("modifier_spirit_breaker_charge_of_darkness_target") or
+        npcBot:NumQueuedActions() > 0 or
+        ChargeOfDarkness:IsInAbilityPhase()
     then
-        npcBot:Action_ClearActions(false);
-        --npcBot:Action_Delay(1.0);
+        npcBot:Action_ClearActions(true);
+        --npcBot:Action_AttackMove(npcBot:GetLocation())
+        --npcBot:ActionQueue_Delay(1.0);
         return;
     end
 
@@ -76,7 +80,7 @@ function AbilityUsageThink()
     then
         npcBot:Action_ClearActions(true);
         npcBot:ActionQueue_UseAbilityOnEntity(ChargeOfDarkness, castChargeOfDarknessTarget);
-        npcBot:ActionQueue_Delay(1.0);
+        --npcBot:ActionQueue_Delay(1.0);
         return;
 
         --npcBot:Action_ClearActions(false);
@@ -111,7 +115,7 @@ function ConsiderChargeOfDarkness()
         return;
     end
 
-    if npcBot:HasModifier("modifier_spirit_breaker_charge_of_darkness")
+    if npcBot:HasModifier("modifier_spirit_breaker_charge_of_darkness") or npcBot:IsRooted()
     then
         return;
     end

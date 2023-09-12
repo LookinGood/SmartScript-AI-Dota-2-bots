@@ -223,7 +223,7 @@ function Contains(set, key) -- Содержит ли таблица указан
 	for index, value in ipairs(set) do
 		if tostring(value) == tostring(key)
 		then
-			return true
+			return true;
 		end
 	end
 end
@@ -2060,7 +2060,7 @@ function ItemUsageThink()
 	then
 		if utility.CanCast(npcBot)
 		then
-			local _messageRefresherUsage = "Использую refresher!"; -- Сообщение при использовании item_refresher
+			--local _messageRefresherUsage = "Использую refresher!"; -- Сообщение при использовании item_refresher
 			local _countMaxOfSlots = 26; -- Максимальное количество слотов
 			local _countBonusManaValue = 350; -- Запас маны для каста
 			local _kCD = 0.5; -- Коэффициент величины отката способности

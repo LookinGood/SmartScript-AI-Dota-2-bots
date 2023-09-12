@@ -95,7 +95,7 @@ function ConsiderThunderStrike()
     end
 
     local castRangeAbility = ability:GetCastRange();
-    local damageAbility = ability:GetAbilityDamage() * ability:GetSpecialValueInt("strikes");
+    local damageAbility = ability:GetSpecialValueInt("strike_damage") * ability:GetSpecialValueInt("strikes");
     local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
 
     -- Cast if can kill somebody
@@ -106,7 +106,7 @@ function ConsiderThunderStrike()
             then
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    npcBot:ActionImmediate_Chat("Использую ThunderStrike что бы убить цель!", true);
+                    --npcBot:ActionImmediate_Chat("Использую ThunderStrike что бы убить цель!", true);
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy;
                 end
             end

@@ -8,13 +8,14 @@ function GetDesire()
     local botMode = npcBot:GetActiveMode();
 
     if not utility.CanMove(npcBot) or botMode == BOT_MODE_DEFEND_TOWER_BOT or botMode == BOT_MODE_DEFEND_TOWER_TOP
+        or npcBot:WasRecentlyDamagedByAnyHero(2.0)
     then
         return BOT_ACTION_DESIRE_NONE;
     end
 
     --local botHealth = npcBot:GetHealth() / npcBot:GetMaxHealth();
     --local botDesire = npcBot:GetActiveModeDesire();
-    
+
     local radiusUnit = 3000;
 
 
@@ -80,7 +81,7 @@ function GetDesire()
     local ancient = GetAncient(GetTeam());
     if ancient ~= nil and not ancient:IsInvulnerable()
     then
-        if (utility.CountEnemyCreepAroundUnit(ancient, radiusUnit) >= 4 and utility.CountAllyCreepAroundUnit(ancient, radiusUnit) < 4) or
+        if (utility.IsTargetedByEnemy(ancient, true)) or
             (utility.CountEnemyCreepAroundUnit(ancient, radiusUnit) >= 1 and utility.CountEnemyHeroAroundUnit(ancient, radiusUnit) >= 1
                 and utility.CountAllyCreepAroundUnit(ancient, radiusUnit) < 5)
         then
@@ -107,7 +108,7 @@ function Think()
     then
         local defendZone = utility.GetEscapeLocation(mainBuilding, 700);
         if GetUnitToLocationDistance(npcBot, defendZone) > 700 and npcBot:GetCurrentActionType() ~= BOT_ACTION_TYPE_ATTACK
-        and npcBot:GetCurrentActionType() ~= BOT_ACTION_TYPE_ATTACKMOVE
+            and npcBot:GetCurrentActionType() ~= BOT_ACTION_TYPE_ATTACKMOVE
         then
             npcBot:Action_MoveToLocation(defendZone);
         else

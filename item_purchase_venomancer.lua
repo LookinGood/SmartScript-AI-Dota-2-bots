@@ -20,14 +20,13 @@ local ItemsToBuy =
 	"item_boots",
 	"item_ring_of_regen",
 
-    "item_sobi_mask",
-    "item_recipe_ring_of_basilius",
-
     "item_circlet",
     "item_sobi_mask",
     "item_ring_of_protection",
     "item_recipe_urn_of_shadows",
 
+    "item_sobi_mask",
+    "item_recipe_ring_of_basilius",
     "item_crown",
     "item_recipe_veil_of_discord",
 

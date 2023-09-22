@@ -16,12 +16,14 @@ function ItemPurchase(ItemsToBuy)
 		return;
 	end
 
-	local courier = utility.GetBotCourier(npcBot)
+	local courier = utility.GetBotCourier(npcBot);
+	local courierState = GetCourierState(courier);
 
 	SellExtraItem()
-	utility.PurchaseDust(npcBot)
+	utility.PurchaseBottle(npcBot)
 	utility.PurchaseTP(npcBot)
 	utility.PurchaseWardObserver(npcBot)
+	utility.PurchaseDust(npcBot)
 	utility.PurchaseInfusedRaindrop(npcBot)
 	--utility.PurchaseTomeOfKnowledge(npcBot) -- Item deleted
 
@@ -34,24 +36,20 @@ function ItemPurchase(ItemsToBuy)
 	sNextItem = ItemsToBuy[1];
 	npcBot:SetNextItemPurchaseValue(GetItemCost(sNextItem))
 
-	if npcBot:DistanceFromFountain() <= 1000 or npcBot:GetHealth() / npcBot:GetMaxHealth() <= 0.4 or npcBot:GetGold() < GetItemCost(sNextItem)
+	if npcBot:GetGold() < GetItemCost(sNextItem)
 	then
 		npcBot.secretShopMode = false;
 		npcBot.sideShopMode = false;
-	end
-
-	-- sNextItem == "item_aghanims_shard"
-	if npcBot:GetGold() >= GetItemCost(sNextItem)
-	then
+	else
 		if GetItemStockCount(sNextItem) <= 0
 		then
-			if
-				sNextItem == "item_tango" or
+			if sNextItem == "item_tango" or
 				sNextItem == "item_clarity" or
 				sNextItem == "item_flask" or
 				sNextItem == "item_enchanted_mango" or
 				sNextItem == "item_infused_raindrop" or
 				sNextItem == "item_blood_grenade"
+			-- sNextItem == "item_aghanims_shard"
 			then
 				npcBot.secretShopMode = false;
 				npcBot.sideShopMode = false;
@@ -65,43 +63,56 @@ function ItemPurchase(ItemsToBuy)
 		then
 			if npcBot.secretShopMode ~= true and npcBot.sideShopMode ~= true
 			then
-				if IsItemPurchasedFromSideShop(sNextItem) and npcBot:DistanceFromSideShop() <= 3000
+				if IsItemPurchasedFromSideShop(sNextItem) and npcBot:DistanceFromSideShop() <= 3000 and not utility.IsItemSlotsFull()
 				then
 					npcBot.sideShopMode = true;
 				end
-				if IsItemPurchasedFromSecretShop(sNextItem) and npcBot:DistanceFromSideShop() <= 3000
+				if IsItemPurchasedFromSecretShop(sNextItem) and npcBot:DistanceFromSecretShop() <= 3000 and not utility.IsItemSlotsFull()
 				then
 					npcBot.secretShopMode = true;
 				end
 			end
 
-			local PurchaseResult
+			local PurchaseResult;
 
 			if npcBot.sideShopMode == true
 			then
-				if npcBot:DistanceFromSideShop() <= 200
+				if npcBot:DistanceFromSideShop() <= 200 and not utility.IsItemSlotsFull()
 				then
 					PurchaseResult = npcBot:ActionImmediate_PurchaseItem(sNextItem)
 				end
 			elseif npcBot.secretShopMode == true
 			then
-				if npcBot:DistanceFromSecretShop() <= 200
+				if npcBot:DistanceFromSecretShop() <= 200 and not utility.IsItemSlotsFull()
 				then
 					PurchaseResult = npcBot:ActionImmediate_PurchaseItem(sNextItem)
-				end
-				if courier == nil
-				then
-					BuyCourier()
 				else
-					if courier:DistanceFromSecretShop() <= 200
+					if courier == nil
 					then
-						PurchaseResult = courier:ActionImmediate_PurchaseItem(sNextItem)
+						BuyCourier()
+					else
+						if courier:DistanceFromSecretShop() <= 200 and not utility.IsCourierItemSlotsFull()
+						then
+							PurchaseResult = courier:ActionImmediate_PurchaseItem(sNextItem)
+						end
 					end
 				end
 			else
-				if not utility.IsStashSlotsFull()
+				if npcBot:DistanceFromFountain() > 300
 				then
-					PurchaseResult = npcBot:ActionImmediate_PurchaseItem(sNextItem)
+					if utility.IsStashSlotsFull() and courierState == COURIER_STATE_AT_BASE and not utility.IsCourierItemSlotsFull()
+					then
+						PurchaseResult = courier:ActionImmediate_PurchaseItem(sNextItem);
+					else
+						PurchaseResult = npcBot:ActionImmediate_PurchaseItem(sNextItem);
+					end
+				else
+					if utility.IsItemSlotsFull() and utility.IsStashSlotsFull() and courierState == COURIER_STATE_AT_BASE and not utility.IsCourierItemSlotsFull()
+					then
+						PurchaseResult = courier:ActionImmediate_PurchaseItem(sNextItem);
+					else
+						PurchaseResult = npcBot:ActionImmediate_PurchaseItem(sNextItem);
+					end
 				end
 			end
 			if PurchaseResult == PURCHASE_ITEM_SUCCESS
@@ -155,23 +166,18 @@ function SellSpecifiedItem(item_name)
 		return;
 	end
 
-	local itemCount = 0;
 	local item = nil;
 
 	for i = 0, 14
 	do
-		local sCurItem = npcBot:GetItemInSlot(i);
-		if (sCurItem ~= nil)
+		local slotItem = npcBot:GetItemInSlot(i);
+		if slotItem ~= nil and slotItem:GetName() == item_name
 		then
-			itemCount = itemCount + 1;
-			if (sCurItem:GetName() == item_name)
-			then
-				item = sCurItem;
-			end
+			item = slotItem;
 		end
 	end
 
-	if (item ~= nil and itemCount >= 6 and (npcBot:DistanceFromFountain() <= 600 or npcBot:DistanceFromSideShop() <= 200 or npcBot:DistanceFromSecretShop() <= 200))
+	if (item ~= nil and (npcBot:DistanceFromFountain() <= 600 or npcBot:DistanceFromSideShop() <= 200 or npcBot:DistanceFromSecretShop() <= 200))
 	then
 		npcBot:ActionImmediate_SellItem(item);
 	end
@@ -224,7 +230,7 @@ function SellExtraItem()
 		SellSpecifiedItem("item_phase_boots")
 		SellSpecifiedItem("item_tranquil_boots")
 		SellSpecifiedItem("item_boots_of_bearing")
-		SellSpecifiedItem("item_guardian_greaves") 
+		SellSpecifiedItem("item_guardian_greaves")
 	end
 end
 

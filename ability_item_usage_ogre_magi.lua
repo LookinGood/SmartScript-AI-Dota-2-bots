@@ -210,7 +210,7 @@ function ConsiderIgnite()
     elseif utility.PvEMode(npcBot)
     then
         local enemyCreeps = npcBot:GetNearbyCreeps(castRangeAbility, true);
-        if (#enemyCreeps > 3)
+        if (#enemyCreeps > 3) and (ManaPercentage >= 0.7)
         then
             for _, enemy in pairs(enemyCreeps) do
                 if utility.CanCastSpellOnTarget(ability, enemy)

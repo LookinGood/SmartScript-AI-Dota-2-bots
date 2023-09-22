@@ -50,16 +50,16 @@ local ItemsToBuy =
 
 	"item_aghanims_shard",
 
+	"item_point_booster",
+	"item_ogre_axe",
+	"item_staff_of_wizardry",
+	"item_blade_of_alacrity",
+
 	"item_mithril_hammer",
 	"item_belt_of_strength",
 	"item_recipe_basher",
 
 	"item_recipe_abyssal_blade",
-
-	"item_point_booster",
-	"item_ogre_axe",
-	"item_staff_of_wizardry",
-	"item_blade_of_alacrity",
 
 	"item_ring_of_protection",
 	"item_recipe_buckler",

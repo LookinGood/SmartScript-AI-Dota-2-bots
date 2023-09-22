@@ -7,13 +7,16 @@ require(GetScriptDirectory() .. "/hero_role_generic")
 function GetDesire()
     local npcBot = GetBot();
     local botLevel = npcBot:GetLevel();
-    --local botMode = npcBot:GetActiveMode();
+    local botMode = npcBot:GetActiveMode();
     local HealthPercentage = npcBot:GetHealth() / npcBot:GetMaxHealth();
     local enemyHeroes = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
     local neutralCreeps = npcBot:GetNearbyNeutralCreeps(1600);
 
     if not npcBot:IsAlive() or not utility.CanMove(npcBot) or botLevel >= 30 or HealthPercentage < 0.5 or
-        (#neutralCreeps == 0) or (#enemyHeroes > 0)
+        (#neutralCreeps == 0) or (#enemyHeroes > 0) or
+        botMode == BOT_MODE_DEFEND_TOWER_TOP or
+        botMode == BOT_MODE_DEFEND_TOWER_MID or
+        botMode == BOT_MODE_DEFEND_TOWER_BOT
     then
         return BOT_ACTION_DESIRE_NONE;
     end

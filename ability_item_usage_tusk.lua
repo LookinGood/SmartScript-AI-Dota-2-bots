@@ -116,7 +116,7 @@ function ConsiderIceShards()
     local radiusAbility = ability:GetSpecialValueInt("shard_width");
     local damageAbility = ability:GetSpecialValueInt("shard_damage");
     local delayAbility = ability:GetCastPoint();
-    local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE)
+    local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
 
     -- Cast if can kill somebody
     if (#enemyAbility > 0)

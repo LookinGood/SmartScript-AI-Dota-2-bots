@@ -72,18 +72,19 @@ function CourierUsageThink()
 			then
 				npcBot:ActionImmediate_Courier(courier, COURIER_ACTION_TAKE_AND_TRANSFER_ITEMS);
 				return;
-			elseif (npcBot:GetCourierValue() > 0)
+			elseif (npcBot:GetCourierValue() > 0) and (npcBot:GetStashValue() <= 0)
 			then
 				npcBot:ActionImmediate_Courier(courier, COURIER_ACTION_TRANSFER_ITEMS);
 				return;
 			elseif (npcBot.secretShopMode == true) and (npcBot:DistanceFromSecretShop() >= 3000) and (courier:DistanceFromSecretShop() > 200)
+				and not utility.IsCourierItemSlotsFull()
 			then
 				npcBot:ActionImmediate_Courier(courier, COURIER_ACTION_SECRET_SHOP);
 				return;
 			end
 		elseif not npcBot:IsAlive()
 		then
-			if (npcBot.secretShopMode == true) and (courier:DistanceFromSecretShop() > 200)
+			if (npcBot.secretShopMode == true) and (courier:DistanceFromSecretShop() > 200) and not utility.IsCourierItemSlotsFull()
 			then
 				npcBot:ActionImmediate_Courier(courier, COURIER_ACTION_SECRET_SHOP);
 				return;
@@ -384,7 +385,7 @@ function ItemUsageThink()
 	then
 		local itemRange = 165;
 		if npcBot:DistanceFromFountain() > 1000 and npcBot:GetHealth() < npcBot:GetMaxHealth() - 200 and not npcBot:HasModifier("modifier_tango_heal")
-			and utility.CanBeHeal(npcBot)
+			and utility.CanBeHeal(npcBot) and not HaveHealthRegenBuff(npcBot)
 		then
 			if tango ~= nil
 			then
@@ -623,28 +624,42 @@ function ItemUsageThink()
 				npcBot:Action_UseAbility(powerTreads);
 			end
 		else
-			if utility.RetreatMode(npcBot) and powerTreads:GetPowerTreadsStat() ~= ATTRIBUTE_STRENGTH
+			if utility.RetreatMode(npcBot)
 			then
-				npcBot:Action_UseAbility(powerTreads);
-			end
-			if not utility.RetreatMode(npcBot)
-			then
-				local biggerAttribute = utility.GetBiggerAttribute(npcBot);
-				if npcBot:GetPrimaryAttribute() == ATTRIBUTE_STRENGTH and powerTreads:GetPowerTreadsStat() ~= ATTRIBUTE_STRENGTH
+				if powerTreads:GetPowerTreadsStat() ~= ATTRIBUTE_STRENGTH
 				then
 					npcBot:Action_UseAbility(powerTreads);
-				elseif npcBot:GetPrimaryAttribute() == ATTRIBUTE_AGILITY and powerTreads:GetPowerTreadsStat() ~= ATTRIBUTE_INTELLECT
+				end
+			else
+				if npcBot:GetPrimaryAttribute() == ATTRIBUTE_STRENGTH
 				then
-					npcBot:Action_UseAbility(powerTreads);
-				elseif npcBot:GetPrimaryAttribute() == ATTRIBUTE_INTELLECT and powerTreads:GetPowerTreadsStat() ~= ATTRIBUTE_AGILITY
+					if powerTreads:GetPowerTreadsStat() ~= ATTRIBUTE_STRENGTH
+					then
+						npcBot:Action_UseAbility(powerTreads);
+					end
+				elseif npcBot:GetPrimaryAttribute() == ATTRIBUTE_AGILITY
 				then
-					npcBot:Action_UseAbility(powerTreads);
-				elseif npcBot:GetPrimaryAttribute() ~= ATTRIBUTE_STRENGTH and
-					npcBot:GetPrimaryAttribute() ~= ATTRIBUTE_AGILITY and
-					npcBot:GetPrimaryAttribute() ~= ATTRIBUTE_INTELLECT and
-					powerTreads:GetPowerTreadsStat() ~= biggerAttribute
+					if powerTreads:GetPowerTreadsStat() ~= ATTRIBUTE_INTELLECT
+					then
+						npcBot:Action_UseAbility(powerTreads);
+					end
+				elseif npcBot:GetPrimaryAttribute() == ATTRIBUTE_INTELLECT
 				then
-					npcBot:Action_UseAbility(powerTreads);
+					if powerTreads:GetPowerTreadsStat() ~= ATTRIBUTE_AGILITY
+					then
+						npcBot:Action_UseAbility(powerTreads);
+					end
+				else
+					if powerTreads:GetPowerTreadsStat() ~= ATTRIBUTE_STRENGTH
+					then
+						npcBot:Action_UseAbility(powerTreads);
+					end
+					--[[ 			local biggerAttribute = utility.GetBiggerAttribute(npcBot);
+					if powerTreads:GetPowerTreadsStat() ~= biggerAttribute
+					then
+						--npcBot:ActionImmediate_Chat("Использую PowerTreads на больший стат!", true);
+						npcBot:Action_UseAbility(powerTreads);
+					end ]]
 				end
 			end
 		end
@@ -1376,7 +1391,8 @@ function ItemUsageThink()
 					--return;
 				elseif overwhelmingBlink ~= nil
 				then
-					npcBot:Action_UseAbilityOnLocation(overwhelmingBlink, utility.GetEscapeLocation(npcBot, itemRange));
+					npcBot:Action_UseAbilityOnLocation(overwhelmingBlink,
+						utility.GetEscapeLocation(npcBot, itemRange));
 					--npcBot:ActionImmediate_Chat("Использую предмет Blink для отступления!",true);
 					--return;
 				elseif swiftBlink ~= nil
@@ -1648,9 +1664,9 @@ function ItemUsageThink()
 		end
 	end
 
-	-- item_rod_of_atos/item_gleipnir
+	-- item_rod_of_atos/item_gungir
 	local rodOfAtos = IsItemAvailable('item_rod_of_atos');
-	local gleipnir = IsItemAvailable('item_gleipnir');
+	local gleipnir = IsItemAvailable('item_gungir');
 	if (rodOfAtos ~= nil and rodOfAtos:IsFullyCastable()) or (gleipnir ~= nil and gleipnir:IsFullyCastable())
 	then
 		local itemRange = 1100;
@@ -1659,6 +1675,7 @@ function ItemUsageThink()
 			if utility.IsHero(botTarget)
 			then
 				if utility.CanCastOnMagicImmuneTarget(botTarget) and not utility.IsDisabled(botTarget)
+					and GetUnitToUnitDistance(npcBot, botTarget) <= itemRange
 				then
 					if rodOfAtos ~= nil and utility.SafeCast(botTarget)
 					then
@@ -1668,7 +1685,7 @@ function ItemUsageThink()
 					elseif gleipnir ~= nil
 					then
 						npcBot:Action_UseAbilityOnLocation(gleipnir, botTarget:GetLocation());
-						npcBot:ActionImmediate_Chat("Использую gleipnir по врагу!", true);
+						--npcBot:ActionImmediate_Chat("Использую gleipnir по врагу!", true);
 						--return;
 					end
 				end
@@ -1684,8 +1701,7 @@ function ItemUsageThink()
 							if rodOfAtos ~= nil and utility.SafeCast(enemy)
 							then
 								npcBot:Action_UseAbilityOnEntity(rodOfAtos, enemy);
-								npcBot:ActionImmediate_Chat("Использую предмет rodOfAtos для оступления!",
-									true);
+								--npcBot:ActionImmediate_Chat("Использую предмет rodOfAtos для оступления!",true);
 								--return;
 							elseif gleipnir ~= nil
 							then
@@ -2061,16 +2077,16 @@ function ItemUsageThink()
 		if utility.CanCast(npcBot)
 		then
 			--local _messageRefresherUsage = "Использую refresher!"; -- Сообщение при использовании item_refresher
-			local _countMaxOfSlots = 26; -- Максимальное количество слотов
-			local _countBonusManaValue = 350; -- Запас маны для каста
-			local _kCD = 0.5; -- Коэффициент величины отката способности
+			local _countMaxOfSlots = 26;                           -- Максимальное количество слотов
+			local _countBonusManaValue = 350;                      -- Запас маны для каста
+			local _kCD = 0.5;                                      -- Коэффициент величины отката способности
 
-			for i = 0, _countMaxOfSlots, 1 do -- Итерация по всем слотам
-				local ability = npcBot:GetAbilityInSlot(i) -- Получение способности
+			for i = 0, _countMaxOfSlots, 1 do                      -- Итерация по всем слотам
+				local ability = npcBot:GetAbilityInSlot(i)         -- Получение способности
 				if ability ~= nil
-					and not ability:IsTalent() -- Не является талантом
-					and not ability:IsPassive() -- Не пассивная
-					and not ability:IsHidden() -- Не скрытая
+					and not ability:IsTalent()                     -- Не является талантом
+					and not ability:IsPassive()                    -- Не пассивная
+					and not ability:IsHidden()                     -- Не скрытая
 				then
 					local abilityManaCost = ability:GetManaCost(); -- Получение величины стоимости способности
 					if npcBot:GetMana() >= abilityManaCost + _countBonusManaValue -- Проверка маны
@@ -2109,6 +2125,80 @@ function ItemUsageThink()
 	end
 	--#endregion Основной алгоритм
 
+	-- item_meteor_hammer
+	local meteorHammer = IsItemAvailable("item_meteor_hammer");
+	if meteorHammer ~= nil and meteorHammer:IsFullyCastable()
+	then
+		local itemRange = 600;
+		local enemys = npcBot:GetNearbyHeroes(itemRange, true, BOT_MODE_NONE);
+		-- Cast if can interrupt cast
+		if (#enemys > 0) and not utility.RetreatMode(npcBot)
+		then
+			for _, enemy in pairs(enemys) do
+				if enemy:IsChanneling()
+				then
+					npcBot:ActionImmediate_Chat("Использую предмет meteorHammer что бы сбить каст!",
+						true);
+					npcBot:Action_UseAbilityOnLocation(meteorHammer, enemy:GetLocation());
+				end
+			end
+		end
+		if utility.PvPMode(npcBot)
+		then
+			if utility.IsHero(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= itemRange
+				and not utility.IsDisabled(botTarget)
+			then
+				--npcBot:ActionImmediate_Chat("Использую предмет meteorHammer на враге!", true);
+				npcBot:Action_UseAbilityOnLocation(meteorHammer, botTarget:GetLocation());
+			end
+		elseif utility.PvEMode(npcBot)
+		then
+			local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), itemRange, 400, 0, 0);
+			if locationAoE ~= nil and (locationAoE.count >= 3)
+			then
+				--npcBot:ActionImmediate_Chat("Использую предмет meteorHammer на крипов!", true);
+				npcBot:Action_UseAbilityOnLocation(meteorHammer, locationAoE.targetloc);
+			end
+		end
+		-- Cast if attack buildings
+		local attackTarget = npcBot:GetAttackTarget();
+		if utility.IsBuilding(attackTarget) and utility.CanCastOnInvulnerableTarget(attackTarget)
+		then
+			npcBot:Action_UseAbilityOnLocation(meteorHammer, attackTarget:GetLocation());
+			--npcBot:ActionImmediate_Chat("Использую предмет meteorHammer на ЗДАНИЕ!", true);
+		end
+	end
+
+	-- item_bottle
+	local bottle = IsItemAvailable("item_bottle");
+	if bottle ~= nil and bottle:IsFullyCastable()
+	then
+		local itemCharges = bottle:GetCurrentCharges();
+		if (itemCharges > 0) and (npcBot:TimeSinceDamagedByAnyHero() >= 5.0 and npcBot:TimeSinceDamagedByCreep() >= 5.0)
+		then
+			if npcBot:GetHealth() / npcBot:GetMaxHealth() <= 0.6 and utility.CanBeHeal(npcBot) and not HaveHealthRegenBuff(npcBot)
+			then
+				npcBot:Action_UseAbility(bottle);
+			elseif npcBot:GetMana() / npcBot:GetMaxMana() <= 0.4 and not HaveManaRegenBuff(npcBot)
+			then
+				npcBot:Action_UseAbility(bottle);
+			elseif npcBot:GetCurrentActionType() == BOT_ACTION_TYPE_PICK_UP_RUNE or botMode == BOT_MODE_RUNE
+			then
+				if npcBot:GetHealth() < npcBot:GetMaxHealth() and utility.CanBeHeal(npcBot) and not HaveHealthRegenBuff(npcBot)
+				then
+					npcBot:Action_UseAbility(bottle);
+				elseif npcBot:GetMana() < npcBot:GetMaxMana() and not HaveManaRegenBuff(npcBot)
+				then
+					npcBot:Action_UseAbility(bottle);
+				end
+			end
+			if (npcBot:HasModifier('modifier_fountain_aura_buff') and not npcBot:HasModifier('modifier_bottle_regeneration')) and
+				(npcBot:GetHealth() < npcBot:GetMaxHealth() or npcBot:GetMana() < npcBot:GetMaxMana())
+			then
+				npcBot:Action_UseAbility(bottle);
+			end
+		end
+	end
 
 	------------
 end

@@ -60,6 +60,13 @@ require(GetScriptDirectory() .. "/bot_name_generic")
 	"npc_dota_hero_spirit_breaker",
 	"npc_dota_hero_axe",
 	"npc_dota_hero_phantom_lancer",
+	"npc_dota_hero_treant",
+	"npc_dota_hero_omniknight",
+	"npc_dota_hero_viper",
+	"npc_dota_hero_medusa",
+	"npc_dota_hero_mirana",
+	"npc_dota_hero_naga_siren",
+	"npc_dota_hero_pudge",
 ]]
 --#endregion
 
@@ -120,6 +127,12 @@ local hero_pool_my =
 	"npc_dota_hero_spirit_breaker",
 	"npc_dota_hero_axe",
 	"npc_dota_hero_phantom_lancer",
+	"npc_dota_hero_treant",
+	"npc_dota_hero_omniknight",
+	"npc_dota_hero_viper",
+	"npc_dota_hero_medusa",
+	"npc_dota_hero_mirana",
+	"npc_dota_hero_naga_siren",
 }
 
 local heroesCarry =
@@ -155,6 +168,11 @@ local heroesCarry =
 	"npc_dota_hero_spirit_breaker",
 	"npc_dota_hero_axe",
 	"npc_dota_hero_phantom_lancer",
+	"npc_dota_hero_viper",
+	"npc_dota_hero_medusa",
+	"npc_dota_hero_mirana",
+	"npc_dota_hero_naga_siren",
+	"npc_dota_hero_pudge",
 }
 
 local heroesSupport =
@@ -183,6 +201,8 @@ local heroesSupport =
 	"npc_dota_hero_abyssal_underlord",
 	"npc_dota_hero_necrolyte",
 	"npc_dota_hero_crystal_maiden",
+	"npc_dota_hero_treant",
+	"npc_dota_hero_omniknight",
 }
 
 function GetBotNames()
@@ -317,8 +337,8 @@ function Think()
 	end
 
 	-- Insert here hero hame and set "testmode = true" if you want the bot to choose a specific hero
-	testmode = false;
-	testHero = "npc_dota_hero_phantom_lancer"
+	testmode = true;
+	testHero = "npc_dota_hero_pudge"
 
 	if testmode
 	then

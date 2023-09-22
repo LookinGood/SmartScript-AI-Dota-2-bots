@@ -212,7 +212,7 @@ function ConsiderSplinterBlast()
             if (#enemyCreepsAround > 0)
             then
                 for _, enemy in pairs(enemyCreepsAround) do
-                    if enemy ~= botTarget and utility.CanCastSpellOnTarget(ability, enemy) and GetUnitToUnitDistance(npcBot, enemy) <= (castRangeAbility + 200)
+                    if utility.CanCastSpellOnTarget(ability, enemy) and GetUnitToUnitDistance(npcBot, enemy) <= (castRangeAbility + 200)
                     then
                         --npcBot:ActionImmediate_Chat("Использую SplinterBlast на вражеского крипа рядом с целью!", true);
                         return BOT_ACTION_DESIRE_HIGH, enemy;

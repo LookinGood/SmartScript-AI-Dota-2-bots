@@ -231,6 +231,7 @@ function ConsiderTombstone()
     if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_UNIT_TARGET)
     then
         -- General use on allied heroes
+        local allyAbility = npcBot:GetNearbyHeroes(castRangeAbility + 200, false, BOT_MODE_NONE);
         if (#allyAbility > 0)
         then
             for _, ally in pairs(allyAbility)

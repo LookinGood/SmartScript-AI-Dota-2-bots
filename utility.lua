@@ -119,6 +119,7 @@ function GetBiggerAttribute(npcTarget)
 	local targetStrenght = npcTarget:GetAttributeValue(ATTRIBUTE_STRENGTH);
 	local targetAgility = npcTarget:GetAttributeValue(ATTRIBUTE_AGILITY);
 	local targetIntellect = npcTarget:GetAttributeValue(ATTRIBUTE_INTELLECT);
+	--local biggerAttribute = (math.max(targetStrenght, targetAgility, targetIntellect));
 
 	if (targetStrenght > targetAgility) and (targetStrenght > targetIntellect)
 	then
@@ -130,7 +131,7 @@ function GetBiggerAttribute(npcTarget)
 	then
 		return ATTRIBUTE_INTELLECT;
 	else
-		return nil;
+		return ATTRIBUTE_STRENGTH;
 	end
 end
 
@@ -152,18 +153,11 @@ end
 
 function IsItemSlotsFull()
 	local itemCount = GetItemSlotsCount();
-
-	if (itemCount >= 8)
-	then
-		return true;
-	else
-		return false;
-	end
+	return itemCount >= 9;
 end
 
 function GetStashSlotsCount()
 	local npcBot = GetBot();
-
 	local itemCount = 0;
 
 	for i = 9, 14
@@ -180,23 +174,40 @@ end
 
 function IsStashSlotsFull()
 	local itemCount = GetStashSlotsCount();
+	return itemCount >= 6;
+end
 
-	if (itemCount >= 6)
-	then
-		return true;
-	else
-		return false;
+function GetCourierItemSlotsCount()
+	local npcBot = GetBot();
+	local courier = GetBotCourier(npcBot);
+	local itemCount = 0;
+
+	for i = 0, 8
+	do
+		local sCurItem = courier:GetItemInSlot(i);
+		if (sCurItem ~= nil)
+		then
+			itemCount = itemCount + 1;
+		end
 	end
+
+	return itemCount;
+end
+
+function IsCourierItemSlotsFull()
+	local itemCount = GetCourierItemSlotsCount();
+	return itemCount >= 9;
 end
 
 function GetBotCourier(npcBot)
-	local courier = GetCourier(0)
-	local numPlayer = GetTeamPlayers(GetTeam())
+	local courier = GetCourier(0);
+	local numPlayer = GetTeamPlayers(GetTeam());
+
 	for i = 1, #numPlayer do
-		local member = GetTeamMember(i)
+		local member = GetTeamMember(i);
 		if member ~= nil and member:GetUnitName() == npcBot:GetUnitName()
 		then
-			courier = GetCourier(i - 1)
+			courier = GetCourier(i - 1);
 		end
 	end
 	return courier;
@@ -225,7 +236,10 @@ end
 
 function IsBuilding(npcTarget)
 	return IsValidTarget(npcTarget) and
-		npcTarget:IsTower() or npcTarget:IsFort() or npcTarget:IsBarracks();
+		npcTarget:IsTower() or npcTarget:IsFort() or npcTarget:IsBarracks() or
+		string.find(npcTarget:GetUnitName(), "rax") or
+		string.find(npcTarget:GetUnitName(), "tower") or
+		string.find(npcTarget:GetUnitName(), "fort");
 end
 
 function IsRoshan(npcTarget)
@@ -242,6 +256,7 @@ function IsDisabled(npcTarget)
 end
 
 function IsMoving(npcTarget)
+	local moveDirection = npcTarget:GetMovementDirectionStability();
 	return IsValidTarget(npcTarget) and
 		npcTarget:GetBaseMovementSpeed() > 0 and
 		npcTarget:GetCurrentActionType() ~= BOT_ACTION_TYPE_IDLE and
@@ -249,7 +264,8 @@ function IsMoving(npcTarget)
 		npcTarget:GetCurrentActionType() ~= BOT_ACTION_TYPE_NONE and
 		not npcTarget:IsRooted() and
 		not npcTarget:IsStunned() and
-		not npcTarget:IsNightmared()
+		not npcTarget:IsNightmared() and
+		moveDirection > 0.95
 end
 
 function IsHaveMaxSpeed(npcTarget)
@@ -260,6 +276,101 @@ function IsHaveMaxSpeed(npcTarget)
 			npcTarget:HasModifier("modifier_centaur_stampede") or
 			npcTarget:HasModifier("modifier_dark_seer_surge") or
 			npcTarget:GetCurrentMovementSpeed() >= 500)
+end
+
+function IsAllyHeroesBetweenMeAndTarget(hSource, hTarget, vLoc, nRadius)
+	local vStart = hSource:GetLocation();
+	local vEnd = vLoc;
+	local units = hSource:GetNearbyHeroes(1600, false, BOT_MODE_NONE);
+	for i, unit in pairs(units) do
+		local tResult = PointToLineDistance(vStart, vEnd, unit:GetLocation());
+		if tResult ~= nil and tResult.within and tResult.distance <= nRadius + 50
+		then
+			return true;
+		end
+	end
+	local targetUnits = hTarget:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
+	for i, unit in pairs(targetUnits) do
+		local tResult = PointToLineDistance(vStart, vEnd, unit:GetLocation());
+		if tResult ~= nil and tResult.within and tResult.distance <= nRadius + 50
+		then
+			return true;
+		end
+	end
+	return false;
+end
+
+function IsEnemyHeroesBetweenMeAndTarget(hSource, hTarget, vLoc, nRadius)
+	local vStart = hSource:GetLocation();
+	local vEnd = vLoc;
+	local units = hSource:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
+	for i, unit in pairs(units) do
+		local tResult = PointToLineDistance(vStart, vEnd, unit:GetLocation());
+		if tResult ~= nil and tResult.within and tResult.distance <= nRadius + 50
+		then
+			return true;
+		end
+	end
+	local targetUnits = hTarget:GetNearbyHeroes(1600, false, BOT_MODE_NONE);
+	for i, unit in pairs(targetUnits) do
+		local tResult = PointToLineDistance(vStart, vEnd, unit:GetLocation());
+		if tResult ~= nil and tResult.within and tResult.distance <= nRadius + 50
+		then
+			return true;
+		end
+	end
+	return false;
+end
+
+function IsAllyCreepBetweenMeAndTarget(hSource, hTarget, vLoc, nRadius)
+	local vStart = hSource:GetLocation();
+	local vEnd = vLoc;
+	local units = hSource:GetNearbyCreeps(1600, false);
+	for i, unit in pairs(units) do
+		local tResult = PointToLineDistance(vStart, vEnd, unit:GetLocation());
+		if tResult ~= nil and tResult.within and tResult.distance <= nRadius + 50
+		then
+			return true;
+		end
+	end
+	local targetUnits = hTarget:GetNearbyCreeps(1600, true);
+	for i, unit in pairs(targetUnits) do
+		local tResult = PointToLineDistance(vStart, vEnd, unit:GetLocation());
+		if tResult ~= nil and tResult.within and tResult.distance <= nRadius + 50
+		then
+			return true;
+		end
+	end
+	return false;
+end
+
+function IsEnemyCreepBetweenMeAndTarget(hSource, hTarget, vLoc, nRadius)
+	local vStart = hSource:GetLocation();
+	local vEnd = vLoc;
+	local units = hSource:GetNearbyCreeps(1600, true);
+	for i, unit in pairs(units) do
+		local tResult = PointToLineDistance(vStart, vEnd, unit:GetLocation());
+		if tResult ~= nil and tResult.within and tResult.distance <= nRadius + 50
+		then
+			return true;
+		end
+	end
+	local targetUnits = hTarget:GetNearbyCreeps(1600, false);
+	for i, unit in pairs(targetUnits) do
+		local tResult = PointToLineDistance(vStart, vEnd, unit:GetLocation());
+		if tResult ~= nil and tResult.within and tResult.distance <= nRadius + 50
+		then
+			return true;
+		end
+	end
+	return false;
+end
+
+function IsAnyUnitsBetweenMeAndTarget(hSource, hTarget, vLoc, nRadius)
+	return IsAllyHeroesBetweenMeAndTarget(hSource, hTarget, vLoc, nRadius) or
+		IsEnemyHeroesBetweenMeAndTarget(hSource, hTarget, vLoc, nRadius) or
+		IsAllyCreepBetweenMeAndTarget(hSource, hTarget, vLoc, nRadius) or
+		IsEnemyCreepBetweenMeAndTarget(hSource, hTarget, vLoc, nRadius);
 end
 
 function IsAbilityAvailable(ability)
@@ -799,6 +910,41 @@ function PurchaseTP(npcBot)
 	npcBot:ActionImmediate_PurchaseItem("item_tpscroll");
 end
 
+function PurchaseBottle(npcBot)
+	local assignedLane = npcBot:GetAssignedLane();
+
+	if assignedLane ~= LANE_MID
+	then
+		return;
+	end
+
+	if npcBot:GetGold() < GetItemCost("item_bottle") * 2 or IsItemSlotsFull() or IsStashSlotsFull() or DotaTime() > 20 * 60
+	then
+		return;
+	end
+
+	local courier = GetBotCourier(npcBot);
+
+	for i = 0, 16 do
+		local item = npcBot:GetItemInSlot(i);
+		if item ~= nil and item:GetName() == "item_bottle"
+		then
+			return;
+		end
+	end
+
+	for i = 0, 8 do
+		local item = courier:GetItemInSlot(i);
+		if item ~= nil and item:GetName() == "item_bottle"
+		then
+			return;
+		end
+	end
+
+	--npcBot:ActionImmediate_Chat("Покупаю BOTTLE!", true);
+	npcBot:ActionImmediate_PurchaseItem("item_bottle");
+end
+
 function HaveTravelBoots(npcBot)
 	for i = 0, 16 do
 		local item = npcBot:GetItemInSlot(i);
@@ -910,7 +1056,7 @@ function HaveMagesInEnemyTeam()
 end
 
 function PurchaseInfusedRaindrop(npcBot)
-	if npcBot:GetGold() < GetItemCost("item_infused_raindrop") or IsItemSlotsFull() or IsStashSlotsFull() or GetItemStockCount("item_infused_raindrop") < 1
+	if npcBot:GetGold() < GetItemCost("item_infused_raindrop") * 2 or IsItemSlotsFull() or IsStashSlotsFull() or GetItemStockCount("item_infused_raindrop") < 1
 		or npcBot:GetLevel() > 10
 	then
 		return;
@@ -1001,7 +1147,7 @@ function UpdateInvisEnemyStatus(bot)
 end
 
 function PurchaseDust(npcBot)
-	if npcBot:GetGold() < GetItemCost("item_dust") or IsItemSlotsFull() or IsStashSlotsFull() or DotaTime() < 5 * 60
+	if npcBot:GetGold() < GetItemCost("item_dust") * 2 or IsItemSlotsFull() or IsStashSlotsFull() or DotaTime() < 5 * 60
 	then
 		return;
 	end

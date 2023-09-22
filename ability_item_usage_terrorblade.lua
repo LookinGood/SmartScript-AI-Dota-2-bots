@@ -68,21 +68,21 @@ function AbilityUsageThink()
     local castTerrorWaveDesire = ConsiderTerrorWave();
     local castSunderDesire, castSunderTarget = ConsiderSunder();
 
-    if (castSunderDesire ~= nil)
+    if (castReflectionDesire ~= nil)
     then
-        npcBot:Action_UseAbilityOnEntity(Sunder, castSunderTarget);
+        npcBot:Action_UseAbilityOnLocation(Reflection, castReflectionLocation);
+        return;
+    end
+
+    if (castConjureImageDesire ~= nil)
+    then
+        npcBot:Action_UseAbility(ConjureImage);
         return;
     end
 
     if (castMetamorphosisDesire ~= nil)
     then
         npcBot:Action_UseAbility(Metamorphosis);
-        return;
-    end
-
-    if (castReflectionDesire ~= nil)
-    then
-        npcBot:Action_UseAbilityOnLocation(Reflection, castReflectionLocation);
         return;
     end
 
@@ -98,9 +98,9 @@ function AbilityUsageThink()
         return;
     end
 
-    if (castConjureImageDesire ~= nil)
+    if (castSunderDesire ~= nil)
     then
-        npcBot:Action_UseAbility(ConjureImage);
+        npcBot:Action_UseAbilityOnEntity(Sunder, castSunderTarget);
         return;
     end
 end
@@ -147,7 +147,7 @@ function ConsiderConjureImage()
     -- Attack use
     if utility.PvPMode(npcBot)
     then
-        if utility.CanCastOnInvulnerableTarget(botTarget)
+        if utility.CanCastOnInvulnerableTarget(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= 2000
         then
             --npcBot:ActionImmediate_Chat("Использую ConjureImage для нападения!", true);
             return BOT_ACTION_DESIRE_HIGH;
@@ -156,7 +156,7 @@ function ConsiderConjureImage()
     elseif utility.RetreatMode(npcBot)
     then
         local enemyAbility = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
-        if (#enemyAbility > 0) and (HealthPercentage <= 0.6) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
+        if (#enemyAbility > 0) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
         then
             --npcBot:ActionImmediate_Chat("Использую ConjureImage для отступления!", true);
             return BOT_ACTION_DESIRE_HIGH;
@@ -164,7 +164,8 @@ function ConsiderConjureImage()
         -- Cast if push/defend/farm/roshan
     elseif utility.PvEMode(npcBot)
     then
-        if (npcBot:DistanceFromFountain() > 1000) and (ManaPercentage >= 0.4)
+        local enemyCreeps = npcBot:GetNearbyCreeps(1600, true);
+        if (#enemyCreeps > 0) and (ManaPercentage >= 0.4)
         then
             --npcBot:ActionImmediate_Chat("Использую ConjureImage против вражеских сил!", true);
             return BOT_ACTION_DESIRE_LOW;

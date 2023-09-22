@@ -17,15 +17,15 @@ local Abilities, Talents, AbilitiesReal = ability_levelup_generic.GetHeroAbiliti
 
 local AbilityToLevelUp =
 {
-    Abilities[2],
     Abilities[1],
+    Abilities[2],
     Abilities[3],
     Abilities[2],
-    Abilities[1],
+    Abilities[2],
     Abilities[6],
     Abilities[2],
     Abilities[1],
-    Abilities[2],
+    Abilities[1],
     Talents[1],
     Abilities[1],
     Abilities[6],
@@ -45,8 +45,8 @@ end
 -- Abilities
 local HoofStomp = AbilitiesReal[1]
 local DoubleEdge = AbilitiesReal[2]
-local WorkHorse = AbilitiesReal[4]
-local HitchARide = npcBot:GetAbilityByName("centaur_work_horse");
+local WorkHorse = npcBot:GetAbilityByName("centaur_work_horse");
+local HitchARide = npcBot:GetAbilityByName("centaur_mount");
 local Stampede = AbilitiesReal[6]
 
 function AbilityUsageThink()

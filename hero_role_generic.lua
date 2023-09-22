@@ -35,6 +35,11 @@ C["carryHeroes"] = {
     ["npc_dota_hero_spirit_breaker"] = 1,
     ["npc_dota_hero_axe"] = 1,
     ["npc_dota_hero_phantom_lancer"] = 1,
+    ["npc_dota_hero_viper"] = 1,
+    ["npc_dota_hero_medusa"] = 1,
+    ["npc_dota_hero_mirana"] = 1,
+    ["npc_dota_hero_naga_siren"] = 1,
+    ["npc_dota_hero_pudge"] = 1,
 }
 
 local S = {}
@@ -63,6 +68,8 @@ S["supportHeroes"] = {
     ["npc_dota_hero_abyssal_underlord"] = 1,
     ["npc_dota_hero_necrolyte"] = 1,
     ["npc_dota_hero_crystal_maiden"] = 1,
+    ["npc_dota_hero_treant"] = 1,
+    ["npc_dota_hero_omniknight"] = 1,
 }
 
 function IsHeroCarry(npcBot)

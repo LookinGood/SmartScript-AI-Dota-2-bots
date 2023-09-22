@@ -133,6 +133,7 @@ local hero_pool_my =
 	"npc_dota_hero_medusa",
 	"npc_dota_hero_mirana",
 	"npc_dota_hero_naga_siren",
+	"npc_dota_hero_pudge",
 }
 
 local heroesCarry =
@@ -337,7 +338,7 @@ function Think()
 	end
 
 	-- Insert here hero hame and set "testmode = true" if you want the bot to choose a specific hero
-	testmode = true;
+	testmode = false;
 	testHero = "npc_dota_hero_pudge"
 
 	if testmode

@@ -137,7 +137,7 @@ function GetDesire()
     end
 
     local npcBot = GetBot();
-    local enemyHeroes = npcBot:GetNearbyHeroes(1000, true, BOT_MODE_NONE);
+    local enemyHeroes = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
     local enemyTowers = npcBot:GetNearbyTowers(1000, true);
 
     if not npcBot:IsAlive() or npcBot:HasModifier("modifier_skeleton_king_reincarnation_scepter")

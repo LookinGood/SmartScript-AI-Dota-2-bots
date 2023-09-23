@@ -948,13 +948,13 @@ end
 function HaveTravelBoots(npcBot)
 	for i = 0, 16 do
 		local item = npcBot:GetItemInSlot(i);
-		if item ~= nil and (item:GetName() == "item_travel_boots" or item:GetName() == "item_travel_boots_2")
+		if item ~= nil and (item:GetName() == "item_travel_boots" or item:GetName() == "item_travel_boots_2" or item:GetName() == "item_force_boots")
 		then
 			return true;
-		else
-			return false;
 		end
 	end
+
+	return false;
 end
 
 function HasAganimShard(npcBot)

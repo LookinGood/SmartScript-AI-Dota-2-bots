@@ -166,28 +166,37 @@ function SellSpecifiedItem(item_name)
 		return;
 	end
 
-	local item = nil;
-
-	for i = 0, 14
+	for i = 0, 8
 	do
 		local slotItem = npcBot:GetItemInSlot(i);
 		if slotItem ~= nil and slotItem:GetName() == item_name
 		then
-			item = slotItem;
+			if npcBot:DistanceFromFountain() <= 600 or npcBot:DistanceFromSecretShop() <= 200
+			then
+				--npcBot:ActionImmediate_Chat("Продаю лишний предмет!", true);
+				npcBot:ActionImmediate_SellItem(slotItem);
+			end
 		end
 	end
 
-	if (item ~= nil and (npcBot:DistanceFromFountain() <= 600 or npcBot:DistanceFromSideShop() <= 200 or npcBot:DistanceFromSecretShop() <= 200))
-	then
-		npcBot:ActionImmediate_SellItem(item);
+	for i = 9, 14
+	do
+		local slotItem = npcBot:GetItemInSlot(i);
+		if slotItem ~= nil and slotItem:GetName() == item_name
+		then
+			--npcBot:ActionImmediate_Chat("Продаю лишний предмет из тайника!", true);
+			npcBot:ActionImmediate_SellItem(slotItem);
+		end
 	end
+
+	-- or npcBot:DistanceFromSideShop() <= 200
 end
 
 function SellExtraItem()
 	local npcBot = GetBot();
 	if utility.IsItemSlotsFull()
 	then
-		if (DotaTime() > 15 * 60)
+		if (DotaTime() > 10 * 60)
 		then
 			SellSpecifiedItem("item_tango")
 			SellSpecifiedItem("item_clarity")
@@ -214,7 +223,7 @@ function SellExtraItem()
 			SellSpecifiedItem("item_falcon_blade")
 			SellSpecifiedItem("item_soul_ring")
 		end
-		if (DotaTime() > 50 * 60)
+		if (DotaTime() > 40 * 60)
 		then
 			SellSpecifiedItem("item_hand_of_midas")
 			SellSpecifiedItem("item_pavise")

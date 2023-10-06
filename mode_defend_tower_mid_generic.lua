@@ -87,7 +87,7 @@ function GetDesire()
         then
             --npcBot:ActionImmediate_Chat("Я решил защищать Древнего!", true);
             mainBuilding = ancient;
-            return BOT_ACTION_DESIRE_ABSOLUTE;
+            return BOT_ACTION_DESIRE_VERYHIGH;
         end
     end
 

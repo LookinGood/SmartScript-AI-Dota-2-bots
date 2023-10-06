@@ -106,6 +106,7 @@ function ConsiderShadowStrike()
     local damageAbility = (ability:GetSpecialValueInt("duration_damage") * ability:GetSpecialValueInt("duration")) +
         ability:GetSpecialValueInt("strike_damage");
     local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
+    local speedAbility = ability:GetSpecialValueInt("projectile_speed");
     local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility + 200, true, BOT_MODE_NONE);
 
     -- Cast if can kill somebody
@@ -116,14 +117,14 @@ function ConsiderShadowStrike()
             then
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    if not npcBot:HasScepter() and utility.SafeCast(enemy, true)
+                    if not npcBot:HasScepter()
                     then
                         --npcBot:ActionImmediate_Chat("Использую ShadowStrike для убийства без аганима!", true);
                         return BOT_ACTION_DESIRE_HIGH, enemy, "target";
                     elseif npcBot:HasScepter()
                     then
                         --npcBot:ActionImmediate_Chat("Использую ShadowStrike для убийства с аганимом!",true);
-                        return BOT_ACTION_DESIRE_HIGH, utility.GetTargetPosition(enemy, delayAbility), "location";
+                        return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility), "location";
                     end
                 end
             end
@@ -144,7 +145,7 @@ function ConsiderShadowStrike()
                 elseif npcBot:HasScepter()
                 then
                     --npcBot:ActionImmediate_Chat("Использую ShadowStrike для нападения с аганимом!",true);
-                    return BOT_ACTION_DESIRE_HIGH, utility.GetTargetPosition(botTarget, delayAbility), "location";
+                    return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, speedAbility), "location";
                 end
             end
         end
@@ -164,7 +165,7 @@ function ConsiderShadowStrike()
                     then
                         npcBot:ActionImmediate_Chat("Использую ShadowStrike для отступления с аганимом!",
                             true);
-                        return BOT_ACTION_DESIRE_HIGH, utility.GetTargetPosition(enemy, delayAbility), "location";
+                            return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility), "location";
                     end
                 end
             end
@@ -196,7 +197,7 @@ function ConsiderShadowStrike()
             elseif npcBot:HasScepter()
             then
                 --npcBot:ActionImmediate_Chat("Использую ShadowStrike для лайнинга с аганимом!", true);
-                return BOT_ACTION_DESIRE_HIGH, utility.GetTargetPosition(enemy, delayAbility), "location";
+                return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility), "location";
             end
         end
     end
@@ -314,7 +315,8 @@ function ConsiderSonicWave()
     local castRangeAbility = ability:GetCastRange();
     local radiusAbility = ability:GetSpecialValueInt("final_aoe");
     local damageAbility = ability:GetSpecialValueInt("damage");
-    local delayAbility = 0.5;
+    local delayAbility = ability:GetSpecialValueInt("tick_rate");
+    local speedAbility = ability:GetSpecialValueInt("speed");
     local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE)
 
     -- Cast if can kill somebody
@@ -325,7 +327,7 @@ function ConsiderSonicWave()
             then
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(enemy, delayAbility);
+                    return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility);
                 end
             end
         end
@@ -338,7 +340,7 @@ function ConsiderSonicWave()
             GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
         then
             --npcBot:ActionImmediate_Chat("Использую Sonic Wave по врагу в радиусе действия!",true);
-            return BOT_ACTION_DESIRE_HIGH, utility.GetTargetPosition(botTarget, delayAbility);
+            return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, speedAbility);
         end
         -- Cast if enemy >=2
         local locationAoE = npcBot:FindAoELocation(true, true, npcBot:GetLocation(), castRangeAbility, radiusAbility, 0,
@@ -357,7 +359,7 @@ function ConsiderSonicWave()
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую SonicWave что бы оторваться!", true);
-                    return BOT_ACTION_DESIRE_HIGH, utility.GetTargetPosition(enemy, delayAbility);
+                    return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility);
                 end
             end
         end

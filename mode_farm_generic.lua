@@ -47,12 +47,12 @@ function GetDesire()
         else
             if (#neutralCreeps > 0)
             then
-                local allyHeroes = npcBot:GetNearbyHeroes(700, false, BOT_MODE_NONE);
+                local allyHeroes = npcBot:GetNearbyHeroes(1000, false, BOT_MODE_NONE);
                 if (#allyHeroes > 1)
                 then
                     for _, ally in pairs(allyHeroes)
                     do
-                        if hero_role_generic.IsHeroCarry(ally)
+                        if ally ~= npcBot and hero_role_generic.IsHeroCarry(ally) and ally:GetAttackTarget():IsCreep()
                         then
                             return BOT_ACTION_DESIRE_NONE;
                         end

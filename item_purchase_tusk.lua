@@ -42,6 +42,9 @@ local ItemsToBuy =
 
 	"item_recipe_abyssal_blade",
 
+	"item_demon_edge",
+	"item_relic",
+
 	"item_vitality_booster",
 	"item_reaver",
 	"item_recipe_heart",
@@ -56,9 +59,6 @@ local ItemsToBuy =
 	"item_boots",
 
 	"item_recipe_travel_boots",
-
-	"item_demon_edge",
-	"item_relic",
 }
 
 function ItemPurchaseThink()

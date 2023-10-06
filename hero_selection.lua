@@ -67,6 +67,12 @@ require(GetScriptDirectory() .. "/bot_name_generic")
 	"npc_dota_hero_mirana",
 	"npc_dota_hero_naga_siren",
 	"npc_dota_hero_pudge",
+	"npc_dota_hero_nyx_assassin",
+	"npc_dota_hero_bounty_hunter",
+	"npc_dota_hero_pugna",
+	"npc_dota_hero_ursa",
+	"npc_dota_hero_troll_warlord",
+	"npc_dota_hero_abaddon",
 ]]
 --#endregion
 
@@ -134,6 +140,12 @@ local hero_pool_my =
 	"npc_dota_hero_mirana",
 	"npc_dota_hero_naga_siren",
 	"npc_dota_hero_pudge",
+	"npc_dota_hero_nyx_assassin",
+	"npc_dota_hero_bounty_hunter",
+	"npc_dota_hero_pugna",
+	"npc_dota_hero_ursa",
+	"npc_dota_hero_troll_warlord",
+	"npc_dota_hero_abaddon",
 }
 
 local heroesCarry =
@@ -174,6 +186,10 @@ local heroesCarry =
 	"npc_dota_hero_mirana",
 	"npc_dota_hero_naga_siren",
 	"npc_dota_hero_pudge",
+	"npc_dota_hero_nyx_assassin",
+	"npc_dota_hero_bounty_hunter",
+	"npc_dota_hero_ursa",
+	"npc_dota_hero_troll_warlord",
 }
 
 local heroesSupport =
@@ -204,6 +220,8 @@ local heroesSupport =
 	"npc_dota_hero_crystal_maiden",
 	"npc_dota_hero_treant",
 	"npc_dota_hero_omniknight",
+	"npc_dota_hero_pugna",
+	"npc_dota_hero_abaddon",
 }
 
 function GetBotNames()
@@ -339,7 +357,7 @@ function Think()
 
 	-- Insert here hero hame and set "testmode = true" if you want the bot to choose a specific hero
 	testmode = false;
-	testHero = "npc_dota_hero_pudge"
+	testHero = "npc_dota_hero_abaddon"
 
 	if testmode
 	then

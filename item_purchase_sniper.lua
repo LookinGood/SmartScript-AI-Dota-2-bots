@@ -57,6 +57,9 @@ local ItemsToBuy =
 	"item_ultimate_orb",
 	"item_ultimate_orb",
 
+	"item_demon_edge",
+	"item_relic",
+
 	"item_point_booster",
 	"item_ogre_axe",
 	"item_staff_of_wizardry",
@@ -69,9 +72,6 @@ local ItemsToBuy =
 	"item_boots",
 
 	"item_recipe_travel_boots",
-
-	"item_demon_edge",
-	"item_relic",
 }
 
 function ItemPurchaseThink()

@@ -196,6 +196,7 @@ function ConsiderCallDown()
 
     local castRangeAbility = ability:GetCastRange();
     local radiusAbility = ability:GetSpecialValueInt("radius");
+    local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
     local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility + 200, true, BOT_MODE_NONE);
 
     -- Cast if enemy hero immobilized
@@ -206,7 +207,7 @@ function ConsiderCallDown()
                 utility.IsDisabled(enemy)
             then
                 --npcBot:ActionImmediate_Chat("Использую Call Down против обездвиженного врага!",true);
-                return BOT_ACTION_DESIRE_HIGH, enemy:GetLocation();
+                return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
             end
         end
     end

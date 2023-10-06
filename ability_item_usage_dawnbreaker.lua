@@ -108,7 +108,7 @@ function ConsiderStarbreaker()
                 if utility.CanCastSpellOnTarget(ability, enemy) and enemy:IsChanneling()
                 then
                     --npcBot:ActionImmediate_Chat("Использую Starbreaker что бы сбить заклинание!",true);
-                    return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(enemy, delayAbility);
+                    return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
                 end
             end
         end
@@ -121,7 +121,7 @@ function ConsiderStarbreaker()
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
             then
-                return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(botTarget, delayAbility);
+                return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
             end
         end
         -- Cast if push/defend/farm
@@ -148,6 +148,7 @@ function ConsiderCelestialHammer()
     local radiusAbility = ability:GetSpecialValueInt("flare_radius");
     local damageAbility = ability:GetSpecialValueInt("hammer_damage");
     local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
+    local speedAbility = ability:GetSpecialValueInt("projectile_speed");
     local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility + 200, true, BOT_MODE_NONE);
 
     -- Cast if can kill somebody
@@ -158,7 +159,7 @@ function ConsiderCelestialHammer()
             then
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(enemy, delayAbility);
+                    return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility);
                 end
             end
         end
@@ -172,7 +173,7 @@ function ConsiderCelestialHammer()
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
                 and GetUnitToUnitDistance(npcBot, botTarget) > attackRange
             then
-                return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(botTarget, delayAbility);
+                return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, speedAbility);
             end
         end
         -- Cast if push/defend/farm
@@ -200,7 +201,7 @@ function ConsiderCelestialHammer()
         if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)
         then
             --npcBot:ActionImmediate_Chat("Использую CelestialHammer по цели на ЛАЙНЕ!", true);
-            return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(enemy, delayAbility);
+            return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility);
         end
     end
 end

@@ -5,9 +5,9 @@ local ItemsToBuy =
 {
 	"item_tango",
 	"item_magic_stick",
+	"item_blight_stone",
 	"item_branches",
 	"item_branches",
-	"item_enchanted_mango",
 
 	"item_flask",
 
@@ -17,45 +17,42 @@ local ItemsToBuy =
 	"item_slippers",
 	"item_recipe_wraith_band",
 
-	"item_circlet",
-	"item_slippers",
-	"item_recipe_wraith_band",
+    "item_boots",
+    "item_blades_of_attack",
+    "item_chainmail",
 
-	"item_boots",
-	"item_gloves",
-	"item_boots_of_elves",
+    "item_circlet",
+    "item_sobi_mask",
+    "item_ring_of_protection",
+    "item_recipe_urn_of_shadows",
 
-	"item_blade_of_alacrity",
-	"item_boots_of_elves",
-	"item_recipe_yasha",
-
-	"item_ogre_axe",
 	"item_mithril_hammer",
-	"item_recipe_black_king_bar",
+	"item_mithril_hammer",
+
+	"item_fluffy_hat",
+    "item_crown",
+    "item_recipe_spirit_vessel",
 
 	"item_aghanims_shard",
 
-	"item_blades_of_attack",
-	"item_broadsword",
-	"item_recipe_lesser_crit",
-
-	"item_ultimate_orb",
-	"item_recipe_manta",
-
-	"item_demon_edge",
-	"item_recipe_greater_crit",
+	"item_cornucopia",
+    "item_ultimate_orb",
+    "item_recipe_sphere",
 
 	"item_point_booster",
-	"item_ultimate_orb",
-	"item_ultimate_orb",
+    "item_ogre_axe",
+    "item_staff_of_wizardry",
+    "item_blade_of_alacrity",
 
 	"item_demon_edge",
 	"item_relic",
 
 	"item_point_booster",
-	"item_ogre_axe",
-	"item_staff_of_wizardry",
-	"item_blade_of_alacrity",
+    "item_energy_booster",
+    "item_vitality_booster",
+	"item_void_stone",
+	"item_void_stone",
+	"item_recipe_octarine_core",
 
 	"item_hyperstone",
 	"item_hyperstone",

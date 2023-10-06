@@ -89,6 +89,7 @@ function ConsiderTimeWalk()
     local attackRange = npcBot:GetAttackRange();
     local castRangeAbility = ability:GetSpecialValueInt("range");
     local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
+    local speedAbility = ability:GetSpecialValueInt("speed");
 
     -- Cast if enemy hero too far away
     if utility.PvPMode(npcBot)
@@ -96,7 +97,7 @@ function ConsiderTimeWalk()
         if utility.IsHero(botTarget) and utility.CanCastOnInvulnerableTarget(botTarget) and
             GetUnitToUnitDistance(npcBot, botTarget) > (attackRange * 2)
         then
-            return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(botTarget, delayAbility);
+            return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, speedAbility);
         end
         -- Cast if need retreat
     elseif utility.RetreatMode(npcBot)
@@ -155,14 +156,14 @@ function ConsiderTimeLock()
             if (#allyHeroes == 0)
             then
                 --npcBot:ActionImmediate_Chat("Использую TimeLock по цели рядом с которой нет союзников!", true);
-                return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(botTarget, delayAbility);
+                return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
             elseif (#allyHeroes == 1)
             then
                 for _, ally in pairs(allyHeroes) do
                     if ally == npcBot
                     then
                         --npcBot:ActionImmediate_Chat("Использую TimeLock по цели рядом с которой только я!", true);
-                        return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(botTarget, delayAbility);
+                        return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
                     end
                 end
             end
@@ -182,14 +183,14 @@ function ConsiderTimeLock()
                         if (#allyHeroes == 0)
                         then
                             --npcBot:ActionImmediate_Chat("Использую TimeLock отступая по одному врагу!", true);
-                            return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(enemy, delayAbility);
+                            return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
                         elseif (#allyHeroes == 1)
                         then
                             for _, ally in pairs(allyHeroes) do
                                 if ally == npcBot
                                 then
                                     --npcBot:ActionImmediate_Chat("Использую TimeLock отступая по врагу рядом с которым только я!", true);
-                                    return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(enemy, delayAbility);
+                                    return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
                                 end
                             end
                         end

@@ -40,6 +40,10 @@ C["carryHeroes"] = {
     ["npc_dota_hero_mirana"] = 1,
     ["npc_dota_hero_naga_siren"] = 1,
     ["npc_dota_hero_pudge"] = 1,
+    ["npc_dota_hero_nyx_assassin"] = 1,
+    ["npc_dota_hero_bounty_hunter"] = 1,
+    ["npc_dota_hero_ursa"] = 1,
+    ["npc_dota_hero_troll_warlord"] = 1,
 }
 
 local S = {}
@@ -70,6 +74,8 @@ S["supportHeroes"] = {
     ["npc_dota_hero_crystal_maiden"] = 1,
     ["npc_dota_hero_treant"] = 1,
     ["npc_dota_hero_omniknight"] = 1,
+    ["npc_dota_hero_pugna"] = 1,
+    ["npc_dota_hero_abaddon"] = 1,
 }
 
 function IsHeroCarry(npcBot)

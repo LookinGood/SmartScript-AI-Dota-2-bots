@@ -113,7 +113,7 @@ function ConsiderBlink()
         if utility.IsHero(botTarget) and utility.CanCastOnInvulnerableTarget(botTarget) and
             GetUnitToUnitDistance(npcBot, botTarget) > (attackRange * 2)
         then
-            return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(botTarget, delayAbility);
+            return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
         end
         -- Cast if need retreat
     elseif utility.RetreatMode(npcBot)

@@ -48,6 +48,9 @@ local ItemsToBuy =
 	"item_ultimate_orb",
 	"item_recipe_manta",
 
+	"item_demon_edge",
+	"item_relic",
+
 	"item_blade_of_alacrity",
 	"item_belt_of_strength",
 	"item_recipe_dragon_lance",
@@ -65,9 +68,6 @@ local ItemsToBuy =
 	"item_boots",
 
 	"item_recipe_travel_boots",
-
-	"item_demon_edge",
-	"item_relic",
 }
 
 function ItemPurchaseThink()

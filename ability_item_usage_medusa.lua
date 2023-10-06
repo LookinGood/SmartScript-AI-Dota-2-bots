@@ -169,6 +169,20 @@ function ConsiderMysticSnake()
         end
     end
 
+    -- (Only Scepter) Cast if can interrupt cast
+    if npcBot:HasScepter() and (#enemyAbility > 0)
+    then
+        for _, enemy in pairs(enemyAbility) do
+            if enemy:IsChanneling()
+            then
+                if utility.CanCastSpellOnTarget(ability, enemy)
+                then
+                    return BOT_ACTION_DESIRE_VERYHIGH, enemy;
+                end
+            end
+        end
+    end
+
     -- Attack use
     if utility.PvPMode(npcBot)
     then

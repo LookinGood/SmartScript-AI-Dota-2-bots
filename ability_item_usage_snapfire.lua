@@ -105,10 +105,11 @@ function AbilityUsageThink()
 
     if npcBot:HasModifier("modifier_snapfire_mortimer_kisses")
     then
+        local delayAbility = MortimerKisses:GetSpecialValueInt("AbilityCastPoint");
+        local speedAbility = MortimerKisses:GetSpecialValueInt("projectile_speed");
         if utility.IsValidTarget(botTarget)
         then
-            npcBot:ActionPush_MoveToLocation(utility.GetTargetPosition(botTarget,
-                MortimerKisses:GetSpecialValueInt("AbilityCastPoint")))
+            npcBot:ActionPush_MoveToLocation(utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, speedAbility));
         else
             local enemyAbility = npcBot:GetNearbyHeroes(MortimerKisses:GetCastRange(), true, BOT_MODE_NONE);
             if (#enemyAbility > 0)
@@ -116,8 +117,8 @@ function AbilityUsageThink()
                 for _, enemy in pairs(enemyAbility) do
                     if utility.IsValidTarget(enemy)
                     then
-                        npcBot:ActionPush_MoveToLocation(utility.GetTargetPosition(enemy,
-                            MortimerKisses:GetSpecialValueInt("AbilityCastPoint")))
+                        npcBot:ActionPush_MoveToLocation(utility.GetTargetCastPosition(npcBot, enemy, delayAbility,
+                            speedAbility));
                     end
                 end
             end
@@ -138,6 +139,7 @@ function ConsiderScatterblast()
     local meleeDamageAbility = damageAbility +
         (damageAbility / 100 * (ability:GetSpecialValueInt("point_blank_dmg_bonus_pct"))); -- 480
     local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
+    local speedAbility = ability:GetSpecialValueInt("blast_speed");
     local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility + 200, true, BOT_MODE_NONE);
 
     -- Cast if can kill somebody
@@ -151,14 +153,16 @@ function ConsiderScatterblast()
                     if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType())
                     then
                         --npcBot:ActionImmediate_Chat("Использую Scatterblast что бы убить цель!",true);
-                        return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(enemy, delayAbility);
+                        return BOT_ACTION_DESIRE_VERYHIGH,
+                            utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility);
                     end
                 elseif GetUnitToUnitDistance(npcBot, enemy) <= meleeCastRangeAbility
                 then
                     if utility.CanAbilityKillTarget(enemy, meleeDamageAbility, ability:GetDamageType())
                     then
                         --npcBot:ActionImmediate_Chat("Использую Scatterblast что бы убить цель ВБЛИЗИ!",true);
-                        return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(enemy, delayAbility);
+                        return BOT_ACTION_DESIRE_VERYHIGH,
+                            utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility);
                     end
                 end
             end
@@ -178,7 +182,8 @@ function ConsiderScatterblast()
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
             then
                 --npcBot:ActionImmediate_Chat("Использую Scatterblast по врагу в радиусе действия!",true);
-                return BOT_MODE_DESIRE_HIGH, utility.GetTargetPosition(botTarget, delayAbility);
+                return BOT_ACTION_DESIRE_VERYHIGH,
+                    utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, speedAbility);
             end
         end
         -- Retreat mode
@@ -190,7 +195,8 @@ function ConsiderScatterblast()
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую Scatterblast что бы оторваться от врага",true);
-                    return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(enemy, delayAbility);
+                    return BOT_ACTION_DESIRE_VERYHIGH,
+                        utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility);
                 end
             end
         end
@@ -211,7 +217,7 @@ function ConsiderScatterblast()
         if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)
         then
             --npcBot:ActionImmediate_Chat("Использую Scatterblast по цели на ЛАЙНЕ!", true);
-            return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(enemy, delayAbility);
+            return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility);
         end
     end
 end
@@ -382,6 +388,7 @@ function ConsiderMortimerKisses()
     local minRangeAbility = ability:GetSpecialValueInt("min_range");
     local castRangeAbility = ability:GetCastRange();
     local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
+    local speedAbility = ability:GetSpecialValueInt("projectile_speed");
 
     -- Attack use
     if utility.PvPMode(npcBot)
@@ -389,7 +396,8 @@ function ConsiderMortimerKisses()
         if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget)
             and (GetUnitToUnitDistance(npcBot, botTarget) >= minRangeAbility and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility)
         then
-            return BOT_ACTION_DESIRE_HIGH, utility.GetTargetPosition(botTarget, delayAbility);
+            return BOT_ACTION_DESIRE_VERYHIGH,
+                utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, speedAbility);
         end
     end
 end

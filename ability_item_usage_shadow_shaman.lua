@@ -278,7 +278,7 @@ function ConsiderMassSerpentWard()
         if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
             and botTarget:GetHealth() / botTarget:GetMaxHealth() > 0.1
         then
-            return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(botTarget, delayAbility);
+            return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
         end
         -- Retreat use
     elseif utility.RetreatMode(npcBot)
@@ -290,7 +290,7 @@ function ConsiderMassSerpentWard()
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую MassSerpentWard что бы оторваться от врага!",true);
-                    return BOT_ACTION_DESIRE_HIGH, utility.GetTargetPosition(enemy, delayAbility);
+                    return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
                 end
             end
         end

@@ -282,7 +282,7 @@ function ConsiderBurningBarrage()
                 if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
                 then
                     --npcBot:ActionImmediate_Chat("Использую BurningBarrage!", true);
-                    return BOT_MODE_DESIRE_HIGH, utility.GetTargetPosition(botTarget, delayAbility);
+                    return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
                 end
             end
         end

@@ -58,22 +58,15 @@ function AbilityUsageThink()
     HealthPercentage = npcBot:GetHealth() / npcBot:GetMaxHealth();
     ManaPercentage = npcBot:GetMana() / npcBot:GetMaxMana();
 
-    local castEarthSpikeDesire, castEarthSpikeTarget, castEarthSpikeTargetType = ConsiderEarthSpike();
+    local castEarthSpikeDesire, castEarthSpikeTarget = ConsiderEarthSpike();
     local castHexDesire, castHexTarget = ConsiderHex();
     local castManaDrainDesire, castManaDrainTarget = ConsiderManaDrain();
     local castFingerOfDeathDesire, castFingerOfDeathTarget = ConsiderFingerOfDeath();
 
     if (castEarthSpikeDesire ~= nil)
     then
-        if (castEarthSpikeTargetType == "target")
-        then
-            npcBot:Action_UseAbilityOnEntity(EarthSpike, castEarthSpikeTarget);
-            return;
-        elseif (castEarthSpikeTargetType == "location")
-        then
-            npcBot:Action_UseAbilityOnLocation(EarthSpike, castEarthSpikeTarget);
-            return;
-        end
+        npcBot:Action_UseAbilityOnLocation(EarthSpike, castEarthSpikeTarget);
+        return;
     end
 
     if (castHexDesire ~= nil)
@@ -105,7 +98,8 @@ function ConsiderEarthSpike()
     local radiusAbility = ability:GetSpecialValueInt("width");
     local damageAbility = ability:GetSpecialValueInt("damage");
     local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
-    local enemyAbility = npcBot:GetNearbyHeroes((castRangeAbility + 200), true, BOT_MODE_NONE);
+    local speedAbility = ability:GetSpecialValueInt("speed");
+    local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility + 200, true, BOT_MODE_NONE);
 
     -- Cast if can kill somebody/interrupt cast
     if (#enemyAbility > 0)
@@ -115,14 +109,7 @@ function ConsiderEarthSpike()
             then
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    if utility.SafeCast(enemy, true)
-                    then
-                        --npcBot:ActionImmediate_Chat("Использую EarthSpike что бы сбить заклинание по цели!", true);
-                        return BOT_MODE_DESIRE_HIGH, enemy, "target";
-                    else
-                        --npcBot:ActionImmediate_Chat("Использую EarthSpike что бы сбить заклинание по области!",true);
-                        return BOT_MODE_DESIRE_HIGH, utility.GetTargetPosition(enemy, delayAbility), "location";
-                    end
+                    return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility);
                 end
             end
         end
@@ -137,29 +124,14 @@ function ConsiderEarthSpike()
             then
                 if not utility.IsDisabled(botTarget)
                 then
-                    if utility.SafeCast(botTarget, true)
-                    then
-                        --npcBot:ActionImmediate_Chat("Использую EarthSpike по основной цели!", true);
-                        return BOT_MODE_DESIRE_HIGH, botTarget, "target";
-                    else
-                        --npcBot:ActionImmediate_Chat("Использую EarthSpike по основной цели по земле!",true);
-                        return BOT_MODE_DESIRE_HIGH, utility.GetTargetPosition(botTarget, delayAbility), "location";
-                    end
+                    return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, speedAbility);
                 else
                     if (#enemyAbility > 1)
                     then
                         for _, enemy in pairs(enemyAbility) do
                             if utility.CanCastSpellOnTarget(ability, enemy) and not utility.IsDisabled(enemy)
                             then
-                                if utility.SafeCast(enemy, true)
-                                then
-                                    --npcBot:ActionImmediate_Chat("Использую EarthSpike по второй цели!", true);
-                                    return BOT_MODE_DESIRE_HIGH, enemy, "target";
-                                else
-                                    --npcBot:ActionImmediate_Chat("Использую EarthSpike по второй цели по земле!",true);
-                                    return BOT_MODE_DESIRE_HIGH, utility.GetTargetPosition(enemy, delayAbility),
-                                        "location";
-                                end
+                                return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility);
                             end
                         end
                     end
@@ -174,14 +146,7 @@ function ConsiderEarthSpike()
             for _, enemy in pairs(enemyAbility) do
                 if utility.CanCastSpellOnTarget(ability, enemy) and not utility.IsDisabled(enemy)
                 then
-                    if utility.SafeCast(enemy, true)
-                    then
-                        --npcBot:ActionImmediate_Chat("Использую EarthSpike что бы оторваться по цели", true);
-                        return BOT_MODE_DESIRE_HIGH, enemy, "target";
-                    else
-                        --npcBot:ActionImmediate_Chat("Использую EarthSpike что бы оторваться по области", true);
-                        return BOT_MODE_DESIRE_HIGH, utility.GetTargetPosition(botTarget, delayAbility), "location";
-                    end
+                    return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility);
                 end
             end
         end
@@ -201,14 +166,7 @@ function ConsiderEarthSpike()
         local enemy = utility.GetWeakest(enemyAbility);
         if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)
         then
-            if utility.SafeCast(enemy, true)
-            then
-                --npcBot:ActionImmediate_Chat("Использую EarthSpike на лайне по цели!", true);
-                return BOT_MODE_DESIRE_HIGH, enemy, "target";
-            else
-                --npcBot:ActionImmediate_Chat("Использую EarthSpike на лайне по области!", true);
-                return BOT_MODE_DESIRE_HIGH, utility.GetTargetPosition(enemy, delayAbility), "location";
-            end
+            return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility);
         end
     end
 end

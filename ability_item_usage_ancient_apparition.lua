@@ -162,7 +162,7 @@ function ConsiderIceVortex()
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
                 and not botTarget:HasModifier("modifier_ice_vortex")
             then
-                return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(botTarget, delayAbility);
+                return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
             end
         end
         -- Retreat use
@@ -174,7 +174,8 @@ function ConsiderIceVortex()
                 if utility.CanCastSpellOnTarget(ability, enemy) and not enemy:HasModifier("modifier_ice_vortex")
                 then
                     --npcBot:ActionImmediate_Chat("Использую IceVortex для отступления!", true);
-                    return BOT_ACTION_DESIRE_HIGH, utility.GetTargetPosition(enemy, delayAbility);
+                    return BOT_ACTION_DESIRE_VERYHIGH,
+                        utility.GetTargetCastPosition(npcBot, enemyAbility, delayAbility, 0);
                 end
             end
         end
@@ -197,7 +198,7 @@ function ConsiderIceVortex()
             and not enemy:HasModifier("modifier_ice_vortex")
         then
             --npcBot:ActionImmediate_Chat("Использую IceVortex по цели на ЛАЙНЕ!", true);
-            return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(enemy, delayAbility);
+            return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
         end
     end
 end
@@ -280,6 +281,7 @@ function ConsiderIceBlast()
 
     local healthLimit = ability:GetSpecialValueInt("kill_pct");
     local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
+    local abilitySpeed = ability:GetSpecialValueInt("speed");
     local enemyAbility = GetUnitList(UNIT_LIST_ENEMY_HEROES);
 
     -- Generic use if can kill enemy hero
@@ -287,7 +289,8 @@ function ConsiderIceBlast()
         if enemyAbility[i]:GetHealth() <= (enemyAbility[i]:GetMaxHealth() / 100 * healthLimit)
         then
             --npcBot:ActionImmediate_Chat("Использую IceBlast что бы добить врага!", true);
-            return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(enemyAbility[i], delayAbility);
+            return BOT_ACTION_DESIRE_VERYHIGH,
+                utility.GetTargetCastPosition(npcBot, enemyAbility[i], delayAbility, abilitySpeed);
         end
     end
 
@@ -297,7 +300,7 @@ function ConsiderIceBlast()
         if utility.CanCastSpellOnTarget(ability, botTarget)
         then
             --npcBot:ActionImmediate_Chat("Использую IceBlast по врагу в радиусе действия!",true);
-            return BOT_ACTION_DESIRE_HIGH, utility.GetTargetPosition(botTarget, delayAbility);
+            return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
         end
     end
 end

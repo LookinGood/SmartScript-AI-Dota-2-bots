@@ -48,6 +48,9 @@ local ItemsToBuy =
 	"item_hyperstone",
 	"item_recipe_assault",
 
+	"item_demon_edge",
+	"item_relic",
+
 	"item_talisman_of_evasion",
 	"item_relic",
 

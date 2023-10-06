@@ -257,7 +257,7 @@ function ConsiderChaoticOffering()
     local radiusAbility = ability:GetSpecialValueInt("aoe");
     local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
 
-    -- Cast if enemy >=2
+-- Attack use
     if utility.PvPMode(npcBot)
     then
         if utility.IsHero(botTarget)
@@ -266,10 +266,10 @@ function ConsiderChaoticOffering()
                 and not utility.IsDisabled(botTarget) and (botTarget:GetHealth() / botTarget:GetMaxHealth() > 0.3)
             then
                 --npcBot:ActionImmediate_Chat("Использую ChaoticOffering по цели!", true);
-                return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(botTarget, delayAbility);
+                return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
             end
         end
-
+-- Cast if enemy >=2
         local locationAoE = npcBot:FindAoELocation(true, true, npcBot:GetLocation(), castRangeAbility, radiusAbility, 0, 0);
         if locationAoE ~= nil and (locationAoE.count >= 2)
         then
@@ -286,7 +286,7 @@ function ConsiderChaoticOffering()
                 if utility.CanCastSpellOnTarget(ability, enemy) and not utility.IsDisabled(enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую ChaoticOffering отступая!", true);
-                    return BOT_ACTION_DESIRE_HIGH, utility.GetTargetPosition(enemy, delayAbility);
+                    return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
                 end
             end
         end

@@ -97,7 +97,23 @@ function ConsiderArcaneCurse()
 
     local castRangeAbility = ability:GetCastRange();
     local radiusAbility = ability:GetSpecialValueInt("radius");
+    local damageAbility = ability:GetSpecialValueInt("damage") * ability:GetSpecialValueInt("duration");
     local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
+    local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility + 200, true, BOT_MODE_NONE);
+
+    -- Cast if can kill somebody
+    if (#enemyAbility > 0)
+    then
+        for _, enemy in pairs(enemyAbility) do
+            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType())
+            then
+                if utility.CanCastSpellOnTarget(ability, enemy)
+                then
+                    return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
+                end
+            end
+        end
+    end
 
     -- Attack use
     if utility.PvPMode(npcBot)
@@ -106,7 +122,7 @@ function ConsiderArcaneCurse()
             and not botTarget:HasModifier("modifier_silencer_curse_of_the_silent")
         then
             --npcBot:ActionImmediate_Chat("Использую ArcaneCurse для нападения!", true);
-            return BOT_ACTION_DESIRE_HIGH, utility.GetTargetPosition(botTarget, delayAbility);
+            return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
         end
         -- Retreat use
     elseif utility.RetreatMode(npcBot)
@@ -118,7 +134,7 @@ function ConsiderArcaneCurse()
                 if utility.CanCastSpellOnTarget(ability, enemy) and not enemy:HasModifier("modifier_silencer_curse_of_the_silent")
                 then
                     --npcBot:ActionImmediate_Chat("Использую ArcaneCurse для отступления!", true);
-                    return BOT_ACTION_DESIRE_HIGH, utility.GetTargetPosition(enemy, delayAbility);
+                    return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
                 end
             end
         end
@@ -140,7 +156,7 @@ function ConsiderArcaneCurse()
         if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7) and not enemy:HasModifier("modifier_silencer_curse_of_the_silent")
         then
             --npcBot:ActionImmediate_Chat("Использую ArcaneCurse по цели на ЛАЙНЕ!", true);
-            return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(enemy, delayAbility);
+            return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
         end
     end
 end

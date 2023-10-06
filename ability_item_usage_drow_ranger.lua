@@ -73,7 +73,7 @@ function AbilityUsageThink()
     then
         npcBot:Action_ClearActions(false);
         --npcBot:ActionQueue_Delay(1.0);
-        npcBot:ActionQueue_UseAbilityOnLocation(Multishot,  castMultishotLocation);
+        npcBot:ActionQueue_UseAbilityOnLocation(Multishot, castMultishotLocation);
         return;
     end
 
@@ -112,6 +112,7 @@ function ConsiderGust()
 
     local castRangeAbility = ability:GetCastRange();
     local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
+    local speedAbility = ability:GetSpecialValueInt("wave_speed");
     local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility + 200, true, BOT_MODE_NONE);
 
     -- Interrupt cast/Detect invisible
@@ -123,7 +124,7 @@ function ConsiderGust()
                 if enemy:IsChanneling() or enemy:IsInvisible()
                 then
                     --npcBot:ActionImmediate_Chat("Использую Gust что бы сбить заклинание цели/Или по невидимому врагу!", true);
-                    return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(enemy, delayAbility);
+                    return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility);
                 end
             end
         end
@@ -136,7 +137,7 @@ function ConsiderGust()
             and not botTarget:IsSilenced() and not utility.IsDisabled(botTarget)
         then
             --npcBot:ActionImmediate_Chat("Использую Gust для нападения!", true);
-            return BOT_ACTION_DESIRE_HIGH, utility.GetTargetPosition(botTarget, delayAbility);
+            return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, speedAbility);
         end
         -- Retreat use
     elseif utility.RetreatMode(npcBot)
@@ -147,7 +148,8 @@ function ConsiderGust()
                 if utility.CanCastSpellOnTarget(ability, enemy) and not utility.IsDisabled(enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую Gust для отступления!", true);
-                    return BOT_ACTION_DESIRE_HIGH, utility.GetTargetPosition(enemy, delayAbility);
+                    return BOT_ACTION_DESIRE_VERYHIGH,
+                        utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility);
                 end
             end
         end
@@ -163,6 +165,7 @@ function ConsiderMultishot()
     local castRangeAbility = npcBot:GetAttackRange() * ability:GetSpecialValueInt("arrow_range_multiplier");
     local radiusAbility = ability:GetSpecialValueInt("arrow_width");
     local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
+    local speedAbility = ability:GetSpecialValueInt("arrow_speed");
 
     -- Attack use
     if utility.PvPMode(npcBot)
@@ -171,7 +174,7 @@ function ConsiderMultishot()
             and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
         then
             --npcBot:ActionImmediate_Chat("Использую Multishot для нападения!", true);
-            return BOT_ACTION_DESIRE_HIGH, utility.GetTargetPosition(botTarget, delayAbility);
+            return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, speedAbility);
         end
         -- Cast if push/defend/farm
     elseif utility.PvEMode(npcBot)
@@ -194,7 +197,8 @@ function ConsiderMultishot()
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую Multishot для лайнинга!", true);
-                    return BOT_ACTION_DESIRE_HIGH, utility.GetTargetPosition(enemy, delayAbility);
+                    return BOT_ACTION_DESIRE_VERYHIGH,
+                        utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility);
                 end
             end
         end

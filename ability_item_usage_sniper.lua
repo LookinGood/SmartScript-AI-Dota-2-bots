@@ -105,7 +105,7 @@ function ConsiderShrapnel()
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
             then
-                return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(botTarget, delayAbility);
+                return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
             end
         end
         -- Cast if push/defend/farm
@@ -126,7 +126,7 @@ function ConsiderShrapnel()
         if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.8)
         then
             --npcBot:ActionImmediate_Chat("Использую Shrapnel по цели на ЛАЙНЕ!", true);
-            return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(enemy, delayAbility);
+            return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
         end
     end
 end
@@ -168,7 +168,7 @@ function ConsiderConcussiveGrenade()
         if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
         then
             --npcBot:ActionImmediate_Chat("Использую ConcussiveGrenade для атаки!", true);
-            return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(botTarget, delayAbility);
+            return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
         end
     end
 
@@ -183,7 +183,7 @@ function ConsiderConcussiveGrenade()
                 if not utility.IsDisabled(enemy) and GetUnitToLocationDistance(enemy, fountainLocation) > GetUnitToLocationDistance(npcBot, fountainLocation)
                 then
                     --npcBot:ActionImmediate_Chat("Использую ConcussiveGrenade для отхода!", true);
-                    return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(enemy, delayAbility);
+                    return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
                 end
             end
         end

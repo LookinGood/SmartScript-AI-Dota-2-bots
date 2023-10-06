@@ -69,9 +69,13 @@ function AbilityUsageThink()
     then
         if (castSproutType == "combo")
         then
-            npcBot:Action_ClearActions(false);
+            npcBot:Action_ClearActions(true);
             npcBot:ActionQueue_UseAbilityOnEntity(Sprout, npcBot);
             npcBot:ActionQueue_UseAbilityOnLocation(Teleportation, utility.SafeLocation(npcBot));
+            return;
+        elseif (castSproutType == "target")
+        then
+            npcBot:Action_UseAbilityOnEntity(Sprout, castSproutTarget);
             return;
         elseif (castSproutType == "nil")
         then
@@ -129,7 +133,7 @@ function ConsiderSprout()
                 and not botTarget:IsChanneling()
             then
                 --npcBot:ActionImmediate_Chat("Использую Sprout для атаки!", true);
-                return BOT_ACTION_DESIRE_VERYHIGH, botTarget:GetLocation(), "nil";
+                return BOT_ACTION_DESIRE_VERYHIGH, botTarget, "target";
             end
         end
         -- Retreat use

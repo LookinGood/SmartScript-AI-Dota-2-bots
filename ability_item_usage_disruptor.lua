@@ -220,7 +220,7 @@ function ConsiderKineticField()
     then
         if utility.IsHero(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
         then
-            return BOT_ACTION_DESIRE_HIGH, utility.GetTargetPosition(botTarget, delayAbility);
+            return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
         end
         -- Retreat use
     elseif utility.RetreatMode(npcBot)
@@ -230,7 +230,7 @@ function ConsiderKineticField()
             for _, enemy in pairs(enemyAbility) do
                 if utility.IsValidTarget(enemy)
                 then
-                    return BOT_ACTION_DESIRE_HIGH, utility.GetTargetPosition(enemy, delayAbility);
+                    return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
                 end
             end
         end
@@ -255,7 +255,7 @@ function ConsiderStaticStorm()
             if utility.IsDisabled(enemy) and utility.CanCastSpellOnTarget(ability, enemy) and (enemy:GetHealth() / enemy:GetMaxHealth() > 0.3)
             then
                 -- npcBot:ActionImmediate_Chat("Использую Call Down против обездвиженного врага!",true);
-                return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(enemy, delayAbility);
+                return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
             end
         end
     end

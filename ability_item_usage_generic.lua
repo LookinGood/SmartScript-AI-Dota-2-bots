@@ -1159,29 +1159,41 @@ function ItemUsageThink()
 			for _, ally in pairs(allies)
 			do
 				local incomingSpells = ally:GetIncomingTrackingProjectiles();
-				if (incomingSpells > 0)
+				if (ally:GetHealth() / ally:GetMaxHealth() <= 0.7) and ally:WasRecentlyDamagedByAnyHero(1.0)
+				then
+					if sphere ~= nil
+					then
+						if ally ~= npcBot and not ally:HasModifier("modifier_item_sphere_target")
+						then
+							npcBot:Action_UseAbilityOnEntity(sphere, ally);
+						end
+					elseif lotusOrb ~= nil
+					then
+						if not ally:HasModifier("modifier_item_lotus_orb_active")
+						then
+							npcBot:Action_UseAbilityOnEntity(lotusOrb, ally);
+						end
+					end
+				end
+				if (#incomingSpells > 0)
 				then
 					for _, spell in pairs(incomingSpells)
 					do
-						if GetUnitToLocationDistance(ally, spell.location) <= 300 and spell.is_attack == false
+						if (not utility.IsAlly(ally, spell.caster) and GetUnitToLocationDistance(ally, spell.location) <= 300 and spell.is_attack == false)
 						then
 							if sphere ~= nil
 							then
 								if ally ~= npcBot and not ally:HasModifier("modifier_item_sphere_target")
 								then
 									npcBot:Action_UseAbilityOnEntity(sphere, ally);
-									npcBot:ActionImmediate_Chat("Использую предмет sphere на союзнике!",
-										true);
-									--return;
+									--npcBot:ActionImmediate_Chat("Использую предмет sphere на союзнике!",true);
 								end
 							elseif lotusOrb ~= nil
 							then
 								if not ally:HasModifier("modifier_item_lotus_orb_active")
 								then
 									npcBot:Action_UseAbilityOnEntity(lotusOrb, ally);
-									npcBot:ActionImmediate_Chat("Использую предмет lotusOrb на союзнике!",
-										true);
-									--return;
+									--npcBot:ActionImmediate_Chat("Использую предмет lotusOrb на союзнике!",true);
 								end
 							end
 						end
@@ -1326,21 +1338,40 @@ function ItemUsageThink()
 	local bloodstone = IsItemAvailable("item_bloodstone");
 	if bloodstone ~= nil and bloodstone:IsFullyCastable()
 	then
-		if utility.PvPMode(npcBot) and (npcBot:GetHealth() / npcBot:GetMaxHealth() <= 0.5)
+		if not npcBot:HasModifier("modifier_item_bloodstone_active") and not npcBot:HasModifier("modifier_item_bloodstone_drained")
 		then
-			if utility.IsHero(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= (attackRange * 2)
+			if utility.PvPMode(npcBot) and (npcBot:GetHealth() / npcBot:GetMaxHealth() <= 0.5)
 			then
-				npcBot:Action_UseAbility(bloodstone);
-				--npcBot:ActionImmediate_Chat("Использую предмет bloodstone для нападения!",true);
-				--return;
+				if utility.IsHero(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= (attackRange * 2)
+				then
+					npcBot:Action_UseAbility(bloodstone);
+				end
+			elseif utility.RetreatMode(npcBot)
+			then
+				if (npcBot:GetHealth() / npcBot:GetMaxHealth() <= 0.5) and npcBot:WasRecentlyDamagedByAnyHero(5.0)
+				then
+					npcBot:Action_UseAbility(bloodstone);
+				end
 			end
-		elseif utility.RetreatMode(npcBot)
+		end
+	end
+
+	-- item_satanic
+	local satanic = IsItemAvailable("item_satanic");
+	if satanic ~= nil and satanic:IsFullyCastable()
+	then
+		if not npcBot:HasModifier("modifier_item_satanic_unholy")
 		then
-			if (npcBot:GetHealth() / npcBot:GetMaxHealth() <= 0.5) and npcBot:WasRecentlyDamagedByAnyHero(5.0)
+			if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
 			then
-				npcBot:Action_UseAbility(bloodstone);
-				--npcBot:ActionImmediate_Chat("Использую предмет bloodstone для отступления!",true);
-				--return;
+				if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
+				then
+					if (npcBot:GetHealth() / npcBot:GetMaxHealth() <= 0.5) and GetUnitToUnitDistance(npcBot, botTarget) <= attackRange
+						and npcBot:GetAttackTarget() == botTarget
+					then
+						npcBot:Action_UseAbility(satanic);
+					end
+				end
 			end
 		end
 	end

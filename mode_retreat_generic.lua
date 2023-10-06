@@ -16,7 +16,7 @@ function GetDesire()
         return BOT_ACTION_DESIRE_NONE;
     end
 
-    if not utility.CanMove(npcBot)
+    if not utility.CanMove(npcBot) or npcBot:HasModifier("modifier_fountain_invulnerability")
     then
         return BOT_ACTION_DESIRE_ABSOLUTE;
     end
@@ -34,7 +34,7 @@ function GetDesire()
         end
     end
 
-    if npcBot:HasModifier('modifier_fountain_aura_buff') and (enemyHeroes <= 0) and (npcBot:GetHealth() / npcBot:GetMaxHealth() <= 0.8
+    if npcBot:HasModifier("modifier_fountain_aura_buff") and (enemyHeroes <= 0) and (npcBot:GetHealth() / npcBot:GetMaxHealth() <= 0.8
             or npcBot:GetMana() / npcBot:GetMaxMana() <= 0.8)
     then
         return BOT_ACTION_DESIRE_HIGH;

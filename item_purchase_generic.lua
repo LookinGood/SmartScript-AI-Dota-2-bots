@@ -20,21 +20,21 @@ function ItemPurchase(ItemsToBuy)
 	local courierState = GetCourierState(courier);
 
 	SellExtraItem()
+
+	if (#ItemsToBuy == 0)
+	then
+		npcBot:SetNextItemPurchaseValue(0);
+	end
+
+	sNextItem = ItemsToBuy[1];
+	npcBot:SetNextItemPurchaseValue(GetItemCost(sNextItem))
+
 	utility.PurchaseBottle(npcBot)
 	utility.PurchaseTP(npcBot)
 	utility.PurchaseWardObserver(npcBot)
 	utility.PurchaseDust(npcBot)
 	utility.PurchaseInfusedRaindrop(npcBot)
 	--utility.PurchaseTomeOfKnowledge(npcBot) -- Item deleted
-
-	if (#ItemsToBuy == 0)
-	then
-		npcBot:SetNextItemPurchaseValue(0);
-		return;
-	end
-
-	sNextItem = ItemsToBuy[1];
-	npcBot:SetNextItemPurchaseValue(GetItemCost(sNextItem))
 
 	if npcBot:GetGold() < GetItemCost(sNextItem)
 	then

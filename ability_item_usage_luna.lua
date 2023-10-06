@@ -193,7 +193,7 @@ function ConsiderEclipse()
             elseif npcBot:HasScepter() and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
             then
                 --npcBot:ActionImmediate_Chat("Использую Eclipse для нападения с аганимом!",true);
-                return BOT_ACTION_DESIRE_HIGH, utility.GetTargetPosition(botTarget, delayAbility), "location";
+                return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0), "location";
             end
         end
     end

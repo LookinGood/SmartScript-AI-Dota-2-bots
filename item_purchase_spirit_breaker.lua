@@ -54,6 +54,9 @@ local ItemsToBuy =
     "item_ogre_axe",
     "item_recipe_sange",
 
+	"item_demon_edge",
+	"item_relic",
+
 	"item_blink",
 
 	"item_recipe_travel_boots",
@@ -69,9 +72,6 @@ local ItemsToBuy =
 
 	"item_hyperstone",
 	"item_hyperstone",
-
-	"item_demon_edge",
-	"item_relic",
 }
 
 function ItemPurchaseThink()

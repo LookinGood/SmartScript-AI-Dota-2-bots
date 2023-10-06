@@ -156,7 +156,7 @@ function ConsiderSacredArrow()
     local abilityRadius = ability:GetSpecialValueInt("arrow_width");
     local damageAbility = ability:GetAbilityDamage();
     local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
-    local abilitySpeed = ability:GetSpecialValueInt("arrow_speed");
+    local speedAbility = ability:GetSpecialValueInt("arrow_speed");
     local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
 
     -- Cast if can kill somebody/interrupt cast
@@ -170,15 +170,14 @@ function ConsiderSacredArrow()
                     local targetDistance = GetUnitToUnitDistance(enemy, npcBot)
                     local moveDirection = enemy:GetMovementDirectionStability();
                     local targetLocation = enemy:GetExtrapolatedLocation(delayAbility +
-                        (targetDistance / abilitySpeed));
+                        (targetDistance / speedAbility));
                     if moveDirection < 0.95
                     then
                         targetLocation = enemy:GetLocation();
                     end
                     if not utility.IsEnemyCreepBetweenMeAndTarget(npcBot, enemy, targetLocation, abilityRadius)
                     then
-                        npcBot:ActionImmediate_Chat("Использую SacredArrow что бы сбить каст!",
-                            true);
+                        --npcBot:ActionImmediate_Chat("Использую SacredArrow что бы сбить каст!", true);
                         return BOT_ACTION_DESIRE_VERYHIGH, targetLocation;
                     end
                 end
@@ -197,14 +196,14 @@ function ConsiderSacredArrow()
                 local targetDistance = GetUnitToUnitDistance(botTarget, npcBot)
                 local moveDirection = botTarget:GetMovementDirectionStability();
                 local targetLocation = botTarget:GetExtrapolatedLocation(delayAbility +
-                    (targetDistance / abilitySpeed));
+                    (targetDistance / speedAbility));
                 if moveDirection < 0.95
                 then
                     targetLocation = botTarget:GetLocation();
                 end
                 if not utility.IsEnemyCreepBetweenMeAndTarget(npcBot, botTarget, targetLocation, abilityRadius)
                 then
-                    npcBot:ActionImmediate_Chat("Использую SacredArrow для атаки!", true);
+                    --npcBot:ActionImmediate_Chat("Использую SacredArrow для атаки!", true);
                     return BOT_ACTION_DESIRE_VERYHIGH, targetLocation;
                 end
             end
@@ -220,14 +219,14 @@ function ConsiderSacredArrow()
                     local targetDistance = GetUnitToUnitDistance(enemy, npcBot)
                     local moveDirection = enemy:GetMovementDirectionStability();
                     local targetLocation = enemy:GetExtrapolatedLocation(delayAbility +
-                        (targetDistance / abilitySpeed));
+                        (targetDistance / speedAbility));
                     if moveDirection < 0.95
                     then
                         targetLocation = enemy:GetLocation();
                     end
                     if not utility.IsEnemyCreepBetweenMeAndTarget(npcBot, enemy, targetLocation, abilityRadius)
                     then
-                        npcBot:ActionImmediate_Chat("Использую SacredArrow для отхода!", true);
+                        --npcBot:ActionImmediate_Chat("Использую SacredArrow для отхода!", true);
                         return BOT_ACTION_DESIRE_VERYHIGH, targetLocation;
                     end
                 end
@@ -254,7 +253,7 @@ function ConsiderLeap()
             if utility.IsHero(botTarget) and not utility.IsDisabled(botTarget) and npcBot:IsFacingLocation(botTarget:GetLocation(), 10)
                 and (GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility and GetUnitToUnitDistance(npcBot, botTarget) > attackRange)
             then
-                npcBot:ActionImmediate_Chat("Использую Leap обычный, для атаки!", true);
+                --npcBot:ActionImmediate_Chat("Использую Leap обычный, для атаки!", true);
                 return BOT_ACTION_DESIRE_HIGH, nil, nil;
             end
             -- Retreat use
@@ -262,7 +261,7 @@ function ConsiderLeap()
         then
             if (#enemyAbility > 0) and npcBot:IsFacingLocation(utility.SafeLocation(npcBot), 40)
             then
-                npcBot:ActionImmediate_Chat("Использую Leap обычный, для отхода!", true);
+                --npcBot:ActionImmediate_Chat("Использую Leap обычный, для отхода!", true);
                 return BOT_ACTION_DESIRE_HIGH, nil, nil;
             end
         end
@@ -270,7 +269,7 @@ function ConsiderLeap()
     then
         if ability:GetToggleState() == false
         then
-            npcBot:ActionImmediate_Chat("Переключаю Leap!", true);
+            --npcBot:ActionImmediate_Chat("Переключаю Leap!", true);
             return BOT_ACTION_DESIRE_HIGH, nil, nil;
         end
         -- Attack use

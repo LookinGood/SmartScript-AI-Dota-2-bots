@@ -159,7 +159,7 @@ function ConsiderSleightOfFist()
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую SleightOfFist что бы добить врага!", true);
-                    return BOT_ACTION_DESIRE_HIGH, utility.GetTargetPosition(enemy, delayAbility);
+                    return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
                 end
             end
         end
@@ -179,7 +179,7 @@ function ConsiderSleightOfFist()
                         if utility.CanCastSpellOnTarget(ability, enemy)
                         then
                             --npcBot:ActionImmediate_Chat("Использую SleightOfFist что бы уклониться от снаряда по героям!", true);
-                            return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(enemy, delayAbility);
+                            return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
                         end
                     end
                 end
@@ -189,7 +189,7 @@ function ConsiderSleightOfFist()
                         if utility.CanCastSpellOnTarget(ability, enemy)
                         then
                             --npcBot:ActionImmediate_Chat("Использую SleightOfFist что бы уклониться от снаряда по крипам!", true);
-                            return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(enemy, delayAbility);
+                            return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
                         end
                     end
                 end
@@ -202,7 +202,7 @@ function ConsiderSleightOfFist()
     then
         if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
         then
-            return BOT_ACTION_DESIRE_HIGH, utility.GetTargetPosition(botTarget, delayAbility);
+            return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
         end
         -- Cast if push/defend/farm
     elseif utility.PvEMode(npcBot)
@@ -221,7 +221,7 @@ function ConsiderSleightOfFist()
         if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)
         then
             --npcBot:ActionImmediate_Chat("Использую SleightOfFist по цели на ЛАЙНЕ!", true);
-            return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(enemy, delayAbility);
+            return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
         end
     end
 end
@@ -322,6 +322,7 @@ function ConsiderFireRemnant()
     local attackRange = npcBot:GetAttackRange();
     local radiusAbility = ability:GetSpecialValueInt("radius");
     local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
+    local speedAbility = ability:GetSpecialValueInt("speed_multiplier");
 
     -- Attack use
     if utility.PvPMode(npcBot)
@@ -331,11 +332,9 @@ function ConsiderFireRemnant()
             if GetUnitToUnitDistance(npcBot, botTarget) > attackRange
             then
                 --npcBot:ActionImmediate_Chat("Использую FireRemnant для атаки!", true);
-                return BOT_ACTION_DESIRE_HIGH,
-                    utility.GetTargetPosition(botTarget, delayAbility);
+                return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, speedAbility);
             else
-                return BOT_ACTION_DESIRE_HIGH,
-                    utility.GetTargetPosition(botTarget, delayAbility) + RandomVector(radiusAbility);
+                return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, speedAbility) + RandomVector(radiusAbility);
             end
         end
         -- Use if need retreat

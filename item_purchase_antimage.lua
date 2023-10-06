@@ -51,6 +51,9 @@ local ItemsToBuy =
 
 	"item_recipe_abyssal_blade",
 
+	"item_demon_edge",
+	"item_relic",
+
 	"item_quarterstaff",
 	"item_talisman_of_evasion",
 	"item_eagle",
@@ -62,9 +65,6 @@ local ItemsToBuy =
 	"item_boots",
 
 	"item_recipe_travel_boots",
-
-	"item_demon_edge",
-	"item_relic",
 }
 
 function ItemPurchaseThink()

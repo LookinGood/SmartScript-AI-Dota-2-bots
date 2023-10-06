@@ -605,17 +605,50 @@ function CanCast(npcTarget)
 		not npcTarget:IsNightmared()
 end
 
+function CanCastWhenChanneling(npcTarget)
+	return npcTarget:IsAlive() and
+		not npcTarget:IsCastingAbility() and
+		not npcTarget:IsSilenced() and
+		not npcTarget:IsDominated() and
+		not npcTarget:IsStunned() and
+		not npcTarget:IsHexed() and
+		not npcTarget:IsNightmared()
+end
+
 function CheckFlag(bitfield, flag)
 	return ((bitfield / flag) % 2) >= 1;
 end
 
-function GetTargetPosition(npcTarget, fdelay)
+--[[ function GetTargetPosition(npcTarget, fdelay)
 	if IsMoving(npcTarget)
 	then
 		return npcTarget:GetExtrapolatedLocation(fdelay);
 	else
 		return npcTarget:GetLocation();
 	end
+end ]]
+
+function GetTargetCastPosition(npcCaster, npcTarget, fDelay, fSpellSpeed)
+	if fSpellSpeed == nil
+	then
+		fSpellSpeed = 0.0;
+	end
+
+	if fDelay == nil
+	then
+		fDelay = 0.1;
+	end
+
+	local targetDistance = GetUnitToUnitDistance(npcCaster, npcTarget)
+	local moveDirection = npcTarget:GetMovementDirectionStability();
+	local targetLocation = npcTarget:GetExtrapolatedLocation(fDelay +
+		(targetDistance / fSpellSpeed));
+	if moveDirection < 0.95
+	then
+		targetLocation = npcTarget:GetLocation();
+	end
+
+	return targetLocation;
 end
 
 function CanAbilityKillTarget(npcTarget, damage, damagetype)
@@ -634,7 +667,8 @@ function IsTargetInvulnerable(npcTarget)
 			npcTarget:HasModifier("modifier_item_aeon_disk_buff") or
 			npcTarget:HasModifier("modifier_templar_assassin_refraction_absorb") or
 			npcTarget:HasModifier("modifier_abaddon_aphotic_shield") or
-			npcTarget:HasModifier("modifier_abaddon_borrowed_time"));
+			npcTarget:HasModifier("modifier_abaddon_borrowed_time") or
+			npcTarget:HasModifier("modifier_fountain_glyph"));
 end
 
 function CanBeHeal(npcTarget)
@@ -823,9 +857,12 @@ end ]]
 
 function PurchaseWardObserver(npcBot)
 	if npcBot:GetGold() < GetItemCost("item_ward_observer") or IsItemSlotsFull() or IsStashSlotsFull() or GetItemStockCount("item_ward_observer") < 1
+		or (npcBot:GetNextItemPurchaseValue() > 0 and npcBot:GetGold() >= npcBot:GetNextItemPurchaseValue())
 	then
 		return;
 	end
+
+	print(tostring(npcBot:GetNextItemPurchaseValue()))
 
 	local courier = GetBotCourier(npcBot);
 	local assignedLane = npcBot:GetAssignedLane();
@@ -885,6 +922,7 @@ end
 
 function PurchaseTP(npcBot)
 	if npcBot:GetGold() < GetItemCost("item_tpscroll") or IsStashSlotsFull() or HaveTravelBoots(npcBot)
+		or (npcBot:GetNextItemPurchaseValue() > 0 and npcBot:GetGold() >= npcBot:GetNextItemPurchaseValue())
 	then
 		return;
 	end
@@ -919,6 +957,7 @@ function PurchaseBottle(npcBot)
 	end
 
 	if npcBot:GetGold() < GetItemCost("item_bottle") * 2 or IsItemSlotsFull() or IsStashSlotsFull() or DotaTime() > 20 * 60
+		or (npcBot:GetNextItemPurchaseValue() > 0 and npcBot:GetGold() >= npcBot:GetNextItemPurchaseValue())
 	then
 		return;
 	end
@@ -1057,7 +1096,7 @@ end
 
 function PurchaseInfusedRaindrop(npcBot)
 	if npcBot:GetGold() < GetItemCost("item_infused_raindrop") * 2 or IsItemSlotsFull() or IsStashSlotsFull() or GetItemStockCount("item_infused_raindrop") < 1
-		or npcBot:GetLevel() > 10
+		or npcBot:GetLevel() > 10 or (npcBot:GetNextItemPurchaseValue() > 0 and npcBot:GetGold() >= npcBot:GetNextItemPurchaseValue())
 	then
 		return;
 	end
@@ -1148,6 +1187,7 @@ end
 
 function PurchaseDust(npcBot)
 	if npcBot:GetGold() < GetItemCost("item_dust") * 2 or IsItemSlotsFull() or IsStashSlotsFull() or DotaTime() < 5 * 60
+		or (npcBot:GetNextItemPurchaseValue() > 0 and npcBot:GetGold() >= npcBot:GetNextItemPurchaseValue())
 	then
 		return;
 	end

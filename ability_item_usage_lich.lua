@@ -160,11 +160,11 @@ function ConsiderFrostBlast()
         then
             for _, enemy in pairs(enemyCreeps) do
                 local enemyCreepsAoe = enemy:GetNearbyCreeps(radiusAbility, false);
-                if #enemyCreepsAoe > 2
+                if (#enemyCreepsAoe > 2)
                 then
                     if utility.CanCastSpellOnTarget(ability, enemy)
                     then
-                        npcBot:ActionImmediate_Chat("Использую FrostBlast на крипов!", true);
+                        --npcBot:ActionImmediate_Chat("Использую FrostBlast на крипов!", true);
                         return BOT_ACTION_DESIRE_VERYHIGH, enemy;
                     end
                 end

@@ -53,6 +53,9 @@ local ItemsToBuy =
 	"item_staff_of_wizardry",
 	"item_blade_of_alacrity",
 
+	"item_demon_edge",
+	"item_relic",
+
 	"item_quarterstaff",
 	"item_sobi_mask",
 	"item_robe",
@@ -69,9 +72,6 @@ local ItemsToBuy =
 	"item_boots",
 
 	"item_recipe_travel_boots",
-
-	"item_demon_edge",
-	"item_relic",
 }
 
 function ItemPurchaseThink()

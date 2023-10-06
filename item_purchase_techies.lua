@@ -42,15 +42,15 @@ local ItemsToBuy =
 	"item_vitality_booster",
 	"item_recipe_bloodstone",
 
+	"item_mystic_staff",
+	"item_recipe_wind_waker",
+
 	"item_point_booster",
     "item_energy_booster",
     "item_vitality_booster",
 	"item_void_stone",
 	"item_void_stone",
 	"item_recipe_octarine_core",
-
-	"item_mystic_staff",
-	"item_recipe_wind_waker",
 
 	"item_recipe_travel_boots",
 	"item_boots",

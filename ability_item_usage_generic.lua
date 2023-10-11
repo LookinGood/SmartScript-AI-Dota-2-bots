@@ -1153,13 +1153,14 @@ function ItemUsageThink()
 	if (sphere ~= nil and sphere:IsFullyCastable()) or (lotusOrb ~= nil and lotusOrb:IsFullyCastable())
 	then
 		local itemRange = 900;
+		local botIncomingSpells = npcBot:GetIncomingTrackingProjectiles();
 		local allies = npcBot:GetNearbyHeroes(itemRange, false, BOT_MODE_NONE);
 		if (#allies > 0)
 		then
 			for _, ally in pairs(allies)
 			do
 				local incomingSpells = ally:GetIncomingTrackingProjectiles();
-				if (ally:GetHealth() / ally:GetMaxHealth() <= 0.7) and ally:WasRecentlyDamagedByAnyHero(1.0)
+				if (ally:GetHealth() / ally:GetMaxHealth() <= 0.7) and ally:WasRecentlyDamagedByAnyHero(1.0) and (#botIncomingSpells <= 0)
 				then
 					if sphere ~= nil
 					then

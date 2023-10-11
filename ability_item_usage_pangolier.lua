@@ -102,6 +102,7 @@ function ConsiderSwashbuckle()
     local castRangeAbility = ability:GetCastRange();
     local radiusAbility = ability:GetSpecialValueInt("end_radius");
     local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
+    local speedAbility = ability:GetSpecialValueInt("dash_speed");
 
     -- Attack use
     if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
@@ -110,7 +111,8 @@ function ConsiderSwashbuckle()
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
             then
-                return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(botTarget, delayAbility);
+                return BOT_ACTION_DESIRE_HIGH,
+                    utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, speedAbility);
             end
         end
         -- Cast if need retreat
@@ -139,7 +141,8 @@ function ConsiderShieldCrash()
         return;
     end
 
-    local castRangeAbility = ability:GetSpecialValueInt("jump_horizontal_distance") + ability:GetSpecialValueInt("radius");
+    local castRangeAbility = ability:GetSpecialValueInt("jump_horizontal_distance") +
+        ability:GetSpecialValueInt("radius");
     local damageAbility = ability:GetSpecialValueInt("damage");
     local radiusAbility = ability:GetSpecialValueInt("radius");
     local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
@@ -162,8 +165,8 @@ function ConsiderShieldCrash()
     -- Attack use
     if utility.PvPMode(npcBot)
     then
-        if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget) and not utility.IsDisabled(botTarget)
-            and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility and npcBot:IsFacingLocation(botTarget:GetLocation(), 10)
+        if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+            and not utility.IsDisabled(botTarget) and npcBot:IsFacingLocation(botTarget:GetLocation(), 10)
         then
             --npcBot:ActionImmediate_Chat("Использую ShieldCrash по врагу в радиусе действия!",true);
             return BOT_ACTION_DESIRE_HIGH;
@@ -234,6 +237,7 @@ function ConsiderRollingThunder()
     if utility.PvPMode(npcBot)
     then
         if utility.IsHero(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) > (attackRange * 2) and GetUnitToUnitDistance(npcBot, botTarget) < 2000
+            and npcBot:IsFacingLocation(botTarget:GetLocation(), 10)
         then
             --npcBot:ActionImmediate_Chat("Использую RollingThunder для нападения!", true);
             return BOT_ACTION_DESIRE_HIGH;

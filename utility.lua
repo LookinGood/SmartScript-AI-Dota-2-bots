@@ -373,6 +373,13 @@ function IsAnyUnitsBetweenMeAndTarget(hSource, hTarget, vLoc, nRadius)
 		IsEnemyCreepBetweenMeAndTarget(hSource, hTarget, vLoc, nRadius);
 end
 
+function IsBusy(npcTarget)
+	return IsValidTarget(npcTarget) and
+		(npcTarget:IsUsingAbility() or
+		npcTarget:IsCastingAbility() or
+		npcTarget:IsChanneling())
+end
+
 function IsAbilityAvailable(ability)
 	return ability:IsFullyCastable() and
 		ability:IsActivated() and

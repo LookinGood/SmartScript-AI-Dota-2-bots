@@ -6,7 +6,7 @@ function GetDesire()
 	local enemyHeroes = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
 	local desire = 0.0;
 
-	if not npcBot:IsAlive() or npcBot:IsUsingAbility() or npcBot:IsChanneling() or not utility.CanMove(npcBot) or (#enemyHeroes > 0)
+	if not npcBot:IsAlive() or utility.IsBusy(npcBot) or not utility.CanMove(npcBot) or (#enemyHeroes > 0)
 	then
 		return BOT_ACTION_DESIRE_NONE;
 	end

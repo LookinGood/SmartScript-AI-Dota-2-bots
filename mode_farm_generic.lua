@@ -12,7 +12,7 @@ function GetDesire()
     local enemyHeroes = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
     local neutralCreeps = npcBot:GetNearbyNeutralCreeps(1600);
 
-    if not npcBot:IsAlive() or not utility.CanMove(npcBot) or botLevel >= 30 or HealthPercentage < 0.5 or
+    if not npcBot:IsAlive() or not utility.CanMove(npcBot) or utility.IsBusy(npcBot) or botLevel >= 30 or HealthPercentage < 0.5 or
         (#neutralCreeps == 0) or (#enemyHeroes > 0) or
         botMode == BOT_MODE_DEFEND_TOWER_TOP or
         botMode == BOT_MODE_DEFEND_TOWER_MID or
@@ -47,7 +47,7 @@ function GetDesire()
         else
             if (#neutralCreeps > 0)
             then
-                local allyHeroes = npcBot:GetNearbyHeroes(1000, false, BOT_MODE_NONE);
+                local allyHeroes = npcBot:GetNearbyHeroes(1600, false, BOT_MODE_NONE);
                 if (#allyHeroes > 1)
                 then
                     for _, ally in pairs(allyHeroes)

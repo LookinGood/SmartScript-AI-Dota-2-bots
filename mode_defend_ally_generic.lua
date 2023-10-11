@@ -9,7 +9,7 @@ function GetDesire()
     local allyHeroes = npcBot:GetNearbyHeroes(1600, false, BOT_MODE_NONE);
     local enemyHeroes = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
 
-    if not npcBot:IsAlive() or npcBot:IsUsingAbility() or npcBot:IsChanneling() or not utility.CanMove(npcBot) or (#allyHeroes <= 1)
+    if not npcBot:IsAlive() or utility.IsBusy(npcBot) or not utility.CanMove(npcBot) or (#allyHeroes <= 1)
         or botMode == BOT_MODE_ATTACK or botMode == BOT_MODE_RETREAT or (#allyHeroes < #enemyHeroes) or
         (npcBot:GetHealth() / npcBot:GetMaxHealth() < 0.7 and npcBot:WasRecentlyDamagedByAnyHero(2.0))
     then

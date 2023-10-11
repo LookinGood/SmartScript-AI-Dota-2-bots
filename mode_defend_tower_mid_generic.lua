@@ -7,7 +7,7 @@ function GetDesire()
     local npcBot = GetBot();
     local botMode = npcBot:GetActiveMode();
 
-    if not utility.CanMove(npcBot) or botMode == BOT_MODE_DEFEND_TOWER_BOT or botMode == BOT_MODE_DEFEND_TOWER_TOP
+    if not utility.CanMove(npcBot) or utility.IsBusy(npcBot) or botMode == BOT_MODE_DEFEND_TOWER_BOT or botMode == BOT_MODE_DEFEND_TOWER_TOP
         or npcBot:WasRecentlyDamagedByAnyHero(2.0)
     then
         return BOT_ACTION_DESIRE_NONE;

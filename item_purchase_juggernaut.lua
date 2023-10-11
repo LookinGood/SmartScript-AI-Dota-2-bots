@@ -46,15 +46,15 @@ local ItemsToBuy =
 
 	"item_recipe_abyssal_blade",
 
+	"item_hyperstone",
+	"item_recipe_mjollnir",
+
 	"item_demon_edge",
 	"item_relic",
 
 	"item_quarterstaff",
 	"item_talisman_of_evasion",
 	"item_eagle",
-
-	"item_hyperstone",
-	"item_recipe_mjollnir",
 
 	"item_hyperstone",
 	"item_hyperstone",

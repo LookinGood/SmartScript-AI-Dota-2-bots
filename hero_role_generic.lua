@@ -76,6 +76,8 @@ S["supportHeroes"] = {
     ["npc_dota_hero_omniknight"] = 1,
     ["npc_dota_hero_pugna"] = 1,
     ["npc_dota_hero_abaddon"] = 1,
+    ["npc_dota_hero_witch_doctor"] = 1,
+    ["npc_dota_hero_elder_titan"] = 1,
 }
 
 function IsHeroCarry(npcBot)

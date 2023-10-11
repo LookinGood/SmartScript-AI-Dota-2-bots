@@ -12,12 +12,33 @@ local runeList = {
     RUNE_BOUNTY_4,
 }
 
+function GetRandomBotPlayer()
+    local botPlayers = {};
+    local selectedBotPlayer = nil;
+    for _, i in pairs(GetTeamPlayers(GetTeam()))
+    do
+        if IsPlayerBot(i)
+        then
+            table.insert(botPlayers, i);
+        end
+    end
+    if (#botPlayers > 0) and selectedBotPlayer == nil
+    then
+        selectedBotPlayer = math.random(1, #botPlayers);
+    end
+
+    return selectedBotPlayer;
+end
+
+local bMessageDone = false;
+local chattingBot = GetTeamMember(GetRandomBotPlayer());
+
 function GetDesire()
     local npcBot = GetBot();
     --local botDesire = npcBot:GetActiveModeDesire();
     local enemyHeroes = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
 
-    if not npcBot:IsAlive() or npcBot:IsUsingAbility() or npcBot:IsChanneling() or not utility.CanMove(npcBot) or (#enemyHeroes > 0)
+    if not npcBot:IsAlive() or utility.IsBusy(npcBot) or not utility.CanMove(npcBot) or (#enemyHeroes > 0)
     then
         return BOT_ACTION_DESIRE_NONE;
     end
@@ -26,6 +47,19 @@ function GetDesire()
     then
         return BOT_MODE_DESIRE_VERYHIGH;
     end
+
+    -- Message at the beginning of the game
+    if not bMessageDone
+        --and DotaTime() < 0
+        and npcBot:GetGold() < 300
+        and npcBot == chattingBot
+    then
+        local message =
+        "You are welcomed by the author of Smart Bots. Thank you for choosing us, we hope you enjoy the game!";
+        npcBot:ActionImmediate_Chat(message, true);
+        bMessageDone = true;
+    end
+    --
 
     for _, rune in pairs(runeList)
     do

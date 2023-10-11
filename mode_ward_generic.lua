@@ -140,7 +140,7 @@ function GetDesire()
     local enemyHeroes = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
     local enemyTowers = npcBot:GetNearbyTowers(1000, true);
 
-    if not npcBot:IsAlive() or npcBot:HasModifier("modifier_skeleton_king_reincarnation_scepter")
+    if not npcBot:IsAlive() or utility.IsBusy(npcBot) or npcBot:HasModifier("modifier_skeleton_king_reincarnation_scepter")
         or npcBot:HasModifier("modifier_skeleton_king_reincarnation_scepter_active") or (#enemyHeroes > 0) or (#enemyTowers > 0)
     then
         return BOT_ACTION_DESIRE_NONE;

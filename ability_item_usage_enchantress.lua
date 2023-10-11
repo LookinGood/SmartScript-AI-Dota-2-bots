@@ -89,6 +89,7 @@ function AbilityUsageThink()
         return;
     end
 
+    -- Trying to stay close to wounded hero
     if npcBot:HasModifier("modifier_enchantress_natures_attendants")
     then
         if not utility.PvPMode(npcBot) and not utility.RetreatMode(npcBot)

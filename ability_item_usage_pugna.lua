@@ -81,7 +81,7 @@ function AbilityUsageThink()
         then
             --npcBot:ActionImmediate_Chat("Использую NetherBlast в связке с Decrepify!", true);
             npcBot:Action_ClearActions(false);
-            npcBot:ActionQueue_UseAbilityOnEntity(Decrepify, castNetherBlastTarget);
+            npcBot:Action_UseAbilityOnEntity(Decrepify, castNetherBlastTarget);
             npcBot:ActionQueue_UseAbilityOnLocation(NetherBlast, castNetherBlastLocation);
             return;
         else
@@ -102,15 +102,15 @@ function AbilityUsageThink()
         if utility.IsAbilityAvailable(Decrepify) and (npcBot:GetMana() >= LifeDrain:GetManaCost() + Decrepify:GetManaCost())
             and castLifeDrainTarget ~= nil and not castLifeDrainTarget:IsAttackImmune()
         then
-            npcBot:ActionImmediate_Chat("Использую LifeDrain в связке с Decrepify!", true);
-            npcBot:Action_ClearActions(false);
-            npcBot:ActionQueue_UseAbilityOnEntity(Decrepify, castLifeDrainTarget);
+            --npcBot:ActionImmediate_Chat("Использую LifeDrain в связке с Decrepify!", true);
+            npcBot:Action_ClearActions(true);
+            npcBot:Action_UseAbilityOnEntity(Decrepify, castLifeDrainTarget);
             npcBot:ActionQueue_UseAbilityOnEntity(LifeDrain, castLifeDrainTarget);
             return;
         else
-            npcBot:ActionImmediate_Chat("Использую LifeDrain!", true);
-            npcBot:Action_ClearActions(false);
-            npcBot:ActionQueue_UseAbilityOnEntity(LifeDrain, castLifeDrainTarget);
+            --npcBot:ActionImmediate_Chat("Использую LifeDrain!", true);
+            npcBot:Action_ClearActions(true);
+            npcBot:Action_UseAbilityOnEntity(LifeDrain, castLifeDrainTarget);
             return;
         end
     end
@@ -328,8 +328,7 @@ function ConsiderLifeDrain()
                 for _, enemy in pairs(enemyAbility) do
                     if utility.CanCastSpellOnTarget(ability, enemy)
                     then
-                        npcBot:ActionImmediate_Chat("Использую LifeDrain при побеге на одного врага!",
-                            true);
+                        --npcBot:ActionImmediate_Chat("Использую LifeDrain при побеге на одного врага!", true);
                         return BOT_ACTION_DESIRE_HIGH, enemy;
                     end
                 end
@@ -347,8 +346,7 @@ function ConsiderLifeDrain()
                     ally:WasRecentlyDamagedByCreep(2.0) or
                     ally:WasRecentlyDamagedByTower(2.0))
             then
-                npcBot:ActionImmediate_Chat("Использую LifeDrain на союзного героя со здоровьем ниже 30%!",
-                    true);
+                --npcBot:ActionImmediate_Chat("Использую LifeDrain на союзного героя со здоровьем ниже 30%!", true);
                 return BOT_ACTION_DESIRE_ABSOLUTE, ally;
             end
         end

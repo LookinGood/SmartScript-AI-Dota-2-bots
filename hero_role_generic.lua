@@ -44,6 +44,8 @@ C["carryHeroes"] = {
     ["npc_dota_hero_bounty_hunter"] = 1,
     ["npc_dota_hero_ursa"] = 1,
     ["npc_dota_hero_troll_warlord"] = 1,
+    ["npc_dota_hero_nevermore"] = 1,
+    ["npc_dota_hero_kunkka"] = 1,
 }
 
 local S = {}

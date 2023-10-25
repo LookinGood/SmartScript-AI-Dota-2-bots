@@ -869,7 +869,7 @@ function PurchaseWardObserver(npcBot)
 		return;
 	end
 
-	print(tostring(npcBot:GetNextItemPurchaseValue()))
+	--print(tostring(npcBot:GetNextItemPurchaseValue()))
 
 	local courier = GetBotCourier(npcBot);
 	local assignedLane = npcBot:GetAssignedLane();

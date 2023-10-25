@@ -322,7 +322,7 @@ function ConsiderVoodooSwitcheroo()
         if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget)
             and GetUnitToUnitDistance(npcBot, botTarget) <= radiusAbility and (botTarget:GetHealth() / botTarget:GetMaxHealth() > 0.1)
         then
-            npcBot:ActionImmediate_Chat("Использую VoodooSwitcheroo на врага!", true);
+            --npcBot:ActionImmediate_Chat("Использую VoodooSwitcheroo на врага!", true);
             return BOT_ACTION_DESIRE_HIGH;
         end
     end

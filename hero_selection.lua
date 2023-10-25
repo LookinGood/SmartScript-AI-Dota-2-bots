@@ -75,6 +75,8 @@ require(GetScriptDirectory() .. "/bot_name_generic")
 	"npc_dota_hero_abaddon",
 	"npc_dota_hero_witch_doctor",
 	"npc_dota_hero_elder_titan",
+	"npc_dota_hero_nevermore",
+	"npc_dota_hero_kunkka",
 ]]
 --#endregion
 
@@ -150,6 +152,8 @@ local hero_pool_my =
 	"npc_dota_hero_abaddon",
 	"npc_dota_hero_witch_doctor",
 	"npc_dota_hero_elder_titan",
+	"npc_dota_hero_nevermore",
+	"npc_dota_hero_kunkka",
 }
 
 local heroesCarry =
@@ -194,6 +198,8 @@ local heroesCarry =
 	"npc_dota_hero_bounty_hunter",
 	"npc_dota_hero_ursa",
 	"npc_dota_hero_troll_warlord",
+	"npc_dota_hero_nevermore",
+	"npc_dota_hero_kunkka",
 }
 
 local heroesSupport =
@@ -363,7 +369,7 @@ function Think()
 
 	-- Insert here hero hame and set "testmode = true" if you want the bot to choose a specific hero
 	testmode = false;
-	testHero = "npc_dota_hero_elder_titan"
+	testHero = "npc_dota_hero_kunkka"
 
 	if testmode
 	then

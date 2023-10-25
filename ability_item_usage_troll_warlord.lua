@@ -112,7 +112,7 @@ function ConsiderBerserkersRage()
         then
             if ability:GetToggleState() == false
             then
-                npcBot:ActionImmediate_Chat("Включаю BerserkersRage для атаки в мили!", true);
+                --npcBot:ActionImmediate_Chat("Включаю BerserkersRage для атаки в мили!", true);
                 return BOT_ACTION_DESIRE_HIGH;
             end
         elseif GetUnitToUnitDistance(npcBot, botTarget) <= attackRangeMissle and GetUnitToUnitDistance(npcBot, botTarget) > attackRangeMelee

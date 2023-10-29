@@ -35,7 +35,6 @@ local chattingBot = GetTeamMember(GetRandomBotPlayer());
 
 function GetDesire()
     local npcBot = GetBot();
-    --local botDesire = npcBot:GetActiveModeDesire();
     local enemyHeroes = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
 
     if not npcBot:IsAlive() or utility.IsBusy(npcBot) or not utility.CanMove(npcBot) or (#enemyHeroes > 0)
@@ -50,7 +49,8 @@ function GetDesire()
 
     -- Message at the beginning of the game
     if not bMessageDone
-        --and DotaTime() < 0
+        and GetGameState() == GAME_STATE_PRE_GAME
+        and DotaTime() < 5
         and npcBot:GetGold() < 300
         and npcBot == chattingBot
     then
@@ -85,7 +85,6 @@ end
 
 function Think()
     local npcBot = GetBot();
-
     local bountyRuneRadiant = Vector(2183.8, -3906.2, 155.7);
     local powerfulRuneRadiant = Vector(1155.8, -1230.5, 84.7);
     local bountyRuneDire = Vector(-1559.8, 3460.0, 208.5);

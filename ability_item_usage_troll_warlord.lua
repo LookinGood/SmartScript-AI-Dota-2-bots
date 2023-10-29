@@ -229,8 +229,7 @@ function ConsiderWhirlingAxesMelee()
             then
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    npcBot:ActionImmediate_Chat("Использую WhirlingAxesMelee что бы убить цель!",
-                        true);
+                    --npcBot:ActionImmediate_Chat("Использую WhirlingAxesMelee что бы убить цель!", true);
                     return BOT_ACTION_DESIRE_HIGH;
                 end
             end

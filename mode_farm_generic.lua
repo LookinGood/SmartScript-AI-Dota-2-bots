@@ -103,7 +103,6 @@ end
 
 function Think()
     local npcBot = GetBot();
-    --local botLevel = npcBot:GetLevel();
     local attackRange = npcBot:GetAttackRange();
     local neutralCreeps = npcBot:GetNearbyNeutralCreeps(1600);
 

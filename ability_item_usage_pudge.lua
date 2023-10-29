@@ -128,7 +128,7 @@ function ConsiderMeatHook()
                     end
                     if not utility.IsAnyUnitsBetweenMeAndTarget(npcBot, enemy, targetLocation, abilityRadius)
                     then
-                        npcBot:ActionImmediate_Chat("Использую MeatHook что бы убить цель!", true);
+                        --npcBot:ActionImmediate_Chat("Использую MeatHook что бы убить цель!", true);
                         return BOT_ACTION_DESIRE_VERYHIGH, targetLocation;
                     end
                 end

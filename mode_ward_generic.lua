@@ -38,7 +38,6 @@ local DIRE_BOTSPOTNOTOWER = Vector(6321.9, 2595.6, 201.8);
 
 function GetWardSpot()
     local npcBot = GetBot();
-
     local RadiantWardSpotEarlyGame = {
         RADIANT_TOPSPOT2,
         RADIANT_TOPSPOT3,
@@ -137,7 +136,7 @@ function GetDesire()
     end
 
     local npcBot = GetBot();
-    local enemyHeroes = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
+    local enemyHeroes = npcBot:GetNearbyHeroes(1000, true, BOT_MODE_NONE);
     local enemyTowers = npcBot:GetNearbyTowers(1000, true);
 
     if not npcBot:IsAlive() or utility.IsBusy(npcBot) or npcBot:HasModifier("modifier_skeleton_king_reincarnation_scepter")
@@ -173,7 +172,6 @@ end
 
 function Think()
     local npcBot = GetBot();
-
     if wardSpot ~= nil and wardObserver ~= nil and wardObserver:IsFullyCastable()
     then
         if GetUnitToLocationDistance(npcBot, wardSpot) >= 500

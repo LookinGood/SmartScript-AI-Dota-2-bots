@@ -5,6 +5,7 @@ require(GetScriptDirectory() .. "/bot_name_generic")
 --[[
 	"npc_dota_hero_hoodwink", -- not work currect
 	"npc_dota_hero_keeper_of_the_light", -- not work currect
+	"npc_dota_hero_dark_willow", -- not work currect
     "npc_dota_hero_centaur",
 	"npc_dota_hero_gyrocopter",
 	"npc_dota_hero_disruptor",
@@ -77,6 +78,10 @@ require(GetScriptDirectory() .. "/bot_name_generic")
 	"npc_dota_hero_elder_titan",
 	"npc_dota_hero_nevermore",
 	"npc_dota_hero_kunkka",
+	"npc_dota_hero_tidehunter",
+	"npc_dota_hero_dark_seer",
+	"npc_dota_hero_tiny",
+	"npc_dota_hero_mars",
 ]]
 --#endregion
 
@@ -154,6 +159,10 @@ local hero_pool_my =
 	"npc_dota_hero_elder_titan",
 	"npc_dota_hero_nevermore",
 	"npc_dota_hero_kunkka",
+	"npc_dota_hero_tidehunter",
+	"npc_dota_hero_dark_seer",
+	"npc_dota_hero_tiny",
+	"npc_dota_hero_mars",
 }
 
 local heroesCarry =
@@ -200,6 +209,8 @@ local heroesCarry =
 	"npc_dota_hero_troll_warlord",
 	"npc_dota_hero_nevermore",
 	"npc_dota_hero_kunkka",
+	"npc_dota_hero_tiny",
+	"npc_dota_hero_mars",
 }
 
 local heroesSupport =
@@ -234,6 +245,8 @@ local heroesSupport =
 	"npc_dota_hero_abaddon",
 	"npc_dota_hero_witch_doctor",
 	"npc_dota_hero_elder_titan",
+	"npc_dota_hero_tidehunter",
+	"npc_dota_hero_dark_seer",
 }
 
 function GetBotNames()
@@ -369,7 +382,7 @@ function Think()
 
 	-- Insert here hero hame and set "testmode = true" if you want the bot to choose a specific hero
 	testmode = false;
-	testHero = "npc_dota_hero_kunkka"
+	testHero = "npc_dota_hero_mars"
 
 	if testmode
 	then

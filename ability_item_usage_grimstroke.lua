@@ -186,7 +186,7 @@ function ConsiderPhantomsEmbrace()
         ability:GetSpecialValueInt("pop_damage");
     local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility + 200, true, BOT_MODE_NONE);
 
-    -- Cast if can kill somebody/Interrup cast
+    -- Cast if can kill somebody/Interrupt cast
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do

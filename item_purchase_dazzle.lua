@@ -7,9 +7,9 @@ local ItemsToBuy =
 	"item_magic_stick",
 	"item_branches",
 	"item_branches",
+	"item_clarity",
+	"item_clarity",
 	"item_flask",
-	"item_clarity",
-	"item_clarity",
 
 	"item_recipe_magic_wand",
 

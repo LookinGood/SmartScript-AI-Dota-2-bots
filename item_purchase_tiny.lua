@@ -5,43 +5,32 @@ local ItemsToBuy =
 {
 	"item_tango",
 	"item_magic_stick",
-	"item_orb_of_venom",
 	"item_branches",
 	"item_branches",
+	"item_enchanted_mango",
 	"item_flask",
 
 	"item_recipe_magic_wand",
+
+	"item_ring_of_protection",
+	"item_gauntlets",
+	"item_gauntlets",
+    "item_recipe_soul_ring",
 
 	"item_circlet",
 	"item_gauntlets",
 	"item_recipe_bracer",
 
-	"item_blight_stone",
-	"item_fluffy_hat",
-	"item_recipe_orb_of_corrosion",
-
 	"item_boots",
-	"item_gloves",
-	"item_belt_of_strength",
-
-	"item_ring_of_health",
-	"item_vitality_booster",
+	"item_blades_of_attack",
+	"item_chainmail",
 
 	"item_sobi_mask",
-	"item_recipe_ring_of_basilius",
+	"item_robe",
+	"item_quarterstaff",
+	"item_ogre_axe",
 
-	"item_ring_of_protection",
-	"item_recipe_buckler",
-
-	"item_blades_of_attack",
-	"item_lifesteal",
-	"item_recipe_vladmir",
-
-	"item_helm_of_iron_will",
-    "item_diadem",
-    "item_recipe_helm_of_the_dominator",
-
-	"item_recipe_helm_of_the_overlord",
+	"item_blink",
 
 	"item_ogre_axe",
 	"item_mithril_hammer",
@@ -49,18 +38,19 @@ local ItemsToBuy =
 
 	"item_aghanims_shard",
 
-	"item_mithril_hammer",
-	"item_belt_of_strength",
-	"item_recipe_basher",
+	"item_broadsword",
+	"item_blades_of_attack",
+	"item_recipe_lesser_crit",
 
-	"item_recipe_abyssal_blade",
+	"item_demon_edge",
+	"item_recipe_greater_crit",
 
-	"item_ring_of_protection",
-	"item_recipe_buckler",
-	"item_platemail",
-	"item_hyperstone",
-	"item_recipe_assault",
-	
+	"item_reaver",
+	"item_recipe_overwhelming_blink",
+
+	"item_diadem",
+	"item_recipe_harpoon",
+
 	"item_demon_edge",
 	"item_relic",
 

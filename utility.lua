@@ -375,8 +375,8 @@ end
 
 function IsBusy(npcTarget)
 	return IsValidTarget(npcTarget) and
-		(npcTarget:IsUsingAbility() or
-		npcTarget:IsCastingAbility() or
+		(--npcTarget:IsUsingAbility() or
+		--npcTarget:IsCastingAbility() or
 		npcTarget:IsChanneling())
 end
 

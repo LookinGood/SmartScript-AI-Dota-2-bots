@@ -27,14 +27,20 @@ local ItemsToBuy =
     "item_ring_of_protection",
     "item_recipe_buckler",
 
+    "item_blades_of_attack",
+    "item_lifesteal",
+    "item_recipe_vladmir",
+
+    "item_helm_of_iron_will",
+    "item_diadem",
+    "item_recipe_helm_of_the_dominator",
+
+    "item_recipe_helm_of_the_overlord",
+
     "item_wind_lace",
     "item_belt_of_strength",
     "item_robe",
     "item_recipe_ancient_janggo",
-
-    "item_lifesteal",
-    "item_blades_of_attack",
-    "item_recipe_vladmir",
 
     "item_belt_of_strength",
     "item_ogre_axe",
@@ -45,17 +51,11 @@ local ItemsToBuy =
 
     "item_recipe_boots_of_bearing",
 
-    "item_helm_of_iron_will",
-    "item_diadem",
-    "item_recipe_helm_of_the_dominator",
-
     "item_aghanims_shard",
 
     "item_ogre_axe",
     "item_mithril_hammer",
     "item_recipe_black_king_bar",
-
-    "item_recipe_helm_of_the_overlord",
 
     "item_point_booster",
     "item_ogre_axe",

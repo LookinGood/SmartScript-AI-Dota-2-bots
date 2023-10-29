@@ -5,6 +5,7 @@ require(GetScriptDirectory() .. "/utility")
 
 function GetDesire()
     local npcBot = GetBot();
+    local botMode = npcBot:GetActiveMode();
     local allyHeroes = utility.CountAllyHeroAroundUnit(npcBot, 2000);
     local enemyHeroes = utility.CountEnemyHeroAroundUnit(npcBot, 2000);
     --local allyHeroAround = npcBot:GetNearbyHeroes(1600, false, BOT_MODE_NONE);
@@ -26,9 +27,9 @@ function GetDesire()
         return BOT_ACTION_DESIRE_VERYHIGH;
     end
 
-    if string.find(npcBot:GetUnitName(), "medusa")
+    if string.find(npcBot:GetUnitName(), "medusa") or npcBot:HasModifier("modifier_medusa_mana_shield")
     then
-        if (npcBot:GetMana() / npcBot:GetMaxMana() <= 0.2) and (#enemyHeroAround > 0) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
+        if (npcBot:GetMana() / npcBot:GetMaxMana() <= 0.3) and (#enemyHeroAround > 0) and npcBot:WasRecentlyDamagedByAnyHero(5.0)
         then
             return BOT_ACTION_DESIRE_VERYHIGH;
         end
@@ -40,19 +41,19 @@ function GetDesire()
         return BOT_ACTION_DESIRE_HIGH;
     end
 
-    if enemyHeroes > allyHeroes
+    if botMode ~= BOT_MODE_LANING and enemyHeroes > (allyHeroes + 2)
     then
         return BOT_ACTION_DESIRE_VERYHIGH;
     end
 
     -- and npcBot:GetHealth() / npcBot:GetMaxHealth() <= 0.9 and npcBot:WasRecentlyDamagedByAnyHero(2.0)
 
-    if (allyHeroes <= 1 and enemyHeroes > 1)
+    if (allyHeroes <= 1 and enemyHeroes > 1) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
     then
-        return BOT_ACTION_DESIRE_ABSOLUTE;
+        return BOT_ACTION_DESIRE_VERYHIGH;
     end
 
-    if (#enemyHeroAround > 0)
+    if (#enemyHeroAround > 0) and (allyHeroes + 1 < enemyHeroes)
     then
         for _, enemy in pairs(enemyHeroAround) do
             local allyHero = enemy:GetAttackTarget();
@@ -60,7 +61,6 @@ function GetDesire()
                 and allyHero:GetHealth() / allyHero:GetMaxHealth() <= 0.9
                 and allyHero:GetCurrentActionType() ~= BOT_ACTION_TYPE_ATTACK
                 and allyHero:GetCurrentActionType() ~= BOT_ACTION_TYPE_ATTACKMOVE
-                and not utility.IsHero(npcBot)
                 and npcBot:GetCurrentActionType() ~= BOT_ACTION_TYPE_ATTACK
                 and npcBot:GetCurrentActionType() ~= BOT_ACTION_TYPE_ATTACKMOVE
             then
@@ -69,7 +69,7 @@ function GetDesire()
         end
     end
 
-    if (#enemyHeroAround > 0)
+    if (#enemyHeroAround > 0) and (allyHeroes + 2 < enemyHeroes) and npcBot:GetHealth() / npcBot:GetMaxHealth() <= 0.6
     then
         for _, enemy in pairs(enemyHeroAround) do
             local enemyDamageToMe = enemy:GetEstimatedDamageToTarget(false, npcBot, 3.0, DAMAGE_TYPE_ALL);

@@ -69,7 +69,6 @@ end
 
 function Think()
     local npcBot = GetBot();
-
     if mostDangerousEnemy ~= nil
     then
         if GetUnitToUnitDistance(npcBot, mostDangerousEnemy) <= (npcBot:GetAttackRange() * 4)

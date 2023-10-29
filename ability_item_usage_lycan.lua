@@ -26,16 +26,16 @@ local AbilityToLevelUp =
     Abilities[1],
     Abilities[3],
     Abilities[3],
-    Talents[2],
+    Talents[1],
     Abilities[3],
     Abilities[6],
     Abilities[2],
     Abilities[2],
-    Talents[3],
+    Talents[4],
     Abilities[2],
     Abilities[6],
-    Talents[6],
-    Talents[8],
+    Talents[5],
+    Talents[7],
 }
 
 function AbilityLevelUpThink()

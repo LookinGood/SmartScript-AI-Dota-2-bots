@@ -26,7 +26,6 @@ end
 
 function Think()
 	local npcBot = GetBot();
-
 	local shopLoc1 = GetShopLocation(GetTeam(), SHOP_SECRET);
 	local shopLoc2 = GetShopLocation(GetTeam(), SHOP_SECRET2);
 

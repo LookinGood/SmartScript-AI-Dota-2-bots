@@ -273,7 +273,7 @@ function ConsiderChaoticOffering()
         local locationAoE = npcBot:FindAoELocation(true, true, npcBot:GetLocation(), castRangeAbility, radiusAbility, 0, 0);
         if locationAoE ~= nil and (locationAoE.count >= 2)
         then
-            --npcBot:ActionImmediate_Chat("Использую ChaoticOffering по врагам!", true);
+            --npcBot:ActionImmediate_Chat("Использую ChaoticOffering по 2+ врагам!", true);
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
         end
         -- Retreat use

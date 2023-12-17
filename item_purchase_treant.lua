@@ -51,13 +51,15 @@ local ItemsToBuy =
 	"item_cornucopia",
 	"item_recipe_refresher",
 
+	"item_mystic_staff",
+	"item_recipe_arcane_blink",
+
 	"item_point_booster",
 	"item_ogre_axe",
 	"item_staff_of_wizardry",
 	"item_blade_of_alacrity",
 
-	"item_mystic_staff",
-	"item_recipe_arcane_blink",
+	"item_recipe_ultimate_scepter",
 }
 
 function ItemPurchaseThink()

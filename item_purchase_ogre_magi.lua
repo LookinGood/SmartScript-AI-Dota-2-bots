@@ -64,6 +64,8 @@ local ItemsToBuy =
 	"item_void_stone",
 	"item_ultimate_orb",
 	"item_mystic_staff",
+
+	"item_recipe_ultimate_scepter",
 }
 
 function ItemPurchaseThink()

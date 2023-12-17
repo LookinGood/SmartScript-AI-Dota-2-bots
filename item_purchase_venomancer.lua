@@ -64,6 +64,8 @@ local ItemsToBuy =
 
     "item_eagle",
     "item_recipe_swift_blink",
+
+    "item_recipe_ultimate_scepter",
 }
 
 function ItemPurchaseThink()

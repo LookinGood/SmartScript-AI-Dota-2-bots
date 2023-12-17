@@ -59,8 +59,8 @@ local ItemsToBuy =
 	"item_relic",
 
 	"item_point_booster",
-	"item_staff_of_wizardry",
 	"item_ogre_axe",
+	"item_staff_of_wizardry",
 	"item_blade_of_alacrity",
 
 	"item_hyperstone",
@@ -70,6 +70,8 @@ local ItemsToBuy =
 	"item_boots",
 
 	"item_recipe_travel_boots",
+
+	"item_recipe_ultimate_scepter",
 }
 
 function ItemPurchaseThink()

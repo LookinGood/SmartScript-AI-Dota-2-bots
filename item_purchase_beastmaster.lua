@@ -71,6 +71,8 @@ local ItemsToBuy =
 
     "item_hyperstone",
     "item_hyperstone",
+
+    "item_recipe_ultimate_scepter",
 }
 
 function ItemPurchaseThink()

@@ -59,6 +59,8 @@ local ItemsToBuy =
 
     "item_mystic_staff",
 	"item_recipe_arcane_blink",
+
+    "item_recipe_ultimate_scepter",
 }
 
 function ItemPurchaseThink()

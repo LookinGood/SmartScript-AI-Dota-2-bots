@@ -56,6 +56,8 @@ local ItemsToBuy =
 	"item_void_stone",
 	"item_void_stone",
 	"item_recipe_octarine_core",
+
+	"item_recipe_ultimate_scepter",
 }
 
 function ItemPurchaseThink()

@@ -67,6 +67,8 @@ local ItemsToBuy =
 	"item_boots",
 
 	"item_recipe_travel_boots",
+
+	"item_recipe_ultimate_scepter",
 }
 
 function ItemPurchaseThink()

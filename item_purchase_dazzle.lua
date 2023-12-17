@@ -54,6 +54,8 @@ local ItemsToBuy =
 	"item_ogre_axe",
 	"item_staff_of_wizardry",
 	"item_blade_of_alacrity",
+
+	"item_recipe_ultimate_scepter",
 }
 
 function ItemPurchaseThink()

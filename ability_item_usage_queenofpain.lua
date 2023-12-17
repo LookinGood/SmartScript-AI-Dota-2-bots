@@ -243,7 +243,7 @@ function ConsiderBlink()
             end
         end
         -- Cast if need retreat
-    elseif botMode == BOT_MODE_RETREAT
+    elseif utility.RetreatMode(npcBot)
     then
         if npcBot:DistanceFromFountain() >= castRangeAbility
         then

@@ -9,6 +9,43 @@ function IsValidTarget(target)
 		target:IsAlive()
 end
 
+function GetFountain(npcTarget)
+	if IsValidTarget(npcTarget)
+	then
+		if npcTarget:GetTeam() == TEAM_RADIANT
+		then
+			local buildings = GetUnitList(UNIT_LIST_ALLIED_BUILDINGS);
+			if (#buildings > 0)
+			then
+				for _, ally in pairs(buildings)
+				do
+					if IsValidTarget(ally) and ally:GetName() == "dota_fountain"
+					then
+						return ally;
+					end
+				end
+			end
+		elseif npcTarget:GetTeam() == TEAM_DIRE
+		then
+			local buildings = GetUnitList(UNIT_LIST_ALLIED_BUILDINGS);
+			if (#buildings > 0)
+			then
+				for _, ally in pairs(buildings)
+				do
+					if IsValidTarget(ally) and ally:GetName() == "dota_fountain"
+					then
+						return ally;
+					end
+				end
+			end
+		else
+			return nil;
+		end
+	else
+		return nil;
+	end
+end
+
 function GetWeakest(units)
 	local target = nil;
 	local minHP = 10000;
@@ -375,9 +412,9 @@ end
 
 function IsBusy(npcTarget)
 	return IsValidTarget(npcTarget) and
-		(--npcTarget:IsUsingAbility() or
+		( --npcTarget:IsUsingAbility() or
 		--npcTarget:IsCastingAbility() or
-		npcTarget:IsChanneling())
+			npcTarget:IsChanneling())
 end
 
 function IsAbilityAvailable(ability)

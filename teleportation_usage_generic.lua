@@ -17,22 +17,27 @@ function ClosestSafeBuilding(unit, distance, enemyRadius, enemyCount)
     local npcBot = GetBot();
     local allyBuildings = GetUnitList(UNIT_LIST_ALLIED_BUILDINGS);
     local safeBuilding = nil;
+    local enemyAncient = GetAncient(GetOpposingTeam());
 
     local enemyHeroes = utility.CountEnemyHeroAroundUnit(unit, enemyRadius);
     if enemyHeroes <= enemyCount
     then
         safeBuilding = unit;
     else
-        if #allyBuildings > 0
+        if (#allyBuildings > 0)
         then
             for i = 1, #allyBuildings do
                 if allyBuildings[i] ~= unit and GetUnitToUnitDistance(allyBuildings[i], unit) < GetUnitToUnitDistance(npcBot, unit)
                     and GetUnitToUnitDistance(npcBot, allyBuildings[i]) > distance
                 then
-                    local enemyHeroes = utility.CountEnemyHeroAroundUnit(allyBuildings[i], enemyRadius);
-                    if enemyHeroes <= enemyCount
+                    if GetUnitToUnitDistance(allyBuildings[i], enemyAncient) > GetUnitToUnitDistance(npcBot, enemyAncient)
+                        and allyBuildings[i]:DistanceFromFountain() < npcBot:DistanceFromFountain()
                     then
-                        safeBuilding = allyBuildings[i];
+                        local enemyHeroes = utility.CountEnemyHeroAroundUnit(allyBuildings[i], enemyRadius);
+                        if enemyHeroes <= enemyCount
+                        then
+                            safeBuilding = allyBuildings[i];
+                        end
                     end
                 end
             end
@@ -261,7 +266,7 @@ function ShouldTP()
                 local tpTarget = ClosestSafeBuilding(towerDefend, minTpDistance, 1000, 2)
                 if tpTarget ~= nil
                 then
-                   -- npcBot:ActionImmediate_Chat("Использую tpscroll для дефа бота!", true);
+                    -- npcBot:ActionImmediate_Chat("Использую tpscroll для дефа бота!", true);
                     return true, utility.GetEscapeLocation(tpTarget, 800);
                 end
             end

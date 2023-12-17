@@ -57,6 +57,8 @@ local ItemsToBuy =
 	"item_recipe_octarine_core",
 
     "item_aghanims_shard",
+
+    "item_recipe_ultimate_scepter",
 }
 
 function ItemPurchaseThink()

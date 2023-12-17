@@ -32,8 +32,6 @@ local ItemsToBuy =
     "item_diadem",
     "item_recipe_dagon",
 
-	"item_aghanims_shard",
-
 	"item_belt_of_strength",
     "item_ogre_axe",
     "item_recipe_sange",
@@ -57,6 +55,10 @@ local ItemsToBuy =
 	"item_void_stone",
 	"item_void_stone",
 	"item_recipe_octarine_core",
+
+	"item_aghanims_shard",
+
+	"item_recipe_ultimate_scepter",
 }
 
 function ItemPurchaseThink()

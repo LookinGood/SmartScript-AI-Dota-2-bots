@@ -7,58 +7,54 @@ local ItemsToBuy =
 	"item_magic_stick",
 	"item_branches",
 	"item_branches",
+	"item_faerie_fire",
 	"item_enchanted_mango",
-	"item_flask",
 
 	"item_recipe_magic_wand",
 
-	"item_ring_of_protection",
-	"item_gauntlets",
-	"item_gauntlets",
-    "item_recipe_soul_ring",
-
 	"item_circlet",
-	"item_gauntlets",
-	"item_recipe_bracer",
+	"item_mantle",
+	"item_recipe_null_talisman",
 
 	"item_boots",
-	"item_blades_of_attack",
-	"item_chainmail",
-
-	"item_sobi_mask",
+	"item_gloves",
 	"item_robe",
-	"item_quarterstaff",
-	"item_ogre_axe",
 
-	"item_blink",
+	"item_robe",
+	"item_chainmail",
+	"item_blitz_knuckles",
+	"item_recipe_witch_blade",
 
-	"item_ogre_axe",
-	"item_mithril_hammer",
-	"item_recipe_black_king_bar",
+	"item_cornucopia",
+	"item_ultimate_orb",
+	"item_recipe_sphere",
+
+	"item_voodoo_mask",
+    "item_diadem",
+    "item_recipe_dagon",
 
 	"item_aghanims_shard",
 
-	"item_broadsword",
-	"item_blades_of_attack",
-	"item_recipe_lesser_crit",
-
-	"item_demon_edge",
-	"item_recipe_greater_crit",
-
-	"item_reaver",
-	"item_recipe_overwhelming_blink",
-
-	"item_diadem",
-	"item_recipe_harpoon",
-
-	"item_demon_edge",
-	"item_relic",
+	"item_recipe_dagon",
+	"item_recipe_dagon",
+	"item_recipe_dagon",
+	"item_recipe_dagon",
 
 	"item_point_booster",
 	"item_ogre_axe",
 	"item_staff_of_wizardry",
 	"item_blade_of_alacrity",
 
+	"item_mystic_staff",
+	"item_recipe_revenants_brooch",
+
+	"item_energy_booster",
+	"item_vitality_booster",
+	"item_point_booster",
+	"item_void_stone",
+	"item_void_stone",
+	"item_recipe_octarine_core",
+
 	"item_hyperstone",
 	"item_hyperstone",
 
@@ -66,7 +62,7 @@ local ItemsToBuy =
 	"item_boots",
 
 	"item_recipe_travel_boots",
-
+	
 	"item_recipe_ultimate_scepter",
 }
 

@@ -35,11 +35,11 @@ function GetDesire()
                         then
                             if not creep:IsAncientCreep() and creep:GetLevel() < botLevel
                             then
-                                return BOT_ACTION_DESIRE_HIGH;
+                                return BOT_ACTION_DESIRE_MODERATE;
                             end
                         elseif botLevel >= 15
                         then
-                            return BOT_ACTION_DESIRE_HIGH;
+                            return BOT_ACTION_DESIRE_MODERATE;
                         end
                     end
                 end

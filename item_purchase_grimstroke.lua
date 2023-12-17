@@ -22,10 +22,6 @@ local ItemsToBuy =
 	"item_energy_booster",
 
 	"item_energy_booster",
-	"item_vitality_booster",
-	"item_recipe_aeon_disk",
-
-	"item_energy_booster",
 	"item_void_stone",
 	"item_recipe_aether_lens",
 
@@ -35,6 +31,10 @@ local ItemsToBuy =
 	"item_staff_of_wizardry",
 	"item_ogre_axe",
 	"item_blade_of_alacrity",
+
+	"item_energy_booster",
+	"item_vitality_booster",
+	"item_recipe_aeon_disk",
 
 	"item_void_stone",
 	"item_ultimate_orb",
@@ -55,6 +55,8 @@ local ItemsToBuy =
 	"item_recipe_buckler",
 
 	"item_recipe_guardian_greaves",
+
+	"item_recipe_ultimate_scepter",
 }
 
 function ItemPurchaseThink()

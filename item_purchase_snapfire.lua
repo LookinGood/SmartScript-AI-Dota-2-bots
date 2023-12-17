@@ -28,6 +28,14 @@ local ItemsToBuy =
 	"item_shadow_amulet",
 	"item_recipe_glimmer_cape",
 
+	"item_fluffy_hat",
+	"item_staff_of_wizardry",
+	"item_recipe_force_staff",
+
+	"item_energy_booster",
+	"item_void_stone",
+	"item_recipe_aether_lens",
+
 	"item_point_booster",
 	"item_ogre_axe",
 	"item_staff_of_wizardry",
@@ -35,22 +43,12 @@ local ItemsToBuy =
 
 	"item_aghanims_shard",
 
-	"item_fluffy_hat",
-	"item_staff_of_wizardry",
-	"item_recipe_force_staff",
-
 	"item_ring_of_protection",
 	"item_recipe_buckler",
 
 	"item_recipe_guardian_greaves",
 
-	"item_energy_booster",
-	"item_void_stone",
-	"item_recipe_aether_lens",
-
 	"item_blink",
-
-
 
 	"item_blade_of_alacrity",
 	"item_belt_of_strength",
@@ -61,6 +59,7 @@ local ItemsToBuy =
 	"item_reaver",
     "item_recipe_overwhelming_blink",
 
+	"item_recipe_ultimate_scepter",
 }
 
 function ItemPurchaseThink()

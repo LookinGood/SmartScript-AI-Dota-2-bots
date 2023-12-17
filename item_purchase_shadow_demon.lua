@@ -44,6 +44,8 @@ local ItemsToBuy =
 	"item_chainmail",
 	"item_recipe_mekansm",
 
+	"item_recipe_dagon",
+
 	"item_ring_of_protection",
 	"item_recipe_buckler",
 
@@ -57,7 +59,8 @@ local ItemsToBuy =
 
 	"item_recipe_dagon",
 	"item_recipe_dagon",
-	"item_recipe_dagon",
+
+	"item_recipe_ultimate_scepter",
 }
 
 function ItemPurchaseThink()

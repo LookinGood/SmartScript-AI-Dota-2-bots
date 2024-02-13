@@ -35,10 +35,10 @@ local ItemsToBuy =
 	"item_boots_of_elves",
 	"item_recipe_yasha",
 
-	"item_ultimate_orb",
+	"item_diadem",
 	"item_recipe_manta",
 
-	"item_vitality_booster",
+    "item_ring_of_tarrasque",
     "item_reaver",
     "item_recipe_heart",
 
@@ -47,9 +47,9 @@ local ItemsToBuy =
 
 	"item_point_booster",
 	"item_ultimate_orb",
-	"item_ultimate_orb",
+	"item_recipe_skadi",
 
-	"item_demon_edge",
+	"item_eagle",
 	"item_recipe_disperser",
 
 	"item_hyperstone",

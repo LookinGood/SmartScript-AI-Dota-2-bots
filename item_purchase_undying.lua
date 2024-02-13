@@ -19,11 +19,13 @@ local ItemsToBuy =
     "item_recipe_bracer",
 
     "item_boots",
-    "item_energy_booster",
+    "item_sobi_mask",
+    "item_recipe_ring_of_basilius",
+    "item_recipe_arcane_boots",
 
-    "item_void_stone",
     "item_ring_of_protection",
     "item_fluffy_hat",
+    "item_energy_booster",
     "item_recipe_pavise",
 
     "item_cloak",
@@ -43,6 +45,10 @@ local ItemsToBuy =
     "item_helm_of_iron_will",
     "item_recipe_crimson_guard",
 
+    "item_wind_lace",
+    "item_crown",
+    "item_recipe_solar_crest",
+
     "item_ring_of_protection",
     "item_recipe_buckler",
     "item_recipe_guardian_greaves",
@@ -58,13 +64,6 @@ local ItemsToBuy =
     "item_ogre_axe",
     "item_staff_of_wizardry",
     "item_blade_of_alacrity",
-
-    "item_point_booster",
-    "item_energy_booster",
-    "item_vitality_booster",
-    "item_void_stone",
-    "item_void_stone",
-    "item_recipe_octarine_core",
 
     "item_aghanims_shard",
 

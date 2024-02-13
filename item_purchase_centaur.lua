@@ -34,7 +34,7 @@ local ItemsToBuy =
 
     "item_blink",
 
-    "item_vitality_booster",
+    "item_ring_of_tarrasque",
     "item_reaver",
     "item_recipe_heart",
 

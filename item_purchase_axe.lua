@@ -44,7 +44,7 @@ local ItemsToBuy =
     "item_staff_of_wizardry",
     "item_blade_of_alacrity",
 
-    "item_vitality_booster",
+    "item_ring_of_tarrasque",
     "item_reaver",
     "item_recipe_heart",
 

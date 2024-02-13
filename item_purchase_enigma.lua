@@ -22,8 +22,10 @@ local ItemsToBuy =
 	"item_mantle",
 	"item_recipe_null_talisman",
 
-	"item_boots",
-	"item_energy_booster",
+    "item_boots",
+    "item_sobi_mask",
+    "item_recipe_ring_of_basilius",
+	"item_recipe_arcane_boots",
 
     "item_cloak",
 	"item_shadow_amulet",
@@ -37,9 +39,13 @@ local ItemsToBuy =
 
 	"item_blink",
 
-	"item_cornucopia",
-	"item_ultimate_orb",
-	"item_recipe_sphere",
+	"item_ring_of_health",
+	"item_void_stone",
+    "item_ultimate_orb",
+    "item_recipe_sphere",
+
+	"item_ghost",
+	"item_recipe_ethereal_blade",
 
 	"item_point_booster",
 	"item_ogre_axe",

@@ -18,8 +18,10 @@ local ItemsToBuy =
 	"item_gauntlets",
 	"item_recipe_soul_ring",
 
-	"item_boots",
-	"item_energy_booster",
+    "item_boots",
+    "item_sobi_mask",
+    "item_recipe_ring_of_basilius",
+    "item_recipe_arcane_boots",
 
 	"item_energy_booster",
 	"item_void_stone",
@@ -45,12 +47,13 @@ local ItemsToBuy =
 	"item_mystic_staff",
 	"item_recipe_wind_waker",
 
-	"item_point_booster",
+	"item_ghost",
+	"item_recipe_ethereal_blade",
+
     "item_energy_booster",
     "item_vitality_booster",
-	"item_void_stone",
-	"item_void_stone",
-	"item_recipe_octarine_core",
+    "item_point_booster",
+    "item_tiara_of_selemene",
 
 	"item_recipe_travel_boots",
 	"item_boots",

@@ -21,23 +21,22 @@ local ItemsToBuy =
 	"item_chainmail",
 
 	"item_lifesteal",
-	"item_quarterstaff",
+	"item_broadsword",
 
 	"item_ogre_axe",
 	"item_mithril_hammer",
 	"item_recipe_black_king_bar",
 	
-	"item_sobi_mask",
-	"item_robe",
-	"item_quarterstaff",
-	"item_ogre_axe",
+    "item_ogre_axe",
+    "item_broadsword",
+    "item_void_stone",
 
 	"item_aghanims_shard",
 
 	"item_blink",
 
-	"item_broadsword",
 	"item_blades_of_attack",
+	"item_claymore",
 	"item_recipe_lesser_crit",
 
 	"item_demon_edge",

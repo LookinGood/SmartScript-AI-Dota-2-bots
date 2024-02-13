@@ -61,7 +61,7 @@ function AbilityUsageThink()
     local castPurificationDesire, castPurificationTarget = ConsiderPurification();
     local castRepelDesire, castRepelTarget = ConsiderRepel();
     local castHammerOfPurityDesire, castHammerOfPurityTarget = ConsiderHammerOfPurity();
-    local castGuardianAngelDesire = ConsiderGuardianAngel();
+    local castGuardianAngelDesire, castGuardianAngelTarget = ConsiderGuardianAngel();
 
     if (castPurificationDesire ~= nil)
     then
@@ -83,7 +83,7 @@ function AbilityUsageThink()
 
     if (castGuardianAngelDesire ~= nil)
     then
-        npcBot:Action_UseAbility(GuardianAngel);
+        npcBot:Action_UseAbilityOnEntity(GuardianAngel, castGuardianAngelTarget);
         return;
     end
 end
@@ -293,6 +293,70 @@ function ConsiderGuardianAngel()
 
     if not npcBot:HasScepter()
     then
+        local castRangeAbility = ability:GetCastRange();
+        local allyAbility = npcBot:GetNearbyHeroes(castRangeAbility + 200, false, BOT_MODE_NONE);
+        if (#allyAbility > 0)
+        then
+            for _, ally in pairs(allyAbility)
+            do
+                if utility.IsHero(ally) and (ally:GetHealth() / ally:GetMaxHealth() <= 0.6) and ally:WasRecentlyDamagedByAnyHero(2.0)
+                    and not ally:HasModifier("modifier_omninight_guardian_angel")
+                then
+                    --npcBot:ActionImmediate_Chat("Использую GuardianAngel без аганима!", true);
+                    return BOT_ACTION_DESIRE_HIGH, ally;
+                end
+            end
+        end
+    elseif npcBot:HasScepter()
+    then
+        local allyAbility = GetUnitList(UNIT_LIST_ALLIED_HEROES);
+        if (#allyAbility > 0)
+        then
+            for i = 1, #allyAbility do
+                do
+                    if utility.IsHero(allyAbility[i]) and (allyAbility[i]:GetHealth() / allyAbility[i]:GetMaxHealth() <= 0.6) and allyAbility[i]:WasRecentlyDamagedByAnyHero(2.0)
+                        and not allyAbility[i]:HasModifier("modifier_omninight_guardian_angel")
+                    then
+                        if (#allyAbility > 1)
+                        then
+                            if allyAbility[i] ~= npcBot
+                            then
+                                --npcBot:ActionImmediate_Chat("Использую GuardianAngel с аганимом на союзного героя!", true);
+                                return BOT_ACTION_DESIRE_HIGH, allyAbility[i];
+                            elseif allyAbility[i] == npcBot
+                            then
+                                npcBot:ActionImmediate_Chat("Использую GuardianAngel с аганимом на союзника но ранен я!",
+                                    true);
+                                return BOT_ACTION_DESIRE_HIGH, allyAbility[2];
+                            end
+                        elseif (#allyAbility == 1)
+                        then
+                            npcBot:ActionImmediate_Chat("Использую GuardianAngel с аганимом на себя когда я один!", true);
+                            return BOT_ACTION_DESIRE_HIGH, npcBot;
+                        end
+                    end
+                end
+            end
+        end
+    end
+end
+
+-- СТАРЫЕ ВЕРСИИ СПОСОБНОСТЕЙ
+--[[
+    local castGuardianAngelDesire = ConsiderGuardianAngel();
+        if (castGuardianAngelDesire ~= nil)
+    then
+        npcBot:Action_UseAbility(GuardianAngel);
+        return;
+    end
+function ConsiderGuardianAngel()
+    local ability = GuardianAngel;
+    if not utility.IsAbilityAvailable(ability) then
+        return;
+    end
+
+    if not npcBot:HasScepter()
+    then
         local radiusAbility = ability:GetSpecialValueInt("radius");
         local allyAbility = npcBot:GetNearbyHeroes(radiusAbility, false, BOT_MODE_NONE);
         local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
@@ -336,4 +400,4 @@ function ConsiderGuardianAngel()
             return BOT_MODE_DESIRE_HIGH;
         end
     end
-end
+end ]]

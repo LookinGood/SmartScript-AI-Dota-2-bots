@@ -20,6 +20,7 @@ local ItemsToBuy =
     "item_blades_of_attack",
     "item_chainmail",
 
+	"item_gloves",
 	"item_javelin",
 	"item_mithril_hammer",
 
@@ -32,7 +33,7 @@ local ItemsToBuy =
 	"item_boots_of_elves",
 	"item_recipe_yasha",
 
-	"item_ultimate_orb",
+	"item_diadem",
 	"item_recipe_manta",
 
 	"item_point_booster",
@@ -52,7 +53,7 @@ local ItemsToBuy =
 	"item_demon_edge",
 	"item_relic",
 
-	"item_quarterstaff",
+	"item_claymore",
 	"item_talisman_of_evasion",
 	"item_eagle",
 

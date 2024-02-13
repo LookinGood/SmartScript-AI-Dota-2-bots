@@ -54,6 +54,7 @@ local ItemsToBuy =
 
 	"item_recipe_hurricane_pike",
 
+	"item_gloves",
 	"item_mithril_hammer",
 	"item_javelin",
 

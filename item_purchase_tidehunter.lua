@@ -31,10 +31,9 @@ local ItemsToBuy =
 
     "item_blink",
 
-    "item_sobi_mask",
-	"item_robe",
-	"item_quarterstaff",
-	"item_ogre_axe",
+    "item_ogre_axe",
+    "item_broadsword",
+    "item_void_stone",
 
     "item_aghanims_shard",
 

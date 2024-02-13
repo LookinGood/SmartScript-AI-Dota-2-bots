@@ -31,15 +31,15 @@ local ItemsToBuy =
 
 	"item_aghanims_shard",
 
-	"item_ultimate_orb",
+	"item_diadem",
 	"item_recipe_manta",
 
 	"item_ogre_axe",
 	"item_mithril_hammer",
 	"item_recipe_black_king_bar",
 
-	"item_broadsword",
 	"item_blades_of_attack",
+	"item_claymore",
 	"item_recipe_lesser_crit",
 
 	"item_demon_edge",
@@ -50,7 +50,7 @@ local ItemsToBuy =
 
 	"item_point_booster",
 	"item_ultimate_orb",
-	"item_ultimate_orb",
+	"item_recipe_skadi",
 
 	"item_hyperstone",
 	"item_hyperstone",

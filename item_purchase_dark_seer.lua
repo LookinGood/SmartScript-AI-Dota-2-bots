@@ -23,7 +23,9 @@ local ItemsToBuy =
 	"item_recipe_null_talisman",
 
     "item_boots",
-	"item_energy_booster",
+    "item_sobi_mask",
+    "item_recipe_ring_of_basilius",
+    "item_recipe_arcane_boots",
 
     "item_ring_of_regen",
 	"item_recipe_headdress",
@@ -46,8 +48,10 @@ local ItemsToBuy =
     "item_staff_of_wizardry",
 	"item_recipe_kaya",
 
+    "item_helm_of_iron_will",
+    "item_crown",
+    "item_recipe_veil_of_discord",
     "item_platemail",
-    "item_mystic_staff",
     "item_recipe_shivas_guard",
 
     "item_point_booster",
@@ -58,12 +62,10 @@ local ItemsToBuy =
     "item_eagle",
     "item_recipe_swift_blink",
 
+    "item_energy_booster",
+    "item_vitality_booster",
     "item_point_booster",
-	"item_energy_booster",
-	"item_vitality_booster",
-	"item_void_stone",
-	"item_void_stone",
-	"item_recipe_octarine_core",
+    "item_tiara_of_selemene",
 
     "item_recipe_ultimate_scepter",
 }

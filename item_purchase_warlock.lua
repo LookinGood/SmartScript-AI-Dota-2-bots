@@ -17,8 +17,10 @@ local ItemsToBuy =
 	"item_mantle",
 	"item_recipe_null_talisman",
 
-	"item_boots",
-	"item_energy_booster",
+    "item_boots",
+    "item_sobi_mask",
+    "item_recipe_ring_of_basilius",
+	"item_recipe_arcane_boots",
 
     "item_cloak",
 	"item_shadow_amulet",
@@ -29,8 +31,9 @@ local ItemsToBuy =
 	"item_staff_of_wizardry",
 	"item_blade_of_alacrity",
 
-	"item_cornucopia",
-	"item_cornucopia",
+    "item_cornucopia",
+	"item_ring_of_tarrasque",
+    "item_tiara_of_selemene",
 	"item_recipe_refresher",
 
 	"item_aghanims_shard",
@@ -48,12 +51,10 @@ local ItemsToBuy =
 	"item_vitality_booster",
 	"item_recipe_aeon_disk",
 
-	"item_point_booster",
     "item_energy_booster",
     "item_vitality_booster",
-	"item_void_stone",
-	"item_void_stone",
-	"item_recipe_octarine_core",
+    "item_point_booster",
+    "item_tiara_of_selemene",
 
 	"item_recipe_ultimate_scepter",
 }

@@ -24,10 +24,7 @@ local ItemsToBuy =
 	"item_blitz_knuckles",
 	"item_broadsword",
 
-	"item_blades_of_attack",
-	"item_broadsword",
-	"item_recipe_lesser_crit",
-
+	"item_demon_edge",
 	"item_recipe_silver_edge",
 
 	"item_ogre_axe",
@@ -50,7 +47,7 @@ local ItemsToBuy =
 	"item_demon_edge",
 	"item_relic",
 
-	"item_vitality_booster",
+    "item_ring_of_tarrasque",
     "item_reaver",
     "item_recipe_heart",
 

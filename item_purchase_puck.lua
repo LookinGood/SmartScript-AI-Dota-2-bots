@@ -20,14 +20,16 @@ local ItemsToBuy =
 	"item_gloves",
 	"item_robe",
 
+	"item_sobi_mask",
 	"item_robe",
-	"item_chainmail",
 	"item_blitz_knuckles",
+	"item_chainmail",
 	"item_recipe_witch_blade",
 
-	"item_cornucopia",
-	"item_ultimate_orb",
-	"item_recipe_sphere",
+	"item_ring_of_health",
+	"item_void_stone",
+    "item_ultimate_orb",
+    "item_recipe_sphere",
 
 	"item_voodoo_mask",
     "item_diadem",
@@ -46,14 +48,12 @@ local ItemsToBuy =
 	"item_blade_of_alacrity",
 
 	"item_mystic_staff",
-	"item_recipe_revenants_brooch",
 
-	"item_energy_booster",
-	"item_vitality_booster",
-	"item_point_booster",
-	"item_void_stone",
-	"item_void_stone",
-	"item_recipe_octarine_core",
+    "item_energy_booster",
+    "item_vitality_booster",
+    "item_point_booster",
+    "item_tiara_of_selemene",
+    "item_recipe_octarine_core",
 
 	"item_hyperstone",
 	"item_hyperstone",

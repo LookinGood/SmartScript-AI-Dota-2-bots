@@ -705,20 +705,43 @@ function ItemUsageThink()
 
 	-- item_pavise
 	local pavise = IsItemAvailable("item_pavise");
-	if pavise ~= nil and pavise:IsFullyCastable()
+	local solarCrest = IsItemAvailable("item_solar_crest");
+	if (pavise ~= nil and pavise:IsFullyCastable()) or (solarCrest ~= nil and solarCrest:IsFullyCastable())
 	then
 		local allies = npcBot:GetNearbyHeroes(1000, false, BOT_MODE_NONE);
 		if (#allies > 0)
 		then
 			for _, ally in pairs(allies)
 			do
-				if utility.IsHero(ally) and ally:GetHealth() / ally:GetMaxHealth() <= 0.8 and not ally:HasModifier("modifier_item_pavise_shield") and
-					(ally:WasRecentlyDamagedByAnyHero(2.0) or
-						ally:WasRecentlyDamagedByTower(2.0) or
-						ally:WasRecentlyDamagedByCreep(2.0))
+				if not ally:HasModifier("modifier_item_pavise_shield")
 				then
-					npcBot:Action_UseAbilityOnEntity(pavise, ally);
-					--npcBot:ActionImmediate_Chat("Использую предмет pavise!",true);
+					if utility.IsHero(ally) and ally:GetHealth() / ally:GetMaxHealth() <= 0.8 and
+						(ally:WasRecentlyDamagedByAnyHero(2.0) or
+							ally:WasRecentlyDamagedByTower(2.0) or
+							ally:WasRecentlyDamagedByCreep(2.0))
+					then
+						if pavise ~= nil
+						then
+							npcBot:Action_UseAbilityOnEntity(pavise, ally);
+							--npcBot:ActionImmediate_Chat("Использую предмет pavise!", true);
+						elseif solarCrest ~= nil
+						then
+							npcBot:Action_UseAbilityOnEntity(solarCrest, ally);
+							--npcBot:ActionImmediate_Chat("Использую предмет solarCrest!", true);
+						end
+					end
+				end
+				if solarCrest ~= nil and not ally:HasModifier("modifier_item_solar_crest_armor_addition")
+				then
+					if utility.IsHero(botTarget) and ally ~= npcBot and utility.IsHero(ally)
+					then
+						if GetUnitToUnitDistance(ally, botTarget) <= ally:GetAttackRange() * 2
+							or GetUnitToUnitDistance(ally, botTarget) > (ally:GetAttackRange() * 2)
+						then
+							npcBot:Action_UseAbilityOnEntity(solarCrest, ally);
+							--npcBot:ActionImmediate_Chat("Использую предмет solarCrest на союзника для атаки!", true);
+						end
+					end
 				end
 			end
 		end
@@ -986,54 +1009,6 @@ function ItemUsageThink()
 		end
 	end
 
-	-- item_medallion_of_courage/item_solar_crest
-	local medallionOfCourage = IsItemAvailable("item_medallion_of_courage");
-	local solarCrest = IsItemAvailable("item_solar_crest");
-	if (medallionOfCourage ~= nil and medallionOfCourage:IsFullyCastable()) or (solarCrest ~= nil and solarCrest:IsFullyCastable())
-	then
-		local itemRange = 1000;
-		if utility.PvPMode(npcBot)
-		then
-			if utility.IsHero(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= itemRange and utility.CanCastOnMagicImmuneTarget(botTarget)
-			then
-				if medallionOfCourage ~= nil and not botTarget:HasModifier("modifier_item_medallion_of_courage_armor_reduction")
-				then
-					npcBot:Action_UseAbilityOnEntity(medallionOfCourage, botTarget);
-					--npcBot:ActionImmediate_Chat("Использую предмет medallion of courage на враге!",true);
-					--return;
-				elseif solarCrest ~= nil and not botTarget:HasModifier("modifier_item_solar_crest_armor_reduction") and utility.SafeCast(botTarget)
-				then
-					npcBot:Action_UseAbilityOnEntity(solarCrest, botTarget);
-					--npcBot:ActionImmediate_Chat("Использую предмет solar Crest на враге!", true);
-					--return;
-				end
-			end
-		elseif not utility.RetreatMode(npcBot)
-		then
-			local allies = npcBot:GetNearbyHeroes(itemRange, false, BOT_MODE_NONE);
-			if (#allies > 1)
-			then
-				for _, ally in pairs(allies)
-				do
-					if ally ~= npcBot and utility.IsHero(ally) and (ally:GetHealth() / ally:GetMaxHealth() <= 0.8) and ally:WasRecentlyDamagedByAnyHero(2.0)
-					then
-						if medallionOfCourage ~= nil and not ally:HasModifier("modifier_item_medallion_of_courage_armor_addition")
-						then
-							npcBot:Action_UseAbilityOnEntity(medallionOfCourage, ally);
-							--npcBot:ActionImmediate_Chat("Использую предмет medallion Of Courage на союзнике!",true);
-							--return;
-						elseif solarCrest ~= nil and not ally:HasModifier("modifier_item_solar_crest_armor_addition")
-						then
-							npcBot:Action_UseAbilityOnEntity(solarCrest, ally);
-							--npcBot:ActionImmediate_Chat("Использую предмет solar Crest на союзнике!",true);
-							--return;
-						end
-					end
-				end
-			end
-		end
-	end
-
 	-- item_abyssal_blade
 	local abyssalBlade = IsItemAvailable("item_abyssal_blade");
 	if abyssalBlade ~= nil and abyssalBlade:IsFullyCastable()
@@ -1210,12 +1185,18 @@ function ItemUsageThink()
 	then
 		if utility.PvPMode(npcBot)
 		then
-			if utility.IsHero(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= 1200
-				and not botTarget:HasModifier("modifier_item_veil_of_discord_debuff")
+			local itemRange = 1200;
+			local enemys = npcBot:GetNearbyHeroes(itemRange, true, BOT_MODE_NONE);
+			if (#enemys > 0)
 			then
-				npcBot:Action_UseAbilityOnLocation(discord, botTarget:GetLocation());
-				--npcBot:ActionImmediate_Chat("Использую предмет discord на враге!", true);
-				--return;
+				for _, enemy in pairs(enemys)
+				do
+					if not enemy:HasModifier("modifier_item_veil_of_discord_debuff")
+					then
+						npcBot:ActionImmediate_Chat("Использую предмет discord на враге!", true);
+						return BOT_ACTION_DESIRE_HIGH;
+					end
+				end
 			end
 		end
 	end
@@ -2169,8 +2150,7 @@ function ItemUsageThink()
 			for _, enemy in pairs(enemys) do
 				if enemy:IsChanneling()
 				then
-					npcBot:ActionImmediate_Chat("Использую предмет meteorHammer что бы сбить каст!",
-						true);
+					--npcBot:ActionImmediate_Chat("Использую предмет meteorHammer что бы сбить каст!",true);
 					npcBot:Action_UseAbilityOnLocation(meteorHammer, enemy:GetLocation());
 				end
 			end
@@ -2238,3 +2218,70 @@ end
 --#endregion
 
 for k, v in pairs(ability_item_usage_generic) do _G._savedEnv[k] = v end
+
+
+-- 7.35 - СТАРАЯ ВЕРСИЯ - медаль удалили, соларкрест изменён
+--[[ 	-- item_medallion_of_courage/item_solar_crest
+	local medallionOfCourage = IsItemAvailable("item_medallion_of_courage");
+	local solarCrest = IsItemAvailable("item_solar_crest");
+	if (medallionOfCourage ~= nil and medallionOfCourage:IsFullyCastable()) or (solarCrest ~= nil and solarCrest:IsFullyCastable())
+	then
+		local itemRange = 1000;
+		if utility.PvPMode(npcBot)
+		then
+			if utility.IsHero(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= itemRange and utility.CanCastOnMagicImmuneTarget(botTarget)
+			then
+				if medallionOfCourage ~= nil and not botTarget:HasModifier("modifier_item_medallion_of_courage_armor_reduction")
+				then
+					npcBot:Action_UseAbilityOnEntity(medallionOfCourage, botTarget);
+					--npcBot:ActionImmediate_Chat("Использую предмет medallion of courage на враге!",true);
+					--return;
+				elseif solarCrest ~= nil and not botTarget:HasModifier("modifier_item_solar_crest_armor_reduction") and utility.SafeCast(botTarget)
+				then
+					npcBot:Action_UseAbilityOnEntity(solarCrest, botTarget);
+					--npcBot:ActionImmediate_Chat("Использую предмет solar Crest на враге!", true);
+					--return;
+				end
+			end
+		elseif not utility.RetreatMode(npcBot)
+		then
+			local allies = npcBot:GetNearbyHeroes(itemRange, false, BOT_MODE_NONE);
+			if (#allies > 1)
+			then
+				for _, ally in pairs(allies)
+				do
+					if ally ~= npcBot and utility.IsHero(ally) and (ally:GetHealth() / ally:GetMaxHealth() <= 0.8) and ally:WasRecentlyDamagedByAnyHero(2.0)
+					then
+						if medallionOfCourage ~= nil and not ally:HasModifier("modifier_item_medallion_of_courage_armor_addition")
+						then
+							npcBot:Action_UseAbilityOnEntity(medallionOfCourage, ally);
+							--npcBot:ActionImmediate_Chat("Использую предмет medallion Of Courage на союзнике!",true);
+							--return;
+						elseif solarCrest ~= nil and not ally:HasModifier("modifier_item_solar_crest_armor_addition")
+						then
+							npcBot:Action_UseAbilityOnEntity(solarCrest, ally);
+							--npcBot:ActionImmediate_Chat("Использую предмет solar Crest на союзнике!",true);
+							--return;
+						end
+					end
+				end
+			end
+		end
+	end ]]
+
+
+--[[ 		-- item_veil_of_discord
+		local discord = IsItemAvailable("item_veil_of_discord");
+		if discord ~= nil and discord:IsFullyCastable()
+		then
+			if utility.PvPMode(npcBot)
+			then
+				if utility.IsHero(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= 1200
+					and not botTarget:HasModifier("modifier_item_veil_of_discord_debuff")
+				then
+					npcBot:Action_UseAbilityOnLocation(discord, botTarget:GetLocation());
+					--npcBot:ActionImmediate_Chat("Использую предмет discord на враге!", true);
+					--return;
+				end
+			end
+		end ]]

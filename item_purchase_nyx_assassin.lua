@@ -17,7 +17,9 @@ local ItemsToBuy =
     "item_recipe_null_talisman",
 
     "item_boots",
-    "item_energy_booster",
+    "item_sobi_mask",
+    "item_recipe_ring_of_basilius",
+    "item_recipe_arcane_boots",
 
     "item_circlet",
     "item_sobi_mask",
@@ -50,7 +52,8 @@ local ItemsToBuy =
     "item_ogre_axe",
     "item_recipe_sange",
 
-    "item_cornucopia",
+	"item_ring_of_health",
+	"item_void_stone",
     "item_ultimate_orb",
     "item_recipe_sphere",
 

@@ -44,12 +44,13 @@ local ItemsToBuy =
 	"item_staff_of_wizardry",
 	"item_blade_of_alacrity",
 
-	"item_point_booster",
+	"item_ghost",
+	"item_recipe_ethereal_blade",
+
 	"item_energy_booster",
-	"item_vitality_booster",
-	"item_void_stone",
-	"item_void_stone",
-	"item_recipe_octarine_core",
+    "item_vitality_booster",
+    "item_point_booster",
+    "item_tiara_of_selemene",
 
 	"item_mystic_staff",
 	"item_recipe_arcane_blink",

@@ -20,9 +20,10 @@ local ItemsToBuy =
 	"item_gloves",
 	"item_robe",
 
+	"item_sobi_mask",
 	"item_robe",
-	"item_chainmail",
 	"item_blitz_knuckles",
+	"item_chainmail",
 	"item_recipe_witch_blade",
 
 	"item_ogre_axe",
@@ -31,8 +32,9 @@ local ItemsToBuy =
 
 	"item_aghanims_shard",
 
+	"item_sobi_mask",
+	"item_robe",
 	"item_blitz_knuckles",
-	"item_staff_of_wizardry",
 	"item_cornucopia",
 	"item_recipe_orchid",
 
@@ -49,16 +51,11 @@ local ItemsToBuy =
 	"item_staff_of_wizardry",
 	"item_blade_of_alacrity",
 
-	"item_quarterstaff",
-	"item_sobi_mask",
-	"item_robe",
-	"item_cloak",
-	"item_recipe_mage_slayer",
-
+	"item_javelin",
+	"item_hyperstone",
 	"item_recipe_bloodthorn",
 
 	"item_mystic_staff",
-	"item_recipe_revenants_brooch",
 
 	"item_hyperstone",
 	"item_hyperstone",

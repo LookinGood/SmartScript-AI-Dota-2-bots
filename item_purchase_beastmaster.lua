@@ -21,26 +21,17 @@ local ItemsToBuy =
     "item_boots",
     "item_ring_of_regen",
 
-    "item_sobi_mask",
-    "item_recipe_ring_of_basilius",
-
-    "item_ring_of_protection",
-    "item_recipe_buckler",
-
-    "item_blades_of_attack",
-    "item_lifesteal",
-    "item_recipe_vladmir",
+    "item_wind_lace",
+    "item_belt_of_strength",
+    "item_robe",
+    "item_recipe_ancient_janggo",
 
     "item_helm_of_iron_will",
     "item_diadem",
     "item_recipe_helm_of_the_dominator",
 
+    "item_ultimate_orb",
     "item_recipe_helm_of_the_overlord",
-
-    "item_wind_lace",
-    "item_belt_of_strength",
-    "item_robe",
-    "item_recipe_ancient_janggo",
 
     "item_belt_of_strength",
     "item_ogre_axe",

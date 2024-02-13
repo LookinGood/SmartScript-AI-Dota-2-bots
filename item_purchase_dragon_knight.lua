@@ -40,7 +40,7 @@ local ItemsToBuy =
 
     "item_blink",
 
-	"item_broadsword",
+	"item_claymore",
 	"item_blades_of_attack",
 	"item_recipe_lesser_crit",
 

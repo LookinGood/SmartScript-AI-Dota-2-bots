@@ -5,9 +5,9 @@ local ItemsToBuy =
 {
 	"item_tango",
 	"item_magic_stick",
+	"item_branches",
+	"item_branches",
 	"item_orb_of_venom",
-	"item_branches",
-	"item_branches",
 
 	"item_flask",
 
@@ -17,9 +17,8 @@ local ItemsToBuy =
 	"item_slippers",
 	"item_recipe_wraith_band",
 
-	"item_blight_stone",
-	"item_fluffy_hat",
-	"item_recipe_orb_of_corrosion",
+	"item_ring_of_protection",
+	"item_gloves",
 
     "item_boots",
     "item_blades_of_attack",
@@ -54,7 +53,7 @@ local ItemsToBuy =
 
 	"item_blink",
 
-	"item_demon_edge",
+	"item_eagle",
 	"item_recipe_disperser",
 
 	"item_eagle",

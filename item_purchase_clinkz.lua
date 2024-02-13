@@ -33,16 +33,17 @@ local ItemsToBuy =
 	"item_ogre_axe",
 	"item_mithril_hammer",
 	"item_recipe_black_king_bar",
-	
+
 	"item_aghanims_shard",
 
+	"item_sobi_mask",
+	"item_robe",
 	"item_blitz_knuckles",
-	"item_staff_of_wizardry",
 	"item_cornucopia",
 	"item_recipe_orchid",
 
-	"item_broadsword",
 	"item_blades_of_attack",
+	"item_claymore",
 	"item_recipe_lesser_crit",
 
 	"item_demon_edge",
@@ -56,13 +57,8 @@ local ItemsToBuy =
 	"item_demon_edge",
 	"item_relic",
 
-	"item_quarterstaff",
-	"item_sobi_mask",
-	"item_robe",
-
-	"item_cloak",
-	"item_recipe_mage_slayer",
-
+	"item_javelin",
+	"item_hyperstone",
 	"item_recipe_bloodthorn",
 
 	"item_hyperstone",
@@ -79,3 +75,6 @@ local ItemsToBuy =
 function ItemPurchaseThink()
 	purchase.ItemPurchase(ItemsToBuy)
 end
+
+
+-- "item_recipe_mage_slayer",

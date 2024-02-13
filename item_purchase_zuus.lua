@@ -55,12 +55,10 @@ local ItemsToBuy =
 	"item_ghost",
 	"item_recipe_ethereal_blade",
 
-	"item_point_booster",
-	"item_energy_booster",
-	"item_vitality_booster",
-	"item_void_stone",
-	"item_void_stone",
-	"item_recipe_octarine_core",
+    "item_energy_booster",
+    "item_vitality_booster",
+    "item_point_booster",
+    "item_tiara_of_selemene",
 
 	"item_recipe_ultimate_scepter",
 }

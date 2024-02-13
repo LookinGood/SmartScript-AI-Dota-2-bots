@@ -17,7 +17,9 @@ local ItemsToBuy =
 	"item_recipe_null_talisman",
 
 	"item_boots",
-	"item_energy_booster",
+    "item_sobi_mask",
+    "item_recipe_ring_of_basilius",
+    "item_recipe_arcane_boots",
 
 	"item_voodoo_mask",
 	"item_diadem",
@@ -42,7 +44,7 @@ local ItemsToBuy =
 	"item_talisman_of_evasion",
 	"item_relic",
 
-	"item_vitality_booster",
+    "item_ring_of_tarrasque",
     "item_reaver",
     "item_recipe_heart",
 

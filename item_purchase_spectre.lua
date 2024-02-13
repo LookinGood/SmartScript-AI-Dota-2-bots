@@ -35,7 +35,7 @@ local ItemsToBuy =
 	"item_boots_of_elves",
 	"item_recipe_yasha",
 
-	"item_ultimate_orb",
+	"item_diadem",
 	"item_recipe_manta",
 
 	"item_mithril_hammer",
@@ -55,7 +55,7 @@ local ItemsToBuy =
 	"item_staff_of_wizardry",
 	"item_blade_of_alacrity",
 	
-	"item_demon_edge",
+	"item_edge",
 	"item_recipe_disperser",
 
 	"item_hyperstone",

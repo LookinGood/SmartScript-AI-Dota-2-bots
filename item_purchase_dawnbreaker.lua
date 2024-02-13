@@ -20,10 +20,9 @@ local ItemsToBuy =
     "item_blades_of_attack",
     "item_chainmail",
     
-    "item_sobi_mask",
-	"item_robe",
-	"item_quarterstaff",
-	"item_ogre_axe",
+    "item_ogre_axe",
+    "item_broadsword",
+    "item_void_stone",
 
     "item_ogre_axe",
 	"item_mithril_hammer",

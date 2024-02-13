@@ -226,9 +226,9 @@ function SellExtraItem()
 		if (DotaTime() > 40 * 60)
 		then
 			SellSpecifiedItem("item_hand_of_midas")
-			SellSpecifiedItem("item_pavise")
+			--SellSpecifiedItem("item_pavise")
 			SellSpecifiedItem("item_mask_of_madness")
-			SellSpecifiedItem("item_veil_of_discord")
+			--SellSpecifiedItem("item_veil_of_discord")
 		end
 	end
 	if utility.HaveTravelBoots(npcBot)

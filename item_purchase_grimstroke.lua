@@ -18,8 +18,10 @@ local ItemsToBuy =
 	"item_mantle",
 	"item_recipe_null_talisman",
 
-	"item_boots",
-	"item_energy_booster",
+    "item_boots",
+    "item_sobi_mask",
+    "item_recipe_ring_of_basilius",
+	"item_recipe_arcane_boots",
 
 	"item_energy_booster",
 	"item_void_stone",
@@ -36,7 +38,7 @@ local ItemsToBuy =
 	"item_vitality_booster",
 	"item_recipe_aeon_disk",
 
-	"item_void_stone",
+	"item_tiara_of_selemene",
 	"item_ultimate_orb",
 	"item_mystic_staff",
 
@@ -45,6 +47,9 @@ local ItemsToBuy =
 	"item_energy_booster",
 	"item_platemail",
 	"item_recipe_lotus_orb",
+
+	"item_ghost",
+	"item_recipe_ethereal_blade",
 
 	"item_ring_of_regen",
 	"item_recipe_headdress",

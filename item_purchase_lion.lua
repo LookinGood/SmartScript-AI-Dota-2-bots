@@ -28,8 +28,10 @@ local ItemsToBuy =
 	"item_aghanims_shard",
 
 	"item_sobi_mask",
+
 	"item_diadem",
 	"item_point_booster",
+	"item_recipe_phylactery",
 
 	"item_wind_lace",
 	"item_belt_of_strength",
@@ -48,6 +50,9 @@ local ItemsToBuy =
 	"item_ogre_axe",
 	"item_staff_of_wizardry",
 	"item_blade_of_alacrity",
+
+	"item_ghost",
+	"item_recipe_ethereal_blade",
 
 	"item_recipe_dagon",
 	"item_recipe_dagon",

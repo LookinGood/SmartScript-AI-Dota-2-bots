@@ -41,7 +41,8 @@ local ItemsToBuy =
 	"item_recipe_gungir",
 
     "item_cornucopia",
-	"item_cornucopia",
+	"item_ring_of_tarrasque",
+    "item_tiara_of_selemene",
 	"item_recipe_refresher",
 
     "item_point_booster",

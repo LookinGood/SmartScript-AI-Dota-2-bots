@@ -16,8 +16,10 @@ local ItemsToBuy =
 	"item_mantle",
 	"item_recipe_null_talisman",
 
-	"item_boots",
-	"item_energy_booster",
+    "item_boots",
+    "item_sobi_mask",
+    "item_recipe_ring_of_basilius",
+    "item_recipe_arcane_boots",
 
 	"item_ring_of_regen",
 	"item_recipe_headdress",
@@ -49,6 +51,9 @@ local ItemsToBuy =
 	"item_recipe_guardian_greaves",
 
 	"item_blink",
+
+	"item_ghost",
+	"item_recipe_ethereal_blade",
 
 	"item_blade_of_alacrity",
 	"item_belt_of_strength",

@@ -38,7 +38,7 @@ local ItemsToBuy =
 
 	"item_recipe_abyssal_blade",
 
-	"item_vitality_booster",
+    "item_ring_of_tarrasque",
     "item_reaver",
     "item_recipe_heart",
 

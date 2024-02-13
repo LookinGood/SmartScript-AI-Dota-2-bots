@@ -17,8 +17,10 @@ local ItemsToBuy =
 	"item_mantle",
 	"item_recipe_null_talisman",
 
-	"item_boots",
-	"item_energy_booster",
+    "item_boots",
+    "item_sobi_mask",
+    "item_recipe_ring_of_basilius",
+    "item_recipe_arcane_boots",
 
 	"item_cloak",
 	"item_shadow_amulet",
@@ -52,13 +54,15 @@ local ItemsToBuy =
 	"item_recipe_guardian_greaves",
 
 	"item_recipe_dagon",
+	"item_recipe_dagon",
+	"item_recipe_dagon",
+
+	"item_ghost",
+	"item_recipe_ethereal_blade",
 
 	"item_energy_booster",
 	"item_vitality_booster",
 	"item_recipe_aeon_disk",
-
-	"item_recipe_dagon",
-	"item_recipe_dagon",
 
 	"item_recipe_ultimate_scepter",
 }

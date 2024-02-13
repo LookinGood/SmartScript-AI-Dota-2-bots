@@ -20,6 +20,7 @@ local ItemsToBuy =
 	"item_gloves",
 	"item_boots_of_elves",
 
+	"item_gloves",
 	"item_mithril_hammer",
 	"item_javelin",
 
@@ -33,11 +34,12 @@ local ItemsToBuy =
 
 	"item_recipe_gungir",
 
-	"item_cornucopia",
-	"item_ultimate_orb",
-	"item_recipe_sphere",
+	"item_ring_of_health",
+	"item_void_stone",
+    "item_ultimate_orb",
+    "item_recipe_sphere",
 
-	"item_quarterstaff",
+	"item_claymore",
 	"item_talisman_of_evasion",
 	"item_eagle",
 
@@ -49,7 +51,7 @@ local ItemsToBuy =
 	"item_staff_of_wizardry",
 	"item_blade_of_alacrity",
 
-	"item_demon_edge",
+	"item_eagle",
 	"item_recipe_disperser",
 
 	"item_hyperstone",

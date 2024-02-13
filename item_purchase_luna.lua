@@ -34,7 +34,7 @@ local ItemsToBuy =
 
 	"item_aghanims_shard",
 
-	"item_ultimate_orb",
+	"item_diadem",
 	"item_recipe_manta",
 
 	"item_point_booster",
@@ -45,7 +45,7 @@ local ItemsToBuy =
 	"item_demon_edge",
 	"item_relic",
 	
-	"item_quarterstaff",
+	"item_claymore",
 	"item_talisman_of_evasion",
 	"item_eagle",
 

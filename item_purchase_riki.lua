@@ -8,7 +8,6 @@ local ItemsToBuy =
 	"item_branches",
 	"item_branches",
 	"item_orb_of_venom",
-
 	"item_flask",
 
 	"item_recipe_magic_wand",
@@ -17,9 +16,8 @@ local ItemsToBuy =
 	"item_slippers",
 	"item_recipe_wraith_band",
 
-	"item_blight_stone",
-	"item_fluffy_hat",
-    "item_recipe_orb_of_corrosion",
+	"item_ring_of_protection",
+	"item_gloves",
 
     "item_boots",
     "item_blades_of_attack",
@@ -43,7 +41,7 @@ local ItemsToBuy =
 	"item_ogre_axe",
 	"item_recipe_sange",
 
-	"item_quarterstaff",
+	"item_claymore",
 	"item_talisman_of_evasion",
 	"item_eagle",
 
@@ -60,7 +58,7 @@ local ItemsToBuy =
 	"item_staff_of_wizardry",
 	"item_blade_of_alacrity",
 
-	"item_demon_edge",
+	"item_edge",
 	"item_recipe_disperser",
 
 	"item_hyperstone",

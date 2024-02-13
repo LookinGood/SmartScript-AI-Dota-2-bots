@@ -19,7 +19,9 @@ local ItemsToBuy =
 	"item_recipe_null_talisman",
 
 	"item_boots",
-	"item_energy_booster",
+    "item_sobi_mask",
+    "item_recipe_ring_of_basilius",
+	"item_recipe_arcane_boots",
 
 	"item_cloak",
 	"item_shadow_amulet",

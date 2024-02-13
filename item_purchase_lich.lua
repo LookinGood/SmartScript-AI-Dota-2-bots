@@ -33,13 +33,17 @@ local ItemsToBuy =
 	"item_robe",
 	"item_recipe_ancient_janggo",
 
-	"item_cornucopia",
-	"item_cornucopia",
+    "item_cornucopia",
+	"item_ring_of_tarrasque",
+    "item_tiara_of_selemene",
 	"item_recipe_refresher",
 
 	"item_aghanims_shard",
 
 	"item_recipe_boots_of_bearing",
+
+	"item_ghost",
+	"item_recipe_ethereal_blade",
 
 	"item_staff_of_wizardry",
 	"item_vitality_booster",

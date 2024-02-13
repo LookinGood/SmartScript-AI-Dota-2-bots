@@ -22,7 +22,7 @@ local ItemsToBuy =
     "item_chainmail",
 
 	"item_lifesteal",
-	"item_quarterstaff",
+	"item_broadsword",
 
 	"item_cornucopia",
 	"item_broadsword",
@@ -33,13 +33,12 @@ local ItemsToBuy =
 	"item_mithril_hammer",
 	"item_recipe_black_king_bar",
 
-	"item_sobi_mask",
-	"item_robe",
-	"item_quarterstaff",
 	"item_ogre_axe",
+	"item_broadsword",
+	"item_void_stone",
 
 	"item_blades_of_attack",
-	"item_broadsword",
+	"item_claymore",
 	"item_recipe_lesser_crit",
 
 	"item_demon_edge",
@@ -52,7 +51,7 @@ local ItemsToBuy =
 	"item_boots_of_elves",
 	"item_recipe_yasha",
 
-	"item_ultimate_orb",
+	"item_diadem",
 	"item_recipe_manta",
 
 	"item_diadem",

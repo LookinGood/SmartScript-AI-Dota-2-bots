@@ -25,6 +25,7 @@ local ItemsToBuy =
 	"item_blitz_knuckles",
 	"item_broadsword",
 
+	"item_gloves",
 	"item_javelin",
 	"item_mithril_hammer",
 
@@ -34,26 +35,20 @@ local ItemsToBuy =
 
 	"item_aghanims_shard",
 
-	"item_blades_of_attack",
-	"item_broadsword",
-	"item_recipe_lesser_crit",
-
+	"item_demon_edge",
 	"item_recipe_silver_edge",
 
+	"item_sobi_mask",
+	"item_robe",
 	"item_blitz_knuckles",
-	"item_staff_of_wizardry",
 	"item_cornucopia",
 	"item_recipe_orchid",
 
 	"item_hyperstone",
 	"item_recipe_mjollnir",
 
-	"item_quarterstaff",
-	"item_sobi_mask",
-	"item_robe",
-	"item_cloak",
-	"item_recipe_mage_slayer",
-
+	"item_javelin",
+	"item_hyperstone",
 	"item_recipe_bloodthorn",
 
 	"item_point_booster",

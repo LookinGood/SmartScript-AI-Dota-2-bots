@@ -45,9 +45,9 @@ local ItemsToBuy =
 	"item_demon_edge",
 	"item_relic",
 
-	"item_vitality_booster",
-	"item_reaver",
-	"item_recipe_heart",
+    "item_ring_of_tarrasque",
+    "item_reaver",
+    "item_recipe_heart",
 
 	"item_reaver",
 	"item_recipe_overwhelming_blink",

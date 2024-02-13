@@ -21,16 +21,19 @@ local ItemsToBuy =
 	"item_gauntlets",
 	"item_recipe_soul_ring",
 
-	"item_boots",
-	"item_energy_booster",
+    "item_boots",
+    "item_sobi_mask",
+    "item_recipe_ring_of_basilius",
+	"item_recipe_arcane_boots",
 
 	"item_ring_of_regen",
 	"item_recipe_headdress",
 	"item_chainmail",
 	"item_recipe_mekansm",
 
-	"item_void_stone",
-	"item_ring_of_health",
+	"item_staff_of_wizardry",
+	"item_robe",
+	"item_recipe_kaya",
 	"item_crown",
 	"item_recipe_meteor_hammer",
 
@@ -43,12 +46,15 @@ local ItemsToBuy =
 
 	"item_recipe_guardian_greaves",
 
-	"item_platemail",
-	"item_mystic_staff",
-	"item_recipe_shivas_guard",
+    "item_helm_of_iron_will",
+    "item_crown",
+    "item_recipe_veil_of_discord",
+    "item_platemail",
+    "item_recipe_shivas_guard",
 
-	"item_cornucopia",
-	"item_cornucopia",
+    "item_cornucopia",
+	"item_ring_of_tarrasque",
+    "item_tiara_of_selemene",
 	"item_recipe_refresher",
 
 	"item_mystic_staff",

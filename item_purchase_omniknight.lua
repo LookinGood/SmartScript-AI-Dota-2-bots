@@ -28,10 +28,9 @@ local ItemsToBuy =
     "item_ring_of_health",
     "item_vitality_booster",
 
-    "item_sobi_mask",
-	"item_robe",
-	"item_quarterstaff",
-	"item_ogre_axe",
+    "item_ogre_axe",
+    "item_broadsword",
+    "item_void_stone",
 
     "item_aghanims_shard",
 
@@ -44,11 +43,13 @@ local ItemsToBuy =
 
     "item_recipe_abyssal_blade",
 
+    "item_helm_of_iron_will",
+    "item_crown",
+    "item_recipe_veil_of_discord",
     "item_platemail",
-    "item_mystic_staff",
     "item_recipe_shivas_guard",
 
-    "item_vitality_booster",
+    "item_ring_of_tarrasque",
     "item_reaver",
     "item_recipe_heart",
 

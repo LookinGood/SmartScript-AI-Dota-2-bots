@@ -22,7 +22,7 @@ local ItemsToBuy =
 	"item_boots_of_elves",
 
 	"item_lifesteal",
-	"item_quarterstaff",
+	"item_broadsword",
 
 	"item_shadow_amulet",
 	"item_blitz_knuckles",
@@ -32,10 +32,7 @@ local ItemsToBuy =
 	"item_belt_of_strength",
 	"item_recipe_dragon_lance",
 
-	"item_blades_of_attack",
-	"item_broadsword",
-	"item_recipe_lesser_crit",
-
+	"item_demon_edge",
 	"item_recipe_silver_edge",
 
 	"item_aghanims_shard",
@@ -44,7 +41,7 @@ local ItemsToBuy =
 	"item_boots_of_elves",
 	"item_recipe_yasha",
 
-	"item_ultimate_orb",
+	"item_diadem",
 	"item_recipe_manta",
 
 	"item_fluffy_hat",
@@ -55,7 +52,7 @@ local ItemsToBuy =
 
 	"item_point_booster",
 	"item_ultimate_orb",
-	"item_ultimate_orb",
+	"item_recipe_skadi",
 
 	"item_demon_edge",
 	"item_relic",

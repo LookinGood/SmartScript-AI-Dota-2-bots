@@ -39,7 +39,7 @@ local ItemsToBuy =
     "item_eagle",
     "item_recipe_swift_blink",
 
-    "item_demon_edge",
+    "item_edge",
 	"item_recipe_disperser",
 
     "item_demon_edge",

@@ -20,14 +20,14 @@ local ItemsToBuy =
 	"item_boots",
 	"item_ring_of_regen",
 
-    "item_void_stone",
     "item_ring_of_protection",
     "item_fluffy_hat",
+    "item_energy_booster",
     "item_recipe_pavise",
 
-    "item_blight_stone",
-    "item_sobi_mask",
-    "item_chainmail",
+    "item_wind_lace",
+    "item_crown",
+    "item_recipe_solar_crest",
 
     "item_energy_booster",
 	"item_void_stone",
@@ -36,10 +36,6 @@ local ItemsToBuy =
     "item_cloak",
 	"item_shadow_amulet",
 	"item_recipe_glimmer_cape",
-
-    "item_wind_lace",
-    "item_crown",
-    "item_recipe_solar_crest",
 
     "item_wind_lace",
     "item_belt_of_strength",
@@ -52,9 +48,14 @@ local ItemsToBuy =
 	"item_vitality_booster",
 	"item_recipe_aeon_disk",
 
+    "item_helm_of_iron_will",
+    "item_crown",
+    "item_recipe_veil_of_discord",
     "item_platemail",
-    "item_mystic_staff",
     "item_recipe_shivas_guard",
+
+    "item_ghost",
+	"item_recipe_ethereal_blade",
 
     "item_hyperstone",
     "item_hyperstone",

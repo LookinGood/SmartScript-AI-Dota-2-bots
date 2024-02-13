@@ -20,15 +20,9 @@ local ItemsToBuy =
 	"item_boots",
 	"item_ring_of_regen",
 
-    "item_sobi_mask",
-    "item_recipe_ring_of_basilius",
-
     "item_shadow_amulet",
 	"item_cloak",
 	"item_recipe_glimmer_cape",
-
-    "item_crown",
-    "item_recipe_veil_of_discord",
 
     "item_wind_lace",
     "item_belt_of_strength",
@@ -50,12 +44,10 @@ local ItemsToBuy =
 
     "item_blink",
 
-    "item_point_booster",
     "item_energy_booster",
     "item_vitality_booster",
-	"item_void_stone",
-	"item_void_stone",
-	"item_recipe_octarine_core",
+    "item_point_booster",
+    "item_tiara_of_selemene",
 
     "item_mystic_staff",
 	"item_recipe_arcane_blink",

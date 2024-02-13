@@ -17,10 +17,9 @@ local ItemsToBuy =
     "item_gauntlets",
     "item_recipe_bracer",
 
-	"item_blight_stone",
-	"item_fluffy_hat",
-	"item_recipe_orb_of_corrosion",
-
+	"item_ring_of_protection",
+	"item_gloves",
+	
     "item_boots",
     "item_blades_of_attack",
     "item_chainmail",
@@ -29,19 +28,15 @@ local ItemsToBuy =
 	"item_blitz_knuckles",
 	"item_broadsword",
 
-	"item_sobi_mask",
-	"item_robe",
-	"item_quarterstaff",
-	"item_ogre_axe",
+    "item_ogre_axe",
+    "item_broadsword",
+    "item_void_stone",
 
 	"item_ogre_axe",
 	"item_mithril_hammer",
 	"item_recipe_black_king_bar",
 
-	"item_blades_of_attack",
-	"item_broadsword",
-	"item_recipe_lesser_crit",
-
+	"item_demon_edge",
 	"item_recipe_silver_edge",
 
 	"item_aghanims_shard",

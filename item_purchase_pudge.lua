@@ -26,8 +26,8 @@ local ItemsToBuy =
     "item_chainmail",
 
     "item_cloak",
-    "item_ring_of_health",
     "item_ogre_axe",
+    "item_vitality_booster",
     "item_recipe_eternal_shroud",
 
     "item_blink",
@@ -43,7 +43,7 @@ local ItemsToBuy =
 
     "item_aghanims_shard",
 
-    "item_vitality_booster",
+    "item_ring_of_tarrasque",
     "item_reaver",
     "item_recipe_heart",
 

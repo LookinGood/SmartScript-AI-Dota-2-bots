@@ -26,6 +26,7 @@ local ItemsToBuy =
 	"item_claymore",
 	"item_recipe_bfury",
 
+	"item_gloves",
 	"item_mithril_hammer",
 	"item_javelin",
 
@@ -34,7 +35,7 @@ local ItemsToBuy =
 	"item_recipe_black_king_bar",
 
 	"item_blades_of_attack",
-	"item_broadsword",
+	"item_claymore",
 	"item_recipe_lesser_crit",
 
 	"item_aghanims_shard",

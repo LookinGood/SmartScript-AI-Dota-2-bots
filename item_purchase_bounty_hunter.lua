@@ -35,7 +35,8 @@ local ItemsToBuy =
 
 	"item_aghanims_shard",
 
-	"item_cornucopia",
+	"item_ring_of_health",
+	"item_void_stone",
     "item_ultimate_orb",
     "item_recipe_sphere",
 
@@ -47,12 +48,11 @@ local ItemsToBuy =
 	"item_demon_edge",
 	"item_relic",
 
-	"item_point_booster",
     "item_energy_booster",
     "item_vitality_booster",
-	"item_void_stone",
-	"item_void_stone",
-	"item_recipe_octarine_core",
+    "item_point_booster",
+    "item_tiara_of_selemene",
+    "item_recipe_octarine_core",
 
 	"item_hyperstone",
 	"item_hyperstone",

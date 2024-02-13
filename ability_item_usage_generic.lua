@@ -1193,8 +1193,8 @@ function ItemUsageThink()
 				do
 					if not enemy:HasModifier("modifier_item_veil_of_discord_debuff")
 					then
-						npcBot:ActionImmediate_Chat("Использую предмет discord на враге!", true);
-						return BOT_ACTION_DESIRE_HIGH;
+						--npcBot:ActionImmediate_Chat("Использую предмет discord на враге!", true);
+						npcBot:Action_UseAbility(discord);
 					end
 				end
 			end

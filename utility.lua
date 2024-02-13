@@ -264,7 +264,7 @@ function IsIllusion(npcTarget)
 end
 
 function IsAlly(npcBot, npcTarget)
-	return npcBot:GetTeam() == npcTarget:GetTeam();
+	return IsValidTarget(npcBot) and IsValidTarget(npcTarget) and npcBot:GetTeam() == npcTarget:GetTeam();
 end
 
 function IsHero(npcTarget)

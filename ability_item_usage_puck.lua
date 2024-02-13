@@ -189,8 +189,7 @@ function ConsiderEtherealJaunt()
                     if project ~= nil and project.ability:GetName() == "puck_illusory_orb"
                     then
                         if GetUnitToUnitDistance(npcBot, botTarget) > attackRange and
-                            GetUnitToLocationDistance(botTarget, project.location) <= radiusAbility * 2 or
-                            GetUnitToLocationDistance(botTarget, project.location) <= attackRange
+                            GetUnitToLocationDistance(botTarget, project.location) <= radiusAbility
                         then
                             --npcBot:ActionImmediate_Chat("Использую EtherealJaunt рядом с врагом!", true);
                             return BOT_ACTION_DESIRE_HIGH;

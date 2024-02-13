@@ -99,7 +99,7 @@ function ConsiderSmokeScreen()
                 if enemy:IsChanneling()
                 then
                     --npcBot:ActionImmediate_Chat("Использую SmokeScreen что бы сбить заклинание цели!",true);
-                    return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(enemy, delayAbility);
+                    return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
                 end
             end
         end
@@ -114,7 +114,7 @@ function ConsiderSmokeScreen()
                 and not npcBot:HasModifier("modifier_riki_tricks_of_the_trade_phase")
             then
                 --npcBot:ActionImmediate_Chat("Использую SmokeScreen для атаки!", true);
-                return BOT_ACTION_DESIRE_HIGH, utility.GetTargetPosition(botTarget, delayAbility);
+                return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
             end
         end
         -- Retreat use
@@ -126,7 +126,7 @@ function ConsiderSmokeScreen()
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую SmokeScreen для отхода!", true);
-                    return BOT_ACTION_DESIRE_HIGH, utility.GetTargetPosition(enemy, delayAbility);
+                    return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
                 end
             end
         end

@@ -103,7 +103,7 @@ function ConsiderShurikenToss()
         return;
     end
 
-    local castRangeAbility = ability:GetCastRange();
+    local castRangeAbility = ability:GetSpecialValueInt("cast_range");
     local radiusAbility = ability:GetSpecialValueInt("bounce_aoe");
     local damageAbility = ability:GetSpecialValueInt("bonus_damage");
     local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility + 200, true, BOT_MODE_NONE);

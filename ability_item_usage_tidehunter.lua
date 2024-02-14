@@ -280,8 +280,7 @@ function ConsiderDeadInIheWater()
             then
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    npcBot:ActionImmediate_Chat("Использую DeadInIheWater что бы сбить заклинание !",
-                        true);
+                    --npcBot:ActionImmediate_Chat("Использую DeadInIheWater что бы сбить заклинание !",true);
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy;
                 end
             end

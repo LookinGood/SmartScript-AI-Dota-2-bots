@@ -207,10 +207,10 @@ function ConsiderRepel()
         do
             if utility.IsHero(ally) and not ally:HasModifier("modifier_omniknight_martyr")
             then
-                if ally:WasRecentlyDamagedByAnyHero(2.0) or
-                    ally:WasRecentlyDamagedByCreep(2.0) or
-                    ally:WasRecentlyDamagedByTower(2.0)
-                    and ally:GetHealth() / ally:GetMaxHealth() <= 0.8
+                if (ally:WasRecentlyDamagedByAnyHero(2.0) or
+                        ally:WasRecentlyDamagedByCreep(2.0) or
+                        ally:WasRecentlyDamagedByTower(2.0))
+                    and (ally:GetHealth() / ally:GetMaxHealth() <= 0.8)
                 then
                     --npcBot:ActionImmediate_Chat("Использую Repel на союзника которого атакуют!",true);
                     return BOT_MODE_DESIRE_HIGH, ally;

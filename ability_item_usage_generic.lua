@@ -1719,8 +1719,7 @@ function ItemUsageThink()
 							elseif gleipnir ~= nil
 							then
 								npcBot:Action_UseAbilityOnLocation(gleipnir, enemy:GetLocation());
-								npcBot:ActionImmediate_Chat("Использую gleipnir для оступления!",
-									true);
+								--npcBot:ActionImmediate_Chat("Использую gleipnir для оступления!",true);
 								--return;
 							end
 						end

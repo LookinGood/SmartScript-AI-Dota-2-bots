@@ -124,7 +124,8 @@ function ConsiderShadowStrike()
                     elseif npcBot:HasScepter()
                     then
                         --npcBot:ActionImmediate_Chat("Использую ShadowStrike для убийства с аганимом!",true);
-                        return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility), "location";
+                        return BOT_ACTION_DESIRE_VERYHIGH,
+                            utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility), "location";
                     end
                 end
             end
@@ -145,7 +146,8 @@ function ConsiderShadowStrike()
                 elseif npcBot:HasScepter()
                 then
                     --npcBot:ActionImmediate_Chat("Использую ShadowStrike для нападения с аганимом!",true);
-                    return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, speedAbility), "location";
+                    return BOT_ACTION_DESIRE_HIGH,
+                        utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, speedAbility), "location";
                 end
             end
         end
@@ -165,7 +167,8 @@ function ConsiderShadowStrike()
                     then
                         npcBot:ActionImmediate_Chat("Использую ShadowStrike для отступления с аганимом!",
                             true);
-                            return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility), "location";
+                        return BOT_ACTION_DESIRE_HIGH,
+                            utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility), "location";
                     end
                 end
             end
@@ -197,7 +200,8 @@ function ConsiderShadowStrike()
             elseif npcBot:HasScepter()
             then
                 --npcBot:ActionImmediate_Chat("Использую ShadowStrike для лайнинга с аганимом!", true);
-                return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility), "location";
+                return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility),
+                    "location";
             end
         end
     end
@@ -290,6 +294,12 @@ function ConsiderScreamOfPain()
                 end
             end
         end
+        -- Roshan use
+        if utility.IsRoshan(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= radiusAbility
+        then
+            --npcBot:ActionImmediate_Chat("Использую ScreamOfPain против Рошана!", true);
+            return BOT_ACTION_DESIRE_HIGH;
+        end
     elseif utility.PvEMode(npcBot)
     then
         local enemyCreeps = npcBot:GetNearbyCreeps(radiusAbility, true);
@@ -327,7 +337,8 @@ function ConsiderSonicWave()
             then
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility);
+                    return BOT_ACTION_DESIRE_VERYHIGH,
+                        utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility);
                 end
             end
         end
@@ -340,7 +351,8 @@ function ConsiderSonicWave()
             GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
         then
             --npcBot:ActionImmediate_Chat("Использую Sonic Wave по врагу в радиусе действия!",true);
-            return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, speedAbility);
+            return BOT_ACTION_DESIRE_VERYHIGH,
+                utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, speedAbility);
         end
         -- Cast if enemy >=2
         local locationAoE = npcBot:FindAoELocation(true, true, npcBot:GetLocation(), castRangeAbility, radiusAbility, 0,
@@ -359,7 +371,8 @@ function ConsiderSonicWave()
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую SonicWave что бы оторваться!", true);
-                    return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility);
+                    return BOT_ACTION_DESIRE_VERYHIGH,
+                        utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility);
                 end
             end
         end

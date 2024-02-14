@@ -16,15 +16,15 @@ local ItemsToBuy =
 	"item_slippers",
 	"item_recipe_wraith_band",
 
-	"item_boots",
-	"item_gloves",
-	"item_boots_of_elves",
+    "item_boots",
+    "item_blades_of_attack",
+    "item_chainmail",
+
+	"item_lifesteal",
+	"item_broadsword",
 
 	"item_ring_of_health",
 	"item_vitality_booster",
-
-	"item_gloves",
-	"item_recipe_hand_of_midas",
 
 	"item_cornucopia",
 	"item_broadsword",
@@ -35,13 +35,6 @@ local ItemsToBuy =
 	"item_mithril_hammer",
 	"item_recipe_black_king_bar",
 
-	"item_blade_of_alacrity",
-	"item_boots_of_elves",
-	"item_recipe_yasha",
-
-	"item_diadem",
-	"item_recipe_manta",
-
 	"item_aghanims_shard",
 
 	"item_mithril_hammer",
@@ -50,12 +43,17 @@ local ItemsToBuy =
 
 	"item_recipe_abyssal_blade",
 
+	"item_lifesteal",
+    "item_claymore",
+    "item_reaver",
+
 	"item_demon_edge",
 	"item_relic",
 
-	"item_claymore",
-	"item_talisman_of_evasion",
-	"item_eagle",
+	"item_point_booster",
+	"item_ogre_axe",
+	"item_staff_of_wizardry",
+	"item_blade_of_alacrity",
 
 	"item_hyperstone",
 	"item_hyperstone",
@@ -64,11 +62,6 @@ local ItemsToBuy =
 	"item_boots",
 
 	"item_recipe_travel_boots",
-
-	"item_point_booster",
-	"item_ogre_axe",
-	"item_staff_of_wizardry",
-	"item_blade_of_alacrity",
 
 	"item_recipe_ultimate_scepter",
 }

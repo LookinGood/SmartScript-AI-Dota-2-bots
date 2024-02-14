@@ -49,7 +49,7 @@ local TricksOfTheTrade = AbilitiesReal[3]
 
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
-        return
+        return;
     end
 
     botMode = npcBot:GetActiveMode();
@@ -141,9 +141,7 @@ function ConsiderBlinkStrike()
 
     local attackRange = npcBot:GetAttackRange();
     local castRangeAbility = ability:GetCastRange();
-    local attackDamage = npcBot:GetAttackDamage();
-    local bonusDamageAbility = ability:GetSpecialValueInt("bonus_damage");
-    local damageAbility = attackDamage + bonusDamageAbility;
+    local damageAbility = npcBot:GetAttackDamage() + ability:GetSpecialValueInt("bonus_damage");
     local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility + 200, true, BOT_MODE_NONE);
 
     -- Cast if can kill somebody

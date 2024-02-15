@@ -6,7 +6,6 @@ local ItemsToBuy =
 	"item_magic_stick",
 	"item_branches",
 	"item_branches",
-
 	"item_flask",
 	"item_clarity",
 	"item_enchanted_mango",

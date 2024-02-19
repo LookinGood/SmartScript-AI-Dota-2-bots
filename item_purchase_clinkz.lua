@@ -8,7 +8,6 @@ local ItemsToBuy =
 	"item_branches",
 	"item_branches",
 	"item_faerie_fire",
-	"item_blight_stone",
 
 	"item_flask",
 
@@ -27,6 +26,7 @@ local ItemsToBuy =
 	"item_gloves",
 	"item_boots_of_elves",
 
+	"item_blight_stone",
 	"item_mithril_hammer",
 	"item_mithril_hammer",
 
@@ -54,22 +54,29 @@ local ItemsToBuy =
 	"item_staff_of_wizardry",
 	"item_blade_of_alacrity",
 
-	"item_demon_edge",
-	"item_relic",
+	"item_recipe_ultimate_scepter_2",
+
+	"item_hyperstone",
+	"item_hyperstone",
 
 	"item_javelin",
 	"item_hyperstone",
 	"item_recipe_bloodthorn",
 
-	"item_hyperstone",
-	"item_hyperstone",
+	"item_blade_of_alacrity",
+	"item_belt_of_strength",
+	"item_recipe_dragon_lance",
+
+	"item_fluffy_hat",
+	"item_staff_of_wizardry",
+	"item_recipe_force_staff",
+
+	"item_recipe_hurricane_pike",
 
 	"item_recipe_travel_boots",
 	"item_boots",
 
 	"item_recipe_travel_boots",
-
-	"item_recipe_ultimate_scepter",
 }
 
 function ItemPurchaseThink()

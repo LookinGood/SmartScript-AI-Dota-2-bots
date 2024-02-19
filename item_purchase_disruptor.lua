@@ -35,8 +35,6 @@ local ItemsToBuy =
 	"item_chainmail",
 	"item_recipe_mekansm",
 
-	"item_aghanims_shard",
-
 	"item_ring_of_protection",
 	"item_recipe_buckler",
 
@@ -59,7 +57,15 @@ local ItemsToBuy =
 	"item_staff_of_wizardry",
 	"item_blade_of_alacrity",
 
-	"item_recipe_ultimate_scepter",
+	"item_recipe_ultimate_scepter_2",
+
+	"item_ring_of_health",
+	"item_void_stone",
+	"item_energy_booster",
+	"item_platemail",
+	"item_recipe_lotus_orb",
+
+	"item_aghanims_shard",
 }
 
 function ItemPurchaseThink()

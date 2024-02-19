@@ -54,12 +54,18 @@ local ItemsToBuy =
 	"item_staff_of_wizardry",
 	"item_blade_of_alacrity",
 
+	"item_recipe_ultimate_scepter_2",
+
 	"item_mystic_staff",
 	"item_recipe_arcane_blink",
 
 	"item_recipe_travel_boots",
 
-	"item_recipe_ultimate_scepter",
+    "item_helm_of_iron_will",
+    "item_crown",
+    "item_recipe_veil_of_discord",
+    "item_platemail",
+    "item_recipe_shivas_guard",
 }
 
 function ItemPurchaseThink()

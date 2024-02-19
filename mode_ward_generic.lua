@@ -3,6 +3,8 @@ _G._savedEnv = getfenv()
 module("mode_retreat_generic", package.seeall)
 require(GetScriptDirectory() .. "/utility")
 
+local npcBot = GetBot();
+
 ---RADIANT WARDING SPOT
 local RADIANT_TOPSPOT1 = Vector(-4362.3, -1027.3, 229.5); -- Late game
 local RADIANT_TOPSPOT2 = Vector(-4104.0, 1566.7, 117.2);
@@ -135,7 +137,6 @@ function GetDesire()
         return BOT_ACTION_DESIRE_NONE;
     end
 
-    local npcBot = GetBot();
     local enemyHeroes = npcBot:GetNearbyHeroes(1000, true, BOT_MODE_NONE);
     local enemyTowers = npcBot:GetNearbyTowers(1000, true);
 
@@ -149,7 +150,7 @@ function GetDesire()
     if wardObserver ~= nil and wardObserver:IsFullyCastable()
     then
         for _, s in pairs(GetWardSpot()) do
-            if GetUnitToLocationDistance(npcBot, s) <= 3000 and not CloseToAvailableWard(s) and utility.CountAllyTowerAroundPosition(s, 1000) <= 0
+            if GetUnitToLocationDistance(npcBot, s) <= 2000 and not CloseToAvailableWard(s) and utility.CountAllyTowerAroundPosition(s, 1000) <= 0
                 and utility.CountEnemyTowerAroundPosition(s, 1000) <= 0
             then
                 --npcBot:ActionImmediate_Chat("Нужно поставить вард!", true);
@@ -171,16 +172,17 @@ function OnEnd()
 end
 
 function Think()
-    local npcBot = GetBot();
     if wardSpot ~= nil and wardObserver ~= nil and wardObserver:IsFullyCastable()
     then
         if GetUnitToLocationDistance(npcBot, wardSpot) >= 500
         then
             --npcBot:ActionImmediate_Chat("Иду ставить вард!", true);
             npcBot:Action_MoveToLocation(wardSpot);
+            return;
         else
             --npcBot:ActionImmediate_Chat("Ставлю вард!", true);
             npcBot:Action_UseAbilityOnLocation(wardObserver, wardSpot + RandomVector(50));
+            return;
         end
     end
 end

@@ -94,13 +94,16 @@ function Think()
         then
             --npcBot:ActionImmediate_Chat("ОТСТУПАЮ!", true);
             npcBot:Action_MoveToLocation(fountainLocation + RandomVector(100));
+            return;
         else
             npcBot:Action_MoveToLocation(npcBot:GetLocation() + RandomVector(100));
             --npcBot:Action_ClearActions(true);
+            return;
         end
     else
         npcBot:Action_AttackMove(npcBot:GetLocation());
         --npcBot:Action_ClearActions(true);
+        return;
     end
 end
 

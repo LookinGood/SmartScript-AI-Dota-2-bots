@@ -176,7 +176,7 @@ function ConsiderShurikenToss()
                 if utility.CanCastSpellOnTarget(ability, enemy) and not utility.IsDisabled(enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую ShurikenToss что бы оторваться от врага", true);
-                    return BOT_ACTION_DESIRE_VERYHIGH, enemy;
+                    return BOT_ACTION_DESIRE_HIGH, enemy;
                 end
             end
         end
@@ -187,7 +187,7 @@ function ConsiderShurikenToss()
         if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)
         then
             --npcBot:ActionImmediate_Chat("Использую ShurikenToss по цели на ЛАЙНЕ!", true);
-            return BOT_ACTION_DESIRE_VERYHIGH, enemy;
+            return BOT_ACTION_DESIRE_HIGH, enemy;
         end
     end
 end

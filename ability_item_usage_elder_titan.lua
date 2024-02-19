@@ -68,13 +68,13 @@ function AbilityUsageThink()
     if (castEchoStompDesire ~= nil)
     then
         npcBot:Action_ClearActions(true);
-        npcBot:ActionQueue_UseAbility(EchoStomp);
+        npcBot:Action_UseAbility(EchoStomp);
         return;
     end
 
     if (castAstralSpiritDesire ~= nil)
     then
-        if (castAstralSpiritType) == "combo" and (npcBot:GetMana() >= AstralSpirit:GetManaCost() + EchoStomp:GetManaCost())
+        if (castAstralSpiritType) == "combo"
         then
             --npcBot:ActionImmediate_Chat("Использую AstralSpirit в комбо с EchoStomp!", true);
             npcBot:Action_ClearActions(true);
@@ -203,6 +203,7 @@ function ConsiderAstralSpirit()
         if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+                and EchoStomp:IsCooldownReady() and (npcBot:GetMana() >= ability:GetManaCost() + EchoStomp:GetManaCost())
             then
                 return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0),
                     "combo";
@@ -214,7 +215,7 @@ function ConsiderAstralSpirit()
         if (#enemyAbility > 0)
         then
             for _, enemy in pairs(enemyAbility) do
-                if utility.CanCastSpellOnTarget(ability, enemy)
+                if utility.CanCastSpellOnTarget(ability, enemy) and EchoStomp:IsCooldownReady() and (npcBot:GetMana() >= ability:GetManaCost() + EchoStomp:GetManaCost())
                 then
                     return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0),
                         "combo";
@@ -236,7 +237,6 @@ function ConsiderAstralSpirit()
         local enemy = utility.GetWeakest(enemyAbility);
         if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)
         then
-            --npcBot:ActionImmediate_Chat("Использую WildAxes по цели на ЛАЙНЕ!", true);
             return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0), nil;
         end
     end

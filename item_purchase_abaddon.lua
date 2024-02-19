@@ -41,6 +41,8 @@ local ItemsToBuy =
     "item_staff_of_wizardry",
     "item_blade_of_alacrity",
 
+    "item_recipe_ultimate_scepter_2",
+
     "item_ring_of_health",
     "item_void_stone",
     "item_energy_booster",
@@ -58,9 +60,14 @@ local ItemsToBuy =
     "item_point_booster",
     "item_tiara_of_selemene",
 
-    "item_aghanims_shard",
+    "item_ring_of_protection",
+	"item_recipe_buckler",
+    "item_sobi_mask",
+    "item_recipe_ring_of_basilius",
+    "item_lifesteal",
+    "item_blades_of_attack",
 
-    "item_recipe_ultimate_scepter",
+    "item_aghanims_shard",
 }
 
 function ItemPurchaseThink()

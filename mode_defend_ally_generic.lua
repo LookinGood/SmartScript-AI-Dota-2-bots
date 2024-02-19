@@ -3,8 +3,9 @@ _G._savedEnv = getfenv()
 module("mode_rune_generic", package.seeall)
 require(GetScriptDirectory() .. "/utility")
 
+local npcBot = GetBot();
+
 function GetDesire()
-    local npcBot = GetBot();
     local botMode = npcBot:GetActiveMode();
     local allyHeroes = npcBot:GetNearbyHeroes(1600, false, BOT_MODE_NONE);
     local enemyHeroes = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
@@ -68,7 +69,6 @@ function OnEnd()
 end
 
 function Think()
-    local npcBot = GetBot();
     if mostDangerousEnemy ~= nil
     then
         if GetUnitToUnitDistance(npcBot, mostDangerousEnemy) <= (npcBot:GetAttackRange() * 4)
@@ -76,6 +76,7 @@ function Think()
             --npcBot:ActionImmediate_Chat("Я атакую врага защищая союзника!", true);
             npcBot:SetTarget(mostDangerousEnemy);
             npcBot:Action_AttackUnit(mostDangerousEnemy, false);
+            return;
         else
             if escortAlly ~= nil and npcBot:GetCurrentActionType() ~= BOT_ACTION_TYPE_ATTACK
                 and npcBot:GetCurrentActionType() ~= BOT_ACTION_TYPE_ATTACKMOVE
@@ -85,8 +86,10 @@ function Think()
                 if GetUnitToUnitDistance(npcBot, escortAlly) > 300
                 then
                     npcBot:Action_MoveToLocation(escortAlyPosition);
+                    return;
                 else
                     npcBot:Action_MoveToLocation(npcBot:GetLocation() + RandomVector(npcBot:GetAttackRange() * 2));
+                    return;
                 end
             end
         end

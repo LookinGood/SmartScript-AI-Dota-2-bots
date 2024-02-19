@@ -38,12 +38,14 @@ local ItemsToBuy =
 	"item_void_stone",
 	"item_recipe_aether_lens",
 
+	"item_aghanims_shard",
+
 	"item_point_booster",
 	"item_ogre_axe",
 	"item_staff_of_wizardry",
 	"item_blade_of_alacrity",
 
-	"item_aghanims_shard",
+	"item_recipe_ultimate_scepter_2",
 
 	"item_ring_of_protection",
 	"item_recipe_buckler",
@@ -64,7 +66,10 @@ local ItemsToBuy =
 	"item_reaver",
     "item_recipe_overwhelming_blink",
 
-	"item_recipe_ultimate_scepter",
+	"item_energy_booster",
+    "item_vitality_booster",
+    "item_point_booster",
+    "item_tiara_of_selemene",
 }
 
 function ItemPurchaseThink()

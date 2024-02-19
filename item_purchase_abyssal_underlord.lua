@@ -67,7 +67,7 @@ local ItemsToBuy =
     "item_staff_of_wizardry",
     "item_blade_of_alacrity",
 
-    "item_recipe_ultimate_scepter",
+    "item_recipe_ultimate_scepter_2",
 }
 
 function ItemPurchaseThink()

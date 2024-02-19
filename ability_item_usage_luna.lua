@@ -186,11 +186,11 @@ function ConsiderEclipse()
     then
         if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget)
         then
-            if not npcBot:HasScepter() and GetUnitToUnitDistance(npcBot, botTarget) <= radiusAbility
+            if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_NO_TARGET) and GetUnitToUnitDistance(npcBot, botTarget) <= radiusAbility
             then
                 --npcBot:ActionImmediate_Chat("Использую Eclipse для нападения без аганима!",true);
                 return BOT_ACTION_DESIRE_HIGH, nil, nil;
-            elseif npcBot:HasScepter() and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+            elseif utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_POINT) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
             then
                 --npcBot:ActionImmediate_Chat("Использую Eclipse для нападения с аганимом!",true);
                 return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0), "location";

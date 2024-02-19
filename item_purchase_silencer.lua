@@ -43,16 +43,21 @@ local ItemsToBuy =
 	"item_ogre_axe",
 	"item_staff_of_wizardry",
 	"item_blade_of_alacrity",
-	
-	"item_energy_booster",
-	"item_vitality_booster",
-	"item_recipe_aeon_disk",
 
-	"item_blade_of_alacrity",
-	"item_belt_of_strength",
-	"item_recipe_dragon_lance",
+	"item_recipe_ultimate_scepter_2",
 
-	"item_recipe_hurricane_pike",
+	"item_sobi_mask",
+	"item_robe",
+	"item_blitz_knuckles",
+	"item_chainmail",
+	"item_recipe_witch_blade",
+
+	"item_ring_of_health",
+	"item_void_stone",
+    "item_ultimate_orb",
+    "item_recipe_sphere",
+
+	"item_mystic_staff",
 
 	"item_gloves",
 	"item_mithril_hammer",
@@ -62,6 +67,12 @@ local ItemsToBuy =
 
 	"item_hyperstone",
 	"item_hyperstone",
+
+	"item_blade_of_alacrity",
+	"item_belt_of_strength",
+	"item_recipe_dragon_lance",
+
+	"item_recipe_hurricane_pike",
 
 	"item_recipe_travel_boots",
 	"item_boots",

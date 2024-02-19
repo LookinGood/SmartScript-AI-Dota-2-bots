@@ -47,18 +47,21 @@ local ItemsToBuy =
     "item_staff_of_wizardry",
     "item_blade_of_alacrity",
 
+    "item_recipe_ultimate_scepter_2",
+
     "item_reaver",
     "item_recipe_overwhelming_blink",
 
     "item_hyperstone",
 	"item_hyperstone",
 
+    "item_talisman_of_evasion",
+	"item_relic",
+
     "item_recipe_travel_boots",
 	"item_boots",
 
 	"item_recipe_travel_boots",
-
-    "item_recipe_ultimate_scepter",
 }
 
 function ItemPurchaseThink()

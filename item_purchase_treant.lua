@@ -65,7 +65,11 @@ local ItemsToBuy =
 	"item_staff_of_wizardry",
 	"item_blade_of_alacrity",
 
-	"item_recipe_ultimate_scepter",
+	"item_recipe_ultimate_scepter_2",
+
+	"item_ring_of_tarrasque",
+    "item_reaver",
+    "item_recipe_heart",
 }
 
 function ItemPurchaseThink()

@@ -43,6 +43,14 @@ local ItemsToBuy =
     "item_staff_of_wizardry",
     "item_blade_of_alacrity",
 
+    "item_recipe_ultimate_scepter_2",
+
+    "item_ring_of_protection",
+	"item_recipe_buckler",
+	"item_platemail",
+	"item_hyperstone",
+	"item_recipe_assault",
+
     "item_reaver",
     "item_recipe_overwhelming_blink",
 
@@ -50,8 +58,6 @@ local ItemsToBuy =
 	"item_boots",
 
 	"item_recipe_travel_boots",
-
-    "item_recipe_ultimate_scepter",
 }
 
 function ItemPurchaseThink()

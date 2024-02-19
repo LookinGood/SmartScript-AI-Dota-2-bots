@@ -5,10 +5,10 @@ local ItemsToBuy =
 {
 	"item_tango",
 	"item_magic_stick",
-	"item_orb_of_venom",
 	"item_branches",
 	"item_branches",
 	"item_faerie_fire",
+	"item_orb_of_venom",
 	"item_flask",
 
 	"item_recipe_magic_wand",
@@ -49,24 +49,28 @@ local ItemsToBuy =
     "item_ogre_axe",
     "item_recipe_sange",
 
-	"item_demon_edge",
-	"item_relic",
+	"item_point_booster",
+	"item_ogre_axe",
+	"item_staff_of_wizardry",
+	"item_blade_of_alacrity",
+
+	"item_recipe_ultimate_scepter_2",
 
 	"item_blink",
 
-	"item_recipe_travel_boots",
-	"item_boots",
+	"item_hyperstone",
+	"item_hyperstone",
 
 	"item_eagle",
     "item_recipe_swift_blink",
 
-	"item_recipe_travel_boots",
-
 	"item_diadem",
 	"item_recipe_harpoon",
 
-	"item_hyperstone",
-	"item_hyperstone",
+	"item_recipe_travel_boots",
+	"item_boots",
+
+	"item_recipe_travel_boots",
 }
 
 function ItemPurchaseThink()

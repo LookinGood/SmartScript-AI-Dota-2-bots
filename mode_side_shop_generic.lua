@@ -33,7 +33,9 @@ function Think()
 	if (GetUnitToLocationDistance(npcBot, shopLoc1) <= GetUnitToLocationDistance(npcBot, shopLoc2))
 	then
 		npcBot:Action_MoveToLocation(shopLoc1);
+		return;
 	else
 		npcBot:Action_MoveToLocation(shopLoc2);
+		return;
 	end
 end

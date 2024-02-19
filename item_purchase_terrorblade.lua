@@ -20,23 +20,12 @@ local ItemsToBuy =
 	"item_gloves",
 	"item_boots_of_elves",
 
-	"item_point_booster",
-	"item_ogre_axe",
-	"item_staff_of_wizardry",
-	"item_blade_of_alacrity",
-
 	"item_blade_of_alacrity",
 	"item_boots_of_elves",
 	"item_recipe_yasha",
 
-	"item_aghanims_shard",
-
 	"item_diadem",
 	"item_recipe_manta",
-
-	"item_ogre_axe",
-	"item_mithril_hammer",
-	"item_recipe_black_king_bar",
 
 	"item_blades_of_attack",
 	"item_claymore",
@@ -45,8 +34,18 @@ local ItemsToBuy =
 	"item_demon_edge",
 	"item_recipe_greater_crit",
 
-	"item_demon_edge",
-	"item_relic",
+	"item_ogre_axe",
+	"item_mithril_hammer",
+	"item_recipe_black_king_bar",
+
+	"item_aghanims_shard",
+
+	"item_point_booster",
+	"item_ogre_axe",
+	"item_staff_of_wizardry",
+	"item_blade_of_alacrity",
+
+	"item_recipe_ultimate_scepter_2",
 
 	"item_point_booster",
 	"item_ultimate_orb",
@@ -55,12 +54,14 @@ local ItemsToBuy =
 	"item_hyperstone",
 	"item_hyperstone",
 
+	"item_claymore",
+	"item_talisman_of_evasion",
+	"item_eagle",
+
 	"item_recipe_travel_boots",
 	"item_boots",
 
 	"item_recipe_travel_boots",
-
-	"item_recipe_ultimate_scepter",
 }
 
 function ItemPurchaseThink()

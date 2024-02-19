@@ -32,8 +32,6 @@ local ItemsToBuy =
 	"item_boots_of_elves",
 	"item_recipe_yasha",
 
-	"item_aghanims_shard",
-
 	"item_diadem",
 	"item_recipe_manta",
 
@@ -42,12 +40,7 @@ local ItemsToBuy =
 	"item_staff_of_wizardry",
 	"item_blade_of_alacrity",
 
-	"item_demon_edge",
-	"item_relic",
-	
-	"item_claymore",
-	"item_talisman_of_evasion",
-	"item_eagle",
+	"item_recipe_ultimate_scepter_2",
 
 	"item_fluffy_hat",
 	"item_staff_of_wizardry",
@@ -55,15 +48,26 @@ local ItemsToBuy =
 
 	"item_recipe_hurricane_pike",
 
+	"item_blades_of_attack",
+	"item_claymore",
+	"item_recipe_lesser_crit",
+
+	"item_demon_edge",
+	"item_recipe_greater_crit",
+
 	"item_hyperstone",
 	"item_hyperstone",
+
+	"item_claymore",
+	"item_talisman_of_evasion",
+	"item_eagle",
 
 	"item_recipe_travel_boots",
 	"item_boots",
 
 	"item_recipe_travel_boots",
 
-	"item_recipe_ultimate_scepter",
+	"item_aghanims_shard",
 }
 
 function ItemPurchaseThink()

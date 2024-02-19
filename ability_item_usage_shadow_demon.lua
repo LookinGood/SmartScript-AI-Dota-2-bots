@@ -168,7 +168,7 @@ function ConsiderDisruption()
         if (#enemyAbility > 0)
         then
             for _, enemy in pairs(enemyAbility) do
-                if utility.CanCastSpellOnTarget(ability, enemy)
+                if utility.CanCastSpellOnTarget(ability, enemy) and not utility.IsDisabled(enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую Disruption что бы оторваться от врага!", true);
                     return BOT_ACTION_DESIRE_HIGH, enemy;
@@ -249,7 +249,8 @@ function ConsiderShadowPoison()
     then
         if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
         then
-            return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, speedAbility);
+            return BOT_ACTION_DESIRE_VERYHIGH,
+                utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, speedAbility);
         end
         -- Cast if push/defend/farm
     elseif utility.PvEMode(npcBot)
@@ -271,7 +272,8 @@ function ConsiderShadowPoison()
             if utility.CanCastSpellOnTarget(ability, enemy)
             then
                 --npcBot:ActionImmediate_Chat("Использую DragonSlave по цели на ЛАЙНЕ!", true);
-                return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility);
+                return BOT_ACTION_DESIRE_VERYHIGH,
+                    utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility);
             end
         end
     end

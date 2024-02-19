@@ -132,7 +132,7 @@ function ConsiderStormHammer()
         end
     end
 
-    if npcBot:HasScepter()
+--[[     if npcBot:HasScepter()
     then
         if utility.PvPMode(npcBot)
         then
@@ -154,7 +154,7 @@ function ConsiderStormHammer()
                 ability:ToggleAutoCast()
             end
         end
-    end
+    end ]]
 end
 
 function ConsiderWarcry()

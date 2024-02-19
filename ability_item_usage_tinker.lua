@@ -99,6 +99,7 @@ function AbilityUsageThink()
 
     if (castRearmDesire ~= nil)
     then
+        npcBot:Action_ClearAction(true);
         npcBot:Action_UseAbility(Rearm);
         return;
     end
@@ -308,10 +309,10 @@ function ConsiderRearm()
     end
 
     -- Бот постоянно сбивает каст способности передвижением поэтому ниже я поставил ограничение для каста в 99% случаев до тех пор пока не валв не починят каст ботам либо пока не найдется другое решение
-    if not npcBot:IsRooted()
+--[[     if not npcBot:IsRooted()
     then
         return;
-    end
+    end ]]
 
     -- General use
     if utility.PvPMode(npcBot)

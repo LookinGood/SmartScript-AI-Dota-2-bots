@@ -33,6 +33,13 @@ local ItemsToBuy =
 
 	"item_aghanims_shard",
 
+	"item_blades_of_attack",
+	"item_claymore",
+	"item_recipe_lesser_crit",
+
+	"item_demon_edge",
+	"item_recipe_greater_crit",
+
 	"item_ring_of_protection",
 	"item_recipe_buckler",
 	"item_platemail",
@@ -44,22 +51,19 @@ local ItemsToBuy =
 	"item_staff_of_wizardry",
 	"item_blade_of_alacrity",
 
-	"item_demon_edge",
-	"item_relic",
+	"item_recipe_ultimate_scepter_2",
 
-    "item_ring_of_tarrasque",
+	"item_hyperstone",
+	"item_hyperstone",
+
+	"item_ring_of_tarrasque",
     "item_reaver",
     "item_recipe_heart",
-
-	"item_hyperstone",
-	"item_hyperstone",
 
 	"item_recipe_travel_boots",
 	"item_boots",
 
 	"item_recipe_travel_boots",
-
-	"item_recipe_ultimate_scepter",
 }
 
 function ItemPurchaseThink()

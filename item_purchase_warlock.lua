@@ -38,6 +38,8 @@ local ItemsToBuy =
 
 	"item_aghanims_shard",
 
+	"item_recipe_ultimate_scepter_2",
+
 	"item_ring_of_protection",
 	"item_recipe_buckler",
 	"item_ring_of_regen",
@@ -47,16 +49,20 @@ local ItemsToBuy =
 
 	"item_recipe_guardian_greaves",
 
-	"item_energy_booster",
-	"item_vitality_booster",
-	"item_recipe_aeon_disk",
-
     "item_energy_booster",
     "item_vitality_booster",
     "item_point_booster",
     "item_tiara_of_selemene",
 
-	"item_recipe_ultimate_scepter",
+	"item_energy_booster",
+	"item_vitality_booster",
+	"item_recipe_aeon_disk",
+
+	"item_ring_of_health",
+	"item_void_stone",
+	"item_energy_booster",
+	"item_platemail",
+	"item_recipe_lotus_orb",
 }
 
 function ItemPurchaseThink()

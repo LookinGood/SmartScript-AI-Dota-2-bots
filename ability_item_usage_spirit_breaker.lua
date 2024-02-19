@@ -24,15 +24,15 @@ local AbilityToLevelUp =
     Abilities[3],
     Abilities[6],
     Abilities[3],
-    Abilities[2],
-    Abilities[2],
+    Abilities[1],
+    Abilities[1],
     Talents[2],
-    Abilities[2],
+    Abilities[1],
     Abilities[6],
-    Abilities[1],
-    Abilities[1],
+    Abilities[2],
+    Abilities[2],
     Talents[4],
-    Abilities[1],
+    Abilities[2],
     Abilities[6],
     Talents[5],
     Talents[7],
@@ -54,17 +54,6 @@ function AbilityUsageThink()
         return;
     end
 
-    if npcBot:HasModifier("modifier_spirit_breaker_charge_of_darkness") or
-        npcBot:HasModifier("modifier_spirit_breaker_charge_of_darkness_target") or
-        npcBot:NumQueuedActions() > 0 or
-        ChargeOfDarkness:IsInAbilityPhase()
-    then
-        npcBot:Action_ClearActions(true);
-        --npcBot:Action_AttackMove(npcBot:GetLocation())
-        --npcBot:ActionQueue_Delay(1.0);
-        return;
-    end
-
     botMode = npcBot:GetActiveMode();
     botTarget = npcBot:GetTarget();
     HealthPercentage = npcBot:GetHealth() / npcBot:GetMaxHealth();
@@ -78,16 +67,13 @@ function AbilityUsageThink()
 
     if (castChargeOfDarknessDesire ~= nil)
     then
-        npcBot:Action_ClearActions(true);
-        npcBot:ActionQueue_UseAbilityOnEntity(ChargeOfDarkness, castChargeOfDarknessTarget);
-        --npcBot:ActionQueue_Delay(1.0);
+        npcBot:Action_UseAbilityOnEntity(ChargeOfDarkness, castChargeOfDarknessTarget);
+        if castChargeOfDarknessTarget ~= nil
+        then
+            npcBot:ActionImmediate_Ping(castChargeOfDarknessTarget.x, castChargeOfDarknessTarget.y, false);
+            npcBot:Action_Chat("Бегу на " .. castChargeOfDarknessTarget:GetUnitName(), false);
+        end
         return;
-
-        --npcBot:Action_ClearActions(false);
-        --npcBot:ActionQueue_Delay(1.0);
-        --npcBot:ActionQueue_UseAbilityOnEntity(ChargeOfDarkness, castChargeOfDarknessTarget);
-        --npcBot:Action_UseAbilityOnEntity(ChargeOfDarkness, castChargeOfDarknessTarget);
-        --return;
     end
 
     if (castBulldozeDesire ~= nil)
@@ -107,6 +93,23 @@ function AbilityUsageThink()
         npcBot:Action_UseAbilityOnEntity(NetherStrike, castNetherStrikeTarget);
         return;
     end
+
+    --npcBot:Action_ClearActions(false);
+    --npcBot:ActionQueue_Delay(1.0);
+    --npcBot:ActionQueue_UseAbilityOnEntity(ChargeOfDarkness, castChargeOfDarknessTarget);
+    --npcBot:Action_UseAbilityOnEntity(ChargeOfDarkness, castChargeOfDarknessTarget);
+    --return;
+
+    --[[     if npcBot:HasModifier("modifier_spirit_breaker_charge_of_darkness") or
+        npcBot:HasModifier("modifier_spirit_breaker_charge_of_darkness_target") or
+        npcBot:NumQueuedActions() > 0 or
+        ChargeOfDarkness:IsInAbilityPhase()
+    then
+        npcBot:Action_ClearActions(true);
+        --npcBot:Action_AttackMove(npcBot:GetLocation())
+        --npcBot:ActionQueue_Delay(1.0);
+        return;
+    end ]]
 end
 
 function ConsiderChargeOfDarkness()
@@ -129,6 +132,7 @@ function ConsiderChargeOfDarkness()
     then
         for _, enemy in pairs(enemyAbility) do
             if utility.CanAbilityKillTarget(enemy, damageAbility, GreaterBash:GetDamageType()) or enemy:IsChanneling()
+                and not botTarget:HasModifier('modifier_fountain_aura_buff')
             then
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
@@ -145,13 +149,14 @@ function ConsiderChargeOfDarkness()
         if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and not utility.IsDisabled(botTarget)
+                and not botTarget:HasModifier('modifier_fountain_aura_buff')
             then
-                if GetUnitToUnitDistance(npcBot, botTarget) <= 2000
+                if GetUnitToUnitDistance(npcBot, botTarget) <= 3000
                 then
                     return BOT_MODE_DESIRE_HIGH, botTarget;
                 else
                     local allyHeroes = botTarget:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
-                    if (#allyHeroes > 0)
+                    if (#allyHeroes > 1)
                     then
                         return BOT_MODE_DESIRE_HIGH, botTarget;
                     end

@@ -37,8 +37,6 @@ local ItemsToBuy =
 	"item_ultimate_orb",
     "item_recipe_helm_of_the_overlord",
 
-	"item_aghanims_shard",
-
 	"item_mithril_hammer",
 	"item_belt_of_strength",
 	"item_recipe_basher",
@@ -50,24 +48,27 @@ local ItemsToBuy =
 	"item_platemail",
 	"item_hyperstone",
 	"item_recipe_assault",
-	
-	"item_demon_edge",
-	"item_relic",
 
 	"item_point_booster",
 	"item_ogre_axe",
 	"item_staff_of_wizardry",
 	"item_blade_of_alacrity",
 
+	"item_recipe_ultimate_scepter_2",
+
 	"item_hyperstone",
 	"item_hyperstone",
+
+	"item_lifesteal",
+    "item_claymore",
+    "item_reaver",
 
 	"item_recipe_travel_boots",
 	"item_boots",
 
 	"item_recipe_travel_boots",
 
-	"item_recipe_ultimate_scepter",
+	"item_aghanims_shard",
 }
 
 function ItemPurchaseThink()

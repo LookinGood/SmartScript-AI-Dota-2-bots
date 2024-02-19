@@ -40,9 +40,6 @@ local ItemsToBuy =
 
     "item_blink",
 
-    "item_demon_edge",
-	"item_relic",
-
     "item_talisman_of_evasion",
 	"item_relic",
 
@@ -54,6 +51,10 @@ local ItemsToBuy =
 
 	"item_hyperstone",
 	"item_hyperstone",
+
+    "item_point_booster",
+	"item_ultimate_orb",
+	"item_recipe_skadi",
 
     "item_recipe_travel_boots",
 	"item_boots",

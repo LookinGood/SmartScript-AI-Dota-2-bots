@@ -7,7 +7,6 @@ local ItemsToBuy =
     "item_wind_lace",
 	"item_branches",
 	"item_branches",
-
     "item_flask",
     "item_clarity",
 
@@ -29,12 +28,12 @@ local ItemsToBuy =
     "item_robe",
     "item_recipe_ancient_janggo",
 
-    "item_aghanims_shard",
-
     "item_point_booster",
     "item_ogre_axe",
 	"item_staff_of_wizardry",
 	"item_blade_of_alacrity",
+
+    "item_recipe_ultimate_scepter_2",
 
     "item_recipe_boots_of_bearing",
 
@@ -52,7 +51,16 @@ local ItemsToBuy =
     "item_mystic_staff",
 	"item_recipe_arcane_blink",
 
-    "item_recipe_ultimate_scepter",
+    "item_ring_of_protection",
+    "item_fluffy_hat",
+    "item_energy_booster",
+    "item_recipe_pavise",
+
+    "item_wind_lace",
+    "item_crown",
+    "item_recipe_solar_crest",
+
+    "item_aghanims_shard",
 }
 
 function ItemPurchaseThink()

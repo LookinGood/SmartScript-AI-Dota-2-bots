@@ -36,13 +36,10 @@ local ItemsToBuy =
     "item_belt_of_strength",
     "item_ogre_axe",
     "item_recipe_sange",
-
     "item_talisman_of_evasion",
     "item_recipe_heavens_halberd",
 
     "item_recipe_boots_of_bearing",
-
-    "item_aghanims_shard",
 
     "item_ogre_axe",
     "item_mithril_hammer",
@@ -53,9 +50,10 @@ local ItemsToBuy =
     "item_staff_of_wizardry",
     "item_blade_of_alacrity",
 
+    "item_recipe_ultimate_scepter_2",
+
     "item_ring_of_protection",
     "item_recipe_buckler",
-
     "item_platemail",
     "item_hyperstone",
     "item_recipe_assault",
@@ -63,7 +61,11 @@ local ItemsToBuy =
     "item_hyperstone",
     "item_hyperstone",
 
-    "item_recipe_ultimate_scepter",
+    "item_blink",
+    "item_reaver",
+	"item_recipe_overwhelming_blink",
+
+    "item_aghanims_shard",
 }
 
 function ItemPurchaseThink()

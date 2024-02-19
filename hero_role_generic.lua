@@ -52,6 +52,9 @@ C["carryHeroes"] = {
     ["npc_dota_hero_phantom_assassin"] = 1,
     ["npc_dota_hero_tinker"] = 1,
     ["npc_dota_hero_legion_commander"] = 1,
+    ["npc_dota_hero_obsidian_destroyer"] = 1,
+    ["npc_dota_hero_life_stealer"] = 1,
+    ["npc_dota_hero_templar_assassin"] = 1,
 }
 
 local S = {}
@@ -89,6 +92,7 @@ S["supportHeroes"] = {
     ["npc_dota_hero_tidehunter"] = 1,
     ["npc_dota_hero_dark_seer"] = 1,
     ["npc_dota_hero_dark_willow"] = 1,
+    ["npc_dota_hero_keeper_of_the_light"] = 1,
 }
 
 function IsHeroCarry(npcBot)

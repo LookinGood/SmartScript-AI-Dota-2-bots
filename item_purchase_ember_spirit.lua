@@ -38,31 +38,31 @@ local ItemsToBuy =
 	"item_claymore",
 	"item_recipe_lesser_crit",
 
-	"item_aghanims_shard",
-
 	"item_demon_edge",
 	"item_recipe_greater_crit",
 
 	"item_hyperstone",
 	"item_recipe_mjollnir",
 
-	"item_demon_edge",
-	"item_relic",
-
 	"item_point_booster",
 	"item_ogre_axe",
 	"item_staff_of_wizardry",
 	"item_blade_of_alacrity",
 
+	"item_recipe_ultimate_scepter_2",
+
 	"item_hyperstone",
 	"item_hyperstone",
+
+	"item_talisman_of_evasion",
+	"item_relic",
 
 	"item_recipe_travel_boots",
 	"item_boots",
 
 	"item_recipe_travel_boots",
 
-	"item_recipe_ultimate_scepter",
+	"item_aghanims_shard",
 }
 
 function ItemPurchaseThink()

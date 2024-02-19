@@ -38,12 +38,11 @@ local ItemsToBuy =
 	"item_diadem",
 	"item_recipe_manta",
 
+	"item_recipe_ultimate_scepter_2",
+
     "item_ring_of_tarrasque",
     "item_reaver",
     "item_recipe_heart",
-
-	"item_demon_edge",
-	"item_relic",
 
 	"item_point_booster",
 	"item_ultimate_orb",
@@ -55,12 +54,14 @@ local ItemsToBuy =
 	"item_hyperstone",
 	"item_hyperstone",
 
+	"item_point_booster",
+	"item_ultimate_orb",
+	"item_recipe_skadi",
+
 	"item_recipe_travel_boots",
 	"item_boots",
 
 	"item_recipe_travel_boots",
-
-	"item_recipe_ultimate_scepter",
 }
 
 function ItemPurchaseThink()

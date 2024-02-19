@@ -44,10 +44,17 @@ local ItemsToBuy =
 	"item_robe",
 	"item_recipe_kaya",
 
+	"item_cornucopia",
+	"item_ring_of_tarrasque",
+    "item_tiara_of_selemene",
+	"item_recipe_refresher",
+
 	"item_point_booster",
 	"item_ogre_axe",
 	"item_staff_of_wizardry",
 	"item_blade_of_alacrity",
+
+	"item_recipe_ultimate_scepter_2",
 
 	"item_mystic_staff",
 	"item_recipe_arcane_blink",
@@ -59,8 +66,6 @@ local ItemsToBuy =
     "item_vitality_booster",
     "item_point_booster",
     "item_tiara_of_selemene",
-
-	"item_recipe_ultimate_scepter",
 }
 
 function ItemPurchaseThink()

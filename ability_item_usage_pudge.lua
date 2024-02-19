@@ -278,7 +278,7 @@ function ConsiderRot()
             end
         end
         -- Try to self-denyi
-        if (HealthPercentage < 0.1) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
+--[[         if (HealthPercentage < 0.1) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
         then
             if ability:GetToggleState() == false
             then
@@ -291,7 +291,7 @@ function ConsiderRot()
                 --npcBot:ActionImmediate_Chat("Выключаю Rot что бы задинать себя!", true);
                 return BOT_ACTION_DESIRE_HIGH;
             end
-        end
+        end ]]
     elseif utility.PvEMode(npcBot)
     then
         local enemyCreeps = npcBot:GetNearbyCreeps(radiusAbility, true);

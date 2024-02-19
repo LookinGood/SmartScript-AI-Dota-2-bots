@@ -62,15 +62,16 @@ local ItemsToBuy =
     "item_staff_of_wizardry",
     "item_blade_of_alacrity",
 
-    "item_hyperstone",
-    "item_hyperstone",
+    "item_recipe_ultimate_scepter_2",
+
+    "item_tiara_of_selemene",
+	"item_ultimate_orb",
+	"item_mystic_staff",
 
     "item_recipe_travel_boots",
     "item_boots",
 
     "item_recipe_travel_boots",
-
-    "item_recipe_ultimate_scepter",
 }
 
 function ItemPurchaseThink()

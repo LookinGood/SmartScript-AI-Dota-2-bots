@@ -44,10 +44,6 @@ local ItemsToBuy =
 
     "item_recipe_boots_of_bearing",
 
-    "item_energy_booster",
-	"item_vitality_booster",
-	"item_recipe_aeon_disk",
-
     "item_helm_of_iron_will",
     "item_crown",
     "item_recipe_veil_of_discord",
@@ -57,8 +53,16 @@ local ItemsToBuy =
     "item_ghost",
 	"item_recipe_ethereal_blade",
 
-    "item_hyperstone",
-    "item_hyperstone",
+    "item_point_booster",
+	"item_ogre_axe",
+	"item_staff_of_wizardry",
+	"item_blade_of_alacrity",
+
+	"item_recipe_ultimate_scepter_2",
+
+    "item_energy_booster",
+	"item_vitality_booster",
+	"item_recipe_aeon_disk",
 }
 
 function ItemPurchaseThink()

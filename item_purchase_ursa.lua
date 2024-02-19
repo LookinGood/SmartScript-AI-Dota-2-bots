@@ -42,23 +42,27 @@ local ItemsToBuy =
     "item_edge",
 	"item_recipe_disperser",
 
-    "item_demon_edge",
-	"item_relic",
-
     "item_point_booster",
     "item_ogre_axe",
     "item_staff_of_wizardry",
     "item_blade_of_alacrity",
 
+    "item_recipe_ultimate_scepter_2",
+
 	"item_hyperstone",
 	"item_hyperstone",
 
+	"item_blades_of_attack",
+	"item_claymore",
+	"item_recipe_lesser_crit",
+
+	"item_demon_edge",
+	"item_recipe_greater_crit",
+    
 	"item_recipe_travel_boots",
 	"item_boots",
 
 	"item_recipe_travel_boots",
-
-    "item_recipe_ultimate_scepter",
 }
 
 function ItemPurchaseThink()

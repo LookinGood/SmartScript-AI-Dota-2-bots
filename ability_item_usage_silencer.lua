@@ -201,11 +201,11 @@ function ConsiderLastWord()
             then
                 if utility.CanCastSpellOnTarget(ability, enemy) and not enemy:HasModifier("modifier_silencer_last_word")
                 then
-                    if not npcBot:HasScepter()
+                    if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_UNIT_TARGET)
                     then
                         --npcBot:ActionImmediate_Chat("Использую LastWord для убийства без аганима!", true);
                         return BOT_ACTION_DESIRE_HIGH, enemy, "target";
-                    elseif npcBot:HasScepter()
+                    elseif utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_POINT)
                     then
                         --npcBot:ActionImmediate_Chat("Использую LastWord для убийства с аганимом!",true);
                         return BOT_ACTION_DESIRE_HIGH, utility.GetTargetPosition(enemy, delayAbility), "location";
@@ -223,11 +223,11 @@ function ConsiderLastWord()
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= (castRangeAbility + 200)
                 and not botTarget:HasModifier("modifier_silencer_last_word")
             then
-                if not npcBot:HasScepter()
+                if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_UNIT_TARGET)
                 then
                     --npcBot:ActionImmediate_Chat("Использую LastWord для нападения без аганима!",true);
                     return BOT_ACTION_DESIRE_HIGH, botTarget, "target";
-                elseif npcBot:HasScepter()
+                elseif utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_POINT)
                 then
                     --npcBot:ActionImmediate_Chat("Использую LastWord для нападения с аганимом!",true);
                     return BOT_ACTION_DESIRE_HIGH, utility.GetTargetPosition(botTarget, delayAbility), "location";
@@ -242,11 +242,11 @@ function ConsiderLastWord()
             for _, enemy in pairs(enemyAbility) do
                 if utility.CanCastSpellOnTarget(ability, enemy) and not enemy:HasModifier("modifier_silencer_last_word")
                 then
-                    if not npcBot:HasScepter()
+                    if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_UNIT_TARGET)
                     then
                         --npcBot:ActionImmediate_Chat("Использую LastWord для отступления без аганима!", true);
                         return BOT_ACTION_DESIRE_HIGH, enemy, "target";
-                    elseif npcBot:HasScepter()
+                    elseif utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_POINT)
                     then
                         --npcBot:ActionImmediate_Chat("Использую LastWord для отступления с аганимом!",true);
                         return BOT_ACTION_DESIRE_HIGH, utility.GetTargetPosition(enemy, delayAbility), "location";
@@ -257,7 +257,7 @@ function ConsiderLastWord()
         -- Cast if push/defend/farm
     elseif utility.PvEMode(npcBot)
     then
-        if npcBot:HasScepter()
+        if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_POINT)
         then
             local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility,
                 radiusAbility,

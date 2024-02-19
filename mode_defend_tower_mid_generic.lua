@@ -111,6 +111,7 @@ function Think()
             and npcBot:GetCurrentActionType() ~= BOT_ACTION_TYPE_ATTACKMOVE
         then
             npcBot:Action_MoveToLocation(defendZone);
+            return;
         else
             --local enemyHeroes = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
             local enemyCreeps = npcBot:GetNearbyCreeps(1600, true);
@@ -122,17 +123,21 @@ function Think()
                 if (#enemyHeroes <= 1)
                 then
                     npcBot:Action_AttackUnit(mainCreep, false);
+                    return;
                 else
                     if GetUnitToUnitDistance(npcBot, mainCreep) > npcBot:GetAttackRange()
                     then
                         npcBot:Action_AttackMove(mainCreep:GetLocation());
                         --npcBot:Action_MoveToLocation(mainCreep:GetLocation());
+                        return;
                     else
                         npcBot:Action_AttackUnit(mainCreep, false);
+                        return;
                     end
                 end
             else
                 npcBot:Action_AttackMove(npcBot:GetLocation() + RandomVector(500));
+                return;
                 --npcBot:Action_MoveToLocation(npcBot:GetLocation() + RandomVector(500));
             end
 

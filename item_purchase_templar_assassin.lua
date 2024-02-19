@@ -5,9 +5,9 @@ local ItemsToBuy =
 {
 	"item_tango",
 	"item_magic_stick",
-	"item_branches",
-	"item_branches",
 	"item_faerie_fire",
+	"item_branches",
+	"item_branches",
 
 	"item_flask",
 
@@ -21,41 +21,39 @@ local ItemsToBuy =
 	"item_gloves",
 	"item_boots_of_elves",
 
-	"item_shadow_amulet",
-	"item_blitz_knuckles",
-	"item_broadsword",
+	"item_blade_of_alacrity",
+	"item_belt_of_strength",
+	"item_recipe_dragon_lance",
 
-	"item_demon_edge",
-	"item_recipe_silver_edge",
+	"item_ring_of_health",
+	"item_void_stone",
+    "item_ultimate_orb",
+    "item_recipe_sphere",
 
-	"item_ogre_axe",
-	"item_mithril_hammer",
-	"item_recipe_black_king_bar",
-
-	"item_aghanims_shard",
+	"item_blades_of_attack",
+	"item_claymore",
+	"item_recipe_lesser_crit",
 
 	"item_blink",
+
+	"item_fluffy_hat",
+	"item_staff_of_wizardry",
+	"item_recipe_force_staff",
+
+	"item_recipe_hurricane_pike",
+
+	"item_demon_edge",
+	"item_recipe_greater_crit",
+
+	"item_eagle",
+    "item_recipe_swift_blink",
 
 	"item_claymore",
 	"item_talisman_of_evasion",
 	"item_eagle",
 
-	"item_point_booster",
-	"item_ogre_axe",
-	"item_staff_of_wizardry",
-	"item_blade_of_alacrity",
-
-	"item_recipe_ultimate_scepter_2",
-
-	"item_eagle",
-    "item_recipe_swift_blink",
-
 	"item_hyperstone",
 	"item_hyperstone",
-
-	"item_point_booster",
-	"item_ultimate_orb",
-	"item_recipe_skadi",
 
 	"item_recipe_travel_boots",
 	"item_boots",

@@ -41,8 +41,6 @@ local ItemsToBuy =
 	"item_mithril_hammer",
 	"item_recipe_black_king_bar",
 
-    "item_aghanims_shard",
-
     "item_ring_of_tarrasque",
     "item_reaver",
     "item_recipe_heart",
@@ -54,6 +52,8 @@ local ItemsToBuy =
     "item_boots",
 
     "item_recipe_travel_boots",
+
+    "item_aghanims_shard",
 }
 
 function ItemPurchaseThink()

@@ -83,9 +83,9 @@ function AbilityUsageThink()
 
     if (castBlackHoleDesire ~= nil)
     then
-        npcBot:Action_ClearActions(false);
+        --npcBot:Action_ClearActions(true);
         --npcBot:ActionQueue_Delay(1.0);
-        npcBot:ActionQueue_UseAbilityOnLocation(BlackHole, castBlackHoleLocation);
+        npcBot:Action_UseAbilityOnLocation(BlackHole, castBlackHoleLocation);
         return;
     end
 end

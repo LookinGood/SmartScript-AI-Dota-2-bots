@@ -27,29 +27,26 @@ local ItemsToBuy =
 	"item_void_stone",
 	"item_recipe_aether_lens",
 
-	"item_aghanims_shard",
-
-	"item_point_booster",
-	"item_staff_of_wizardry",
-	"item_ogre_axe",
-	"item_blade_of_alacrity",
-
-	"item_energy_booster",
-	"item_vitality_booster",
-	"item_recipe_aeon_disk",
-
-	"item_tiara_of_selemene",
-	"item_ultimate_orb",
-	"item_mystic_staff",
-
 	"item_ring_of_health",
 	"item_void_stone",
 	"item_energy_booster",
 	"item_platemail",
 	"item_recipe_lotus_orb",
 
-	"item_ghost",
-	"item_recipe_ethereal_blade",
+	"item_tiara_of_selemene",
+	"item_ultimate_orb",
+	"item_mystic_staff",
+
+	"item_point_booster",
+	"item_staff_of_wizardry",
+	"item_ogre_axe",
+	"item_blade_of_alacrity",
+
+	"item_recipe_ultimate_scepter_2",
+
+	"item_energy_booster",
+	"item_vitality_booster",
+	"item_recipe_aeon_disk",
 
 	"item_ring_of_regen",
 	"item_recipe_headdress",
@@ -61,7 +58,15 @@ local ItemsToBuy =
 
 	"item_recipe_guardian_greaves",
 
-	"item_recipe_ultimate_scepter",
+	"item_ghost",
+	"item_recipe_ethereal_blade",
+
+	"item_energy_booster",
+    "item_vitality_booster",
+    "item_point_booster",
+    "item_tiara_of_selemene",
+
+	"item_aghanims_shard",
 }
 
 function ItemPurchaseThink()

@@ -42,6 +42,8 @@ local ItemsToBuy =
 	"item_staff_of_wizardry",
 	"item_blade_of_alacrity",
 
+	"item_recipe_ultimate_scepter_2",
+
 	"item_staff_of_wizardry",
 	"item_robe",
 	"item_recipe_kaya",
@@ -61,12 +63,20 @@ local ItemsToBuy =
 	"item_hyperstone",
 	"item_hyperstone",
 
+	"item_blades_of_attack",
+	"item_claymore",
+	"item_recipe_lesser_crit",
+
+	"item_diadem",
+	"item_point_booster",
+	"item_recipe_phylactery",
+
+	"item_recipe_angels_demise",
+
 	"item_recipe_travel_boots",
 	"item_boots",
 
 	"item_recipe_travel_boots",
-
-	"item_recipe_ultimate_scepter",
 }
 
 function ItemPurchaseThink()

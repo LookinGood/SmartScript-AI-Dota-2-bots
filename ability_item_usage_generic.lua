@@ -315,22 +315,23 @@ function ItemUsageThink()
 		then
 			for _, ally in pairs(allies)
 			do
-				if utility.IsHero(ally) and not ally:IsInvisible()
+				if utility.IsHero(ally) and not ally:IsInvisible() and not ally:HasModifier("modifier_spirit_breaker_charge_of_darkness")
 				then
 					if (ally:GetHealth() / ally:GetMaxHealth() <= 0.8 and ally:WasRecentlyDamagedByAnyHero(2.0)) or ally:IsChanneling()
 						or ally:HasModifier("modifier_crystal_maiden_freezing_field")
-						or ally:HasModifier("modifier_spirit_breaker_charge_of_darkness")
 					then
 						if shadowAmulet ~= nil and not ally:HasModifier("modifier_item_shadow_amulet_fade")
 						then
 							npcBot:Action_UseAbilityOnEntity(shadowAmulet, ally);
 							--npcBot:ActionImmediate_Chat("Использую shadow Amulet на союзнике!", true);
 							--return;
+							break;
 						elseif glimmerCape ~= nil and not ally:HasModifier("modifier_item_glimmer_cape_fade")
 						then
 							npcBot:Action_UseAbilityOnEntity(glimmerCape, ally);
 							--npcBot:ActionImmediate_Chat("Использую glimmer Cape на союзнике!", true);
 							--return;
+							break;
 						end
 					end
 				end
@@ -384,13 +385,14 @@ function ItemUsageThink()
 	if (tango ~= nil and tango:IsFullyCastable()) or (tangoSingle ~= nil and tangoSingle:IsFullyCastable())
 	then
 		local itemRange = 165;
-		if npcBot:DistanceFromFountain() > 1000 and npcBot:GetHealth() < npcBot:GetMaxHealth() - 200 and not npcBot:HasModifier("modifier_tango_heal")
+		if npcBot:DistanceFromFountain() > 1000 and not npcBot:HasModifier("modifier_tango_heal")
 			and utility.CanBeHeal(npcBot) and not HaveHealthRegenBuff(npcBot)
 		then
 			if tango ~= nil
 			then
 				local trees = npcBot:GetNearbyTrees(itemRange * 2);
-				if trees[1] ~= nil and (IsLocationVisible(GetTreeLocation(trees[1])) or IsLocationPassable(GetTreeLocation(trees[1])))
+				if npcBot:GetHealth() < npcBot:GetMaxHealth() - 200 and trees[1] ~= nil
+					and (IsLocationVisible(GetTreeLocation(trees[1])) or IsLocationPassable(GetTreeLocation(trees[1])))
 				then
 					npcBot:Action_UseAbilityOnTree(tango, trees[1]);
 					--npcBot:ActionImmediate_Chat("Использую tango!", true);
@@ -399,7 +401,8 @@ function ItemUsageThink()
 			elseif tangoSingle ~= nil
 			then
 				local trees = npcBot:GetNearbyTrees(itemRange * 3);
-				if trees[1] ~= nil and (IsLocationVisible(GetTreeLocation(trees[1])) or IsLocationPassable(GetTreeLocation(trees[1])))
+				if npcBot:GetHealth() < npcBot:GetMaxHealth() and trees[1] ~= nil
+					and (IsLocationVisible(GetTreeLocation(trees[1])) or IsLocationPassable(GetTreeLocation(trees[1])))
 				then
 					npcBot:Action_UseAbilityOnTree(tangoSingle, trees[1]);
 					--npcBot:ActionImmediate_Chat("Использую tango single!", true);
@@ -422,6 +425,7 @@ function ItemUsageThink()
 							npcBot:Action_UseAbilityOnEntity(tango, ally);
 							--npcBot:ActionImmediate_Chat("Использую tango single!", true);
 							--return;
+							break;
 						end
 					end
 				end
@@ -448,11 +452,13 @@ function ItemUsageThink()
 						npcBot:Action_UseAbilityOnEntity(flask, ally);
 						--npcBot:ActionImmediate_Chat("Использую предмет flask что бы подлечить союзника!",true);
 						--return;
+						break;
 					elseif clarity ~= nil and not HaveManaRegenBuff(ally) and (ally:GetMana() / ally:GetMaxMana() <= 0.4)
 					then
 						npcBot:Action_UseAbilityOnEntity(clarity, ally);
 						--npcBot:ActionImmediate_Chat("Использую предмет clarity что бы восстановить ману союзнику!",true);
 						--return;
+						break;
 					end
 				end
 			end
@@ -583,6 +589,7 @@ function ItemUsageThink()
 					npcBot:ActionImmediate_Ping(enemy:GetLocation().x, enemy:GetLocation().y, true);
 					--npcBot:ActionImmediate_Chat("Использую предмет dust против невидимых героев!",true);
 					--return;
+					break;
 				end
 			end
 		end
@@ -686,6 +693,7 @@ function ItemUsageThink()
 				then
 					npcBot:Action_UseAbility(arcaneBoots);
 					--npcBot:ActionImmediate_Chat("Использую предмет Arcane Boots что бы восстановить ману союзнику!",true);
+					break;
 				end
 			end
 		end
@@ -724,10 +732,12 @@ function ItemUsageThink()
 						then
 							npcBot:Action_UseAbilityOnEntity(pavise, ally);
 							--npcBot:ActionImmediate_Chat("Использую предмет pavise!", true);
+							break;
 						elseif solarCrest ~= nil
 						then
 							npcBot:Action_UseAbilityOnEntity(solarCrest, ally);
 							--npcBot:ActionImmediate_Chat("Использую предмет solarCrest!", true);
+							break;
 						end
 					end
 				end
@@ -740,6 +750,7 @@ function ItemUsageThink()
 						then
 							npcBot:Action_UseAbilityOnEntity(solarCrest, ally);
 							--npcBot:ActionImmediate_Chat("Использую предмет solarCrest на союзника для атаки!", true);
+							break;
 						end
 					end
 				end
@@ -765,11 +776,13 @@ function ItemUsageThink()
 						npcBot:Action_UseAbility(drumOfEndurance);
 						--npcBot:ActionImmediate_Chat("Использую drum Of Endurance для нападения!", true);
 						--return;
+						break;
 					elseif bootsOfBearing ~= nil and not ally:HasModifier("modifier_item_boots_of_bearing_active")
 					then
 						npcBot:Action_UseAbility(bootsOfBearing);
 						--npcBot:ActionImmediate_Chat("Использую boots Of Bearing для нападения!", true);
 						--return;
+						break;
 					end
 				end
 			end
@@ -785,11 +798,13 @@ function ItemUsageThink()
 						npcBot:Action_UseAbility(drumOfEndurance);
 						--npcBot:ActionImmediate_Chat("Использую drum Of Endurance для отступления!",true);
 						--return;
+						break;
 					elseif bootsOfBearing ~= nil and not ally:HasModifier("modifier_item_boots_of_bearing_active")
 					then
 						npcBot:Action_UseAbility(bootsOfBearing);
 						--npcBot:ActionImmediate_Chat("Использую boots Of Bearing для отступления!", true);
 						--return;
+						break;
 					end
 				end
 			end
@@ -815,11 +830,13 @@ function ItemUsageThink()
 							npcBot:Action_UseAbility(mekansm);
 							--npcBot:ActionImmediate_Chat("Использую предмет mekansm!",true);
 							--return;
+							break;
 						elseif guardianGreaves ~= nil
 						then
 							npcBot:Action_UseAbility(guardianGreaves);
 							--npcBot:ActionImmediate_Chat("Использую предмет Guardian greaves!",true);
 							--return;
+							break;
 						end
 					elseif (ally:GetMana() / ally:GetMaxMana() <= 0.3)
 					then
@@ -828,6 +845,7 @@ function ItemUsageThink()
 							npcBot:Action_UseAbility(guardianGreaves);
 							--npcBot:ActionImmediate_Chat("Использую предмет Guardian greaves!",true);
 							--return;
+							break;
 						end
 					end
 				end
@@ -850,6 +868,7 @@ function ItemUsageThink()
 					npcBot:Action_UseAbility(crimsonGuard);
 					--npcBot:ActionImmediate_Chat("Использую предмет crimson Guard!",true);
 					--return;
+					break;
 				end
 			end
 		end
@@ -871,6 +890,7 @@ function ItemUsageThink()
 						--npcBot:ActionImmediate_Chat("Использую item_shivas_guard для нападения/отступления!",true);
 						npcBot:Action_UseAbility(shivasGuard);
 						--return;
+						break;
 					end
 				end
 			end
@@ -906,6 +926,7 @@ function ItemUsageThink()
 						npcBot:Action_UseAbility(pipe);
 						--npcBot:ActionImmediate_Chat("Использую предмет pipe!", true);
 						--return;
+						break;
 					end
 				end
 			end
@@ -948,6 +969,7 @@ function ItemUsageThink()
 						npcBot:Action_UseAbilityOnEntity(forceStaff, ally);
 						--npcBot:ActionImmediate_Chat("Использую предмет force_staff для отступления!",true);
 						--return;
+						break;
 					end
 				end
 			end
@@ -988,6 +1010,7 @@ function ItemUsageThink()
 						npcBot:Action_UseAbilityOnEntity(hurricanePike, enemy);
 						--npcBot:ActionImmediate_Chat("Использую предмет hurricanePike что бы оторваться от врага!",true);
 						--return;
+						break;
 					end
 				end
 			else
@@ -1002,6 +1025,7 @@ function ItemUsageThink()
 							npcBot:Action_UseAbilityOnEntity(hurricanePike, ally);
 							--npcBot:ActionImmediate_Chat("Использую предмет hurricane Pike для отступления!",true);
 							--return;
+							break;
 						end
 					end
 				end
@@ -1023,6 +1047,7 @@ function ItemUsageThink()
 				then
 					npcBot:Action_UseAbilityOnEntity(abyssalBlade, enemy);
 					--return;
+					break;
 				end
 			end
 		end
@@ -1045,6 +1070,7 @@ function ItemUsageThink()
 						npcBot:Action_UseAbilityOnEntity(abyssalBlade, enemy);
 						--npcBot:ActionImmediate_Chat("Использую предмет abyssal blade для оступления!",true);
 						--return;
+						break;
 					end
 				end
 			end
@@ -1067,6 +1093,7 @@ function ItemUsageThink()
 					if enemyAttackTarget ~= nil and utility.IsHero(enemyAttackTarget)
 					then
 						npcBot:Action_UseAbilityOnEntity(heavensHalberd, enemy);
+						break;
 					end
 				end
 			end
@@ -1110,11 +1137,13 @@ function ItemUsageThink()
 							npcBot:Action_UseAbilityOnEntity(orchid, enemy);
 							--npcBot:ActionImmediate_Chat("Использую предмет orchid для отступления!",true);
 							--return;
+							break;
 						elseif bloodthorn ~= nil
 						then
 							npcBot:Action_UseAbilityOnEntity(bloodthorn, enemy);
 							--npcBot:ActionImmediate_Chat("Использую предмет bloodthorn для отступления!",true);
 							--return;
+							break;
 						end
 					end
 				end
@@ -1142,12 +1171,14 @@ function ItemUsageThink()
 						if ally ~= npcBot and not ally:HasModifier("modifier_item_sphere_target")
 						then
 							npcBot:Action_UseAbilityOnEntity(sphere, ally);
+							break;
 						end
 					elseif lotusOrb ~= nil
 					then
 						if not ally:HasModifier("modifier_item_lotus_orb_active")
 						then
 							npcBot:Action_UseAbilityOnEntity(lotusOrb, ally);
+							break;
 						end
 					end
 				end
@@ -1163,6 +1194,7 @@ function ItemUsageThink()
 								then
 									npcBot:Action_UseAbilityOnEntity(sphere, ally);
 									--npcBot:ActionImmediate_Chat("Использую предмет sphere на союзнике!",true);
+									break;
 								end
 							elseif lotusOrb ~= nil
 							then
@@ -1170,6 +1202,7 @@ function ItemUsageThink()
 								then
 									npcBot:Action_UseAbilityOnEntity(lotusOrb, ally);
 									--npcBot:ActionImmediate_Chat("Использую предмет lotusOrb на союзнике!",true);
+									break;
 								end
 							end
 						end
@@ -1193,8 +1226,9 @@ function ItemUsageThink()
 				do
 					if not enemy:HasModifier("modifier_item_veil_of_discord_debuff")
 					then
-						--npcBot:ActionImmediate_Chat("Использую предмет discord на враге!", true);
 						npcBot:Action_UseAbility(discord);
+						--npcBot:ActionImmediate_Chat("Использую предмет discord на враге!", true);
+						break;
 					end
 				end
 			end
@@ -1216,6 +1250,7 @@ function ItemUsageThink()
 					npcBot:Action_UseAbilityOnEntity(mjollnir, ally);
 					--npcBot:ActionImmediate_Chat("Использую предмет mjollnir на союзнике!",true);
 					--return;
+					break;
 				end
 			end
 		end
@@ -1252,6 +1287,7 @@ function ItemUsageThink()
 					then
 						npcBot:Action_UseAbility(blackKingBar);
 						--npcBot:ActionImmediate_Chat("Использую предмет black King Bar для блока заклинания!",true);
+						break;
 					end
 				end
 			end
@@ -1287,6 +1323,7 @@ function ItemUsageThink()
 				then
 					npcBot:Action_UseAbility(manta);
 					--npcBot:ActionImmediate_Chat("Использую предмет manta для блока заклинания!",true);
+					break;
 				end
 			end
 		end
@@ -1442,11 +1479,13 @@ function ItemUsageThink()
 						npcBot:Action_UseAbilityOnEntity(urnOfShadows, ally);
 						--npcBot:ActionImmediate_Chat("Использую urn Of Shadows на союзнике!", true);
 						--return;
+						break;
 					elseif spiritVessel ~= nil and (spiritVessel:GetCurrentCharges() > 0) and not ally:HasModifier("modifier_item_spirit_vessel_heal")
 					then
 						npcBot:Action_UseAbilityOnEntity(spiritVessel, ally);
 						--npcBot:ActionImmediate_Chat("Использую spirit Vessel на союзнике!", true);
 						--return;
+						break;
 					end
 				end
 			end
@@ -1488,6 +1527,7 @@ function ItemUsageThink()
 						npcBot:Action_UseAbilityOnEntity(eulScepter, npcBot);
 						--npcBot:ActionImmediate_Chat("Использую eulScepter что бы уклониться от снаряда!",true);
 						--return;
+						break;
 					end
 				end
 			elseif windWaker ~= nil
@@ -1499,6 +1539,7 @@ function ItemUsageThink()
 						npcBot:Action_UseAbilityOnEntity(windWaker, npcBot);
 						--npcBot:ActionImmediate_Chat("Использую wind Waker что бы уклониться от снаряда!",true);
 						--return;
+						break;
 					end
 				end
 			end
@@ -1517,11 +1558,13 @@ function ItemUsageThink()
 							--npcBot:ActionImmediate_Chat("Использую eulScepter на не основную цель!",true);
 							npcBot:Action_UseAbilityOnEntity(eulScepter, enemy);
 							--return;
+							break;
 						elseif windWaker ~= nil
 						then
 							--npcBot:ActionImmediate_Chat("Использую windWaker на не основную цель!",true);
 							npcBot:Action_UseAbilityOnEntity(windWaker, enemy);
 							--return;
+							break;
 						end
 					end
 				end
@@ -1544,6 +1587,7 @@ function ItemUsageThink()
 						npcBot:Action_UseAbilityOnEntity(windWaker, ally);
 						--npcBot:ActionImmediate_Chat("Использую wind Waker на союзнике!", true);
 						--return;
+						break;
 					end
 				end
 			end
@@ -1571,6 +1615,7 @@ function ItemUsageThink()
 						then
 							npcBot:Action_UseAbilityOnEntity(dagon1, enemy);
 							--return;
+							break;
 						end
 					end
 				end
@@ -1587,6 +1632,7 @@ function ItemUsageThink()
 						then
 							npcBot:Action_UseAbilityOnEntity(dagon2, enemy);
 							--return;
+							break;
 						end
 					end
 				end
@@ -1603,6 +1649,7 @@ function ItemUsageThink()
 						then
 							npcBot:Action_UseAbilityOnEntity(dagon3, enemy);
 							--return;
+							break;
 						end
 					end
 				end
@@ -1619,6 +1666,7 @@ function ItemUsageThink()
 						then
 							npcBot:Action_UseAbilityOnEntity(dagon4, enemy);
 							--return;
+							break;
 						end
 					end
 				end
@@ -1635,6 +1683,7 @@ function ItemUsageThink()
 						then
 							npcBot:Action_UseAbilityOnEntity(dagon5, enemy);
 							--return;
+							break;
 						end
 					end
 				end
@@ -1716,11 +1765,13 @@ function ItemUsageThink()
 								npcBot:Action_UseAbilityOnEntity(rodOfAtos, enemy);
 								--npcBot:ActionImmediate_Chat("Использую предмет rodOfAtos для оступления!",true);
 								--return;
+								break;
 							elseif gleipnir ~= nil
 							then
 								npcBot:Action_UseAbilityOnLocation(gleipnir, enemy:GetLocation());
 								--npcBot:ActionImmediate_Chat("Использую gleipnir для оступления!",true);
 								--return;
+								break;
 							end
 						end
 					end
@@ -1746,6 +1797,7 @@ function ItemUsageThink()
 					then
 						npcBot:Action_UseAbilityOnEntity(moonShard, ally);
 						--npcBot:ActionImmediate_Chat("Использую предмет moonShard на союзника!",true);
+						break;
 					end
 				end
 			end
@@ -1783,6 +1835,7 @@ function ItemUsageThink()
 						then
 							--npcBot:ActionImmediate_Chat("Использую предмет ghost!", true);
 							npcBot:Action_UseAbility(ghost);
+							break;
 						end
 					end
 				end
@@ -1798,6 +1851,7 @@ function ItemUsageThink()
 							npcBot:Action_UseAbilityOnEntity(etherealBlade, enemy);
 							--npcBot:ActionImmediate_Chat("Использую предмет etherealBlade для оступления!",true);
 							--return;
+							break;
 						end
 					end
 				end
@@ -1849,11 +1903,13 @@ function ItemUsageThink()
 						npcBot:Action_UseAbility(shadowBlade);
 						--npcBot:ActionImmediate_Chat("Использую предмет shadowBlade для блока заклинания!",true);
 						--return;
+						break;
 					elseif silverEdge ~= nil
 					then
 						npcBot:Action_UseAbility(silverEdge);
 						--npcBot:ActionImmediate_Chat("Использую предмет silverEdge для блока заклинания!",true);
 						--return;
+						break;
 					end
 				end
 			end
@@ -1897,11 +1953,13 @@ function ItemUsageThink()
 							npcBot:Action_UseAbilityOnEntity(diffusalBlade, enemy);
 							--npcBot:ActionImmediate_Chat("Использую предмет diffusal_blade для отхода!",true);
 							--return;
+							break;
 						elseif disperser ~= nil and not enemy:HasModifier("modifier_item_Disperser_slow")
 						then
 							npcBot:Action_UseAbilityOnEntity(disperser, enemy);
 							--npcBot:ActionImmediate_Chat("Использую предмет disperser для отхода!",true);
 							--return;
+							break;
 						end
 					end
 				end
@@ -1918,6 +1976,7 @@ function ItemUsageThink()
 						npcBot:Action_UseAbilityOnEntity(disperser, ally);
 						--npcBot:ActionImmediate_Chat("Использую предмет disperser на союзнике!",true);
 						--return;
+						break;
 					end
 				end
 			end
@@ -1970,6 +2029,7 @@ function ItemUsageThink()
 				then
 					npcBot:Action_UseAbilityOnEntity(scytheOfVyse, enemy);
 					--return;
+					break;
 				end
 			end
 		end
@@ -1993,6 +2053,7 @@ function ItemUsageThink()
 						npcBot:Action_UseAbilityOnEntity(scytheOfVyse, enemy);
 						--npcBot:ActionImmediate_Chat("Использую предмет scytheOfVyse для оступления!",true);
 						--return;
+						break;
 					end
 				end
 			end
@@ -2040,6 +2101,7 @@ function ItemUsageThink()
 					if ally:HasModifier("modifier_item_helm_of_the_dominator_bonushealth")
 					then
 						count = count + 1;
+						break;
 					end
 				end
 				if count <= 0
@@ -2052,10 +2114,12 @@ function ItemUsageThink()
 								if not enemy:IsAncientCreep()
 								then
 									npcBot:Action_UseAbilityOnEntity(helmOfTheDominator, enemy);
+									break;
 								end
 							elseif helmOfTheOverlord ~= nil
 							then
 								npcBot:Action_UseAbilityOnEntity(helmOfTheOverlord, enemy);
+								break;
 							end
 						end
 					end
@@ -2112,10 +2176,12 @@ function ItemUsageThink()
 								then
 									--npcBot:ActionImmediate_Chat(_messageRefresherUsage, true); -- Оставление отладочного сообщения в часте
 									npcBot:Action_UseAbility(refresher); -- Использование refresher_item
+									break;
 								elseif refresherShard ~= nil
 								then
 									--npcBot:ActionImmediate_Chat("Использую рефрешер шард", true); -- Оставление отладочного сообщения в часте
 									npcBot:Action_UseAbility(refresherShard); -- Использование refresher_shard_item
+									break;
 								end
 							end
 						elseif ability:GetCooldownTimeRemaining() >= 50
@@ -2124,10 +2190,12 @@ function ItemUsageThink()
 							then
 								--npcBot:ActionImmediate_Chat(_messageRefresherUsage, true); -- Оставление отладочного сообщения в часте
 								npcBot:Action_UseAbility(refresher); -- Использование refresher_item
+								break;
 							elseif refresherShard ~= nil
 							then
 								--npcBot:ActionImmediate_Chat("Использую рефрешер шард", true); -- Оставление отладочного сообщения в часте
 								npcBot:Action_UseAbility(refresherShard); -- Использование refresher_shard_item
+								break;
 							end
 						end
 					end
@@ -2151,6 +2219,7 @@ function ItemUsageThink()
 				then
 					--npcBot:ActionImmediate_Chat("Использую предмет meteorHammer что бы сбить каст!",true);
 					npcBot:Action_UseAbilityOnLocation(meteorHammer, enemy:GetLocation());
+					break;
 				end
 			end
 		end

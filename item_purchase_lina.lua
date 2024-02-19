@@ -50,6 +50,13 @@ local ItemsToBuy =
 	"item_staff_of_wizardry",
 	"item_blade_of_alacrity",
 
+	"item_recipe_ultimate_scepter_2",
+
+	"item_ring_of_health",
+	"item_void_stone",
+    "item_ultimate_orb",
+    "item_recipe_sphere",
+
 	"item_ghost",
 	"item_recipe_ethereal_blade",
 
@@ -57,8 +64,6 @@ local ItemsToBuy =
     "item_vitality_booster",
     "item_point_booster",
     "item_tiara_of_selemene",
-
-	"item_recipe_ultimate_scepter",
 }
 
 function ItemPurchaseThink()

@@ -4,7 +4,6 @@ require(GetScriptDirectory() .. "/bot_name_generic")
 --#region All bot-hero by DarkOblivion
 --[[
 	"npc_dota_hero_hoodwink", -- not work currect
-	"npc_dota_hero_keeper_of_the_light", -- not work currect
 	"npc_dota_hero_dark_willow", -- not work currect
     "npc_dota_hero_centaur",
 	"npc_dota_hero_gyrocopter",
@@ -86,6 +85,10 @@ require(GetScriptDirectory() .. "/bot_name_generic")
 	"npc_dota_hero_phantom_assassin",
 	"npc_dota_hero_tinker",
 	"npc_dota_hero_legion_commander",
+	"npc_dota_hero_obsidian_destroyer",
+	"npc_dota_hero_life_stealer",
+	"npc_dota_hero_templar_assassin",
+	"npc_dota_hero_keeper_of_the_light",
 ]]
 --#endregion
 
@@ -171,6 +174,10 @@ local hero_pool_my =
 	"npc_dota_hero_phantom_assassin",
 	"npc_dota_hero_tinker",
 	"npc_dota_hero_legion_commander",
+	"npc_dota_hero_obsidian_destroyer",
+	"npc_dota_hero_life_stealer",
+	"npc_dota_hero_templar_assassin",
+	"npc_dota_hero_keeper_of_the_light",
 }
 
 local heroesCarry =
@@ -223,6 +230,9 @@ local heroesCarry =
 	"npc_dota_hero_phantom_assassin",
 	"npc_dota_hero_tinker",
 	"npc_dota_hero_legion_commander",
+	"npc_dota_hero_obsidian_destroyer",
+	"npc_dota_hero_life_stealer",
+	"npc_dota_hero_templar_assassin",
 }
 
 local heroesSupport =
@@ -259,6 +269,7 @@ local heroesSupport =
 	"npc_dota_hero_elder_titan",
 	"npc_dota_hero_tidehunter",
 	"npc_dota_hero_dark_seer",
+	"npc_dota_hero_keeper_of_the_light",
 }
 
 function GetBotNames()
@@ -394,7 +405,7 @@ function Think()
 
 	-- Insert here hero hame and set "testmode = true" if you want the bot to choose a specific hero
 	testmode = false;
-	testHero = "npc_dota_hero_legion_commander"
+	testHero = "npc_dota_hero_keeper_of_the_light"
 
 	if testmode
 	then

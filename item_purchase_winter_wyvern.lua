@@ -51,8 +51,14 @@ local ItemsToBuy =
 	"item_staff_of_wizardry",
 	"item_blade_of_alacrity",
 
+	"item_recipe_ultimate_scepter_2",
+
 	"item_mystic_staff",
 	"item_recipe_arcane_blink",
+
+	"item_tiara_of_selemene",
+	"item_ultimate_orb",
+	"item_mystic_staff",
 
 	"item_recipe_travel_boots",
 	"item_boots",

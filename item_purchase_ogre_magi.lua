@@ -40,9 +40,6 @@ local ItemsToBuy =
 
 	"item_aghanims_shard",
 
-	"item_ghost",
-	"item_recipe_ethereal_blade",
-
 	"item_voodoo_mask",
 	"item_point_booster",
 	"item_energy_booster",
@@ -54,6 +51,8 @@ local ItemsToBuy =
     "item_point_booster",
     "item_tiara_of_selemene",
 
+	"item_recipe_ultimate_scepter_2",
+
 	"item_ring_of_protection",
 	"item_recipe_buckler",
 	"item_ring_of_regen",
@@ -63,11 +62,16 @@ local ItemsToBuy =
 
 	"item_recipe_guardian_greaves",
 
+	"item_ghost",
+	"item_recipe_ethereal_blade",
+
 	"item_tiara_of_selemene",
 	"item_ultimate_orb",
 	"item_mystic_staff",
 
-	"item_recipe_ultimate_scepter",
+	"item_ring_of_tarrasque",
+    "item_reaver",
+    "item_recipe_heart",
 }
 
 function ItemPurchaseThink()

@@ -9,6 +9,7 @@ function GetDesire()
     local botLevel = npcBot:GetLevel();
     local botMode = npcBot:GetActiveMode();
     local HealthPercentage = npcBot:GetHealth() / npcBot:GetMaxHealth();
+    local allyHeroes = npcBot:GetNearbyHeroes(1600, false, BOT_MODE_NONE);
     local enemyHeroes = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
     local neutralCreeps = npcBot:GetNearbyNeutralCreeps(1600);
 
@@ -17,8 +18,22 @@ function GetDesire()
         botMode == BOT_MODE_DEFEND_TOWER_TOP or
         botMode == BOT_MODE_DEFEND_TOWER_MID or
         botMode == BOT_MODE_DEFEND_TOWER_BOT
+--[[         botMode == BOT_MODE_PUSH_TOWER_TOP or
+        botMode == BOT_MODE_PUSH_TOWER_MID or
+        botMode == BOT_MODE_PUSH_TOWER_BOT ]]
     then
         return BOT_ACTION_DESIRE_NONE;
+    end
+
+    if (#allyHeroes > 1)
+    then
+        for _, ally in pairs(allyHeroes)
+        do
+            if ally ~= npcBot and ally:GetAttackTarget():IsCreep()
+            then
+                return BOT_ACTION_DESIRE_NONE;
+            end
+        end
     end
 
     if hero_role_generic.HaveCarryInTeam(npcBot)
@@ -47,7 +62,6 @@ function GetDesire()
         else
             if (#neutralCreeps > 0)
             then
-                local allyHeroes = npcBot:GetNearbyHeroes(1600, false, BOT_MODE_NONE);
                 if (#allyHeroes > 1)
                 then
                     for _, ally in pairs(allyHeroes)
@@ -117,9 +131,11 @@ function Think()
         then
             --npcBot:ActionImmediate_Chat("Иду фармить лесных крипов!", true);
             npcBot:Action_MoveToLocation(mainCreep:GetLocation());
+            return;
         else
             --npcBot:ActionImmediate_Chat("Фармлю лесных крипов!", true);
             npcBot:Action_AttackUnit(mainCreep, false);
+            return;
         end
     end
 end

@@ -639,6 +639,7 @@ end
 
 function CanCast(npcTarget)
 	return npcTarget:IsAlive() and
+		not npcTarget:IsIllusion() and
 		--not npcTarget:IsUsingAbility() and
 		not npcTarget:IsCastingAbility() and
 		not npcTarget:IsChanneling() and

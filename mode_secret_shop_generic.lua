@@ -34,15 +34,19 @@ function Think()
 		if GetUnitToLocationDistance(npcBot, shopLoc1) >= 100
 		then
 			npcBot:Action_MoveToLocation(shopLoc1);
+			return;
 		else
 			npcBot:Action_MoveToLocation(npcBot:GetLocation() + RandomVector(100));
+			return;
 		end
 	else
 		if GetUnitToLocationDistance(npcBot, shopLoc2) >= 100
 		then
 			npcBot:Action_MoveToLocation(shopLoc2);
+			return;
 		else
 			npcBot:Action_MoveToLocation(npcBot:GetLocation() + RandomVector(100));
+			return;
 		end
 	end
 end

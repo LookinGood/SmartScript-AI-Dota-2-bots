@@ -116,14 +116,15 @@ function ConsiderGush()
             then
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    if npcBot:HasScepter()
+                    if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_UNIT_TARGET)
+                    then
+                        --npcBot:ActionImmediate_Chat("Использую Gush что бы убить цель без аганима!", true);
+                        return BOT_ACTION_DESIRE_VERYHIGH, enemy, "target";
+                    elseif utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_POINT)
                     then
                         --npcBot:ActionImmediate_Chat("Использую Gush что бы убить цель с аганимом!", true);
                         return BOT_ACTION_DESIRE_VERYHIGH,
                             utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility), "location";
-                    else
-                        --npcBot:ActionImmediate_Chat("Использую Gush что бы убить цель без аганима!", true);
-                        return BOT_ACTION_DESIRE_VERYHIGH, enemy, "target";
                     end
                 end
             end
@@ -137,12 +138,13 @@ function ConsiderGush()
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
             then
-                if npcBot:HasScepter()
+                if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_UNIT_TARGET)
+                then
+                    return BOT_ACTION_DESIRE_HIGH, botTarget, "target";
+                elseif utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_POINT)
                 then
                     return BOT_ACTION_DESIRE_HIGH,
                         utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, speedAbility), "location";
-                else
-                    return BOT_ACTION_DESIRE_HIGH, botTarget, "target";
                 end
             end
         end
@@ -154,14 +156,15 @@ function ConsiderGush()
             for _, enemy in pairs(enemyAbility) do
                 if utility.CanCastSpellOnTarget(ability, enemy) and not utility.IsDisabled(enemy)
                 then
-                    if npcBot:HasScepter()
+                    if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_UNIT_TARGET)
+                    then
+                        --npcBot:ActionImmediate_Chat("Использую Gush для отхода без аганимом!",true);
+                        return BOT_ACTION_DESIRE_VERYHIGH, enemy, "target";
+                    elseif utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_POINT)
                     then
                         --npcBot:ActionImmediate_Chat("Использую Gush для отхода с аганимом!", true);
                         return BOT_ACTION_DESIRE_VERYHIGH,
                             utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility), "location";
-                    else
-                        --npcBot:ActionImmediate_Chat("Использую Gush для отхода без аганимом!",true);
-                        return BOT_ACTION_DESIRE_VERYHIGH, enemy, "target";
                     end
                 end
             end
@@ -172,7 +175,16 @@ function ConsiderGush()
         local enemyCreeps = npcBot:GetNearbyCreeps(castRangeAbility, true);
         if (#enemyCreeps > 0) and (ManaPercentage >= 0.7)
         then
-            if npcBot:HasScepter()
+            if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_UNIT_TARGET)
+            then
+                for _, enemy in pairs(enemyCreeps) do
+                    if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and utility.CanCastSpellOnTarget(ability, enemy)
+                    then
+                        --npcBot:ActionImmediate_Chat("Использую Gush по вражеским крипам без аганима!", true);
+                        return BOT_ACTION_DESIRE_VERYHIGH, enemy, "target";
+                    end
+                end
+            elseif utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_POINT)
             then
                 local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility,
                     radiusAbility,
@@ -182,14 +194,6 @@ function ConsiderGush()
                     --npcBot:ActionImmediate_Chat("Использую Gush по вражеским крипам с аганимом!", true);
                     return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc, "location";
                 end
-            else
-                for _, enemy in pairs(enemyCreeps) do
-                    if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and utility.CanCastSpellOnTarget(ability, enemy)
-                    then
-                        --npcBot:ActionImmediate_Chat("Использую Gush по вражеским крипам без аганима!", true);
-                        return BOT_ACTION_DESIRE_VERYHIGH, enemy, "target";
-                    end
-                end
             end
         end
         -- Cast when laning
@@ -198,14 +202,15 @@ function ConsiderGush()
         local enemy = utility.GetWeakest(enemyAbility);
         if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)
         then
-            if npcBot:HasScepter()
+            if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_UNIT_TARGET)
+            then
+                --npcBot:ActionImmediate_Chat("Использую Gush на лайне без аганимом!", true);
+                return BOT_ACTION_DESIRE_VERYHIGH, enemy, "target";
+            elseif utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_POINT)
             then
                 --npcBot:ActionImmediate_Chat("Использую Gush на лайне с аганимом!",true);
                 return BOT_ACTION_DESIRE_VERYHIGH,
                     utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility), "location";
-            else
-                --npcBot:ActionImmediate_Chat("Использую Gush на лайне без аганимом!", true);
-                return BOT_ACTION_DESIRE_VERYHIGH, enemy, "target";
             end
         end
     end

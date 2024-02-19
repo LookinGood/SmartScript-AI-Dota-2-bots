@@ -37,33 +37,40 @@ local ItemsToBuy =
 
 	"item_aghanims_shard",
 
+	"item_robe",
+	"item_staff_of_wizardry",
+	"item_recipe_kaya",
+
+	"item_belt_of_strength",
+    "item_ogre_axe",
+    "item_recipe_sange",
+
 	"item_recipe_dagon",
 	"item_recipe_dagon",
 	"item_recipe_dagon",
 	"item_recipe_dagon",
+
+	"item_mystic_staff",
 
 	"item_point_booster",
 	"item_ogre_axe",
 	"item_staff_of_wizardry",
 	"item_blade_of_alacrity",
 
-	"item_mystic_staff",
+	"item_recipe_ultimate_scepter_2",
+
+	"item_hyperstone",
+	"item_hyperstone",
 
     "item_energy_booster",
     "item_vitality_booster",
     "item_point_booster",
     "item_tiara_of_selemene",
-    "item_recipe_octarine_core",
-
-	"item_hyperstone",
-	"item_hyperstone",
 
 	"item_recipe_travel_boots",
 	"item_boots",
 
 	"item_recipe_travel_boots",
-	
-	"item_recipe_ultimate_scepter",
 }
 
 function ItemPurchaseThink()

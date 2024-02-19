@@ -117,11 +117,11 @@ function ConsiderShadowStrike()
             then
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    if not npcBot:HasScepter()
+                    if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_UNIT_TARGET)
                     then
                         --npcBot:ActionImmediate_Chat("Использую ShadowStrike для убийства без аганима!", true);
                         return BOT_ACTION_DESIRE_HIGH, enemy, "target";
-                    elseif npcBot:HasScepter()
+                    elseif utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_POINT)
                     then
                         --npcBot:ActionImmediate_Chat("Использую ShadowStrike для убийства с аганимом!",true);
                         return BOT_ACTION_DESIRE_VERYHIGH,
@@ -139,11 +139,11 @@ function ConsiderShadowStrike()
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= (castRangeAbility + 200)
             then
-                if not npcBot:HasScepter()
+                if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_UNIT_TARGET)
                 then
                     --npcBot:ActionImmediate_Chat("Использую ShadowStrike для нападения без аганима!", true);
                     return BOT_ACTION_DESIRE_HIGH, botTarget, "target";
-                elseif npcBot:HasScepter()
+                elseif utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_POINT)
                 then
                     --npcBot:ActionImmediate_Chat("Использую ShadowStrike для нападения с аганимом!",true);
                     return BOT_ACTION_DESIRE_HIGH,
@@ -159,11 +159,11 @@ function ConsiderShadowStrike()
             for _, enemy in pairs(enemyAbility) do
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    if not npcBot:HasScepter()
+                    if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_UNIT_TARGET)
                     then
                         --npcBot:ActionImmediate_Chat("Использую ShadowStrike для отступления без аганима!",true);
                         return BOT_ACTION_DESIRE_HIGH, enemy, "target";
-                    elseif npcBot:HasScepter()
+                    elseif utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_POINT)
                     then
                         npcBot:ActionImmediate_Chat("Использую ShadowStrike для отступления с аганимом!",
                             true);
@@ -176,7 +176,7 @@ function ConsiderShadowStrike()
         -- Cast if push/defend/farm
     elseif utility.PvEMode(npcBot)
     then
-        if npcBot:HasScepter()
+        if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_POINT)
         then
             local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility,
                 radiusAbility,
@@ -193,11 +193,11 @@ function ConsiderShadowStrike()
         local enemy = utility.GetWeakest(enemyAbility);
         if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)
         then
-            if not npcBot:HasScepter()
+            if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_UNIT_TARGET)
             then
                 --npcBot:ActionImmediate_Chat("Использую ShadowStrike для лайнинга без аганима!", true);
                 return BOT_ACTION_DESIRE_HIGH, enemy, "target";
-            elseif npcBot:HasScepter()
+            elseif utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_POINT)
             then
                 --npcBot:ActionImmediate_Chat("Использую ShadowStrike для лайнинга с аганимом!", true);
                 return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility),

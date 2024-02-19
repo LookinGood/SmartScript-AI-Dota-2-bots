@@ -44,9 +44,6 @@ local ItemsToBuy =
 	"item_demon_edge",
 	"item_recipe_greater_crit",
 
-	"item_demon_edge",
-	"item_relic",
-
 	"item_blade_of_alacrity",
 	"item_boots_of_elves",
 	"item_recipe_yasha",
@@ -59,6 +56,10 @@ local ItemsToBuy =
 
 	"item_hyperstone",
 	"item_hyperstone",
+
+	"item_claymore",
+	"item_talisman_of_evasion",
+	"item_eagle",
 
 	"item_recipe_travel_boots",
 	"item_boots",

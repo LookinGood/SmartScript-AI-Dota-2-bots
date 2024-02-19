@@ -99,7 +99,7 @@ function ConsiderArcticBurn()
     -- Off ability
     if not utility.PvPMode(npcBot) and npcBot:TimeSinceDamagedByAnyHero() >= 5.0
     then
-        if npcBot:HasScepter()
+        if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_TOGGLE)
         then
             if ability:GetToggleState() == true
             then
@@ -115,11 +115,11 @@ function ConsiderArcticBurn()
         if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget)
         and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
         then
-            if not npcBot:HasScepter()
+            if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_NO_TARGET)
             then
                 --npcBot:ActionImmediate_Chat("Использую ArcticBurn для нападения без аганима!",true);
                 return BOT_ACTION_DESIRE_HIGH;
-            elseif npcBot:HasScepter()
+            elseif utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_TOGGLE)
             then
                 if ability:GetToggleState() == false and (ManaPercentage >= 0.2)
                 then
@@ -133,11 +133,11 @@ function ConsiderArcticBurn()
     then
         if (HealthPercentage <= 0.7) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
         then
-            if not npcBot:HasScepter()
+            if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_NO_TARGET)
             then
                 --npcBot:ActionImmediate_Chat("Использую ArcticBurn для ОТСТУПЛЕНИЯ без аганима!",true);
                 return BOT_ACTION_DESIRE_HIGH;
-            elseif npcBot:HasScepter()
+            elseif utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_TOGGLE)
             then
                 if ability:GetToggleState() == false
                 then

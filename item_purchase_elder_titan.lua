@@ -33,34 +33,40 @@ local ItemsToBuy =
 	"item_mithril_hammer",
 	"item_recipe_black_king_bar",
 
-    "item_blink",
-
-    "item_mithril_hammer",
+	"item_gloves",
+	"item_mithril_hammer",
 	"item_javelin",
 
 	"item_recipe_gungir",
+
+    "item_blink",
 
     "item_cornucopia",
 	"item_ring_of_tarrasque",
     "item_tiara_of_selemene",
 	"item_recipe_refresher",
 
+    "item_reaver",
+    "item_recipe_overwhelming_blink",
+
     "item_point_booster",
     "item_ogre_axe",
     "item_staff_of_wizardry",
     "item_blade_of_alacrity",
 
-    "item_reaver",
-    "item_recipe_overwhelming_blink",
+    "item_recipe_ultimate_scepter_2",
+
+    "item_ogre_axe",
+    "item_broadsword",
+    "item_void_stone",
+
+    "item_diadem",
+	"item_recipe_harpoon",
 
     "item_recipe_travel_boots",
 	"item_boots",
 
 	"item_recipe_travel_boots",
-
-    "item_aghanims_shard",
-
-    "item_recipe_ultimate_scepter",
 }
 
 function ItemPurchaseThink()

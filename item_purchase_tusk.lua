@@ -42,12 +42,11 @@ local ItemsToBuy =
 
 	"item_recipe_abyssal_blade",
 
-	"item_demon_edge",
-	"item_relic",
-
     "item_ring_of_tarrasque",
     "item_reaver",
     "item_recipe_heart",
+
+	"item_recipe_ultimate_scepter_2",
 
 	"item_reaver",
 	"item_recipe_overwhelming_blink",
@@ -55,12 +54,15 @@ local ItemsToBuy =
 	"item_hyperstone",
 	"item_hyperstone",
 
+    "item_energy_booster",
+    "item_vitality_booster",
+    "item_point_booster",
+    "item_tiara_of_selemene",
+
 	"item_recipe_travel_boots",
 	"item_boots",
 
 	"item_recipe_travel_boots",
-
-	"item_recipe_ultimate_scepter",
 }
 
 function ItemPurchaseThink()

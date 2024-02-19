@@ -283,11 +283,11 @@ function ConsiderSinisterGaze()
             then
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    if not npcBot:HasScepter()
+                    if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_UNIT_TARGET)
                     then
                         --npcBot:ActionImmediate_Chat("Использую SinisterGaze сбивая каст без аганима!", true);
                         return BOT_MODE_DESIRE_HIGH, enemy, "target";
-                    elseif npcBot:HasScepter()
+                    elseif utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_POINT)
                     then
                         --npcBot:ActionImmediate_Chat("Использую SinisterGaze сбивая каст с аганимом!",true);
                         return BOT_MODE_DESIRE_HIGH, utility.GetTargetPosition(enemy, delayAbility), "location";
@@ -305,18 +305,18 @@ function ConsiderSinisterGaze()
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
                 and not utility.IsDisabled(botTarget)
             then
-                if not npcBot:HasScepter()
+                if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_UNIT_TARGET)
                 then
                     --npcBot:ActionImmediate_Chat("Использую SinisterGaze по врагу без аганима!", true);
                     return BOT_MODE_DESIRE_HIGH, botTarget, "target";
-                elseif npcBot:HasScepter()
+                elseif utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_POINT)
                 then
                     --npcBot:ActionImmediate_Chat("Использую SinisterGaze по врагу с аганимом!", true);
                     return BOT_MODE_DESIRE_HIGH, utility.GetTargetPosition(botTarget, delayAbility), "location";
                 end
             end
         end
-        if npcBot:HasScepter()
+        if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_POINT)
         then
             -- Cast if enemy >=2
             if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_POINT)
@@ -340,11 +340,11 @@ function ConsiderSinisterGaze()
             for _, enemy in pairs(enemyAbility) do
                 if utility.CanCastSpellOnTarget(ability, enemy) and not utility.IsDisabled(enemy)
                 then
-                    if not npcBot:HasScepter()
+                    if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_UNIT_TARGET)
                     then
                         --npcBot:ActionImmediate_Chat("Использую SinisterGaze для отхода без аганима!", true);
                         return BOT_MODE_DESIRE_HIGH, enemy, "target";
-                    elseif npcBot:HasScepter()
+                    elseif utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_POINT)
                     then
                         --npcBot:ActionImmediate_Chat("Использую SinisterGaze для отхода с аганимом!",true);
                         return BOT_MODE_DESIRE_HIGH, utility.GetTargetPosition(enemy, delayAbility), "location";
@@ -358,11 +358,11 @@ function ConsiderSinisterGaze()
         local enemy = utility.GetWeakest(enemyAbility);
         if utility.CanCastSpellOnTarget(ability, enemy) and not utility.IsDisabled(enemy) and (ManaPercentage >= 0.7)
         then
-            if not npcBot:HasScepter()
+            if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_UNIT_TARGET)
             then
                 --npcBot:ActionImmediate_Chat("Использую SinisterGaze на лайне без аганима!",true);
                 return BOT_MODE_DESIRE_HIGH, enemy, "target";
-            elseif npcBot:HasScepter()
+            elseif utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_POINT)
             then
                 --npcBot:ActionImmediate_Chat("Использую SinisterGaze на лайне с аганимом!", true);
                 return BOT_MODE_DESIRE_HIGH, utility.GetTargetPosition(enemy, delayAbility), "location";

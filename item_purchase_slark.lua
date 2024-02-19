@@ -53,23 +53,24 @@ local ItemsToBuy =
 	"item_diadem",
 	"item_recipe_harpoon",
 
-	"item_demon_edge",
-	"item_relic",
-
 	"item_point_booster",
 	"item_ogre_axe",
 	"item_staff_of_wizardry",
 	"item_blade_of_alacrity",
 
+	"item_recipe_ultimate_scepter_2",
+
 	"item_hyperstone",
 	"item_hyperstone",
+
+	"item_point_booster",
+	"item_ultimate_orb",
+	"item_recipe_skadi",
 
 	"item_recipe_travel_boots",
 	"item_boots",
 
 	"item_recipe_travel_boots",
-
-	"item_recipe_ultimate_scepter",
 }
 
 function ItemPurchaseThink()

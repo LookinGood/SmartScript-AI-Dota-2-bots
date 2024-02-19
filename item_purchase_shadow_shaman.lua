@@ -44,6 +44,8 @@ local ItemsToBuy =
 	"item_staff_of_wizardry",
 	"item_blade_of_alacrity",
 
+	"item_recipe_ultimate_scepter_2",
+
 	"item_ghost",
 	"item_recipe_ethereal_blade",
 
@@ -55,7 +57,10 @@ local ItemsToBuy =
 	"item_mystic_staff",
 	"item_recipe_arcane_blink",
 
-	"item_recipe_ultimate_scepter",
+	"item_cornucopia",
+	"item_ring_of_tarrasque",
+    "item_tiara_of_selemene",
+	"item_recipe_refresher",
 }
 
 function ItemPurchaseThink()

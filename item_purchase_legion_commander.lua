@@ -41,8 +41,6 @@ local ItemsToBuy =
     "item_talisman_of_evasion",
     "item_recipe_heavens_halberd",
 
-    "item_aghanims_shard",
-
     "item_mithril_hammer",
 	"item_belt_of_strength",
 	"item_recipe_basher",
@@ -60,6 +58,8 @@ local ItemsToBuy =
 	"item_boots",
 
 	"item_recipe_travel_boots",
+
+    "item_aghanims_shard",
 }
 
 function ItemPurchaseThink()

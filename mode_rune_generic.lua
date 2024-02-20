@@ -133,9 +133,11 @@ function Think()
         then
             if npcBot:GetAssignedLane() == LANE_BOT
             then
+                npcBot:Action_ClearActions(false);
                 npcBot:Action_MoveToLocation(bountyRuneRadiant + RandomVector(300));
                 return;
             else
+                npcBot:Action_ClearActions(false);
                 npcBot:Action_MoveToLocation(powerfulRuneDire + RandomVector(300));
                 return;
             end
@@ -143,9 +145,11 @@ function Think()
         then
             if npcBot:GetAssignedLane() == LANE_TOP
             then
+                npcBot:Action_ClearActions(false);
                 npcBot:Action_MoveToLocation(bountyRuneDire + RandomVector(300));
                 return;
             else
+                npcBot:Action_ClearActions(false);
                 npcBot:Action_MoveToLocation(powerfulRuneRadiant + RandomVector(300));
                 return;
             end
@@ -154,9 +158,11 @@ function Think()
 
     if runeDistance > 10
     then
+        npcBot:Action_ClearActions(false);
         npcBot:Action_MoveToLocation(GetRuneSpawnLocation(closestRune) + RandomVector(5));
         return;
     else
+        npcBot:Action_ClearActions(false);
         npcBot:Action_PickUpRune(closestRune);
         npcBot:ActionImmediate_Ping(runeLocation.x, runeLocation.y, true);
         return;

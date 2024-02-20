@@ -89,6 +89,7 @@ require(GetScriptDirectory() .. "/bot_name_generic")
 	"npc_dota_hero_life_stealer",
 	"npc_dota_hero_templar_assassin",
 	"npc_dota_hero_keeper_of_the_light",
+	"npc_dota_hero_shredder",
 ]]
 --#endregion
 
@@ -178,6 +179,7 @@ local hero_pool_my =
 	"npc_dota_hero_life_stealer",
 	"npc_dota_hero_templar_assassin",
 	"npc_dota_hero_keeper_of_the_light",
+	"npc_dota_hero_shredder",
 }
 
 local heroesCarry =
@@ -270,6 +272,7 @@ local heroesSupport =
 	"npc_dota_hero_tidehunter",
 	"npc_dota_hero_dark_seer",
 	"npc_dota_hero_keeper_of_the_light",
+	"npc_dota_hero_shredder",
 }
 
 function GetBotNames()
@@ -405,7 +408,7 @@ function Think()
 
 	-- Insert here hero hame and set "testmode = true" if you want the bot to choose a specific hero
 	testmode = false;
-	testHero = "npc_dota_hero_keeper_of_the_light"
+	testHero = "npc_dota_hero_shredder"
 
 	if testmode
 	then

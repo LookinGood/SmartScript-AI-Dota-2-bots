@@ -42,6 +42,8 @@ local ItemsToBuy =
     "item_robe",
     "item_recipe_ancient_janggo",
 
+    "item_aghanims_shard",
+
     "item_recipe_boots_of_bearing",
 
     "item_helm_of_iron_will",

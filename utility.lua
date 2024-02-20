@@ -4,9 +4,15 @@ module("utility", package.seeall)
 require(GetScriptDirectory() .. "/hero_role_generic")
 
 function IsValidTarget(target)
-	return target ~= nil and
-		target:CanBeSeen() and
-		target:IsAlive()
+	if target ~= nil
+	then
+		if target:CanBeSeen() and
+			target:IsAlive()
+		then
+			return true;
+		end
+	end
+	return false;
 end
 
 function GetFountain(npcTarget)
@@ -172,6 +178,17 @@ function GetBiggerAttribute(npcTarget)
 	end
 end
 
+function GetCurretCastDistance(castRangeAbility)
+	local distance = castRangeAbility;
+	if distance > 1600
+	then
+		distance = 1600
+		return distance;
+	else
+		return distance;
+	end
+end
+
 function GetItemSlotsCount()
 	local npcBot = GetBot();
 	local itemCount = 0;
@@ -268,7 +285,20 @@ function IsAlly(npcBot, npcTarget)
 end
 
 function IsHero(npcTarget)
-	return IsValidTarget(npcTarget) and npcTarget:IsHero() and not IsIllusion(npcTarget);
+	local npcBot = GetBot();
+	if IsValidTarget(npcTarget) and npcTarget:IsHero()
+	then
+		if IsAlly(npcBot, npcTarget)
+		then
+			if not IsIllusion(npcTarget)
+			then
+				return true;
+			end
+		end
+		return true;
+	else
+		return false;
+	end
 end
 
 function IsBuilding(npcTarget)
@@ -395,6 +425,28 @@ function IsEnemyCreepBetweenMeAndTarget(hSource, hTarget, vLoc, nRadius)
 	local targetUnits = hTarget:GetNearbyCreeps(1600, false);
 	for i, unit in pairs(targetUnits) do
 		local tResult = PointToLineDistance(vStart, vEnd, unit:GetLocation());
+		if tResult ~= nil and tResult.within and tResult.distance <= nRadius + 50
+		then
+			return true;
+		end
+	end
+	return false;
+end
+
+function IsTreeBetweenMeAndTarget(hSource, hTarget, vLoc, nRadius)
+	local vStart = hSource:GetLocation();
+	local vEnd = vLoc;
+	local treesSource = hSource:GetNearbyTrees(1600);
+	for i, tree in pairs(treesSource) do
+		local tResult = PointToLineDistance(vStart, vEnd, GetTreeLocation(tree));
+		if tResult ~= nil and tResult.within and tResult.distance <= nRadius + 50
+		then
+			return true;
+		end
+	end
+	local treesTarget = hTarget:GetNearbyTrees(1600);
+	for i, tree in pairs(treesTarget) do
+		local tResult = PointToLineDistance(vStart, vEnd, GetTreeLocation(tree));
 		if tResult ~= nil and tResult.within and tResult.distance <= nRadius + 50
 		then
 			return true;
@@ -811,6 +863,10 @@ function PvEMode(npcBot)
 		botMode == BOT_MODE_FARM or
 		botMode == BOT_MODE_SECRET_SHOP or
 		botMode == BOT_MODE_SIDE_SHOP or
+		botMode == BOT_MODE_RUNE or
+		botMode == BOT_MODE_ITEM or
+		botMode == BOT_MODE_ASSEMBLE or
+		botMode == BOT_MODE_SHRINE or
 		botMode == BOT_MODE_ROSHAN);
 end
 

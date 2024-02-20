@@ -1,8 +1,9 @@
 ---@diagnostic disable: undefined-global
 require(GetScriptDirectory() .. "/utility")
 
+local npcBot = GetBot();
+
 function GetDesire()
-	local npcBot = GetBot();
 	local enemyHeroes = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
 	local desire = 0.0;
 
@@ -26,15 +27,16 @@ function GetDesire()
 end
 
 function Think()
-	local npcBot = GetBot();
 	local shopLoc1 = GetShopLocation(GetTeam(), SHOP_SIDE);
 	local shopLoc2 = GetShopLocation(GetTeam(), SHOP_SIDE2);
 
 	if (GetUnitToLocationDistance(npcBot, shopLoc1) <= GetUnitToLocationDistance(npcBot, shopLoc2))
 	then
+		npcBot:Action_ClearActions(false);
 		npcBot:Action_MoveToLocation(shopLoc1);
 		return;
 	else
+		npcBot:Action_ClearActions(false);
 		npcBot:Action_MoveToLocation(shopLoc2);
 		return;
 	end

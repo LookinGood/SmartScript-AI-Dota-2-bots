@@ -129,10 +129,12 @@ function Think()
     then
         if GetUnitToUnitDistance(npcBot, mainCreep) > attackRange
         then
+            npcBot:Action_ClearActions(false);
             --npcBot:ActionImmediate_Chat("Иду фармить лесных крипов!", true);
             npcBot:Action_MoveToLocation(mainCreep:GetLocation());
             return;
         else
+            npcBot:Action_ClearActions(false);
             --npcBot:ActionImmediate_Chat("Фармлю лесных крипов!", true);
             npcBot:Action_AttackUnit(mainCreep, false);
             return;

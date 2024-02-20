@@ -3,8 +3,9 @@ _G._savedEnv = getfenv()
 module("mode_retreat_generic", package.seeall)
 require(GetScriptDirectory() .. "/utility")
 
+local npcBot = GetBot();
+
 function GetDesire()
-    local npcBot = GetBot();
     local botMode = npcBot:GetActiveMode();
     local allyHeroes = utility.CountAllyHeroAroundUnit(npcBot, 2000);
     local enemyHeroes = utility.CountEnemyHeroAroundUnit(npcBot, 2000);
@@ -72,8 +73,8 @@ function GetDesire()
     if (#enemyHeroAround > 0) and (allyHeroes + 2 < enemyHeroes) and npcBot:GetHealth() / npcBot:GetMaxHealth() <= 0.6
     then
         for _, enemy in pairs(enemyHeroAround) do
-            local enemyDamageToMe = enemy:GetEstimatedDamageToTarget(false, npcBot, 3.0, DAMAGE_TYPE_ALL);
-            if enemyDamageToMe >= npcBot:GetHealth() / 2 and allyHeroes <= 1
+            local enemyDamageToMe = enemy:GetEstimatedDamageToTarget(false, npcBot, 5.0, DAMAGE_TYPE_ALL);
+            if enemyDamageToMe >= npcBot:GetMaxHealth() / 2 and allyHeroes <= 1
             then
                 --npcBot:ActionImmediate_Chat("Меня могут убить! Я убегаю!", true);
                 return BOT_ACTION_DESIRE_HIGH;
@@ -85,24 +86,24 @@ function GetDesire()
 end
 
 function Think()
-    local npcBot = GetBot();
     local fountainLocation = utility.SafeLocation(npcBot);
 
     if utility.CanMove(npcBot)
     then
         if GetUnitToLocationDistance(npcBot, fountainLocation) >= 200
         then
+            npcBot:Action_ClearActions(false);
             --npcBot:ActionImmediate_Chat("ОТСТУПАЮ!", true);
             npcBot:Action_MoveToLocation(fountainLocation + RandomVector(100));
             return;
         else
+            npcBot:Action_ClearActions(false);
             npcBot:Action_MoveToLocation(npcBot:GetLocation() + RandomVector(100));
-            --npcBot:Action_ClearActions(true);
             return;
         end
     else
+        npcBot:Action_ClearActions(false);
         npcBot:Action_AttackMove(npcBot:GetLocation());
-        --npcBot:Action_ClearActions(true);
         return;
     end
 end

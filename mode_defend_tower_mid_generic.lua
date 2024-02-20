@@ -3,18 +3,21 @@ _G._savedEnv = getfenv()
 module("mode_defend_tower_mid_generic", package.seeall)
 require(GetScriptDirectory() .. "/utility")
 
+--local botDesire = npcBot:GetActiveModeDesire();
+--local allyBuildings = GetUnitList(UNIT_LIST_ALLIED_BUILDINGS);
+
+local npcBot = GetBot();
+
 function GetDesire()
-    local npcBot = GetBot();
+    local botHealth = npcBot:GetHealth() / npcBot:GetMaxHealth();
     local botMode = npcBot:GetActiveMode();
+    local botLevel = npcBot:GetLevel();
 
     if not utility.CanMove(npcBot) or utility.IsBusy(npcBot) or botMode == BOT_MODE_DEFEND_TOWER_BOT or botMode == BOT_MODE_DEFEND_TOWER_TOP
-        or npcBot:WasRecentlyDamagedByAnyHero(2.0)
+        or npcBot:WasRecentlyDamagedByAnyHero(2.0) or botHealth <= 0.3 or botLevel < 6
     then
         return BOT_ACTION_DESIRE_NONE;
     end
-
-    --local botHealth = npcBot:GetHealth() / npcBot:GetMaxHealth();
-    --local botDesire = npcBot:GetActiveModeDesire();
 
     local radiusUnit = 3000;
 
@@ -100,42 +103,61 @@ function OnEnd()
 end
 
 function Think()
-    local npcBot = GetBot();
-    --local allyHeroes = npcBot:GetNearbyHeroes(1600, false, BOT_MODE_NONE);
-    --local allyBuildings = GetUnitList(UNIT_LIST_ALLIED_BUILDINGS);
-
     if mainBuilding ~= nil
     then
         local defendZone = utility.GetEscapeLocation(mainBuilding, 700);
         if GetUnitToLocationDistance(npcBot, defendZone) > 700 and npcBot:GetCurrentActionType() ~= BOT_ACTION_TYPE_ATTACK
             and npcBot:GetCurrentActionType() ~= BOT_ACTION_TYPE_ATTACKMOVE
         then
+            npcBot:Action_ClearActions(false);
             npcBot:Action_MoveToLocation(defendZone);
             return;
         else
-            --local enemyHeroes = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
+            local allyHeroes = npcBot:GetNearbyHeroes(1600, false, BOT_MODE_NONE);
+            local enemyHeroes = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
             local enemyCreeps = npcBot:GetNearbyCreeps(1600, true);
             local mainCreep = nil;
+            local mainEnemy = nil;
             if (#enemyCreeps > 0)
             then
                 mainCreep = utility.GetWeakest(enemyCreeps);
                 local enemyHeroes = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
                 if (#enemyHeroes <= 1)
                 then
+                    npcBot:Action_ClearActions(false);
                     npcBot:Action_AttackUnit(mainCreep, false);
                     return;
                 else
                     if GetUnitToUnitDistance(npcBot, mainCreep) > npcBot:GetAttackRange()
                     then
+                        npcBot:Action_ClearActions(false);
                         npcBot:Action_AttackMove(mainCreep:GetLocation());
                         --npcBot:Action_MoveToLocation(mainCreep:GetLocation());
                         return;
                     else
+                        npcBot:Action_ClearActions(false);
                         npcBot:Action_AttackUnit(mainCreep, false);
                         return;
                     end
                 end
+            elseif (#enemyHeroes > 0) and (#allyHeroes >= #enemyHeroes)
+            then
+                mainEnemy = utility.GetWeakest(enemyHeroes);
+                if mainEnemy ~= nil
+                then
+                    if GetUnitToUnitDistance(npcBot, mainEnemy) > npcBot:GetAttackRange()
+                    then
+                        npcBot:Action_ClearActions(false);
+                        npcBot:Action_AttackMove(mainEnemy:GetLocation());
+                        return;
+                    else
+                        npcBot:Action_ClearActions(false);
+                        npcBot:Action_AttackUnit(mainEnemy, false);
+                        return;
+                    end
+                end
             else
+                npcBot:Action_ClearActions(false);
                 npcBot:Action_AttackMove(npcBot:GetLocation() + RandomVector(500));
                 return;
                 --npcBot:Action_MoveToLocation(npcBot:GetLocation() + RandomVector(500));

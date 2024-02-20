@@ -91,7 +91,7 @@ function AbilityUsageThink()
     if npcBot:HasModifier("modifier_life_stealer_infest") and utility.RetreatMode(npcBot)
         --and infestTarget:IsCreep()
     then
-        npcBot:ActionImmediate_Chat("Отступаю в крипе!", true);
+        --npcBot:ActionImmediate_Chat("Отступаю в крипе!", true);
         npcBot:ActionPush_MoveToLocation(utility.SafeLocation(npcBot));
     end
 end

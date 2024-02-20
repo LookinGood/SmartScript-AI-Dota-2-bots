@@ -136,7 +136,7 @@ function ConsiderHowl()
     -- General use
     if utility.PvPMode(npcBot) or utility.RetreatMode(npcBot)
     then
-        local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
+        local enemyAbility = npcBot:GetNearbyHeroes(utility.GetCurretCastDistance(radiusAbility), true, BOT_MODE_NONE);
         if (#enemyAbility > 0)
         then
             for _, enemy in pairs(enemyAbility)

@@ -265,13 +265,13 @@ function ConsiderShadowPoison()
         -- Cast when laning
     elseif botMode == BOT_MODE_LANING
     then
-        local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
+        local enemyAbility = npcBot:GetNearbyHeroes(utility.GetCurretCastDistance(castRangeAbility), true, BOT_MODE_NONE);
         if (#enemyAbility > 0) and (ManaPercentage >= 0.6)
         then
             local enemy = utility.GetWeakest(enemyAbility);
             if utility.CanCastSpellOnTarget(ability, enemy)
             then
-                --npcBot:ActionImmediate_Chat("Использую DragonSlave по цели на ЛАЙНЕ!", true);
+                --npcBot:ActionImmediate_Chat("Использую ShadowPoison по цели на ЛАЙНЕ!", true);
                 return BOT_ACTION_DESIRE_VERYHIGH,
                     utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility);
             end

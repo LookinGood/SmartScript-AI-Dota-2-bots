@@ -28,7 +28,7 @@ function GetDesire()
         return BOT_ACTION_DESIRE_NONE;
     end ]]
 
-    if npcBot:IsChanneling() or castAbility:IsInAbilityPhase() or
+    if npcBot:IsChanneling() or (castAbility ~= nil and castAbility:IsInAbilityPhase()) or
         npcBot:HasModifier("modifier_spirit_breaker_charge_of_darkness")
     then
         --npcBot:ActionImmediate_Chat("Решаю стоять на месте кастуя!", true);
@@ -60,12 +60,9 @@ function GetDesire()
     return BOT_ACTION_DESIRE_NONE;
 end
 
---if npcBot:GetUnitName() == "npc_dota_hero_tinker"
-
 function Think()
     if (castAbility ~= nil and castAbility:IsInAbilityPhase()) or npcBot:IsChanneling() or
-        npcBot:HasModifier("modifier_spirit_breaker_charge_of_darkness") or
-        npcBot:HasModifier("modifier_spirit_breaker_charge_of_darkness_target")
+        npcBot:HasModifier("modifier_spirit_breaker_charge_of_darkness")
     then
         --npcBot:ActionImmediate_Chat("Стою на месте кастуя!", true);
         return;

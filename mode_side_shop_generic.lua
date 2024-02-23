@@ -7,7 +7,7 @@ function GetDesire()
 	local enemyHeroes = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
 	local desire = 0.0;
 
-	if not npcBot:IsAlive() or utility.IsBusy(npcBot) or not utility.CanMove(npcBot) or (#enemyHeroes > 0)
+	if not npcBot:IsAlive() or utility.IsBusy(npcBot) or not utility.CanMove(npcBot) or utility.IsClone(npcBot) or (#enemyHeroes > 0)
 	then
 		return BOT_ACTION_DESIRE_NONE;
 	end
@@ -32,11 +32,9 @@ function Think()
 
 	if (GetUnitToLocationDistance(npcBot, shopLoc1) <= GetUnitToLocationDistance(npcBot, shopLoc2))
 	then
-		npcBot:Action_ClearActions(false);
 		npcBot:Action_MoveToLocation(shopLoc1);
 		return;
 	else
-		npcBot:Action_ClearActions(false);
 		npcBot:Action_MoveToLocation(shopLoc2);
 		return;
 	end

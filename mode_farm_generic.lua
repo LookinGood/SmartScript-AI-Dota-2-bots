@@ -4,8 +4,9 @@ module("mode_farm_generic", package.seeall)
 require(GetScriptDirectory() .. "/utility")
 require(GetScriptDirectory() .. "/hero_role_generic")
 
+local npcBot = GetBot();
+
 function GetDesire()
-    local npcBot = GetBot();
     local botLevel = npcBot:GetLevel();
     local botMode = npcBot:GetActiveMode();
     local HealthPercentage = npcBot:GetHealth() / npcBot:GetMaxHealth();
@@ -116,7 +117,6 @@ function GetDesire()
 end
 
 function Think()
-    local npcBot = GetBot();
     local attackRange = npcBot:GetAttackRange();
     local neutralCreeps = npcBot:GetNearbyNeutralCreeps(1600);
 
@@ -129,12 +129,10 @@ function Think()
     then
         if GetUnitToUnitDistance(npcBot, mainCreep) > attackRange
         then
-            npcBot:Action_ClearActions(false);
             --npcBot:ActionImmediate_Chat("Иду фармить лесных крипов!", true);
             npcBot:Action_MoveToLocation(mainCreep:GetLocation());
             return;
         else
-            npcBot:Action_ClearActions(false);
             --npcBot:ActionImmediate_Chat("Фармлю лесных крипов!", true);
             npcBot:Action_AttackUnit(mainCreep, false);
             return;

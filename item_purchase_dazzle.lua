@@ -42,8 +42,8 @@ local ItemsToBuy =
 	"item_recipe_guardian_greaves",
 
 	"item_tiara_of_selemene",
-	"item_ultimate_orb",
 	"item_mystic_staff",
+	"item_recipe_sheepstick",
 
     "item_energy_booster",
     "item_vitality_booster",

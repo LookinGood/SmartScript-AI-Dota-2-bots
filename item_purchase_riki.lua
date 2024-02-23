@@ -52,7 +52,7 @@ local ItemsToBuy =
 
 	"item_recipe_ultimate_scepter_2",
 
-	"item_edge",
+	"item_eagle",
 	"item_recipe_disperser",
 
 	"item_hyperstone",

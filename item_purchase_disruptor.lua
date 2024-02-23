@@ -40,9 +40,11 @@ local ItemsToBuy =
 
 	"item_recipe_guardian_greaves",
 
+	"item_ring_of_health",
+	"item_void_stone",
 	"item_energy_booster",
-	"item_vitality_booster",
-	"item_recipe_aeon_disk",
+	"item_platemail",
+	"item_recipe_lotus_orb",
 
     "item_energy_booster",
     "item_vitality_booster",
@@ -59,11 +61,9 @@ local ItemsToBuy =
 
 	"item_recipe_ultimate_scepter_2",
 
-	"item_ring_of_health",
-	"item_void_stone",
 	"item_energy_booster",
-	"item_platemail",
-	"item_recipe_lotus_orb",
+	"item_vitality_booster",
+	"item_recipe_aeon_disk",
 
 	"item_aghanims_shard",
 }

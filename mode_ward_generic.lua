@@ -176,12 +176,10 @@ function Think()
     then
         if GetUnitToLocationDistance(npcBot, wardSpot) >= 500
         then
-            npcBot:Action_ClearActions(false);
             --npcBot:ActionImmediate_Chat("Иду ставить вард!", true);
             npcBot:Action_MoveToLocation(wardSpot);
             return;
         else
-            npcBot:Action_ClearActions(false);
             --npcBot:ActionImmediate_Chat("Ставлю вард!", true);
             npcBot:Action_UseAbilityOnLocation(wardObserver, wardSpot + RandomVector(50));
             return;

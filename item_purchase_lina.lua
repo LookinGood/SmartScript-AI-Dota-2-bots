@@ -30,8 +30,8 @@ local ItemsToBuy =
     "item_recipe_ancient_janggo",
 
 	"item_tiara_of_selemene",
-	"item_ultimate_orb",
 	"item_mystic_staff",
+	"item_recipe_sheepstick",
 
 	"item_staff_of_wizardry",
 	"item_robe",

@@ -129,7 +129,7 @@ function ConsiderStrafe()
     -- Use when attack building
     if utility.IsBuilding(attackTarget) and utility.CanCastOnInvulnerableTarget(attackTarget)
     then
-        if (attackTarget:GetHealth() / attackTarget:GetMaxHealth() >= 0.3) and ManaPercentage >= 0.4
+        if (attackTarget:GetHealth() / attackTarget:GetMaxHealth() >= 0.3) and (ManaPercentage >= 0.4)
         then
             --npcBot:ActionImmediate_Chat("Использую Strafe против зданий!", true);
             return BOT_ACTION_DESIRE_HIGH;
@@ -310,13 +310,18 @@ function ConsiderSkeletonWalk()
             if GetUnitToUnitDistance(npcBot, botTarget) > attackRange and GetUnitToUnitDistance(npcBot, botTarget) <= 2000
             then
                 --npcBot:ActionImmediate_Chat("Использую SkeletonWalk для нападения!", true);
-                return BOT_MODE_DESIRE_HIGH;
+                return BOT_MODE_DESIRE_VERYHIGH;
             end
         end
         -- Retreat use
     elseif utility.RetreatMode(npcBot)
     then
         --npcBot:ActionImmediate_Chat("Использую SkeletonWalk для отхода!", true);
+        return BOT_MODE_DESIRE_VERYHIGH;
+        -- General use
+    elseif utility.WanderMode(npcBot)
+    then
+        --npcBot:ActionImmediate_Chat("Использую SkeletonWalk для разведки!", true);
         return BOT_MODE_DESIRE_HIGH;
     end
 end

@@ -8,7 +8,7 @@ function GetDesire()
 	local desire = 0.0;
 	local secretShopDistance = npcBot:DistanceFromSecretShop()
 
-	if not npcBot:IsAlive() or utility.IsBusy(npcBot) or not utility.CanMove(npcBot) or (#enemyHeroes > 0)
+	if not npcBot:IsAlive() or utility.IsBusy(npcBot) or not utility.CanMove(npcBot) or utility.IsClone(npcBot) or (#enemyHeroes > 0)
 		or npcBot.secretShopMode == false or secretShopDistance > 3000 or utility.IsItemSlotsFull()
 	then
 		return BOT_ACTION_DESIRE_NONE;
@@ -33,22 +33,18 @@ function Think()
 	then
 		if GetUnitToLocationDistance(npcBot, shopLoc1) >= 100
 		then
-			npcBot:Action_ClearActions(false);
 			npcBot:Action_MoveToLocation(shopLoc1);
 			return;
 		else
-			npcBot:Action_ClearActions(false);
 			npcBot:Action_MoveToLocation(npcBot:GetLocation() + RandomVector(100));
 			return;
 		end
 	else
 		if GetUnitToLocationDistance(npcBot, shopLoc2) >= 100
 		then
-			npcBot:Action_ClearActions(false);
 			npcBot:Action_MoveToLocation(shopLoc2);
 			return;
 		else
-			npcBot:Action_ClearActions(false);
 			npcBot:Action_MoveToLocation(npcBot:GetLocation() + RandomVector(100));
 			return;
 		end

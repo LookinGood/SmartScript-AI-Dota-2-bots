@@ -58,7 +58,7 @@ end
 function GetDesire()
     local enemyHeroes = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
 
-    if not npcBot:IsAlive() or utility.IsBusy(npcBot) or not utility.CanMove(npcBot) or (#enemyHeroes > 0)
+    if not npcBot:IsAlive() or utility.IsBusy(npcBot) or not utility.CanMove(npcBot) or utility.IsClone(npcBot) or (#enemyHeroes > 0)
     then
         return BOT_ACTION_DESIRE_NONE;
     end
@@ -133,11 +133,9 @@ function Think()
         then
             if npcBot:GetAssignedLane() == LANE_BOT
             then
-                npcBot:Action_ClearActions(false);
                 npcBot:Action_MoveToLocation(bountyRuneRadiant + RandomVector(300));
                 return;
             else
-                npcBot:Action_ClearActions(false);
                 npcBot:Action_MoveToLocation(powerfulRuneDire + RandomVector(300));
                 return;
             end
@@ -145,11 +143,9 @@ function Think()
         then
             if npcBot:GetAssignedLane() == LANE_TOP
             then
-                npcBot:Action_ClearActions(false);
                 npcBot:Action_MoveToLocation(bountyRuneDire + RandomVector(300));
                 return;
             else
-                npcBot:Action_ClearActions(false);
                 npcBot:Action_MoveToLocation(powerfulRuneRadiant + RandomVector(300));
                 return;
             end
@@ -158,11 +154,9 @@ function Think()
 
     if runeDistance > 10
     then
-        npcBot:Action_ClearActions(false);
         npcBot:Action_MoveToLocation(GetRuneSpawnLocation(closestRune) + RandomVector(5));
         return;
     else
-        npcBot:Action_ClearActions(false);
         npcBot:Action_PickUpRune(closestRune);
         npcBot:ActionImmediate_Ping(runeLocation.x, runeLocation.y, true);
         return;

@@ -123,7 +123,7 @@ function ConsiderLaser()
             then
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    npcBot:ActionImmediate_Chat("Использую Laser что бы убить цель!", true);
+                    --npcBot:ActionImmediate_Chat("Использую Laser что бы убить цель!", true);
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy;
                 end
             end

@@ -105,15 +105,19 @@ function ConsiderBlink()
 
     local attackRange = npcBot:GetAttackRange();
     local castRangeAbility = ability:GetSpecialValueInt("AbilityCastRange");
+    local minBlinkRange = ability:GetSpecialValueInt("min_blink_range");
     local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
 
     -- Cast if enemy hero too far away
     if utility.PvPMode(npcBot)
     then
-        if utility.IsHero(botTarget) and utility.CanCastOnInvulnerableTarget(botTarget) and
-            GetUnitToUnitDistance(npcBot, botTarget) > (attackRange * 2)
+        if utility.IsHero(botTarget)
         then
-            return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
+            if utility.CanCastOnInvulnerableTarget(botTarget) and (GetUnitToUnitDistance(npcBot, botTarget) > minBlinkRange
+                    and GetUnitToUnitDistance(npcBot, botTarget) > (attackRange * 2))
+            then
+                return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
+            end
         end
         -- Cast if need retreat
     elseif utility.RetreatMode(npcBot)

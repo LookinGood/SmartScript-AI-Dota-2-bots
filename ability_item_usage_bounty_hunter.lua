@@ -66,21 +66,21 @@ function AbilityUsageThink()
     local castFriendlyShadowDesire, castFriendlyShadowTarget = ConsiderFriendlyShadow();
     local castTrackDesire, castTrackTarget = ConsiderTrack();
 
-    if (castShurikenTossDesire ~= nil)
-    then
-        npcBot:Action_UseAbilityOnEntity(ShurikenToss, castShurikenTossTarget);
-        return;
-    end
-
---[[     if (castJinadaDesire ~= nil)
-    then
-        npcBot:Action_UseAbilityOnEntity(Jinada, castJinadaTarget);
-        return;
-    end ]]
-
     if (castShadowWalkDesire ~= nil)
     then
         npcBot:Action_UseAbility(ShadowWalk);
+        return;
+    end
+
+    if (castTrackDesire ~= nil)
+    then
+        npcBot:Action_UseAbilityOnEntity(Track, castTrackTarget);
+        return;
+    end
+
+    if (castShurikenTossDesire ~= nil)
+    then
+        npcBot:Action_UseAbilityOnEntity(ShurikenToss, castShurikenTossTarget);
         return;
     end
 
@@ -90,11 +90,11 @@ function AbilityUsageThink()
         return;
     end
 
-    if (castTrackDesire ~= nil)
+    --[[     if (castJinadaDesire ~= nil)
     then
-        npcBot:Action_UseAbilityOnEntity(Track, castTrackTarget);
+        npcBot:Action_UseAbilityOnEntity(Jinada, castJinadaTarget);
         return;
-    end
+    end ]]
 end
 
 function ConsiderShurikenToss()
@@ -207,7 +207,7 @@ function ConsiderJinada()
         ability:ToggleAutoCast();
     end
 
---[[     -- Cast if can kill somebody
+    --[[     -- Cast if can kill somebody
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
@@ -269,17 +269,10 @@ function ConsiderShadowWalk()
         --npcBot:ActionImmediate_Chat("Использую ShadowWalk для отхода!", true);
         return BOT_MODE_DESIRE_VERYHIGH;
         -- General use
-    elseif npcBot:GetCurrentActionType() ~= BOT_ACTION_TYPE_ATTACK and npcBot:GetCurrentActionType() ~= BOT_ACTION_TYPE_ATTACKMOVE
+    elseif utility.WanderMode(npcBot)
     then
-        if npcBot:GetCurrentActionType() == BOT_ACTION_TYPE_PICK_UP_RUNE or
-            botMode == BOT_MODE_WARD or botMode == BOT_MODE_RUNE or
-            botMode == BOT_MODE_SECRET_SHOP or botMode == BOT_MODE_SIDE_SHOP or
-            botMode == BOT_MODE_DEFEND_TOWER_TOP or botMode == BOT_MODE_DEFEND_TOWER_MID or
-            botMode == BOT_MODE_DEFEND_TOWER_BOT
-        then
-            --npcBot:ActionImmediate_Chat("Использую ShadowWalk для разведки!", true);
-            return BOT_MODE_DESIRE_VERYHIGH;
-        end
+        --npcBot:ActionImmediate_Chat("Использую ShadowWalk для разведки!", true);
+        return BOT_MODE_DESIRE_HIGH;
     end
 end
 

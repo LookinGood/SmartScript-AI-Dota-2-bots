@@ -73,7 +73,6 @@ function Think()
     then
         if GetUnitToUnitDistance(npcBot, mostDangerousEnemy) <= (npcBot:GetAttackRange() * 4)
         then
-            npcBot:Action_ClearActions(false);
             --npcBot:ActionImmediate_Chat("Я атакую врага защищая союзника!", true);
             npcBot:SetTarget(mostDangerousEnemy);
             npcBot:Action_AttackUnit(mostDangerousEnemy, false);
@@ -86,11 +85,9 @@ function Think()
                 local escortAlyPosition = escortAlly:GetLocation();
                 if GetUnitToUnitDistance(npcBot, escortAlly) > 300
                 then
-                    npcBot:Action_ClearActions(false);
                     npcBot:Action_MoveToLocation(escortAlyPosition);
                     return;
                 else
-                    npcBot:Action_ClearActions(false);
                     npcBot:Action_MoveToLocation(npcBot:GetLocation() + RandomVector(npcBot:GetAttackRange() * 2));
                     return;
                 end

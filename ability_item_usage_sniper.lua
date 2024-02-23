@@ -200,7 +200,7 @@ function ConsiderAssassinate()
     local damageAbility = ability:GetAbilityDamage();
     local enemyAbility = GetUnitList(UNIT_LIST_ENEMY_HEROES);
 
-    -- Cast if can kill somebody
+    -- Cast if can kill somebody/interrupt cast
     if not npcBot:WasRecentlyDamagedByAnyHero(5.0)
     then
         for _, enemy in pairs(enemyAbility) do

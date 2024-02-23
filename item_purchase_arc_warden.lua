@@ -5,10 +5,9 @@ local ItemsToBuy =
 {
 	"item_tango",
 	"item_magic_stick",
-	"item_blight_stone",
 	"item_branches",
 	"item_branches",
-
+	"item_faerie_fire",
 	"item_flask",
 
 	"item_recipe_magic_wand",
@@ -17,40 +16,49 @@ local ItemsToBuy =
 	"item_slippers",
 	"item_recipe_wraith_band",
 
-    "item_boots",
-    "item_blades_of_attack",
-    "item_chainmail",
+	"item_boots",
+	"item_gloves",
+	"item_boots_of_elves",
 
-    "item_circlet",
-    "item_sobi_mask",
-    "item_ring_of_protection",
-    "item_recipe_urn_of_shadows",
+	"item_gloves",
+	"item_recipe_hand_of_midas",
 
+	"item_gloves",
 	"item_mithril_hammer",
-	"item_mithril_hammer",
+	"item_javelin",
 
-	"item_fluffy_hat",
-    "item_crown",
-    "item_recipe_spirit_vessel",
+	"item_blade_of_alacrity",
+	"item_belt_of_strength",
+	"item_recipe_dragon_lance",
 
-	"item_ring_of_health",
-	"item_void_stone",
-    "item_ultimate_orb",
-    "item_recipe_sphere",
+	"item_blade_of_alacrity",
+	"item_boots_of_elves",
+	"item_recipe_yasha",
 
-	"item_point_booster",
-    "item_ogre_axe",
-    "item_staff_of_wizardry",
-    "item_blade_of_alacrity",
-
-	"item_recipe_ultimate_scepter_2",
+	"item_diadem",
+	"item_recipe_manta",
 
 	"item_aghanims_shard",
 
-    "item_energy_booster",
-    "item_vitality_booster",
-    "item_point_booster",
-    "item_tiara_of_selemene",
+	"item_ogre_axe",
+	"item_mithril_hammer",
+	"item_recipe_black_king_bar",
+
+	"item_fluffy_hat",
+	"item_staff_of_wizardry",
+	"item_recipe_force_staff",
+
+	"item_recipe_hurricane_pike",
+
+	"item_point_booster",
+	"item_ogre_axe",
+	"item_staff_of_wizardry",
+	"item_blade_of_alacrity",
+
+	"item_recipe_ultimate_scepter_2",
+
+	"item_hyperstone",
+	"item_recipe_mjollnir",
 
 	"item_hyperstone",
 	"item_hyperstone",

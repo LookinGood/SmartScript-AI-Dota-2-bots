@@ -1,5 +1,6 @@
 ---@diagnostic disable: undefined-global
 require(GetScriptDirectory() .. "/bot_name_generic")
+require(GetScriptDirectory() .. "/hero_role_generic")
 
 --#region All bot-hero by DarkOblivion
 --[[
@@ -90,6 +91,9 @@ require(GetScriptDirectory() .. "/bot_name_generic")
 	"npc_dota_hero_templar_assassin",
 	"npc_dota_hero_keeper_of_the_light",
 	"npc_dota_hero_shredder",
+	"npc_dota_hero_windrunner",
+	"npc_dota_hero_arc_warden",
+	"npc_dota_hero_oracle",
 ]]
 --#endregion
 
@@ -180,6 +184,9 @@ local hero_pool_my =
 	"npc_dota_hero_templar_assassin",
 	"npc_dota_hero_keeper_of_the_light",
 	"npc_dota_hero_shredder",
+	"npc_dota_hero_windrunner",
+	"npc_dota_hero_arc_warden",
+	"npc_dota_hero_oracle",
 }
 
 local heroesCarry =
@@ -235,6 +242,8 @@ local heroesCarry =
 	"npc_dota_hero_obsidian_destroyer",
 	"npc_dota_hero_life_stealer",
 	"npc_dota_hero_templar_assassin",
+	"npc_dota_hero_windrunner",
+	"npc_dota_hero_arc_warden",
 }
 
 local heroesSupport =
@@ -273,6 +282,7 @@ local heroesSupport =
 	"npc_dota_hero_dark_seer",
 	"npc_dota_hero_keeper_of_the_light",
 	"npc_dota_hero_shredder",
+	"npc_dota_hero_oracle",
 }
 
 function GetBotNames()
@@ -296,45 +306,6 @@ function GetPicks()
 		end
 	end
 	return selectedHeroes;
-end
-
-function Contains(set, key) -- Содержит ли таблица указанный коюч
-	for index, value in ipairs(set) do
-		if tostring(value) == tostring(key)
-		then
-			return true;
-		end
-	end
-end
-
-function GetCountCarryHeroInTeam()
-	local count = 0;
-	local picks = GetPicks();
-
-	for _, i in pairs(GetTeamPlayers(GetTeam()))
-	do
-		if GetSelectedHeroName(i) ~= "" and Contains(picks, heroesCarry)
-		then
-			count = count + 1
-		end
-	end
-
-	return count;
-end
-
-function GetCountSupportHeroInTeam()
-	local count = 0;
-	local picks = GetPicks();
-
-	for _, i in pairs(GetTeamPlayers(GetTeam()))
-	do
-		if GetSelectedHeroName(i) ~= "" and Contains(picks, heroesSupport)
-		then
-			count = count + 1
-		end
-	end
-
-	return count;
 end
 
 function GetCarryHero()
@@ -408,7 +379,7 @@ function Think()
 
 	-- Insert here hero hame and set "testmode = true" if you want the bot to choose a specific hero
 	testmode = false;
-	testHero = "npc_dota_hero_shredder"
+	testHero = "npc_dota_hero_oracle"
 
 	if testmode
 	then
@@ -441,17 +412,15 @@ function Think()
 		do
 			if IsPlayerBot(i) and GetSelectedHeroName(i) == "" and (i ~= testPlayer)
 			then
-				if GetCountCarryHeroInTeam() < 3
+				if hero_role_generic.GetCountCarryHeroInTeam() < 3
 				then
-					hero = GetRandomHero();
-					--hero = GetCarryHero();
+					hero = GetCarryHero();
 					SelectHero(i, hero);
 					lastpick = GameTime();
 					return;
-				elseif GetCountSupportHeroInTeam() < 2
+				elseif hero_role_generic.GetCountSupportHeroInTeam() < 2
 				then
-					hero = GetRandomHero();
-					--hero = GetSupportHero();
+					hero = GetSupportHero();
 					SelectHero(i, hero);
 					lastpick = GameTime();
 					return;

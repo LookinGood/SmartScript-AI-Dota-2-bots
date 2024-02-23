@@ -455,7 +455,7 @@ function ConsiderWillOWisp()
     local castRangeAbility = ability:GetCastRange();
     local radiusAbility = ability:GetSpecialValueInt("radius");
     local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
-    local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility + radiusAbility, true, BOT_MODE_NONE);
+    local enemyAbility = GetUnitList(UNIT_LIST_ENEMY_HEROES);
 
     -- Cast if can interrupt cast
     if (#enemyAbility > 0)

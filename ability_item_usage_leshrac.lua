@@ -258,7 +258,7 @@ function ConsiderLightningStorm()
         if (#enemyAbility > 0)
         then
             for _, enemy in pairs(enemyAbility) do
-                if utility.CanCastSpellOnTarget(ability, enemy)
+                if utility.CanCastSpellOnTarget(ability, enemy) and not utility.IsDisabled(enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую LightningStorm что бы оторваться от врага", true);
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy;
@@ -279,7 +279,7 @@ function ConsiderLightningStorm()
             end
         end
         -- Cast when laning
-    elseif npcBot:GetActiveMode() == BOT_MODE_LANING
+    elseif botMode == BOT_MODE_LANING
     then
         local enemy = utility.GetWeakest(enemyAbility);
         if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)

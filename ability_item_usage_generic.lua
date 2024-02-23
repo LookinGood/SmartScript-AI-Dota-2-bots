@@ -1,21 +1,27 @@
 ---@diagnostic disable: undefined-global
 _G._savedEnv = getfenv()
 module("ability_item_usage_generic", package.seeall)
+require(GetScriptDirectory() .. "/utility")
+require(GetScriptDirectory() .. "/teleportation_usage_generic")
 
 --[[ local utility = require(GetScriptDirectory() .. "/utility")
 local wardUsage = require(GetScriptDirectory() .. "/ward_usage_generic")
-local teleportUsage = require(GetScriptDirectory() .. "/teleportation_usage_generic") ]]
-require(GetScriptDirectory() .. "/utility")
---require(GetScriptDirectory() .. "/ward_usage_generic")
-require(GetScriptDirectory() .. "/teleportation_usage_generic")
+local teleportUsage = require(GetScriptDirectory() .. "/teleportation_usage_generic")
+--require(GetScriptDirectory() .. "/ward_usage_generic")]]
 
 --#region COURIER THINK
 function CourierUsageThink()
 	local npcBot = GetBot();
+
+	if npcBot == nil or not utility.IsHero(npcBot) or utility.IsClone(npcBot)
+	then
+		return;
+	end
+
 	local courier = utility.GetBotCourier(npcBot);
 	local state = GetCourierState(courier);
 
-	if (state == COURIER_STATE_DEAD) or not utility.IsHero(npcBot) or npcBot:HasModifier("modifier_arc_warden_tempest_double")
+	if (state == COURIER_STATE_DEAD)
 	then
 		return;
 	end
@@ -98,8 +104,7 @@ end
 --#region BUYBACK THINK
 function BuybackUsageThink()
 	local npcBot = GetBot();
-
-	if not npcBot:IsHero() or npcBot:IsIllusion()
+	if not npcBot:IsHero() or npcBot:IsIllusion() or utility.IsClone(npcBot)
 	then
 		return;
 	elseif npcBot:IsAlive()
@@ -132,8 +137,14 @@ end
 --#endregion
 
 --#region GLYPH THINK
+function GlyphUsageThink()
+	local npcBot = GetBot();
 
-function GlyphUsageThink(npcBot)
+	if npcBot == nil or not utility.IsHero(npcBot) or utility.IsClone(npcBot)
+	then
+		return;
+	end
+
 	if GetGlyphCooldown() > 0 then
 		return;
 	end
@@ -291,7 +302,13 @@ local _tableOfUltimatesAbility =
 
 function ItemUsageThink()
 	local npcBot = GetBot();
-	GlyphUsageThink(npcBot)
+
+	if npcBot == nil or not utility.IsHero(npcBot)
+	then
+		return;
+	end
+
+	GlyphUsageThink()
 
 	if not npcBot:IsAlive() or npcBot:IsMuted() or npcBot:IsDominated() or npcBot:IsStunned() or npcBot:IsHexed() or npcBot:IsNightmared()
 		or npcBot:IsInvisible()

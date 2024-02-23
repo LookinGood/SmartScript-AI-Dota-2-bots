@@ -12,8 +12,9 @@ function GetDesire()
     --local allyHeroAround = npcBot:GetNearbyHeroes(1600, false, BOT_MODE_NONE);
     local enemyHeroAround = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
 
-    if not npcBot:IsAlive() or utility.IsBusy(npcBot) or npcBot:HasModifier("modifier_skeleton_king_reincarnation_scepter")
-        or npcBot:HasModifier("modifier_skeleton_king_reincarnation_scepter_active")
+    if not npcBot:IsAlive() or utility.IsBusy(npcBot) or utility.IsClone(npcBot) or
+        npcBot:HasModifier("modifier_skeleton_king_reincarnation_scepter") or
+        npcBot:HasModifier("modifier_skeleton_king_reincarnation_scepter_active")
     then
         return BOT_ACTION_DESIRE_NONE;
     end
@@ -92,17 +93,14 @@ function Think()
     then
         if GetUnitToLocationDistance(npcBot, fountainLocation) >= 200
         then
-            npcBot:Action_ClearActions(false);
             --npcBot:ActionImmediate_Chat("ОТСТУПАЮ!", true);
             npcBot:Action_MoveToLocation(fountainLocation + RandomVector(100));
             return;
         else
-            npcBot:Action_ClearActions(false);
             npcBot:Action_MoveToLocation(npcBot:GetLocation() + RandomVector(100));
             return;
         end
     else
-        npcBot:Action_ClearActions(false);
         npcBot:Action_AttackMove(npcBot:GetLocation());
         return;
     end

@@ -55,6 +55,8 @@ C["carryHeroes"] = {
     ["npc_dota_hero_obsidian_destroyer"] = 1,
     ["npc_dota_hero_life_stealer"] = 1,
     ["npc_dota_hero_templar_assassin"] = 1,
+    ["npc_dota_hero_windrunner"] = 1,
+    ["npc_dota_hero_arc_warden"] = 1,
 }
 
 local S = {}
@@ -94,6 +96,7 @@ S["supportHeroes"] = {
     ["npc_dota_hero_dark_willow"] = 1,
     ["npc_dota_hero_keeper_of_the_light"] = 1,
     ["npc_dota_hero_shredder"] = 1,
+    ["npc_dota_hero_oracle"] = 1,
 }
 
 function IsHeroCarry(npcBot)
@@ -138,6 +141,30 @@ function HaveCarryInTeam(npcBot)
     end
 
     return false;
+end
+
+function GetCountCarryHeroInTeam()
+    local count = 0;
+    local players = GetTeamPlayers(GetTeam());
+    for i = 1, #players do
+        if C["carryHeroes"][GetSelectedHeroName(players[i])] == 1
+        then
+            count = count + 1;
+        end
+    end
+    return count;
+end
+
+function GetCountSupportHeroInTeam()
+    local count = 0;
+    local players = GetTeamPlayers(GetTeam());
+    for i = 1, #players do
+        if S["supportHeroes"][GetSelectedHeroName(players[i])] == 1
+        then
+            count = count + 1;
+        end
+    end
+    return count;
 end
 
 ---------------------------------------------------------------------------------------------------

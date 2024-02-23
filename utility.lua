@@ -15,6 +15,11 @@ function IsValidTarget(target)
 	return false;
 end
 
+function IsClone(npcTarget)
+	return IsValidTarget(npcTarget) and
+		npcTarget:HasModifier("modifier_arc_warden_tempest_double")
+end
+
 function GetFountain(npcTarget)
 	if IsValidTarget(npcTarget)
 	then
@@ -253,7 +258,7 @@ function IsCourierItemSlotsFull()
 	return itemCount >= 9;
 end
 
-function GetBotCourier(npcBot)
+--[[ function GetBotCourier(npcBot)
 	local courier = GetCourier(0);
 	local numPlayer = GetTeamPlayers(GetTeam());
 
@@ -262,6 +267,28 @@ function GetBotCourier(npcBot)
 		if member ~= nil and member:GetUnitName() == npcBot:GetUnitName()
 		then
 			courier = GetCourier(i - 1);
+		end
+	end
+	return courier;
+end ]]
+
+function GetBotCourier(npcBot)
+	local courier = GetCourier(0);
+
+	if npcBot:GetTeam() == TEAM_RADIANT
+	then
+		local playerID = npcBot:GetPlayerID();
+		courier = GetCourier(playerID);
+	elseif npcBot:GetTeam() == TEAM_DIRE
+	then
+		courier = GetCourier(0);
+		local numPlayer = GetTeamPlayers(GetTeam());
+		for i = 1, #numPlayer do
+			local member = GetTeamMember(i);
+			if member ~= nil and member:GetUnitName() == npcBot:GetUnitName()
+			then
+				courier = GetCourier(i - 1);
+			end
 		end
 	end
 	return courier;
@@ -294,8 +321,9 @@ function IsHero(npcTarget)
 			then
 				return true;
 			end
+		else
+			return true;
 		end
-		return true;
 	else
 		return false;
 	end
@@ -303,10 +331,10 @@ end
 
 function IsBuilding(npcTarget)
 	return IsValidTarget(npcTarget) and
-		npcTarget:IsTower() or npcTarget:IsFort() or npcTarget:IsBarracks() or
-		string.find(npcTarget:GetUnitName(), "rax") or
-		string.find(npcTarget:GetUnitName(), "tower") or
-		string.find(npcTarget:GetUnitName(), "fort");
+		(npcTarget:IsTower() or npcTarget:IsBarracks() or npcTarget:IsFort() or
+			string.find(npcTarget:GetUnitName(), "rax") or
+			string.find(npcTarget:GetUnitName(), "tower") or
+			string.find(npcTarget:GetUnitName(), "fort"));
 end
 
 function IsRoshan(npcTarget)
@@ -319,7 +347,7 @@ function IsDisabled(npcTarget)
 			npcTarget:IsHexed() or
 			npcTarget:IsNightmared() or
 			npcTarget:IsRooted() or
-			npcTarget:IsStunned())
+			npcTarget:IsStunned());
 end
 
 function IsMoving(npcTarget)
@@ -755,7 +783,8 @@ end
 function TargetCantDie(npcTarget)
 	return IsValidTarget(npcTarget) and npcTarget:GetHealth() / npcTarget:GetMaxHealth() <= 0.3 and
 		(npcTarget:HasModifier("modifier_dazzle_shallow_grave") or
-			npcTarget:HasModifier("modifier_oracle_false_promise_timer"))
+			npcTarget:HasModifier("modifier_oracle_false_promise_timer") or
+			npcTarget:HasModifier("modifier_troll_warlord_battle_trance"))
 end
 
 function IsTargetInvulnerable(npcTarget)
@@ -861,6 +890,22 @@ function PvEMode(npcBot)
 		botMode == BOT_MODE_DEFEND_TOWER_MID or
 		botMode == BOT_MODE_DEFEND_TOWER_BOT or
 		botMode == BOT_MODE_FARM or
+		botMode == BOT_MODE_SECRET_SHOP or
+		botMode == BOT_MODE_SIDE_SHOP or
+		botMode == BOT_MODE_ITEM or
+		botMode == BOT_MODE_ASSEMBLE or
+		botMode == BOT_MODE_SHRINE or
+		botMode == BOT_MODE_ROSHAN);
+end
+
+function WanderMode(npcBot)
+	local botMode = npcBot:GetActiveMode();
+	return (botMode == BOT_MODE_PUSH_TOWER_TOP or
+		botMode == BOT_MODE_PUSH_TOWER_MID or
+		botMode == BOT_MODE_PUSH_TOWER_BOT or
+		botMode == BOT_MODE_DEFEND_TOWER_TOP or
+		botMode == BOT_MODE_DEFEND_TOWER_MID or
+		botMode == BOT_MODE_DEFEND_TOWER_BOT or
 		botMode == BOT_MODE_SECRET_SHOP or
 		botMode == BOT_MODE_SIDE_SHOP or
 		botMode == BOT_MODE_RUNE or

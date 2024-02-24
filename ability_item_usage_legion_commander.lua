@@ -93,7 +93,7 @@ function ConsiderOverwhelmingOdds()
         return;
     end
 
-    local radiusAbility = ability:GetSpecialValueInt("radius");
+    local radiusAbility = ability:GetAOERadius();
     local enemyCreepsAbility = npcBot:GetNearbyCreeps(radiusAbility, true);
     local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
     local damageForCreep = ability:GetSpecialValueInt("damage_per_unit");

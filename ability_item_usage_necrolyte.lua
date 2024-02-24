@@ -95,7 +95,7 @@ function ConsiderDeathPulse()
     end
 
     local damageAbility = ability:GetAbilityDamage();
-    local radiusAbility = ability:GetSpecialValueInt("area_of_effect");
+    local radiusAbility = ability:GetAOERadius();
     local allyAbility = npcBot:GetNearbyHeroes(radiusAbility, false, BOT_MODE_NONE);
     local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
 

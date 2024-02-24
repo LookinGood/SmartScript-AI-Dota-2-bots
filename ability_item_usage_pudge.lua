@@ -222,14 +222,15 @@ function ConsiderRot()
         return;
     end
 
-    local radiusAbility
+--[[     local radiusAbility
     if not npcBot:HasScepter()
     then
         radiusAbility = ability:GetSpecialValueInt("rot_radius");
     else
         radiusAbility = ability:GetSpecialValueInt("rot_radius") + ability:GetSpecialValueInt("scepter_rot_radius_bonus")
-    end
+    end ]]
 
+    local radiusAbility = ability:GetAOERadius();
     local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
 
     -- Attack use

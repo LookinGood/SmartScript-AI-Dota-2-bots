@@ -102,7 +102,7 @@ function ConsiderSearingChains()
         return;
     end
 
-    local radiusAbility = ability:GetSpecialValueInt("radius");
+    local radiusAbility = ability:GetAOERadius();
     local damageAbility = ability:GetSpecialValueInt("damage_per_second") * ability:GetSpecialValueInt("duration");
     local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
 

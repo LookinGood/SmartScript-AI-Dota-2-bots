@@ -222,7 +222,7 @@ function ConsiderWhirlingDeath()
         return;
     end
 
-    local radiusAbility = ability:GetSpecialValueInt("whirling_radius");
+    local radiusAbility = ability:GetAOERadius();
     local treesAround = npcBot:GetNearbyTrees(radiusAbility);
     local damageAbility = ability:GetSpecialValueInt("whirling_damage") +
         (#treesAround * ability:GetSpecialValueInt("tree_damage_scale"));

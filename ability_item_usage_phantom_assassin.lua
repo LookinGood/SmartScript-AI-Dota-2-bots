@@ -264,7 +264,7 @@ function ConsiderFanOfKnives()
         return;
     end
 
-    local radiusAbility = ability:GetSpecialValueInt("radius");
+    local radiusAbility = ability:GetAOERadius();
     local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
 
     -- Cast if can kill somebody

@@ -94,6 +94,7 @@ require(GetScriptDirectory() .. "/hero_role_generic")
 	"npc_dota_hero_windrunner",
 	"npc_dota_hero_arc_warden",
 	"npc_dota_hero_oracle",
+	"npc_dota_hero_slardar",
 ]]
 --#endregion
 
@@ -187,6 +188,7 @@ local hero_pool_my =
 	"npc_dota_hero_windrunner",
 	"npc_dota_hero_arc_warden",
 	"npc_dota_hero_oracle",
+	"npc_dota_hero_slardar",
 }
 
 local heroesCarry =
@@ -244,6 +246,7 @@ local heroesCarry =
 	"npc_dota_hero_templar_assassin",
 	"npc_dota_hero_windrunner",
 	"npc_dota_hero_arc_warden",
+	"npc_dota_hero_slardar",
 }
 
 local heroesSupport =
@@ -379,7 +382,7 @@ function Think()
 
 	-- Insert here hero hame and set "testmode = true" if you want the bot to choose a specific hero
 	testmode = false;
-	testHero = "npc_dota_hero_oracle"
+	testHero = "npc_dota_hero_slardar"
 
 	if testmode
 	then

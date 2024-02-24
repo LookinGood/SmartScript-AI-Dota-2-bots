@@ -222,7 +222,7 @@ function ConsiderAnchorSmash()
         return;
     end
 
-    local radiusAbility = ability:GetSpecialValueInt("radius");
+    local radiusAbility = ability:GetAOERadius();
     local damageAbility = npcBot:GetAttackDamage() + ability:GetSpecialValueInt("attack_damage");
     local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
 
@@ -324,7 +324,7 @@ function ConsiderRavage()
         return;
     end
 
-    local radiusAbility = ability:GetSpecialValueInt("radius");
+    local radiusAbility = ability:GetAOERadius();
     local damageAbility = ability:GetAbilityDamage();
     local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
 

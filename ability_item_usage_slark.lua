@@ -102,7 +102,7 @@ function ConsiderDarkPact()
         return;
     end
 
-    local radiusAbility = ability:GetSpecialValueInt("radius");
+    local radiusAbility = ability:GetAOERadius();
 
     -- Attack use
     if not utility.CanAbilityKillTarget(npcBot, selfDamageAbility, ability:GetDamageType())

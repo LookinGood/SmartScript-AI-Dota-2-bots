@@ -263,7 +263,7 @@ function ConsiderScreamOfPain()
         return;
     end
 
-    local radiusAbility = ability:GetSpecialValueInt("area_of_effect");
+    local radiusAbility = ability:GetAOERadius();
     local damageAbility = ability:GetSpecialValueInt("damage");
     local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
 

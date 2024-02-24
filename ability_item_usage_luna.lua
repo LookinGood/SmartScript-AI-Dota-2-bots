@@ -178,7 +178,7 @@ function ConsiderEclipse()
     end
 
     local castRangeAbility = ability:GetSpecialValueInt("AbilityCastRange");
-    local radiusAbility = ability:GetSpecialValueInt("radius");
+    local radiusAbility = ability:GetAOERadius();
     local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
 
     -- Attack use

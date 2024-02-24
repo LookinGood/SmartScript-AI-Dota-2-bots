@@ -240,12 +240,13 @@ function ConsiderWindrun()
                 return BOT_ACTION_DESIRE_HIGH;
             end
         end
-    end
-
-    -- General use
-    if (HealthPercentage <= 0.8) and ((npcBot:WasRecentlyDamagedByAnyHero(2.0) or npcBot:WasRecentlyDamagedByTower(2.0)))
+        -- Retreat use
+    elseif utility.RetreatMode(npcBot)
     then
-        return BOT_ACTION_DESIRE_HIGH;
+        if (HealthPercentage <= 0.8) and ((npcBot:WasRecentlyDamagedByAnyHero(2.0) or npcBot:WasRecentlyDamagedByTower(2.0)))
+        then
+            return BOT_ACTION_DESIRE_HIGH;
+        end
     end
 end
 

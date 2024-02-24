@@ -62,8 +62,8 @@ local ItemsToBuy =
     "item_point_booster",
     "item_energy_booster",
     "item_vitality_booster",
+    "item_void_stone",
     "item_voodoo_mask",
-    "item_recipe_bloodstone",
 
     "item_eagle",
     "item_recipe_swift_blink",

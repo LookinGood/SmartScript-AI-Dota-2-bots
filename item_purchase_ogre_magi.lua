@@ -40,11 +40,11 @@ local ItemsToBuy =
 
 	"item_aghanims_shard",
 
-	"item_voodoo_mask",
-	"item_point_booster",
-	"item_energy_booster",
-	"item_vitality_booster",
-	"item_recipe_bloodstone",
+    "item_point_booster",
+    "item_energy_booster",
+    "item_vitality_booster",
+    "item_void_stone",
+    "item_voodoo_mask",
 
     "item_energy_booster",
     "item_vitality_booster",

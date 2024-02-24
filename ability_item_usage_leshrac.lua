@@ -325,7 +325,7 @@ function ConsiderPulseNova()
     end
 
     local attackRange = npcBot:GetAttackRange();
-    local radiusAbility = ability:GetSpecialValueInt("radius");
+    local radiusAbility = ability:GetAOERadius();
 
     -- Attack use
     if utility.PvPMode(npcBot)

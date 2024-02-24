@@ -57,6 +57,7 @@ C["carryHeroes"] = {
     ["npc_dota_hero_templar_assassin"] = 1,
     ["npc_dota_hero_windrunner"] = 1,
     ["npc_dota_hero_arc_warden"] = 1,
+    ["npc_dota_hero_slardar"] = 1,
 }
 
 local S = {}

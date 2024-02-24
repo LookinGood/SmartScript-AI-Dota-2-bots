@@ -361,7 +361,7 @@ function ConsiderRequiemOfSouls()
         return;
     end
 
-    local radiusAbility = ability:GetSpecialValueInt("requiem_radius");
+    local radiusAbility = ability:GetAOERadius();
     local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility / 2, true, BOT_MODE_NONE);
 
     -- Attack use

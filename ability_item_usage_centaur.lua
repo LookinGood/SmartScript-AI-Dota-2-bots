@@ -102,7 +102,7 @@ function ConsiderHoofStomp()
         return;
     end
 
-    local radiusAbility = ability:GetSpecialValueInt("radius");
+    local radiusAbility = ability:GetAOERadius();
     local damageAbility = ability:GetSpecialValueInt("stomp_damage");
     local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
 

@@ -264,14 +264,14 @@ function ConsiderTagTeam()
             end
         end
         -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+--[[     elseif utility.RetreatMode(npcBot)
     then
         local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
         if (HealthPercentage <= 0.8) and (#enemyAbility > 0)
         then
             --npcBot:ActionImmediate_Chat("Использую TagTeam для отступления!", true);
             return BOT_ACTION_DESIRE_HIGH;
-        end
+        end ]]
     end
 end
 

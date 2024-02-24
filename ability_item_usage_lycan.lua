@@ -131,7 +131,7 @@ function ConsiderHowl()
     end
 
     local attackRange = npcBot:GetAttackRange();
-    local radiusAbility = ability:GetSpecialValueInt("radius");
+    local radiusAbility = ability:GetAOERadius();
 
     -- General use
     if utility.PvPMode(npcBot) or utility.RetreatMode(npcBot)

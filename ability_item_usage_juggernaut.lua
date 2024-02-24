@@ -99,8 +99,8 @@ function ConsiderBladeFury()
         return;
     end
 
+    local radiusAbility = ability:GetAOERadius();
     local incomingSpells = npcBot:GetIncomingTrackingProjectiles();
-    local radiusAbility = ability:GetSpecialValueInt("blade_fury_radius");
 
     -- Cast if get incoming spell
     if (#incomingSpells > 0)

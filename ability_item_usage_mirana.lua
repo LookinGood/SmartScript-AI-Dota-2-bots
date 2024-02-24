@@ -101,7 +101,7 @@ function ConsiderStarstorm()
         return;
     end
 
-    local radiusAbility = ability:GetSpecialValueInt("starfall_radius");
+    local radiusAbility = ability:GetAOERadius();
     local damageAbility = ability:GetSpecialValueInt("damage");
     local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
 

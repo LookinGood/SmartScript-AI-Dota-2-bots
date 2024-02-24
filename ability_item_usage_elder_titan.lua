@@ -112,7 +112,7 @@ function ConsiderEchoStomp()
         return;
     end
 
-    local radiusAbility = ability:GetSpecialValueInt("radius");
+    local radiusAbility = ability:GetAOERadius();
     local damageAbility = ability:GetSpecialValueInt("stomp_damage");
     local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility - 100, true, BOT_MODE_NONE);
 

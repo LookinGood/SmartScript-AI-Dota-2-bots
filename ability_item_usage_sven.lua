@@ -162,7 +162,7 @@ function ConsiderWarcry()
     if not utility.IsAbilityAvailable(ability) then
         return;
     end
-    local radiusAbility = ability:GetSpecialValueInt("radius");
+    local radiusAbility = ability:GetAOERadius();
     local allyAbility = npcBot:GetNearbyHeroes(radiusAbility, false, BOT_MODE_NONE);
 
     -- Use to buff damaged ally

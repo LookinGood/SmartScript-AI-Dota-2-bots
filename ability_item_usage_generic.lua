@@ -1282,6 +1282,7 @@ function ItemUsageThink()
 			if utility.PvPMode(npcBot)
 			then
 				if utility.IsHero(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= (attackRange * 2)
+					and npcBot:WasRecentlyDamagedByAnyHero(2.0)
 				then
 					npcBot:Action_UseAbility(blackKingBar);
 					--npcBot:ActionImmediate_Chat("Использую предмет black King Bar для нападения!",true);
@@ -2293,6 +2294,32 @@ function ItemUsageThink()
 				(npcBot:GetHealth() < npcBot:GetMaxHealth() or npcBot:GetMana() < npcBot:GetMaxMana())
 			then
 				npcBot:Action_UseAbility(bottle);
+			end
+		end
+	end
+
+	-- item_armlet
+	local armlet = IsItemAvailable("item_armlet");
+	if armlet ~= nil and armlet:IsFullyCastable()
+	then
+		if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
+		then
+			if (utility.IsHero(botTarget) or utility.IsRoshan(botTarget)) and npcBot:GetAttackTarget() == botTarget
+			then
+				if armlet:GetToggleState() == false
+				then
+					npcBot:Action_UseAbility(armlet);
+				end
+			else
+				if armlet:GetToggleState() == true
+				then
+					npcBot:Action_UseAbility(armlet);
+				end
+			end
+		else
+			if armlet:GetToggleState() == true
+			then
+				npcBot:Action_UseAbility(armlet);
 			end
 		end
 	end

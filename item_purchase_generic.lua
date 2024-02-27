@@ -23,6 +23,7 @@ function ItemPurchase(ItemsToBuy)
     utility.PurchaseBottle(npcBot)
     utility.PurchaseTP(npcBot)
     utility.PurchaseWardObserver(npcBot)
+    utility.PurchaseWardSentry(npcBot)
     utility.PurchaseDust(npcBot)
     utility.PurchaseInfusedRaindrop(npcBot)
     --utility.PurchaseTomeOfKnowledge(npcBot) -- Item deleted
@@ -248,6 +249,7 @@ function SellExtraItem()
         then
             SellSpecifiedItem("item_hand_of_midas")
             SellSpecifiedItem("item_mask_of_madness")
+            SellSpecifiedItem("item_armlet")
             --SellSpecifiedItem("item_pavise")
             --SellSpecifiedItem("item_veil_of_discord")
         end

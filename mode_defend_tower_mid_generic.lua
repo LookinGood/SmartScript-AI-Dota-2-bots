@@ -8,20 +8,9 @@ require(GetScriptDirectory() .. "/utility")
 
 local npcBot = GetBot();
 
-function GetDesire()
-    local botHealth = npcBot:GetHealth() / npcBot:GetMaxHealth();
-    local botMode = npcBot:GetActiveMode();
-    local botLevel = npcBot:GetLevel();
-
-    if not utility.CanMove(npcBot) or utility.IsBusy(npcBot) or botMode == BOT_MODE_DEFEND_TOWER_BOT or botMode == BOT_MODE_DEFEND_TOWER_TOP
-        or npcBot:WasRecentlyDamagedByAnyHero(2.0) or botHealth <= 0.3 or botLevel < 6
-    then
-        return BOT_ACTION_DESIRE_NONE;
-    end
-
+local function GetBuildingToProtect()
+    local building = nil;
     local radiusUnit = 3000;
-
-
     local towers = {
         TOWER_MID_1,
         TOWER_MID_2,
@@ -35,20 +24,13 @@ function GetDesire()
         local tower = GetTower(GetTeam(), t);
         if tower ~= nil and not tower:IsInvulnerable()
         then
-            if tower:GetHealth() / tower:GetMaxHealth() <= 0.9
+            if utility.CountEnemyCreepAroundUnit(tower, radiusUnit) >= 5 and utility.CountAllyCreepAroundUnit(tower, radiusUnit) < 5
             then
-                if utility.CountEnemyCreepAroundUnit(tower, radiusUnit) >= 4 and utility.CountAllyCreepAroundUnit(tower, radiusUnit) < 4
-                then
-                    --npcBot:ActionImmediate_Chat("Я решил защищать башню на МИДУ от крипов!",true);
-                    mainBuilding = tower;
-                    return BOT_ACTION_DESIRE_HIGH;
-                elseif (utility.CountEnemyHeroAroundUnit(tower, radiusUnit) >= 2 and utility.CountEnemyCreepAroundUnit(tower, radiusUnit) >= 1
-                        and utility.CountAllyCreepAroundUnit(tower, radiusUnit) < 5)
-                then
-                    --npcBot:ActionImmediate_Chat("Я решил защищать башню на МИДУ от ГЕРОЕВ!",true);
-                    mainBuilding = tower;
-                    return BOT_ACTION_DESIRE_HIGH;
-                end
+                building = tower;
+            elseif (utility.CountEnemyHeroAroundUnit(tower, radiusUnit) >= 2 and utility.CountEnemyCreepAroundUnit(tower, radiusUnit) >= 1
+                    and utility.CountAllyCreepAroundUnit(tower, radiusUnit) < 5)
+            then
+                building = tower;
             end
         end
     end
@@ -63,20 +45,13 @@ function GetDesire()
         local barrack = GetBarracks(GetTeam(), b);
         if barrack ~= nil and not barrack:IsInvulnerable()
         then
-            if barrack:GetHealth() / barrack:GetMaxHealth() <= 0.9
+            if utility.CountEnemyCreepAroundUnit(barrack, radiusUnit) >= 5 and utility.CountAllyCreepAroundUnit(barrack, radiusUnit) < 5
             then
-                if utility.CountEnemyCreepAroundUnit(barrack, radiusUnit) >= 4 and utility.CountAllyCreepAroundUnit(barrack, radiusUnit) < 4
-                then
-                    --npcBot:ActionImmediate_Chat("Я решил защищать барраки на МИДУ от крипов!", true);
-                    mainBuilding = barrack;
-                    return BOT_ACTION_DESIRE_VERYHIGH;
-                elseif (utility.CountEnemyHeroAroundUnit(barrack, radiusUnit) >= 2 and utility.CountEnemyCreepAroundUnit(barrack, radiusUnit) >= 1
-                        and utility.CountAllyCreepAroundUnit(barrack, radiusUnit) <= 5)
-                then
-                    --npcBot:ActionImmediate_Chat("Я решил защищать барраки на МИДУ от героев!", true);
-                    mainBuilding = barrack;
-                    return BOT_ACTION_DESIRE_VERYHIGH;
-                end
+                building = barrack;
+            elseif (utility.CountEnemyHeroAroundUnit(barrack, radiusUnit) >= 2 and utility.CountEnemyCreepAroundUnit(barrack, radiusUnit) >= 1
+                    and utility.CountAllyCreepAroundUnit(barrack, radiusUnit) <= 5)
+            then
+                building = barrack;
             end
         end
     end
@@ -88,26 +63,60 @@ function GetDesire()
             (utility.CountEnemyCreepAroundUnit(ancient, radiusUnit) >= 1 and utility.CountEnemyHeroAroundUnit(ancient, radiusUnit) >= 1
                 and utility.CountAllyCreepAroundUnit(ancient, radiusUnit) < 5)
         then
-            --npcBot:ActionImmediate_Chat("Я решил защищать Древнего!", true);
-            mainBuilding = ancient;
-            return BOT_ACTION_DESIRE_VERYHIGH;
+            building = ancient;
         end
     end
 
+    return building;
+end
 
-    return BOT_ACTION_DESIRE_NONE;
+function GetDesire()
+    local botHealth = npcBot:GetHealth() / npcBot:GetMaxHealth();
+    local botMode = npcBot:GetActiveMode();
+    local botLevel = npcBot:GetLevel();
+
+    if not utility.IsHero(npcBot) or not utility.CanMove(npcBot) or utility.IsBusy(npcBot) or npcBot:WasRecentlyDamagedByAnyHero(2.0) or botHealth <= 0.3 or botLevel <= 3
+        or botMode == BOT_MODE_DEFEND_TOWER_BOT or
+        botMode == BOT_MODE_DEFEND_TOWER_TOP
+    then
+        return BOT_ACTION_DESIRE_NONE;
+    end
+
+    mainBuilding = GetBuildingToProtect();
+
+    if mainBuilding == nil
+    then
+        return BOT_ACTION_DESIRE_NONE;
+    elseif mainBuilding:IsTower()
+    then
+        return BOT_ACTION_DESIRE_HIGH;
+    elseif mainBuilding:IsBarracks()
+    then
+        return BOT_ACTION_DESIRE_VERYHIGH;
+    elseif mainBuilding:IsFort()
+    then
+        return BOT_ACTION_DESIRE_ABSOLUTE;
+    else
+        return BOT_ACTION_DESIRE_NONE;
+    end
+end
+
+function OnStart()
+    npcBot:Action_Chat("Защищаю " .. mainBuilding:GetUnitName(), true);
 end
 
 function OnEnd()
+    npcBot:Action_Chat("Больше не защищаю " .. mainBuilding:GetUnitName(), true);
     mainBuilding = nil;
 end
 
 function Think()
     if mainBuilding ~= nil
     then
-        local defendZone = utility.GetEscapeLocation(mainBuilding, 700);
-        if GetUnitToLocationDistance(npcBot, defendZone) > 700 and npcBot:GetCurrentActionType() ~= BOT_ACTION_TYPE_ATTACK
-            and npcBot:GetCurrentActionType() ~= BOT_ACTION_TYPE_ATTACKMOVE
+        local defendZone = utility.GetEscapeLocation(mainBuilding, 500);
+        if GetUnitToLocationDistance(npcBot, defendZone) > 700 and
+            npcBot:GetCurrentActionType() ~= BOT_ACTION_TYPE_ATTACK and
+            npcBot:GetCurrentActionType() ~= BOT_ACTION_TYPE_ATTACKMOVE
         then
             npcBot:Action_MoveToLocation(defendZone);
             return;

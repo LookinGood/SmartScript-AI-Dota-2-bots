@@ -58,6 +58,7 @@ local ItemsToBuy =
     "item_recipe_sphere",
 
 	"item_mystic_staff",
+	"item_recipe_devastator",
 
 	"item_gloves",
 	"item_mithril_hammer",

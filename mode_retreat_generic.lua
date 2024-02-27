@@ -43,10 +43,14 @@ function GetDesire()
         return BOT_ACTION_DESIRE_HIGH;
     end
 
-    if botMode ~= BOT_MODE_LANING and enemyHeroes > allyHeroes
+    if (enemyHeroes > allyHeroes + 1) and botMode ~= BOT_MODE_LANING
     then
         return BOT_ACTION_DESIRE_VERYHIGH;
     end
+
+    --botMode ~= BOT_MODE_DEFEND_TOWER_TOP and
+    --botMode ~= BOT_MODE_DEFEND_TOWER_MID and
+    --botMode ~= BOT_MODE_DEFEND_TOWER_BOT
 
     -- and npcBot:GetHealth() / npcBot:GetMaxHealth() <= 0.9 and npcBot:WasRecentlyDamagedByAnyHero(2.0)
 

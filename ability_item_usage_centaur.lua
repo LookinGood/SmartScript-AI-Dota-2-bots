@@ -254,7 +254,7 @@ function ConsiderStampede()
     -- Attack use
     if utility.PvPMode(npcBot)
     then
-        if utility.IsHero(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) > (attackRange * 2) and GetUnitToUnitDistance(npcBot, botTarget) < 3000
+        if utility.IsHero(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) > (attackRange * 2) and GetUnitToUnitDistance(npcBot, botTarget) <= 1600
         then
             --npcBot:ActionImmediate_Chat("Использую Stampede для нападения!", true);
             return BOT_ACTION_DESIRE_HIGH;

@@ -95,6 +95,9 @@ require(GetScriptDirectory() .. "/hero_role_generic")
 	"npc_dota_hero_arc_warden",
 	"npc_dota_hero_oracle",
 	"npc_dota_hero_slardar",
+	"npc_dota_hero_chaos_knight",
+	"npc_dota_hero_night_stalker",
+	"npc_dota_hero_huskar",
 ]]
 --#endregion
 
@@ -189,6 +192,9 @@ local hero_pool_my =
 	"npc_dota_hero_arc_warden",
 	"npc_dota_hero_oracle",
 	"npc_dota_hero_slardar",
+	"npc_dota_hero_chaos_knight",
+	"npc_dota_hero_night_stalker",
+	"npc_dota_hero_huskar",
 }
 
 local heroesCarry =
@@ -247,6 +253,9 @@ local heroesCarry =
 	"npc_dota_hero_windrunner",
 	"npc_dota_hero_arc_warden",
 	"npc_dota_hero_slardar",
+	"npc_dota_hero_chaos_knight",
+	"npc_dota_hero_night_stalker",
+	"npc_dota_hero_huskar",
 }
 
 local heroesSupport =
@@ -381,8 +390,8 @@ function Think()
 	end
 
 	-- Insert here hero hame and set "testmode = true" if you want the bot to choose a specific hero
-	testmode = false;
-	testHero = "npc_dota_hero_slardar"
+	local testmode = false;
+	local testHero = "npc_dota_hero_huskar"
 
 	if testmode
 	then
@@ -405,6 +414,7 @@ function Think()
 			end
 		end
 	end
+	--
 
 	local lastpick = 10;
 

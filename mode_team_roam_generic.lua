@@ -7,6 +7,13 @@ local npcBot = GetBot();
 local castAbility = nil;
 
 function GetDesire()
+    local botMode = npcBot:GetActiveMode();
+
+    if botMode == BOT_MODE_SHRINE or npcBot:GetCurrentActionType() == BOT_ACTION_TYPE_SHRINE
+    then
+        return BOT_ACTION_DESIRE_NONE;
+    end
+
     if castAbility == nil then castAbility = npcBot:GetAbilityByName("tinker_rearm") end;
     if castAbility == nil then castAbility = npcBot:GetAbilityByName("elder_titan_echo_stomp") end;
     if castAbility == nil then castAbility = npcBot:GetAbilityByName("tiny_tree_channel") end;
@@ -23,39 +30,12 @@ function GetDesire()
     if castAbility == nil then castAbility = npcBot:GetAbilityByName("windrunner_shackleshot") end;
     if castAbility == nil then castAbility = npcBot:GetAbilityByName("spirit_breaker_charge_of_darkness") end;
 
-    --[[     if castAbility == nil or not npcBot:IsChanneling()
-    then
-        return BOT_ACTION_DESIRE_NONE;
-    end ]]
-
     if npcBot:IsChanneling() or (castAbility ~= nil and castAbility:IsInAbilityPhase()) or
         npcBot:HasModifier("modifier_spirit_breaker_charge_of_darkness")
     then
         --npcBot:ActionImmediate_Chat("Решаю стоять на месте кастуя!", true);
         return BOT_ACTION_DESIRE_ABSOLUTE;
     end
-
-
-    --[[     if npcBot:GetUnitName() == "npc_dota_hero_tinker"
-    then
-        if castAbility == nil then castAbility = npcBot:GetAbilityByName("tinker_rearm") end;
-        if castAbility:IsInAbilityPhase() or npcBot:IsChanneling()
-        then
-            npcBot:ActionImmediate_Chat("Решаю стоять на месте кастуя!", true);
-            return BOT_MODE_DESIRE_ABSOLUTE;
-        end
-    end ]]
-
-    --[[     if npcBot:IsChanneling()
-    then
-        castAbility = npcBot:GetAbilityByName("tinker_rearm");
-        if castAbility ~= nil and castAbility:IsInAbilityPhase() == true
-        then
-            --channeling = true;
-            npcBot:ActionImmediate_Chat("Решаю стоять на месте кастуя!", true);
-            return BOT_ACTION_DESIRE_ABSOLUTE;
-        end
-    end ]]
 
     return BOT_ACTION_DESIRE_NONE;
 end
@@ -71,3 +51,32 @@ end
 
 ---------------------------------------------------------------------------------------------------
 for k, v in pairs(mode_retreat_generic) do _G._savedEnv[k] = v end
+
+
+
+--[[     if castAbility == nil or not npcBot:IsChanneling()
+    then
+        return BOT_ACTION_DESIRE_NONE;
+    end ]]
+
+
+--[[     if npcBot:GetUnitName() == "npc_dota_hero_tinker"
+    then
+        if castAbility == nil then castAbility = npcBot:GetAbilityByName("tinker_rearm") end;
+        if castAbility:IsInAbilityPhase() or npcBot:IsChanneling()
+        then
+            npcBot:ActionImmediate_Chat("Решаю стоять на месте кастуя!", true);
+            return BOT_MODE_DESIRE_ABSOLUTE;
+        end
+    end ]]
+
+--[[     if npcBot:IsChanneling()
+    then
+        castAbility = npcBot:GetAbilityByName("tinker_rearm");
+        if castAbility ~= nil and castAbility:IsInAbilityPhase() == true
+        then
+            --channeling = true;
+            npcBot:ActionImmediate_Chat("Решаю стоять на месте кастуя!", true);
+            return BOT_ACTION_DESIRE_ABSOLUTE;
+        end
+    end ]]

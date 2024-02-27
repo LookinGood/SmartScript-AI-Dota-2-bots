@@ -108,7 +108,7 @@ function GetWardSpot()
     end
 end
 
-function IsObserverWardAvailable()
+--[[ function IsObserverWardAvailable()
     local npcBot = GetBot();
     local slot = npcBot:FindItemSlot("item_ward_observer");
     if npcBot:GetItemSlotType(slot) == ITEM_SLOT_TYPE_MAIN
@@ -116,9 +116,32 @@ function IsObserverWardAvailable()
         return npcBot:GetItemInSlot(slot);
     end
     return nil;
+end ]]
+
+function IsWardAvailable(sWardType)
+    local npcBot = GetBot();
+    local slot = npcBot:FindItemSlot(sWardType);
+    if npcBot:GetItemSlotType(slot) == ITEM_SLOT_TYPE_MAIN
+    then
+        return npcBot:GetItemInSlot(slot);
+    end
+    return nil;
 end
 
-function CloseToAvailableWard(wardLoc)
+function CloseToAvailableWard(sWardType, wardLoc)
+    local WardList = GetUnitList(UNIT_LIST_ALLIED_WARDS);
+    local visionRad = 1600;
+
+    for _, ward in pairs(WardList) do
+        if ward:GetUnitName() == sWardType and GetUnitToLocationDistance(ward, wardLoc) <= visionRad
+        then
+            return true;
+        end
+    end
+    return false;
+end
+
+--[[ function CloseToAvailableWard(wardLoc)
     local WardList = GetUnitList(UNIT_LIST_ALLIED_WARDS);
     local visionRad = 1600;
 
@@ -129,7 +152,7 @@ function CloseToAvailableWard(wardLoc)
         end
     end
     return false;
-end
+end ]]
 
 function GetDesire()
     if GetGameState() == GAME_STATE_PRE_GAME or GetGameState() ~= GAME_STATE_GAME_IN_PROGRESS
@@ -146,16 +169,40 @@ function GetDesire()
         return BOT_ACTION_DESIRE_NONE;
     end
 
-    wardObserver = IsObserverWardAvailable();
-    if wardObserver ~= nil and wardObserver:IsFullyCastable()
+    wardObserver = IsWardAvailable("item_ward_observer");
+    wardSentry = IsWardAvailable("item_ward_sentry");
+    wardDispenser = IsWardAvailable("item_ward_dispenser");
+
+    if (wardObserver ~= nil and wardObserver:IsFullyCastable()) or
+        (wardSentry ~= nil and wardSentry:IsFullyCastable()) or
+        (wardDispenser ~= nil and wardDispenser:IsFullyCastable())
     then
         for _, s in pairs(GetWardSpot()) do
-            if GetUnitToLocationDistance(npcBot, s) <= 2000 and not CloseToAvailableWard(s) and utility.CountAllyTowerAroundPosition(s, 1000) <= 0
+            if GetUnitToLocationDistance(npcBot, s) <= 2000 and utility.CountAllyTowerAroundPosition(s, 1000) <= 0
                 and utility.CountEnemyTowerAroundPosition(s, 1000) <= 0
             then
-                --npcBot:ActionImmediate_Chat("Нужно поставить вард!", true);
-                wardSpot = s;
-                return BOT_ACTION_DESIRE_HIGH;
+                if wardObserver ~= nil
+                then
+                    if not CloseToAvailableWard("npc_dota_observer_wards", s)
+                    then
+                        wardSpot = s;
+                        return BOT_ACTION_DESIRE_HIGH;
+                    end
+                elseif wardSentry ~= nil
+                then
+                    if not CloseToAvailableWard("npc_dota_sentry_wards", s)
+                    then
+                        wardSpot = s;
+                        return BOT_ACTION_DESIRE_HIGH;
+                    end
+                elseif wardDispenser ~= nil
+                then
+                    if not CloseToAvailableWard("npc_dota_observer_wards", s) and not CloseToAvailableWard("npc_dota_sentry_wards", s)
+                    then
+                        wardSpot = s;
+                        return BOT_ACTION_DESIRE_HIGH;
+                    end
+                end
             end
         end
     end
@@ -172,17 +219,29 @@ function OnEnd()
 end
 
 function Think()
-    if wardSpot ~= nil and wardObserver ~= nil and wardObserver:IsFullyCastable()
+    if wardSpot ~= nil
     then
-        if GetUnitToLocationDistance(npcBot, wardSpot) >= 500
+        if GetUnitToLocationDistance(npcBot, wardSpot) > 500
         then
-            --npcBot:ActionImmediate_Chat("Иду ставить вард!", true);
             npcBot:Action_MoveToLocation(wardSpot);
             return;
         else
-            --npcBot:ActionImmediate_Chat("Ставлю вард!", true);
-            npcBot:Action_UseAbilityOnLocation(wardObserver, wardSpot + RandomVector(50));
-            return;
+            if wardObserver ~= nil and wardObserver:IsFullyCastable()
+            then
+                --npcBot:ActionImmediate_Chat("Ставлю wardObserver!", true);
+                npcBot:Action_UseAbilityOnLocation(wardObserver, wardSpot + RandomVector(50));
+                return;
+            elseif wardSentry ~= nil and wardSentry:IsFullyCastable()
+            then
+                --npcBot:ActionImmediate_Chat("Ставлю wardSentry!", true);
+                npcBot:Action_UseAbilityOnLocation(wardSentry, wardSpot + RandomVector(50));
+                return;
+            elseif wardDispenser ~= nil and wardDispenser:IsFullyCastable()
+            then
+                npcBot:ActionImmediate_Chat("Ставлю wardDispenser!", true);
+                npcBot:Action_UseAbilityOnLocation(wardDispenser, wardSpot + RandomVector(50));
+                return;
+            end
         end
     end
 end

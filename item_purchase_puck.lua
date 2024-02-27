@@ -51,6 +51,7 @@ local ItemsToBuy =
 	"item_recipe_dagon",
 
 	"item_mystic_staff",
+	"item_recipe_devastator",
 
 	"item_point_booster",
 	"item_ogre_axe",

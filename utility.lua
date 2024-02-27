@@ -20,6 +20,16 @@ function IsClone(npcTarget)
 		npcTarget:HasModifier("modifier_arc_warden_tempest_double")
 end
 
+function IsNight()
+	local time = GetTimeOfDay();
+	if time < 0.5
+	then
+		return true;
+	else
+		return false;
+	end
+end
+
 function GetFountain(npcTarget)
 	if IsValidTarget(npcTarget)
 	then
@@ -1015,7 +1025,7 @@ function PurchaseWardObserver(npcBot)
 
 	for i = 0, 16 do
 		local item = npcBot:GetItemInSlot(i);
-		if item ~= nil and item:GetName() == "item_ward_observer"
+		if item ~= nil and (item:GetName() == "item_ward_observer" or item:GetName() == "item_ward_sentry" or item:GetName() == "item_ward_dispenser")
 		then
 			return;
 		end
@@ -1023,7 +1033,7 @@ function PurchaseWardObserver(npcBot)
 
 	for i = 0, 8 do
 		local item = courier:GetItemInSlot(i);
-		if item ~= nil and item:GetName() == "item_ward_observer"
+		if item ~= nil and (item:GetName() == "item_ward_observer" or item:GetName() == "item_ward_sentry" or item:GetName() == "item_ward_dispenser")
 		then
 			return;
 		end
@@ -1061,6 +1071,62 @@ function PurchaseWardObserver(npcBot)
 			end
 		else
 			npcBot:ActionImmediate_PurchaseItem("item_ward_observer");
+			return;
+		end
+	end
+end
+
+function PurchaseWardSentry(npcBot)
+	if npcBot:GetGold() < GetItemCost("item_ward_sentry") * 2 or IsItemSlotsFull() or IsStashSlotsFull() or GetItemStockCount("item_ward_sentry") < 1
+		or (npcBot:GetNextItemPurchaseValue() > 0 and npcBot:GetGold() >= npcBot:GetNextItemPurchaseValue()) or GetGameState() ~= GAME_STATE_GAME_IN_PROGRESS
+	then
+		return;
+	end
+
+	local courier = GetBotCourier(npcBot);
+
+	for i = 0, 16 do
+		local item = npcBot:GetItemInSlot(i);
+		if item ~= nil and (item:GetName() == "item_ward_observer" or item:GetName() == "item_ward_sentry" or item:GetName() == "item_ward_dispenser")
+		then
+			return;
+		end
+	end
+
+	for i = 0, 8 do
+		local item = courier:GetItemInSlot(i);
+		if item ~= nil and (item:GetName() == "item_ward_observer" or item:GetName() == "item_ward_sentry" or item:GetName() == "item_ward_dispenser")
+		then
+			return;
+		end
+	end
+
+	if HaveHumanInTeam(npcBot)
+	then
+		if GetItemStockCount("item_ward_sentry") > 1
+		then
+			if hero_role_generic.HaveSupportInTeam(npcBot)
+			then
+				if hero_role_generic.IsHeroSupport(npcBot)
+				then
+					npcBot:ActionImmediate_PurchaseItem("item_ward_sentry");
+					return;
+				end
+			else
+				npcBot:ActionImmediate_PurchaseItem("item_ward_sentry");
+				return;
+			end
+		end
+	else
+		if hero_role_generic.HaveSupportInTeam(npcBot)
+		then
+			if hero_role_generic.IsHeroSupport(npcBot)
+			then
+				npcBot:ActionImmediate_PurchaseItem("item_ward_sentry");
+				return;
+			end
+		else
+			npcBot:ActionImmediate_PurchaseItem("item_ward_sentry");
 			return;
 		end
 	end

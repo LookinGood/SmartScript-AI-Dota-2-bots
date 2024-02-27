@@ -34,8 +34,8 @@ local ItemsToBuy =
 	"item_recipe_lotus_orb",
 
 	"item_tiara_of_selemene",
-	"item_ultimate_orb",
 	"item_mystic_staff",
+	"item_recipe_sheepstick",
 
 	"item_point_booster",
 	"item_staff_of_wizardry",

@@ -1,7 +1,6 @@
 ---@diagnostic disable: undefined-global
 _G._savedEnv = getfenv()
 module("teleportation_usage_generic", package.seeall)
-
 require(GetScriptDirectory() .. "/utility")
 
 --local utility = require(GetScriptDirectory() .. "/utility")
@@ -14,6 +13,33 @@ function IsValidTower(target)
 end
 
 function ClosestSafeBuilding(unit, distance, enemyRadius, enemyCount)
+    local npcBot = GetBot();
+    local safeBuilding = nil;
+    local allyBuildings = GetUnitList(UNIT_LIST_ALLIED_BUILDINGS);
+    local allyHeroes = utility.CountAllyHeroAroundUnit(unit, radius)
+    local enemyHeroes = utility.CountEnemyHeroAroundUnit(unit, radius);
+    if (enemyHeroes <= enemyCount) or (allyHeroes >= 1)
+    then
+        safeBuilding = unit;
+    else
+        for _, building in pairs(allyBuildings)
+        do
+            if building ~= unit
+            then
+                local enemyHeroes = utility.CountEnemyHeroAroundUnit(building, enemyRadius);
+                if GetUnitToUnitDistance(unit, building) <= distance and GetUnitToUnitDistance(npcBot, building) >= distance
+                    and (enemyHeroes <= enemyCount)
+                then
+                    safeBuilding = building;
+                end
+            end
+        end
+    end
+
+    return safeBuilding;
+end
+
+--[[ function ClosestSafeBuilding(unit, distance, enemyRadius, enemyCount)
     local npcBot = GetBot();
     local allyBuildings = GetUnitList(UNIT_LIST_ALLIED_BUILDINGS);
     local safeBuilding = nil;
@@ -44,21 +70,8 @@ function ClosestSafeBuilding(unit, distance, enemyRadius, enemyCount)
         end
     end
 
-
-    --[[     if #allyBuildings > 0
-    then
-        for _, ally in pairs(allyBuildings) do
-            local enemyHeroes = utility.CountEnemyHeroAroundUnit(ally, enemyRadius);
-            if ally ~= nil and GetUnitToUnitDistance(ally, unit) < GetUnitToUnitDistance(npcBot, unit) and GetUnitToUnitDistance(npcBot, ally) > distance
-                and enemyHeroes <= enemyCount
-            then
-                safeBuilding = ally;
-            end
-        end
-    end ]]
-
     return safeBuilding;
-end
+end ]]
 
 function ShouldTP()
     local npcBot = GetBot();
@@ -101,8 +114,9 @@ function ShouldTP()
     then
         if npcBot:DistanceFromFountain() > tpDistance
         then
-            if (npcBot:GetHealth() / npcBot:GetMaxHealth() <= 0.6 and npcBot:WasRecentlyDamagedByAnyHero(2.0)) or (npcBot:GetHealth() / npcBot:GetMaxHealth() <= 0.4)
-                or (not utility.CanMove(npcBot) and (#allyHeroes < 2) and (npcBot:GetHealth() / npcBot:GetMaxHealth() <= 0.6))
+            if (npcBot:GetHealth() / npcBot:GetMaxHealth() <= 0.4) or
+                (npcBot:GetHealth() / npcBot:GetMaxHealth() <= 0.6 and npcBot:WasRecentlyDamagedByAnyHero(2.0)) or
+                (not utility.CanMove(npcBot) and (#allyHeroes < 2) and (npcBot:GetHealth() / npcBot:GetMaxHealth() <= 0.6))
             then
                 --npcBot:ActionImmediate_Chat("Использую tpscroll для отступления!", true);
                 return true, utility.SafeLocation(npcBot);

@@ -130,7 +130,7 @@ function ConsiderSlithereenCrush()
             then
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    npcBot:ActionImmediate_Chat("Использую SlithereenCrush что бы убить цель/прервать каст!", true);
+                    --npcBot:ActionImmediate_Chat("Использую SlithereenCrush что бы убить цель/прервать каст!", true);
                     return BOT_ACTION_DESIRE_ABSOLUTE;
                 end
             end

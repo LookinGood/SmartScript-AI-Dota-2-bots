@@ -49,6 +49,7 @@ local ItemsToBuy =
 	"item_vitality_booster",
 	"item_recipe_rod_of_atos",
 
+	"item_gloves",
 	"item_mithril_hammer",
 	"item_javelin",
 

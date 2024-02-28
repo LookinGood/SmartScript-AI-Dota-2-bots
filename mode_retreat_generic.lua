@@ -5,19 +5,52 @@ require(GetScriptDirectory() .. "/utility")
 
 local npcBot = GetBot();
 
-function GetDesire()
-    local botMode = npcBot:GetActiveMode();
-    local allyHeroes = utility.CountAllyHeroAroundUnit(npcBot, 2000);
-    local enemyHeroes = utility.CountEnemyHeroAroundUnit(npcBot, 2000);
-    --local allyHeroAround = npcBot:GetNearbyHeroes(1600, false, BOT_MODE_NONE);
+local function IsEnemiesStronger()
+    local allyPower = 0;
+    local enemyPower = 0;
+    local allyHeroAround = npcBot:GetNearbyHeroes(1600, false, BOT_MODE_NONE);
     local enemyHeroAround = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
 
+    if (#enemyHeroAround > 0)
+    then
+        for _, enemy in pairs(enemyHeroAround) do
+            if utility.IsValidTarget(enemy)
+            then
+                local enemyOffensivePower = enemy:GetRawOffensivePower();
+                enemyPower = enemyPower + enemyOffensivePower;
+            end
+        end
+    end
+
+    if (#allyHeroAround > 0)
+    then
+        for _, ally in pairs(allyHeroAround) do
+            local allyOffensivePower = ally:GetOffensivePower();
+            allyPower = allyPower + allyOffensivePower;
+        end
+    end
+
+    if enemyPower > allyPower
+    then
+        return true;
+    else
+        return false;
+    end
+end
+
+function GetDesire()
     if not npcBot:IsAlive() or utility.IsBusy(npcBot) or utility.IsClone(npcBot) or
         npcBot:HasModifier("modifier_skeleton_king_reincarnation_scepter") or
         npcBot:HasModifier("modifier_skeleton_king_reincarnation_scepter_active")
     then
         return BOT_ACTION_DESIRE_NONE;
     end
+
+    --local botMode = npcBot:GetActiveMode();
+    local allyHeroes = utility.CountAllyHeroAroundUnit(npcBot, 2000);
+    local enemyHeroes = utility.CountEnemyHeroAroundUnit(npcBot, 2000);
+    local allyHeroAround = npcBot:GetNearbyHeroes(1600, false, BOT_MODE_NONE);
+    local enemyHeroAround = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
 
     if not utility.CanMove(npcBot) or npcBot:HasModifier("modifier_fountain_invulnerability")
     then
@@ -43,48 +76,15 @@ function GetDesire()
         return BOT_ACTION_DESIRE_HIGH;
     end
 
-    if (enemyHeroes > allyHeroes + 1) and botMode ~= BOT_MODE_LANING
+    if (#enemyHeroAround > #allyHeroAround + 1) and IsEnemiesStronger()
     then
+        --npcBot:ActionImmediate_Chat("Враги сильнее, нужно отступить!", true);
         return BOT_ACTION_DESIRE_VERYHIGH;
     end
 
-    --botMode ~= BOT_MODE_DEFEND_TOWER_TOP and
-    --botMode ~= BOT_MODE_DEFEND_TOWER_MID and
-    --botMode ~= BOT_MODE_DEFEND_TOWER_BOT
-
-    -- and npcBot:GetHealth() / npcBot:GetMaxHealth() <= 0.9 and npcBot:WasRecentlyDamagedByAnyHero(2.0)
-
-    if (allyHeroes <= 1 and enemyHeroes > 1) and npcBot:WasRecentlyDamagedByAnyHero(1.0)
+    if (allyHeroes <= 1 and enemyHeroes > 1) and IsEnemiesStronger()
     then
         return BOT_ACTION_DESIRE_VERYHIGH;
-    end
-
-    if (#enemyHeroAround > 0) and (allyHeroes + 1 < enemyHeroes)
-    then
-        for _, enemy in pairs(enemyHeroAround) do
-            local allyHero = enemy:GetAttackTarget();
-            if utility.IsHero(allyHero) and not utility.IsHero(allyHero:GetAttackTarget())
-                and allyHero:GetHealth() / allyHero:GetMaxHealth() <= 0.9
-                and allyHero:GetCurrentActionType() ~= BOT_ACTION_TYPE_ATTACK
-                and allyHero:GetCurrentActionType() ~= BOT_ACTION_TYPE_ATTACKMOVE
-                and npcBot:GetCurrentActionType() ~= BOT_ACTION_TYPE_ATTACK
-                and npcBot:GetCurrentActionType() ~= BOT_ACTION_TYPE_ATTACKMOVE
-            then
-                return BOT_ACTION_DESIRE_HIGH;
-            end
-        end
-    end
-
-    if (#enemyHeroAround > 0) and (allyHeroes + 2 < enemyHeroes) and npcBot:GetHealth() / npcBot:GetMaxHealth() <= 0.6
-    then
-        for _, enemy in pairs(enemyHeroAround) do
-            local enemyDamageToMe = enemy:GetEstimatedDamageToTarget(false, npcBot, 5.0, DAMAGE_TYPE_ALL);
-            if enemyDamageToMe >= npcBot:GetMaxHealth() / 2 and allyHeroes <= 1
-            then
-                --npcBot:ActionImmediate_Chat("Меня могут убить! Я убегаю!", true);
-                return BOT_ACTION_DESIRE_HIGH;
-            end
-        end
     end
 
     return BOT_ACTION_DESIRE_NONE;
@@ -112,3 +112,38 @@ end
 
 ---------------------------------------------------------------------------------------------------
 for k, v in pairs(mode_retreat_generic) do _G._savedEnv[k] = v end
+
+
+--botMode ~= BOT_MODE_DEFEND_TOWER_TOP and
+--botMode ~= BOT_MODE_DEFEND_TOWER_MID and
+--botMode ~= BOT_MODE_DEFEND_TOWER_BOT
+
+-- and npcBot:GetHealth() / npcBot:GetMaxHealth() <= 0.9 and npcBot:WasRecentlyDamagedByAnyHero(2.0)
+
+--[[     if (#enemyHeroAround > 0) and (allyHeroes + 1 < enemyHeroes)
+    then
+        for _, enemy in pairs(enemyHeroAround) do
+            local allyHero = enemy:GetAttackTarget();
+            if utility.IsHero(allyHero) and not utility.IsHero(allyHero:GetAttackTarget())
+                and allyHero:GetHealth() / allyHero:GetMaxHealth() <= 0.9
+                and allyHero:GetCurrentActionType() ~= BOT_ACTION_TYPE_ATTACK
+                and allyHero:GetCurrentActionType() ~= BOT_ACTION_TYPE_ATTACKMOVE
+                and npcBot:GetCurrentActionType() ~= BOT_ACTION_TYPE_ATTACK
+                and npcBot:GetCurrentActionType() ~= BOT_ACTION_TYPE_ATTACKMOVE
+            then
+                return BOT_ACTION_DESIRE_HIGH;
+            end
+        end
+    end ]]
+
+--[[     if (#enemyHeroAround > 0) and (allyHeroes + 2 < enemyHeroes) and npcBot:GetHealth() / npcBot:GetMaxHealth() <= 0.6
+    then
+        for _, enemy in pairs(enemyHeroAround) do
+            local enemyDamageToMe = enemy:GetEstimatedDamageToTarget(false, npcBot, 5.0, DAMAGE_TYPE_ALL);
+            if enemyDamageToMe >= npcBot:GetMaxHealth() / 2 and allyHeroes <= 1
+            then
+                --npcBot:ActionImmediate_Chat("Меня могут убить! Я убегаю!", true);
+                return BOT_ACTION_DESIRE_HIGH;
+            end
+        end
+    end ]]

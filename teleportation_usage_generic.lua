@@ -110,6 +110,15 @@ function ShouldTP()
     local botTower2 = GetTower(GetTeam(), TOWER_BOT_2);
     local botTower3 = GetTower(GetTeam(), TOWER_BOT_3);
 
+    if ancient ~= nil
+    then
+        if utility.IsTargetedByEnemy(ancient, true) or utility.CountEnemyCreepAroundUnit(ancient, tpDistance) >= 1
+            or utility.CountEnemyHeroAroundUnit(ancient, tpDistance) >= 1 and npcBot:DistanceFromFountain() <= tpDistance
+        then
+            return false, nil;
+        end
+    end
+
     if botMode == BOT_MODE_RETREAT
     then
         if npcBot:DistanceFromFountain() > tpDistance

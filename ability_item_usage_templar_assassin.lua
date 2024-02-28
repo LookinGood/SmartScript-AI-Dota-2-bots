@@ -62,7 +62,7 @@ function AbilityUsageThink()
     local castRefractionDesire = ConsiderRefraction();
     local castMeldDesire = ConsiderMeld();
     local castTrapDesire = ConsiderTrap();
-    --local castPsionicProjectionDesire, castPsionicProjectionLocation = ConsiderPsionicProjection();
+    local castPsionicProjectionDesire, castPsionicProjectionLocation = ConsiderPsionicProjection();
     local castPsionicTrapDesire, castPsionicTrapLocation = ConsiderPsionicTrap();
 
     if (castRefractionDesire ~= nil)
@@ -115,7 +115,7 @@ function ConsiderRefraction()
     -- Attack use
     if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
     then
-        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= attackRange * 2
+        if (utility.IsHero(botTarget) or utility.IsRoshan(botTarget)) and GetUnitToUnitDistance(npcBot, botTarget) <= attackRange * 2
         then
             return BOT_ACTION_DESIRE_HIGH;
         end
@@ -172,7 +172,7 @@ function ConsiderTrap()
     end
 
     -- Из-за того что боты не умеют использовать альтернативное использование способностей, скил не работает как нужно и отключен до решения проблемы
-    if npcBot:IsHero()
+    if npcBot:IsAlive()
     then
         return;
     end
@@ -206,6 +206,18 @@ function ConsiderTrap()
     end
 end
 
+function ConsiderPsionicProjection()
+    local ability = PsionicProjection;
+    if not utility.IsAbilityAvailable(ability) then
+        return;
+    end
+
+    if npcBot:IsAlive()
+    then
+        return;
+    end
+end
+
 function ConsiderPsionicTrap()
     local ability = PsionicTrap;
     if not utility.IsAbilityAvailable(ability) then
@@ -219,8 +231,9 @@ function ConsiderPsionicTrap()
 
     local castRangeAbility = ability:GetCastRange();
     local damageAbility = ability:GetSpecialValueInt("instant_trap_damage") +
-    ability:GetSpecialValueInt("trap_bonus_damage");
+        ability:GetSpecialValueInt("trap_bonus_damage");
     local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
+    local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
 
     -- Cast if can kill somebody
     if (#enemyAbility > 0)

@@ -83,6 +83,7 @@ function GetDesire()
     end
 
     mainBuilding = GetBuildingToProtect();
+    local ancient = GetAncient(GetTeam());
 
     if mainBuilding == nil
     then
@@ -93,7 +94,7 @@ function GetDesire()
     elseif mainBuilding:IsBarracks()
     then
         return BOT_ACTION_DESIRE_VERYHIGH;
-    elseif mainBuilding:IsFort()
+    elseif mainBuilding:IsFort() or mainBuilding == ancient
     then
         return BOT_ACTION_DESIRE_ABSOLUTE;
     else
@@ -102,11 +103,11 @@ function GetDesire()
 end
 
 function OnStart()
-    npcBot:Action_Chat("Защищаю " .. mainBuilding:GetUnitName(), true);
+    --npcBot:Action_Chat("Защищаю " .. mainBuilding:GetUnitName(), true);
 end
 
 function OnEnd()
-    npcBot:Action_Chat("Больше не защищаю " .. mainBuilding:GetUnitName(), true);
+    --npcBot:Action_Chat("Больше не защищаю " .. mainBuilding:GetUnitName(), true);
     mainBuilding = nil;
 end
 

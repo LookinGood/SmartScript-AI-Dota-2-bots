@@ -136,7 +136,7 @@ function ConsiderFortunesEnd()
             then
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    npcBot:ActionImmediate_Chat("Использую FortunesEnd что бы убить цель/сбить каст!", true);
+                    --npcBot:ActionImmediate_Chat("Использую FortunesEnd что бы убить цель/сбить каст!", true);
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy;
                 end
             end

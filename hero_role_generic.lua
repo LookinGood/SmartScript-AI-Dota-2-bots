@@ -101,6 +101,7 @@ S["supportHeroes"] = {
     ["npc_dota_hero_keeper_of_the_light"] = 1,
     ["npc_dota_hero_shredder"] = 1,
     ["npc_dota_hero_oracle"] = 1,
+    ["npc_dota_hero_jakiro"] = 1,
 }
 
 function IsHeroCarry(npcBot)

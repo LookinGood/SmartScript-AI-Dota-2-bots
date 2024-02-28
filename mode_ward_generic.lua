@@ -172,6 +172,7 @@ function GetDesire()
     wardObserver = IsWardAvailable("item_ward_observer");
     wardSentry = IsWardAvailable("item_ward_sentry");
     wardDispenser = IsWardAvailable("item_ward_dispenser");
+    enemyWard = nil;
 
     if (wardObserver ~= nil and wardObserver:IsFullyCastable()) or
         (wardSentry ~= nil and wardSentry:IsFullyCastable()) or
@@ -207,6 +208,18 @@ function GetDesire()
         end
     end
 
+    local enemyWards = GetUnitList(UNIT_LIST_ENEMY_WARDS);
+    if (#enemyWards > 0)
+    then
+        for _, ward in pairs(enemyWards) do
+            if ward:CanBeSeen() and GetUnitToUnitDistance(npcBot, ward) <= (npcBot:GetAttackRange() + 150 * 2)
+            then
+                enemyWard = ward;
+                return BOT_ACTION_DESIRE_HIGH;
+            end
+        end
+    end
+
     return BOT_ACTION_DESIRE_NONE;
 end
 
@@ -219,7 +232,18 @@ function OnEnd()
 end
 
 function Think()
-    if wardSpot ~= nil
+    if enemyWard ~= nil
+    then
+        if GetUnitToUnitDistance(npcBot, enemyWard) > (npcBot:GetAttackRange() + 150)
+        then
+            npcBot:Action_MoveToLocation(enemyWard:GetLocation());
+            return;
+        else
+            --npcBot:ActionImmediate_Chat("Ломаю вражеский вард!", true);
+            npcBot:Action_AttackUnit(enemyWard, false);
+            return;
+        end
+    elseif wardSpot ~= nil
     then
         if GetUnitToLocationDistance(npcBot, wardSpot) > 500
         then

@@ -321,7 +321,10 @@ function ConsiderSkeletonWalk()
         -- General use
     elseif utility.WanderMode(npcBot)
     then
-        --npcBot:ActionImmediate_Chat("Использую SkeletonWalk для разведки!", true);
-        return BOT_MODE_DESIRE_HIGH;
+        local enemyTowers = npcBot:GetNearbyTowers(1000, true);
+        if (#enemyTowers == 0) and npcBot:GetCurrentActionType() ~= BOT_ACTION_TYPE_ATTACK
+        then
+            return BOT_MODE_DESIRE_MODERATE;
+        end
     end
 end

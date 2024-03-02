@@ -5,20 +5,10 @@ require(GetScriptDirectory() .. "/utility")
 
 local npcBot = GetBot();
 
-function GetDesire()
-    local botMode = npcBot:GetActiveMode();
+function GetEscortAlly()
+    local escortAlly = nil;
+    local mostDangerousEnemy = nil;
     local allyHeroes = npcBot:GetNearbyHeroes(1600, false, BOT_MODE_NONE);
-    local enemyHeroes = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
-
-    if not npcBot:IsAlive() or utility.IsBusy(npcBot) or not utility.CanMove(npcBot) or (#allyHeroes <= 1)
-        or botMode == BOT_MODE_ATTACK or botMode == BOT_MODE_RETREAT or (#allyHeroes < #enemyHeroes) or
-        (npcBot:GetHealth() / npcBot:GetMaxHealth() < 0.7 and npcBot:WasRecentlyDamagedByAnyHero(2.0))
-    then
-        return BOT_ACTION_DESIRE_NONE;
-    end
-
-    escortAlly = nil;
-    mostDangerousEnemy = nil;
 
     if (#allyHeroes > 1)
     then
@@ -48,7 +38,6 @@ function GetDesire()
                             totalDamageToAlly = enemyDamageToAlly;
                             escortAlly = ally;
                             mostDangerousEnemy = enemy;
-                            return BOT_ACTION_DESIRE_VERYHIGH;
                         end
                     end
                 end
@@ -56,10 +45,38 @@ function GetDesire()
         end
     end
 
-    if mostDangerousEnemy == nil or escortAlly == nil
+    return escortAlly, mostDangerousEnemy;
+end
+
+function GetDesire()
+    if not utility.IsHero(npcBot) or not npcBot:IsAlive() or not utility.CanMove(npcBot) or utility.IsBusy(npcBot)
     then
         return BOT_ACTION_DESIRE_NONE;
     end
+
+    local botMode = npcBot:GetActiveMode();
+    local allyHeroes = npcBot:GetNearbyHeroes(1600, false, BOT_MODE_NONE);
+    local enemyHeroes = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
+
+    if (#allyHeroes <= 1) or botMode == BOT_MODE_ATTACK or botMode == BOT_MODE_RETREAT or (#allyHeroes < #enemyHeroes) or
+        (npcBot:GetHealth() / npcBot:GetMaxHealth() < 0.7 and npcBot:WasRecentlyDamagedByAnyHero(2.0))
+    then
+        return BOT_ACTION_DESIRE_NONE;
+    end
+
+    escortAlly, mostDangerousEnemy = GetEscortAlly();
+
+    if escortAlly ~= nil and mostDangerousEnemy ~= nil
+    then
+        npcBot:SetTarget(mostDangerousEnemy);
+        return BOT_ACTION_DESIRE_MODERATE;
+    else
+        return BOT_ACTION_DESIRE_NONE;
+    end
+end
+
+function OnStart()
+--
 end
 
 function OnEnd()
@@ -74,7 +91,6 @@ function Think()
         if GetUnitToUnitDistance(npcBot, mostDangerousEnemy) <= (npcBot:GetAttackRange() * 4)
         then
             --npcBot:ActionImmediate_Chat("Я атакую врага защищая союзника!", true);
-            npcBot:SetTarget(mostDangerousEnemy);
             npcBot:Action_AttackUnit(mostDangerousEnemy, false);
             return;
         else

@@ -61,6 +61,8 @@ C["carryHeroes"] = {
     ["npc_dota_hero_chaos_knight"] = 1,
     ["npc_dota_hero_night_stalker"] = 1,
     ["npc_dota_hero_huskar"] = 1,
+    ["npc_dota_hero_broodmother"] = 1,
+    ["npc_dota_hero_magnataur"] = 1,
 }
 
 local S = {}

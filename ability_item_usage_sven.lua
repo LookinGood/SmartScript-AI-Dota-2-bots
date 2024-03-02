@@ -86,7 +86,7 @@ function ConsiderStormHammer()
         return;
     end
 
-    local attackRange = npcBot:GetAttackRange();
+    --local attackRange = npcBot:GetAttackRange();
     local castRangeAbility = ability:GetCastRange();
     local damageAbility = ability:GetAbilityDamage();
     local enemyAbility = npcBot:GetNearbyHeroes((castRangeAbility + 200), true, BOT_MODE_NONE);

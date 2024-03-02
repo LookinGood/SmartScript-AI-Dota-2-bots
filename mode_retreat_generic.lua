@@ -47,8 +47,8 @@ function GetDesire()
     end
 
     --local botMode = npcBot:GetActiveMode();
-    local allyHeroes = utility.CountAllyHeroAroundUnit(npcBot, 2000);
-    local enemyHeroes = utility.CountEnemyHeroAroundUnit(npcBot, 2000);
+    --local allyHeroes = utility.CountAllyHeroAroundUnit(npcBot, 2000);
+    --local enemyHeroes = utility.CountEnemyHeroAroundUnit(npcBot, 2000);
     local allyHeroAround = npcBot:GetNearbyHeroes(1600, false, BOT_MODE_NONE);
     local enemyHeroAround = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
 
@@ -70,7 +70,7 @@ function GetDesire()
         end
     end
 
-    if npcBot:HasModifier("modifier_fountain_aura_buff") and (enemyHeroes <= 0) and (npcBot:GetHealth() / npcBot:GetMaxHealth() <= 0.8
+    if npcBot:HasModifier("modifier_fountain_aura_buff") and (#enemyHeroAround <= 0) and (npcBot:GetHealth() / npcBot:GetMaxHealth() <= 0.8
             or npcBot:GetMana() / npcBot:GetMaxMana() <= 0.8)
     then
         return BOT_ACTION_DESIRE_HIGH;
@@ -82,7 +82,7 @@ function GetDesire()
         return BOT_ACTION_DESIRE_VERYHIGH;
     end
 
-    if (allyHeroes <= 1 and enemyHeroes > 1) and IsEnemiesStronger()
+    if (#allyHeroAround <= 1 and #enemyHeroAround > 1) and IsEnemiesStronger()
     then
         return BOT_ACTION_DESIRE_VERYHIGH;
     end

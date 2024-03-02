@@ -75,7 +75,8 @@ function GetDesire()
     local botMode = npcBot:GetActiveMode();
     local botLevel = npcBot:GetLevel();
 
-    if not utility.IsHero(npcBot) or not utility.CanMove(npcBot) or utility.IsBusy(npcBot) or npcBot:WasRecentlyDamagedByAnyHero(2.0) or botHealth <= 0.3 or botLevel <= 3
+    if not utility.IsHero(npcBot) or not npcBot:IsAlive() or not utility.CanMove(npcBot) or utility.IsBusy(npcBot) or npcBot:WasRecentlyDamagedByAnyHero(2.0)
+        or botHealth <= 0.3 or botLevel <= 3
         or botMode == BOT_MODE_DEFEND_TOWER_BOT or
         botMode == BOT_MODE_DEFEND_TOWER_TOP
     then
@@ -103,11 +104,17 @@ function GetDesire()
 end
 
 function OnStart()
-    --npcBot:Action_Chat("Защищаю " .. mainBuilding:GetUnitName(), true);
+    if RollPercentage(90)
+    then
+        npcBot:ActionImmediate_Chat("Защищаю " .. mainBuilding:GetName(), true);
+    end
 end
 
 function OnEnd()
-    --npcBot:Action_Chat("Больше не защищаю " .. mainBuilding:GetUnitName(), true);
+    if RollPercentage(90)
+    then
+        npcBot:ActionImmediate_Chat("Больше не защищаю " .. mainBuilding:GetName(), true);
+    end
     mainBuilding = nil;
 end
 

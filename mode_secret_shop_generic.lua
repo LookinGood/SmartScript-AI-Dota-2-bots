@@ -5,14 +5,15 @@ local npcBot = GetBot();
 
 function GetDesire()
 	local enemyHeroes = npcBot:GetNearbyHeroes(1000, true, BOT_MODE_NONE);
-	local desire = 0.0;
-	local secretShopDistance = npcBot:DistanceFromSecretShop()
 
-	if not npcBot:IsAlive() or utility.IsBusy(npcBot) or not utility.CanMove(npcBot) or utility.IsClone(npcBot) or (#enemyHeroes > 0)
-		or npcBot.secretShopMode == false or secretShopDistance > 3000 or utility.IsItemSlotsFull()
+	if not utility.IsHero(npcBot) or not npcBot:IsAlive() or utility.IsBusy(npcBot) or not utility.CanMove(npcBot) or utility.IsClone(npcBot) or
+		(#enemyHeroes > 0) or npcBot.secretShopMode == false or secretShopDistance > 3000 or utility.IsItemSlotsFull()
 	then
 		return BOT_ACTION_DESIRE_NONE;
 	end
+
+	local desire = 0.0;
+	local secretShopDistance = npcBot:DistanceFromSecretShop();
 
 	if npcBot.secretShopMode == true and npcBot:GetGold() >= npcBot:GetNextItemPurchaseValue() and secretShopDistance <= 3000
 	then

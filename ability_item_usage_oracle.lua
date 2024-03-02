@@ -207,7 +207,7 @@ function ConsiderFatesEdict()
                     do
                         if not utility.IsAlly(ally, spell.caster) and GetUnitToLocationDistance(ally, spell.location) <= 300 and spell.is_attack == false
                         then
-                            npcBot:ActionImmediate_Chat("Использую FatesEdict для защиты от заклинания!", true);
+                            --npcBot:ActionImmediate_Chat("Использую FatesEdict для защиты от заклинания!", true);
                             return BOT_MODE_DESIRE_HIGH, ally;
                         end
                     end

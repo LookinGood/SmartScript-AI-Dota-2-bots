@@ -71,7 +71,7 @@ function AbilityUsageThink()
         if castChargeOfDarknessTarget ~= nil
         then
             npcBot:ActionImmediate_Ping(castChargeOfDarknessTarget.x, castChargeOfDarknessTarget.y, false);
-            npcBot:Action_Chat("Бегу на " .. castChargeOfDarknessTarget:GetUnitName(), false);
+            npcBot:ActionImmediate_Chat("Бегу на " .. castChargeOfDarknessTarget:GetUnitName(), false);
         end
         return;
     end

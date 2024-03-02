@@ -156,7 +156,7 @@ function ConsiderOverpower()
     local attackTarget = npcBot:GetAttackTarget();
 
     -- Attack use
-    if utility.PvPMode(npcBot) or npcBot:GetActiveMode() == BOT_MODE_ROSHAN
+    if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
     then
         if utility.IsHero(attackTarget) or utility.IsRoshan(attackTarget)
         then

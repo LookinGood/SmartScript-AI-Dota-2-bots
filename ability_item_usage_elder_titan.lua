@@ -114,7 +114,7 @@ function ConsiderEchoStomp()
 
     local radiusAbility = ability:GetAOERadius();
     local damageAbility = ability:GetSpecialValueInt("stomp_damage");
-    local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility - 100, true, BOT_MODE_NONE);
+    local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
 
     -- Cast if can kill somebody/interrupt cast
     if (#enemyAbility > 0)
@@ -131,26 +131,15 @@ function ConsiderEchoStomp()
         end
     end
 
-    -- Attack use
-    if utility.PvPMode(npcBot)
+    -- General use
+    if utility.PvPMode(npcBot) or utility.RetreatMode(npcBot)
     then
-        if utility.IsHero(botTarget)
+        if (#enemyAbility > 0)
         then
-            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= radiusAbility
-                and not utility.IsDisabled(botTarget)
-            then
-                return BOT_ACTION_DESIRE_HIGH;
-            end
-        end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
-    then
-        if (#enemyAbility > 0) and (HealthPercentage <= 0.8)
-        then
-            for _, enemy in pairs(enemyAbility) do
+            for _, enemy in pairs(enemyAbility)
+            do
                 if utility.CanCastSpellOnTarget(ability, enemy) and not utility.IsDisabled(enemy)
                 then
-                    --npcBot:ActionImmediate_Chat("Использую EchoStomp для отхода!", true);
                     return BOT_ACTION_DESIRE_HIGH;
                 end
             end
@@ -203,10 +192,12 @@ function ConsiderAstralSpirit()
         if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
-                and EchoStomp:IsCooldownReady() and (npcBot:GetMana() >= ability:GetManaCost() + EchoStomp:GetManaCost())
             then
-                return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0),
-                    "combo";
+                if EchoStomp:IsCooldownReady() and (npcBot:GetMana() >= ability:GetManaCost() + EchoStomp:GetManaCost())
+                then
+                    return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0),
+                        "combo";
+                end
             end
         end
         -- Retreat use
@@ -215,10 +206,13 @@ function ConsiderAstralSpirit()
         if (#enemyAbility > 0)
         then
             for _, enemy in pairs(enemyAbility) do
-                if utility.CanCastSpellOnTarget(ability, enemy) and EchoStomp:IsCooldownReady() and (npcBot:GetMana() >= ability:GetManaCost() + EchoStomp:GetManaCost())
+                if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0),
-                        "combo";
+                    if EchoStomp:IsCooldownReady() and (npcBot:GetMana() >= ability:GetManaCost() + EchoStomp:GetManaCost())
+                    then
+                        return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0),
+                            "combo";
+                    end
                 end
             end
         end

@@ -34,11 +34,11 @@ local ItemsToBuy =
 	"item_robe",
 	"item_recipe_ancient_janggo",
 
+	"item_recipe_boots_of_bearing",
+
 	"item_voodoo_mask",
 	"item_diadem",
 	"item_recipe_dagon",
-
-	"item_recipe_boots_of_bearing",
 
 	"item_recipe_dagon",
 

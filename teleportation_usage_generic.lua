@@ -15,22 +15,28 @@ end
 function ClosestSafeBuilding(unit, distance, enemyRadius, enemyCount)
     local npcBot = GetBot();
     local safeBuilding = nil;
+    local ancient = GetAncient(GetTeam());
     local allyBuildings = GetUnitList(UNIT_LIST_ALLIED_BUILDINGS);
-    local allyHeroes = utility.CountAllyHeroAroundUnit(unit, radius)
-    local enemyHeroes = utility.CountEnemyHeroAroundUnit(unit, radius);
+    local allyHeroes = utility.CountAllyHeroAroundUnit(unit, enemyRadius)
+    local enemyHeroes = utility.CountEnemyHeroAroundUnit(unit, enemyRadius);
     if (enemyHeroes <= enemyCount) or (allyHeroes >= 1)
     then
         safeBuilding = unit;
     else
         for _, building in pairs(allyBuildings)
         do
-            if building ~= unit
+            if building == ancient
             then
-                local enemyHeroes = utility.CountEnemyHeroAroundUnit(building, enemyRadius);
-                if GetUnitToUnitDistance(unit, building) <= distance and GetUnitToUnitDistance(npcBot, building) >= distance
-                    and (enemyHeroes <= enemyCount)
+                safeBuilding = utility.GetFountain(npcBot);
+            else
+                if building ~= unit
                 then
-                    safeBuilding = building;
+                    local enemyHeroes = utility.CountEnemyHeroAroundUnit(building, enemyRadius);
+                    if GetUnitToUnitDistance(unit, building) <= distance and GetUnitToUnitDistance(npcBot, building) >= distance
+                        and (enemyHeroes <= enemyCount)
+                    then
+                        safeBuilding = building;
+                    end
                 end
             end
         end
@@ -112,8 +118,8 @@ function ShouldTP()
 
     if ancient ~= nil
     then
-        if utility.IsTargetedByEnemy(ancient, true) or utility.CountEnemyCreepAroundUnit(ancient, tpDistance) >= 1
-            or utility.CountEnemyHeroAroundUnit(ancient, tpDistance) >= 1 and npcBot:DistanceFromFountain() <= tpDistance
+        if (utility.IsTargetedByEnemy(ancient, true) or utility.CountEnemyCreepAroundUnit(ancient, tpDistance) >= 1
+                or utility.CountEnemyHeroAroundUnit(ancient, tpDistance) >= 1) and npcBot:DistanceFromFountain() <= tpDistance
         then
             return false, nil;
         end

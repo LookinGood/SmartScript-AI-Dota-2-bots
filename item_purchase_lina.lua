@@ -29,6 +29,8 @@ local ItemsToBuy =
     "item_robe",
     "item_recipe_ancient_janggo",
 
+	"item_recipe_boots_of_bearing",
+
 	"item_tiara_of_selemene",
 	"item_mystic_staff",
 	"item_recipe_sheepstick",
@@ -36,8 +38,6 @@ local ItemsToBuy =
 	"item_staff_of_wizardry",
 	"item_robe",
 	"item_recipe_kaya",
-
-	"item_recipe_boots_of_bearing",
 
 	"item_belt_of_strength",
     "item_ogre_axe",

@@ -40,7 +40,7 @@ function GetFountain(npcTarget)
 			then
 				for _, ally in pairs(buildings)
 				do
-					if IsValidTarget(ally) and ally:GetName() == "dota_fountain"
+					if ally ~= nil and (ally:GetName() == "dota_fountain" or ally:DistanceFromFountain() == 0)
 					then
 						return ally;
 					end
@@ -53,7 +53,7 @@ function GetFountain(npcTarget)
 			then
 				for _, ally in pairs(buildings)
 				do
-					if IsValidTarget(ally) and ally:GetName() == "dota_fountain"
+					if ally ~= nil and (ally:GetName() == "dota_fountain" or ally:DistanceFromFountain() == 0)
 					then
 						return ally;
 					end

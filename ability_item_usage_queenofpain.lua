@@ -363,7 +363,7 @@ function ConsiderSonicWave()
             return BOT_ACTION_DESIRE_HIGH, locationAoE.targetloc;
         end
         -- Retreat use
-    elseif botMode == BOT_MODE_RETREAT
+    elseif utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0) and (HealthPercentage <= 0.6) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
         then

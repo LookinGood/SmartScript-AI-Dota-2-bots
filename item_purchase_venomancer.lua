@@ -25,6 +25,17 @@ local ItemsToBuy =
     "item_ring_of_protection",
     "item_recipe_urn_of_shadows",
 
+    "item_wind_lace",
+    "item_belt_of_strength",
+    "item_robe",
+    "item_recipe_ancient_janggo",
+
+    "item_recipe_boots_of_bearing",
+
+    "item_fluffy_hat",
+    "item_crown",
+    "item_recipe_spirit_vessel",
+
     "item_ring_of_regen",
     "item_recipe_headdress",
     "item_cloak",
@@ -39,17 +50,6 @@ local ItemsToBuy =
 
     "item_aghanims_shard",
 
-    "item_wind_lace",
-    "item_belt_of_strength",
-    "item_robe",
-    "item_recipe_ancient_janggo",
-
-    "item_recipe_boots_of_bearing",
-
-    "item_fluffy_hat",
-    "item_crown",
-    "item_recipe_spirit_vessel",
-
     "item_point_booster",
     "item_ogre_axe",
     "item_staff_of_wizardry",
@@ -58,15 +58,15 @@ local ItemsToBuy =
     "item_recipe_ultimate_scepter_2",
 
     "item_blink",
+    
+    "item_eagle",
+    "item_recipe_swift_blink",
 
     "item_point_booster",
     "item_energy_booster",
     "item_vitality_booster",
     "item_void_stone",
     "item_voodoo_mask",
-
-    "item_eagle",
-    "item_recipe_swift_blink",
 
     "item_energy_booster",
     "item_vitality_booster",

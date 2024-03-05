@@ -9,7 +9,6 @@ local ItemsToBuy =
     "item_branches",
     "item_faerie_fire",
     "item_wind_lace",
-
     "item_flask",
 
     "item_recipe_magic_wand",
@@ -26,6 +25,8 @@ local ItemsToBuy =
     "item_robe",
     "item_recipe_ancient_janggo",
 
+    "item_recipe_boots_of_bearing",
+
     "item_helm_of_iron_will",
     "item_diadem",
     "item_recipe_helm_of_the_dominator",
@@ -38,8 +39,6 @@ local ItemsToBuy =
     "item_recipe_sange",
     "item_talisman_of_evasion",
     "item_recipe_heavens_halberd",
-
-    "item_recipe_boots_of_bearing",
 
     "item_ogre_axe",
     "item_mithril_hammer",

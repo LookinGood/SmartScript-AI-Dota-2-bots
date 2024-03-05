@@ -86,10 +86,7 @@ function GetDesire()
     mainBuilding = GetBuildingToProtect();
     local ancient = GetAncient(GetTeam());
 
-    if mainBuilding == nil
-    then
-        return BOT_ACTION_DESIRE_NONE;
-    elseif mainBuilding:IsTower()
+    if mainBuilding:IsTower()
     then
         return BOT_ACTION_DESIRE_HIGH;
     elseif mainBuilding:IsBarracks()
@@ -104,14 +101,14 @@ function GetDesire()
 end
 
 function OnStart()
-    if RollPercentage(90)
+    if RollPercentage(50)
     then
         npcBot:ActionImmediate_Chat("Защищаю " .. mainBuilding:GetName(), true);
     end
 end
 
 function OnEnd()
-    if RollPercentage(90)
+    if RollPercentage(50)
     then
         npcBot:ActionImmediate_Chat("Больше не защищаю " .. mainBuilding:GetName(), true);
     end

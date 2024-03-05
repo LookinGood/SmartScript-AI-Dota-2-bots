@@ -53,6 +53,7 @@ local ItemsToBuy =
     "item_platemail",
     "item_recipe_shivas_guard",
 
+    "item_gloves",
     "item_mithril_hammer",
 	"item_javelin",
 

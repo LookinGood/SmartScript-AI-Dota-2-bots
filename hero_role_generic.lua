@@ -65,6 +65,7 @@ C["carryHeroes"] = {
     ["npc_dota_hero_magnataur"] = 1,
     ["npc_dota_hero_razor"] = 1,
     ["npc_dota_hero_weaver"] = 1,
+    ["npc_dota_hero_storm_spirit"] = 1,
 }
 
 local S = {}

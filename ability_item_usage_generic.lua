@@ -1235,7 +1235,7 @@ function ItemUsageThink()
 	then
 		if utility.PvPMode(npcBot)
 		then
-			local itemRange = 1200;
+			local itemRange = 900;
 			local enemys = npcBot:GetNearbyHeroes(itemRange, true, BOT_MODE_NONE);
 			if (#enemys > 0)
 			then

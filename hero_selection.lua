@@ -104,6 +104,7 @@ require(GetScriptDirectory() .. "/hero_role_generic")
 	"npc_dota_hero_razor",
 	"npc_dota_hero_batrider",
 	"npc_dota_hero_weaver",
+	"npc_dota_hero_storm_spirit",
 ]]
 --#endregion
 
@@ -207,6 +208,7 @@ local hero_pool_my =
 	"npc_dota_hero_razor",
 	"npc_dota_hero_batrider",
 	"npc_dota_hero_weaver",
+	"npc_dota_hero_storm_spirit",
 }
 
 local heroesCarry =
@@ -272,6 +274,7 @@ local heroesCarry =
 	"npc_dota_hero_magnataur",
 	"npc_dota_hero_razor",
 	"npc_dota_hero_weaver",
+	"npc_dota_hero_storm_spirit",
 }
 
 local heroesSupport =
@@ -409,7 +412,7 @@ function Think()
 
 	-- Insert here hero hame and set "testmode = true" if you want the bot to choose a specific hero
 	local testmode = false;
-	local testHero = "npc_dota_hero_weaver"
+	local testHero = "npc_dota_hero_storm_spirit"
 
 	if testmode
 	then

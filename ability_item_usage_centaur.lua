@@ -51,7 +51,7 @@ local Stampede = AbilitiesReal[6]
 
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
-        return
+        return;
     end
 
     botMode = npcBot:GetActiveMode();

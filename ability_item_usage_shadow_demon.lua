@@ -129,7 +129,7 @@ function ConsiderDisruption()
         end
     end
 
-    -- Cast to safe ally from enemy spells
+    -- Cast to safe ally
     if (#allyAbility > 0)
     then
         for _, ally in pairs(allyAbility) do
@@ -148,8 +148,14 @@ function ConsiderDisruption()
                     end
                 end
             end
+            -- Try to hide ally
+            if utility.IsUnitNeedToHide(ally)
+            then
+                return BOT_ACTION_DESIRE_VERYHIGH, ally;
+            end
         end
     end
+
 
     -- Cast if enemy hero too far away
     if utility.PvPMode(npcBot)

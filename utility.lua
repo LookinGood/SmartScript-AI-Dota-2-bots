@@ -30,6 +30,12 @@ function IsNight()
 	end
 end
 
+function IsUnitNeedToHide(npcTarget)
+	return IsValidTarget(npcTarget) and
+		(npcTarget:IsDominated() or
+			npcTarget:HasModifier("modifier_necrolyte_reapers_scythe"))
+end
+
 function GetFountain(npcTarget)
 	if IsValidTarget(npcTarget)
 	then
@@ -794,7 +800,8 @@ function TargetCantDie(npcTarget)
 	return IsValidTarget(npcTarget) and npcTarget:GetHealth() / npcTarget:GetMaxHealth() <= 0.3 and
 		(npcTarget:HasModifier("modifier_dazzle_shallow_grave") or
 			npcTarget:HasModifier("modifier_oracle_false_promise_timer") or
-			npcTarget:HasModifier("modifier_troll_warlord_battle_trance"))
+			npcTarget:HasModifier("modifier_troll_warlord_battle_trance") or
+			npcTarget:HasModifier("modifier_item_aeon_disk_buff"))
 end
 
 function IsTargetInvulnerable(npcTarget)
@@ -855,17 +862,37 @@ function CanCastSpellOnTarget(spell, npcTarget)
 				then
 					if damageType == DAMAGE_TYPE_MAGICAL
 					then
-						return CanCastOnMagicImmuneTarget(npcTarget);
+						if utility.CheckFlag(spell:GetTargetFlags(), ABILITY_TARGET_FLAG_MAGIC_IMMUNE_ENEMIES)
+						then
+							return true;
+						else
+							return CanCastOnMagicImmuneTarget(npcTarget);
+						end
 					elseif damageType == DAMAGE_TYPE_PHYSICAL
 					then
-						return CanCastOnInvulnerableTarget(npcTarget)
+						if utility.CheckFlag(spell:GetTargetFlags(), ABILITY_TARGET_FLAG_MAGIC_IMMUNE_ENEMIES)
+						then
+							return true;
+						else
+							return CanCastOnInvulnerableTarget(npcTarget);
+						end
 					elseif damageType == DAMAGE_TYPE_PURE
 					then
-						return not npcTarget:HasModifier("modifier_black_king_bar_immune");
+						if utility.CheckFlag(spell:GetTargetFlags(), ABILITY_TARGET_FLAG_MAGIC_IMMUNE_ENEMIES)
+						then
+							return true;
+						else
+							return not npcTarget:HasModifier("modifier_black_king_bar_immune");
+						end
 					end
 				end
 			else
-				return CanCastOnMagicImmuneTarget(npcTarget);
+				if utility.CheckFlag(spell:GetTargetFlags(), ABILITY_TARGET_FLAG_MAGIC_IMMUNE_ENEMIES)
+				then
+					return true;
+				else
+					return CanCastOnMagicImmuneTarget(npcTarget);
+				end
 			end
 		end
 	end
@@ -886,7 +913,6 @@ function PvPMode(npcBot)
 	local botMode = npcBot:GetActiveMode();
 	return (botMode == BOT_MODE_ATTACK or
 		botMode == BOT_MODE_ROAM or
-		botMode == BOT_MODE_TEAM_ROAM or
 		botMode == BOT_MODE_DEFEND_ALLY or
 		botMode == BOT_MODE_EVASIVE_MANEUVERS);
 end
@@ -1355,7 +1381,7 @@ X['invisHeroes'] = {
 	['npc_dota_hero_invoker'] = 1,
 	['npc_dota_hero_sand_king'] = 1,
 	['npc_dota_hero_treant'] = 1,
-	['npc_dota_hero_broodmother'] = 1,
+	--['npc_dota_hero_broodmother'] = 1,
 	['npc_dota_hero_weaver'] = 1,
 	['npc_dota_hero_hoodwink'] = 1,
 }
@@ -1428,6 +1454,7 @@ function PurchaseDust(npcBot)
 	then
 		--npcBot:ActionImmediate_Chat("Покупаю dust против невидимых врагов!", true);
 		npcBot:ActionImmediate_PurchaseItem("item_dust");
+		return;
 	end
 end
 

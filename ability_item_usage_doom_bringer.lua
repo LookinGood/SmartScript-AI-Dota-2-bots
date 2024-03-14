@@ -88,8 +88,8 @@ function AbilityUsageThink()
         return;
     end
 
-    local ability4 = npcBot:GetAbilityInSlot(3)
-    local ability5 = npcBot:GetAbilityInSlot(4)
+    local ability4 = npcBot:GetAbilityInSlot(3);
+    local ability5 = npcBot:GetAbilityInSlot(4);
 
     spell_usage_generic.CastCustomSpell(ability4)
     spell_usage_generic.CastCustomSpell(ability5)

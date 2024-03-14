@@ -68,7 +68,7 @@ function GetDesire()
 
     if escortAlly ~= nil and mostDangerousEnemy ~= nil
     then
-        npcBot:SetTarget(mostDangerousEnemy);
+        SetTarget(mostDangerousEnemy);
         return BOT_ACTION_DESIRE_MODERATE;
     else
         return BOT_ACTION_DESIRE_NONE;
@@ -76,13 +76,17 @@ function GetDesire()
 end
 
 function OnStart()
---
+    if RollPercentage(5)
+    then
+        npcBot:ActionImmediate_Chat("Защищаю " .. escortAlly:GetUnitName() .. "от " .. mostDangerousEnemy:GetUnitName(),
+            false);
+    end
 end
 
 function OnEnd()
     escortAlly = nil;
     mostDangerousEnemy = nil;
-    npcBot:SetTarget(nil);
+    SetTarget(nil);
 end
 
 function Think()

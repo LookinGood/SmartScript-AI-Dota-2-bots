@@ -95,6 +95,11 @@ function ConsiderTheSwarm()
         return;
     end
 
+    if npcBot:IsInvisible()
+    then
+        return;
+    end
+
     local castRangeAbility = ability:GetCastRange();
     local radiusAbility = ability:GetSpecialValueInt("radius");
     local damageAbility = ability:GetSpecialValueInt("damage") * ability:GetSpecialValueInt("duration");
@@ -218,6 +223,11 @@ end
 function ConsiderTimeLapse()
     local ability = TimeLapse;
     if not utility.IsAbilityAvailable(ability) then
+        return;
+    end
+
+    if npcBot:IsInvisible()
+    then
         return;
     end
 

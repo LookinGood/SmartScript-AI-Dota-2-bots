@@ -178,6 +178,7 @@ function GetDesire()
     wardSentry = IsWardAvailable("item_ward_sentry");
     wardDispenser = IsWardAvailable("item_ward_dispenser");
     enemyWard = nil;
+    enemyCourier = nil;
 
     if (wardObserver ~= nil and wardObserver:IsFullyCastable()) or
         (wardSentry ~= nil and wardSentry:IsFullyCastable()) or
@@ -225,11 +226,27 @@ function GetDesire()
         end
     end
 
+    local enemyCouriers = npcBot:GetNearbyCreeps(npcBot:GetAttackRange() + 200, true);
+    if (#enemyCouriers > 0)
+    then
+        for _, courier in pairs(enemyCouriers) do
+            if courier:CanBeSeen() and courier:IsCourier() and not courier:IsInvulnerable()
+                and IsLocationPassable(courier:GetLocation())
+            then
+                enemyCourier = courier;
+                return BOT_ACTION_DESIRE_HIGH;
+            end
+        end
+    end
+
     return BOT_ACTION_DESIRE_NONE;
 end
 
 function OnStart()
-    --
+    if RollPercentage(5)
+    then
+        npcBot:ActionImmediate_Chat("Иду ставить вард.", false);
+    end
 end
 
 function OnEnd()
@@ -246,6 +263,17 @@ function Think()
         else
             --npcBot:ActionImmediate_Chat("Ломаю вражеский вард!", true);
             npcBot:Action_AttackUnit(enemyWard, false);
+            return;
+        end
+    elseif enemyCourier ~= nil
+    then
+        if GetUnitToUnitDistance(npcBot, enemyCourier) > (npcBot:GetAttackRange() + 200)
+        then
+            npcBot:Action_MoveToLocation(enemyCourier:GetLocation());
+            return;
+        else
+            npcBot:ActionImmediate_Chat("Атакую вражеского курьера!", true);
+            npcBot:Action_AttackUnit(enemyCourier, false);
             return;
         end
     elseif wardSpot ~= nil

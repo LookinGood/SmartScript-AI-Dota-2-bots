@@ -117,6 +117,17 @@ function GetDesire()
     return BOT_ACTION_DESIRE_NONE;
 end
 
+function OnStart()
+    if RollPercentage(5)
+    then
+        npcBot:ActionImmediate_Chat("Иду фармить в лес", false);
+    end
+end
+
+function OnEnd()
+    --
+end
+
 function Think()
     local attackRange = npcBot:GetAttackRange();
     local neutralCreeps = npcBot:GetNearbyNeutralCreeps(1600);

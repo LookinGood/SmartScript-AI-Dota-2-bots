@@ -10,6 +10,7 @@ local npcBot = GetBot();
 
 local function GetBuildingToProtect()
     local building = nil;
+    local desire = BOT_MODE_DESIRE_NONE;
     local radiusUnit = 3000;
     local towers = {
         TOWER_MID_1,
@@ -27,9 +28,11 @@ local function GetBuildingToProtect()
             if utility.CountEnemyCreepAroundUnit(tower, radiusUnit) >= 5 and utility.CountAllyCreepAroundUnit(tower, radiusUnit) < 5
             then
                 building = tower;
+                desire = BOT_MODE_DESIRE_HIGH;
             elseif (utility.CountEnemyHeroAroundUnit(tower, radiusUnit) >= 2 and utility.CountEnemyCreepAroundUnit(tower, radiusUnit) >= 1
                     and utility.CountAllyCreepAroundUnit(tower, radiusUnit) < 5)
             then
+                desire = BOT_MODE_DESIRE_VERYHIGH;
                 building = tower;
             end
         end
@@ -47,10 +50,12 @@ local function GetBuildingToProtect()
         then
             if utility.CountEnemyCreepAroundUnit(barrack, radiusUnit) >= 5 and utility.CountAllyCreepAroundUnit(barrack, radiusUnit) < 5
             then
+                desire = BOT_MODE_DESIRE_HIGH;
                 building = barrack;
             elseif (utility.CountEnemyHeroAroundUnit(barrack, radiusUnit) >= 2 and utility.CountEnemyCreepAroundUnit(barrack, radiusUnit) >= 1
                     and utility.CountAllyCreepAroundUnit(barrack, radiusUnit) <= 5)
             then
+                desire = BOT_MODE_DESIRE_VERYHIGH;
                 building = barrack;
             end
         end
@@ -63,11 +68,12 @@ local function GetBuildingToProtect()
             (utility.CountEnemyCreepAroundUnit(ancient, radiusUnit) >= 1 and utility.CountEnemyHeroAroundUnit(ancient, radiusUnit) >= 1
                 and utility.CountAllyCreepAroundUnit(ancient, radiusUnit) < 5)
         then
+            desire = BOT_MODE_DESIRE_ABSOLUTE;
             building = ancient;
         end
     end
 
-    return building;
+    return building, desire;
 end
 
 function GetDesire()
@@ -83,34 +89,35 @@ function GetDesire()
         return BOT_ACTION_DESIRE_NONE;
     end
 
-    mainBuilding = GetBuildingToProtect();
-    local ancient = GetAncient(GetTeam());
+    mainBuilding, desire = GetBuildingToProtect();
 
-    if mainBuilding:IsTower()
+    return desire;
+
+    --[[     if mainBuilding:IsTower()
     then
         return BOT_ACTION_DESIRE_HIGH;
     elseif mainBuilding:IsBarracks()
     then
         return BOT_ACTION_DESIRE_VERYHIGH;
-    elseif mainBuilding:IsFort() or mainBuilding == ancient
+    elseif mainBuilding:IsFort() or mainBuilding == GetAncient(GetTeam())
     then
         return BOT_ACTION_DESIRE_ABSOLUTE;
     else
         return BOT_ACTION_DESIRE_NONE;
-    end
+    end ]]
 end
 
 function OnStart()
-    if RollPercentage(50)
+    if RollPercentage(15)
     then
-        npcBot:ActionImmediate_Chat("Защищаю " .. mainBuilding:GetName(), true);
+        npcBot:ActionImmediate_Chat("Защищаю " .. mainBuilding:GetUnitName(), false);
     end
 end
 
 function OnEnd()
-    if RollPercentage(50)
+    if RollPercentage(5)
     then
-        npcBot:ActionImmediate_Chat("Больше не защищаю " .. mainBuilding:GetName(), true);
+        npcBot:ActionImmediate_Chat("Прекращаю защищать " .. mainBuilding:GetUnitName(), false);
     end
     mainBuilding = nil;
 end

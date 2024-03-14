@@ -74,7 +74,8 @@ function CourierUsageThink()
 	then
 		if npcBot:IsAlive()
 		then
-			if (npcBot:GetStashValue() > 100) and (state == COURIER_STATE_AT_BASE)
+			if ((npcBot:GetStashValue() > 100) and (state == COURIER_STATE_AT_BASE)) or
+				((npcBot:GetStashValue() > 0) and (state == COURIER_STATE_AT_BASE) and npcBot:DistanceFromFountain() <= 1000)
 			then
 				npcBot:ActionImmediate_Courier(courier, COURIER_ACTION_TAKE_AND_TRANSFER_ITEMS);
 				return;
@@ -166,9 +167,10 @@ function GlyphUsageThink()
 	for _, t in pairs(towers)
 	do
 		local tower = GetTower(GetTeam(), t);
-		if tower ~= nil and (tower:GetHealth() / tower:GetMaxHealth() <= 0.7) and utility.IsTargetedByEnemy(tower, true)
+		if tower ~= nil and (tower:GetHealth() > 0 and tower:GetHealth() / tower:GetMaxHealth() <= 0.7)
+			and utility.IsTargetedByEnemy(tower, true)
 		then
-			npcBot:ActionImmediate_Chat("Использую Glyph для защиты башни!", false);
+			npcBot:ActionImmediate_Chat("Использую Glyph для защиты " .. tower:GetUnitName(), false);
 			npcBot:ActionImmediate_Ping(tower:GetLocation().x, tower:GetLocation().y, false);
 			npcBot:ActionImmediate_Glyph();
 			return;
@@ -187,9 +189,10 @@ function GlyphUsageThink()
 	for _, b in pairs(barracks)
 	do
 		local barrack = GetBarracks(GetTeam(), b);
-		if barrack ~= nil and (barrack:GetHealth() / barrack:GetMaxHealth() <= 0.8) and utility.IsTargetedByEnemy(barrack, true)
+		if barrack ~= nil and (barrack:GetHealth() > 0 and barrack:GetHealth() / barrack:GetMaxHealth() <= 0.8)
+			and utility.IsTargetedByEnemy(barrack, true)
 		then
-			npcBot:ActionImmediate_Chat("Использую Glyph для защиты барраков!", false);
+			npcBot:ActionImmediate_Chat("Использую Glyph для защиты " .. barrack:GetUnitName(), false);
 			npcBot:ActionImmediate_Ping(barrack:GetLocation().x, barrack:GetLocation().y, false);
 			npcBot:ActionImmediate_Glyph();
 			return;
@@ -197,9 +200,10 @@ function GlyphUsageThink()
 	end
 
 	local ancient = GetAncient(GetTeam());
-	if ancient ~= nil and (ancient:GetHealth() / ancient:GetMaxHealth() <= 0.8) and utility.IsTargetedByEnemy(ancient, true)
+	if ancient ~= nil and (ancient:GetHealth() > 0 and ancient:GetHealth() / ancient:GetMaxHealth() <= 0.8)
+		and utility.IsTargetedByEnemy(ancient, true)
 	then
-		npcBot:ActionImmediate_Chat("Использую Glyph для защиты Древнего!", false);
+		npcBot:ActionImmediate_Chat("Использую Glyph для защиты " .. ancient:GetUnitName(), false);
 		npcBot:ActionImmediate_Ping(ancient:GetLocation().x, ancient:GetLocation().y, false);
 		npcBot:ActionImmediate_Glyph();
 		return;
@@ -551,12 +555,33 @@ function ItemUsageThink()
 	then
 		if utility.PvPMode(npcBot)
 		then
-			if utility.IsHero(botTarget) and (npcBot:GetMana() / npcBot:GetMaxMana() <= 0.5 and npcBot:GetHealth() / npcBot:GetMaxHealth() > 0.1)
+			if utility.IsHero(botTarget) and (npcBot:GetHealth() / npcBot:GetMaxHealth() > 0.1)
 				and GetUnitToUnitDistance(npcBot, botTarget) <= (attackRange * 3)
 			then
-				npcBot:Action_UseAbility(soulRing);
-				--npcBot:ActionImmediate_Chat("Использую предмет soulRing что бы восстановить себе ману!",true);
-				--return;
+				for i = 0, 23, 1 do
+					local ability = npcBot:GetAbilityInSlot(i)
+					if ability ~= nil and not ability:IsTalent() and not ability:IsHidden() and not ability:IsPassive()
+						and ability:IsCooldownReady() and npcBot:GetMana() < ability:GetManaCost()
+					then
+						if npcBot:GetMana() + 170 >= ability:GetManaCost()
+						then
+							npcBot:Action_UseAbility(soulRing);
+							--npcBot:ActionImmediate_Chat("Использую предмет soulRing что бы восстановить себе ману!",true);
+							--return;
+						end
+					end
+				end
+			end
+		elseif utility.RetreatMode(npcBot)
+		then
+			local reincarnation = npcBot:GetAbilityByName("skeleton_king_reincarnation");
+			if reincarnation ~= nil and not reincarnation:IsHidden() and reincarnation:IsCooldownReady() and npcBot:GetMana() < reincarnation:GetManaCost()
+				and (npcBot:GetHealth() / npcBot:GetMaxHealth() <= 0.2) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
+			then
+				if npcBot:GetMana() + 170 >= reincarnation:GetManaCost()
+				then
+					npcBot:Action_UseAbility(soulRing);
+				end
 			end
 		end
 	end

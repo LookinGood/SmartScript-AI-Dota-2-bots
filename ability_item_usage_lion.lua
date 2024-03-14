@@ -34,7 +34,7 @@ local AbilityToLevelUp =
     Talents[4],
     Abilities[2],
     Abilities[6],
-    Talents[5],
+    Talents[6],
     Talents[8],
 }
 
@@ -59,7 +59,7 @@ function AbilityUsageThink()
     ManaPercentage = npcBot:GetMana() / npcBot:GetMaxMana();
 
     local castEarthSpikeDesire, castEarthSpikeTarget = ConsiderEarthSpike();
-    local castHexDesire, castHexTarget = ConsiderHex();
+    local castHexDesire, castHexTarget, castHexTargetType = ConsiderHex();
     local castManaDrainDesire, castManaDrainTarget = ConsiderManaDrain();
     local castFingerOfDeathDesire, castFingerOfDeathTarget = ConsiderFingerOfDeath();
 
@@ -67,6 +67,19 @@ function AbilityUsageThink()
     then
         npcBot:Action_UseAbilityOnLocation(EarthSpike, castEarthSpikeTarget);
         return;
+    end
+
+    if (castHexDesire ~= nil)
+    then
+        if (castHexTargetType == "target")
+        then
+            npcBot:Action_UseAbilityOnEntity(Hex, castHexTarget);
+            return;
+        elseif (castElectricVortexTargetType == "location")
+        then
+            npcBot:Action_UseAbilityOnLocation(Hex, castHexTarget);
+            return;
+        end
     end
 
     if (castHexDesire ~= nil)
@@ -109,7 +122,8 @@ function ConsiderEarthSpike()
             then
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility);
+                    return BOT_ACTION_DESIRE_VERYHIGH,
+                        utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility);
                 end
             end
         end
@@ -124,14 +138,16 @@ function ConsiderEarthSpike()
             then
                 if not utility.IsDisabled(botTarget)
                 then
-                    return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, speedAbility);
+                    return BOT_ACTION_DESIRE_VERYHIGH,
+                        utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, speedAbility);
                 else
                     if (#enemyAbility > 1)
                     then
                         for _, enemy in pairs(enemyAbility) do
                             if utility.CanCastSpellOnTarget(ability, enemy) and not utility.IsDisabled(enemy)
                             then
-                                return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility);
+                                return BOT_ACTION_DESIRE_VERYHIGH,
+                                    utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility);
                             end
                         end
                     end
@@ -146,7 +162,8 @@ function ConsiderEarthSpike()
             for _, enemy in pairs(enemyAbility) do
                 if utility.CanCastSpellOnTarget(ability, enemy) and not utility.IsDisabled(enemy)
                 then
-                    return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility);
+                    return BOT_ACTION_DESIRE_VERYHIGH,
+                        utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility);
                 end
             end
         end
@@ -178,6 +195,8 @@ function ConsiderHex()
     end
 
     local castRangeAbility = ability:GetCastRange();
+    local radiusAbility = ability:GetSpecialValueInt("radius");
+    local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
     local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility + 200, true, BOT_MODE_NONE);
 
     -- Cast if can interrupt cast
@@ -186,8 +205,15 @@ function ConsiderHex()
         for _, enemy in pairs(enemyAbility) do
             if utility.CanCastSpellOnTarget(ability, enemy) and enemy:IsChanneling()
             then
-                --npcBot:ActionImmediate_Chat("Использую Hex что бы сбить заклинание!",true);
-                return BOT_ACTION_DESIRE_VERYHIGH, enemy;
+                if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_UNIT_TARGET)
+                then
+                    return BOT_ACTION_DESIRE_VERYHIGH, enemy, "target";
+                elseif
+                    utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_POINT)
+                then
+                    return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0),
+                        "location";
+                end
             end
         end
     end
@@ -196,20 +222,35 @@ function ConsiderHex()
     if utility.PvPMode(npcBot)
     then
         if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget)
-            and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility + 200
+            and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility + radiusAbility
         then
             if not utility.IsDisabled(botTarget)
             then
-                --npcBot:ActionImmediate_Chat("Использую Hex по основной цели!", true);
-                return BOT_MODE_DESIRE_HIGH, botTarget;
+                if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_UNIT_TARGET)
+                then
+                    return BOT_ACTION_DESIRE_VERYHIGH, botTarget, "target";
+                elseif
+                    utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_POINT)
+                then
+                    return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0),
+                        "location";
+                end
             else
                 if (#enemyAbility > 1)
                 then
                     for _, enemy in pairs(enemyAbility) do
                         if utility.CanCastSpellOnTarget(ability, enemy) and not utility.IsDisabled(enemy)
                         then
-                            --npcBot:ActionImmediate_Chat("Использую Hex по второй цели!", true);
-                            return BOT_MODE_DESIRE_HIGH, enemy;
+                            if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_UNIT_TARGET)
+                            then
+                                return BOT_ACTION_DESIRE_VERYHIGH, enemy, "target";
+                            elseif
+                                utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_POINT)
+                            then
+                                return BOT_ACTION_DESIRE_VERYHIGH,
+                                    utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0),
+                                    "location";
+                            end
                         end
                     end
                 end
@@ -223,8 +264,15 @@ function ConsiderHex()
             for _, enemy in pairs(enemyAbility) do
                 if utility.CanCastSpellOnTarget(ability, enemy) and not utility.IsDisabled(enemy)
                 then
-                    --npcBot:ActionImmediate_Chat("Использую Hex для отступления!", true);
-                    return BOT_ACTION_DESIRE_HIGH, enemy;
+                    if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_UNIT_TARGET)
+                    then
+                        return BOT_ACTION_DESIRE_VERYHIGH, enemy, "target";
+                    elseif
+                        utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_POINT)
+                    then
+                        return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0),
+                            "location";
+                    end
                 end
             end
         end

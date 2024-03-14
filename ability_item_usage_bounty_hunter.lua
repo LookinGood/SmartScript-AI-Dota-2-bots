@@ -198,14 +198,22 @@ function ConsiderJinada()
         return;
     end
 
+    local attackTarget = npcBot:GetAttackTarget();
+
+    if (utility.IsHero(attackTarget) or utility.IsRoshan(attackTarget)) and utility.CanCastSpellOnTarget(ability, attackTarget)
+    then
+        if not ability:GetAutoCastState() then
+            ability:ToggleAutoCast()
+        end
+    else
+        if ability:GetAutoCastState() then
+            ability:ToggleAutoCast()
+        end
+    end
+
     --local castRangeAbility = ability:GetCastRange();
     --local damageAbility = npcBot:GetAttackDamage() + ability:GetSpecialValueInt("bonus_damage");
     --local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
-
-    if not ability:GetAutoCastState()
-    then
-        ability:ToggleAutoCast();
-    end
 
     --[[     -- Cast if can kill somebody
     if (#enemyAbility > 0)

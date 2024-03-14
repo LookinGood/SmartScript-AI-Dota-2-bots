@@ -31,11 +31,11 @@ local AbilityToLevelUp =
     Abilities[6],
     Abilities[3],
     Abilities[3],
-    Talents[4],
+    Talents[3],
     Abilities[3],
     Abilities[6],
-    Talents[5],
-    Talents[8],
+    Talents[6],
+    Talents[7],
 }
 
 function AbilityLevelUpThink()
@@ -96,7 +96,8 @@ function ConsiderDragonSlave()
 
     local castRangeAbility = ability:GetCastRange();
     local radiusAbility = ability:GetSpecialValueInt("dragon_slave_width_end");
-    local damageAbility = ability:GetSpecialValueInt("dragon_slave_damage");
+    local damageAbility = ability:GetSpecialValueInt("dragon_slave_damage") +
+    (ability:GetSpecialValueInt("dragon_slave_burn") * ability:GetSpecialValueInt("dragon_slave_burn_duration"));
     local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
     local speedAbility = ability:GetSpecialValueInt("dragon_slave_speed");
     local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility + 200, true, BOT_MODE_NONE);
@@ -109,7 +110,8 @@ function ConsiderDragonSlave()
             then
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility);
+                    return BOT_ACTION_DESIRE_VERYHIGH,
+                        utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility);
                 end
             end
         end
@@ -122,7 +124,8 @@ function ConsiderDragonSlave()
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
             then
-                return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, speedAbility);
+                return BOT_ACTION_DESIRE_VERYHIGH,
+                    utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, speedAbility);
             end
         end
         -- Cast if push/defend/farm

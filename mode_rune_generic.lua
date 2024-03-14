@@ -107,6 +107,17 @@ function GetDesire()
     end ]]
 end
 
+function OnStart()
+    if RollPercentage(15)
+    then
+        npcBot:ActionImmediate_Chat("Иду за руной.", false);
+    end
+end
+
+function OnEnd()
+    --
+end
+
 function Think()
     local bountyRuneRadiant = Vector(2183.8, -3906.2, 155.7);
     local powerfulRuneRadiant = Vector(1155.8, -1230.5, 84.7);

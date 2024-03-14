@@ -303,7 +303,7 @@ function ConsiderBallLightning()
     elseif utility.RetreatMode(npcBot)
     then
         local enemyAbility = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
-        if (#enemyAbility > 0) and (HealthPercentage <= 0.7) and npcBot:DistanceFromFountain() >= escapeRadius
+        if (#enemyAbility > 0) and npcBot:DistanceFromFountain() >= escapeRadius
         then
             return BOT_ACTION_DESIRE_HIGH, utility.GetEscapeLocation(npcBot, escapeRadius * 2);
         end

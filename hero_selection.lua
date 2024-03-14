@@ -105,6 +105,9 @@ require(GetScriptDirectory() .. "/hero_role_generic")
 	"npc_dota_hero_batrider",
 	"npc_dota_hero_weaver",
 	"npc_dota_hero_storm_spirit",
+	"npc_dota_hero_bristleback",
+	"npc_dota_hero_rubick",
+	"npc_dota_hero_bane",
 ]]
 --#endregion
 
@@ -209,6 +212,9 @@ local hero_pool_my =
 	"npc_dota_hero_batrider",
 	"npc_dota_hero_weaver",
 	"npc_dota_hero_storm_spirit",
+	"npc_dota_hero_bristleback",
+	"npc_dota_hero_rubick",
+	"npc_dota_hero_bane",
 }
 
 local heroesCarry =
@@ -275,6 +281,7 @@ local heroesCarry =
 	"npc_dota_hero_razor",
 	"npc_dota_hero_weaver",
 	"npc_dota_hero_storm_spirit",
+	"npc_dota_hero_bristleback",
 }
 
 local heroesSupport =
@@ -316,6 +323,8 @@ local heroesSupport =
 	"npc_dota_hero_oracle",
 	"npc_dota_hero_jakiro",
 	"npc_dota_hero_batrider",
+	"npc_dota_hero_rubick",
+	"npc_dota_hero_bane",
 }
 
 function GetBotNames()
@@ -412,7 +421,7 @@ function Think()
 
 	-- Insert here hero hame and set "testmode = true" if you want the bot to choose a specific hero
 	local testmode = false;
-	local testHero = "npc_dota_hero_storm_spirit"
+	local testHero = "npc_dota_hero_bane"
 
 	if testmode
 	then
@@ -446,6 +455,7 @@ function Think()
 		do
 			if IsPlayerBot(i) and GetSelectedHeroName(i) == "" and (i ~= testPlayer)
 			then
+				local hero = nil;
 				if hero_role_generic.GetCountCarryHeroInTeam() < 3
 				then
 					hero = GetCarryHero();

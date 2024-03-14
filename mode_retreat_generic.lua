@@ -90,6 +90,17 @@ function GetDesire()
     return BOT_ACTION_DESIRE_NONE;
 end
 
+function OnStart()
+    if RollPercentage(5)
+    then
+        npcBot:ActionImmediate_Chat("Отступаю!", false);
+    end
+end
+
+function OnEnd()
+    --
+end
+
 function Think()
     local fountainLocation = utility.SafeLocation(npcBot);
 

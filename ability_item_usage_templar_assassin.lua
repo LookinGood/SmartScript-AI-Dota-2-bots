@@ -233,7 +233,7 @@ function ConsiderPsionicTrap()
     local damageAbility = ability:GetSpecialValueInt("instant_trap_damage") +
         ability:GetSpecialValueInt("trap_bonus_damage");
     local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
-    local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
+    local enemyAbility = npcBot:GetNearbyHeroes(utility.GetCurretCastDistance(castRangeAbility), true, BOT_MODE_NONE);
 
     -- Cast if can kill somebody
     if (#enemyAbility > 0)

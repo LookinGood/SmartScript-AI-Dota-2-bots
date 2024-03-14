@@ -26,6 +26,17 @@ function GetDesire()
 	return desire;
 end
 
+function OnStart()
+    if RollPercentage(5)
+    then
+        npcBot:ActionImmediate_Chat("Иду в секретную лавку.", false);
+    end
+end
+
+function OnEnd()
+--
+end
+
 function Think()
 	local shopLoc1 = GetShopLocation(GetTeam(), SHOP_SECRET);
 	local shopLoc2 = GetShopLocation(GetTeam(), SHOP_SECRET2);

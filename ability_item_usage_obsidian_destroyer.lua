@@ -139,6 +139,11 @@ function ConsiderAstralImprisonment()
                     end
                 end
             end
+            -- Try to hide ally
+            if utility.IsUnitNeedToHide(ally)
+            then
+                return BOT_ACTION_DESIRE_VERYHIGH, ally;
+            end
         end
     end
 

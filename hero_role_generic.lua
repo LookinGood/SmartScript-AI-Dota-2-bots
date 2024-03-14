@@ -66,6 +66,7 @@ C["carryHeroes"] = {
     ["npc_dota_hero_razor"] = 1,
     ["npc_dota_hero_weaver"] = 1,
     ["npc_dota_hero_storm_spirit"] = 1,
+    ["npc_dota_hero_bristleback"] = 1,
 }
 
 local S = {}
@@ -108,6 +109,8 @@ S["supportHeroes"] = {
     ["npc_dota_hero_oracle"] = 1,
     ["npc_dota_hero_jakiro"] = 1,
     ["npc_dota_hero_batrider"] = 1,
+    ["npc_dota_hero_rubick"] = 1,
+    ["npc_dota_hero_bane"] = 1,
 }
 
 function IsHeroCarry(npcBot)

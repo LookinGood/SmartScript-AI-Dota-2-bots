@@ -105,10 +105,7 @@ end
 --#region BUYBACK THINK
 function BuybackUsageThink()
 	local npcBot = GetBot();
-	if not npcBot:IsHero() or npcBot:IsIllusion() or utility.IsClone(npcBot)
-	then
-		return;
-	elseif npcBot:IsAlive()
+	if not npcBot:IsHero() or npcBot:IsAlive() or npcBot:IsIllusion() or utility.IsClone(npcBot)
 	then
 		return;
 	elseif not npcBot:IsAlive() and not npcBot:HasBuyback()

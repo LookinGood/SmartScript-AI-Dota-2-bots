@@ -130,6 +130,7 @@ function Think()
             npcBot:GetCurrentActionType() ~= BOT_ACTION_TYPE_ATTACK and
             npcBot:GetCurrentActionType() ~= BOT_ACTION_TYPE_ATTACKMOVE
         then
+            npcBot:Action_ClearActions(false);
             npcBot:Action_MoveToLocation(defendZone);
             return;
         else
@@ -144,16 +145,26 @@ function Think()
                 local enemyHeroes = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
                 if (#enemyHeroes <= 1)
                 then
+                    npcBot:Action_ClearActions(false);
                     npcBot:Action_AttackUnit(mainCreep, false);
                     return;
                 else
-                    if GetUnitToUnitDistance(npcBot, mainCreep) > npcBot:GetAttackRange()
+                    if npcBot:GetAttackRange() >= 500
                     then
-                        npcBot:Action_AttackMove(mainCreep:GetLocation());
-                        --npcBot:Action_MoveToLocation(mainCreep:GetLocation());
-                        return;
+                        if GetUnitToUnitDistance(npcBot, mainCreep) > npcBot:GetAttackRange()
+                        then
+                            npcBot:Action_ClearActions(false);
+                            npcBot:Action_AttackMove(mainCreep:GetLocation());
+                            --npcBot:Action_MoveToLocation(mainCreep:GetLocation());
+                            return;
+                        else
+                            npcBot:Action_ClearActions(false);
+                            npcBot:Action_AttackUnit(mainCreep, false);
+                            return;
+                        end
                     else
-                        npcBot:Action_AttackUnit(mainCreep, false);
+                        npcBot:Action_ClearActions(false);
+                        npcBot:Action_AttackMove(npcBot:GetLocation() + RandomVector(500));
                         return;
                     end
                 end
@@ -164,14 +175,17 @@ function Think()
                 then
                     if GetUnitToUnitDistance(npcBot, mainEnemy) > npcBot:GetAttackRange()
                     then
+                        npcBot:Action_ClearActions(false);
                         npcBot:Action_AttackMove(mainEnemy:GetLocation());
                         return;
                     else
+                        npcBot:Action_ClearActions(false);
                         npcBot:Action_AttackUnit(mainEnemy, false);
                         return;
                     end
                 end
             else
+                npcBot:Action_ClearActions(false);
                 npcBot:Action_AttackMove(npcBot:GetLocation() + RandomVector(500));
                 return;
                 --npcBot:Action_MoveToLocation(npcBot:GetLocation() + RandomVector(500));

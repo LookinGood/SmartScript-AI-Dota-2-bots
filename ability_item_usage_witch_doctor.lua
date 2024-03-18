@@ -101,7 +101,8 @@ function AbilityUsageThink()
     then
         if not utility.PvPMode(npcBot) and not utility.RetreatMode(npcBot)
         then
-            local allyAbility = npcBot:GetNearbyHeroes(VoodooRestoration:GetSpecialValueInt("radius") * 2, false,BOT_MODE_NONE);
+            local allyAbility = npcBot:GetNearbyHeroes(VoodooRestoration:GetSpecialValueInt("radius") * 2, false,
+                BOT_MODE_NONE);
             if (#allyAbility > 1)
             then
                 for _, ally in pairs(allyAbility)
@@ -110,7 +111,9 @@ function AbilityUsageThink()
                     then
                         if GetUnitToUnitDistance(npcBot, ally) > (VoodooRestoration:GetSpecialValueInt("radius"))
                         then
-                            npcBot:Action_MoveToLocation(ally:GetLocation() + RandomVector(VoodooRestoration:GetSpecialValueInt("radius")));
+                            npcBot:Action_ClearActions(false);
+                            npcBot:Action_MoveToLocation(ally:GetLocation() +
+                            RandomVector(VoodooRestoration:GetSpecialValueInt("radius")));
                         end
                     end
                 end

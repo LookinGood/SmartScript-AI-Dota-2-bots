@@ -26,10 +26,10 @@ local ItemsToBuy =
 	"item_chainmail",
 
 	"item_belt_of_strength",
-    "item_ogre_axe",
-    "item_recipe_sange",
-    "item_talisman_of_evasion",
-    "item_recipe_heavens_halberd",
+	"item_ogre_axe",
+	"item_recipe_sange",
+	"item_talisman_of_evasion",
+	"item_recipe_heavens_halberd",
 
 	"item_aghanims_shard",
 
@@ -38,6 +38,11 @@ local ItemsToBuy =
 	"item_recipe_black_king_bar",
 
 	"item_blink",
+
+	"item_point_booster",
+	"item_ogre_axe",
+	"item_staff_of_wizardry",
+	"item_blade_of_alacrity",
 
 	"item_ring_of_health",
 	"item_vitality_booster",
@@ -48,15 +53,10 @@ local ItemsToBuy =
 
 	"item_recipe_abyssal_blade",
 
+	"item_recipe_ultimate_scepter_2",
+
 	"item_reaver",
 	"item_recipe_overwhelming_blink",
-
-	"item_point_booster",
-	"item_ogre_axe",
-	"item_staff_of_wizardry",
-	"item_blade_of_alacrity",
-
-	"item_recipe_ultimate_scepter_2",
 
 	"item_hyperstone",
 	"item_hyperstone",

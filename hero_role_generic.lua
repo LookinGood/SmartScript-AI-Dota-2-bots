@@ -111,6 +111,9 @@ S["supportHeroes"] = {
     ["npc_dota_hero_batrider"] = 1,
     ["npc_dota_hero_rubick"] = 1,
     ["npc_dota_hero_bane"] = 1,
+    ["npc_dota_hero_rattletrap"] = 1,
+    ["npc_dota_hero_sand_king"] = 1,
+    ["npc_dota_hero_skywrath_mage"] = 1,
 }
 
 function IsHeroCarry(npcBot)

@@ -34,7 +34,7 @@ local AbilityToLevelUp =
     Talents[4],
     Abilities[2],
     Abilities[6],
-    Talents[5],
+    Talents[6],
     Talents[7],
 }
 

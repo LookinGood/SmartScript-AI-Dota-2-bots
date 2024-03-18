@@ -8,7 +8,6 @@ local ItemsToBuy =
 	"item_faerie_fire",
 	"item_branches",
 	"item_branches",
-
 	"item_flask",
 
 	"item_recipe_magic_wand",

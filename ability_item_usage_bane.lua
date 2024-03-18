@@ -303,7 +303,7 @@ function ConsiderNightmareEnd()
     if (#allyAbility > 0)
     then
         for _, ally in pairs(allyAbility) do
-            if ally:HasModifier("modifier_bane_nightmare")
+            if ally:HasModifier("modifier_bane_nightmare") and not utility.IsUnitNeedToHide(ally)
             then
                 countAllyNightmare = countAllyNightmare + 1;
             end

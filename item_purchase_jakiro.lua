@@ -24,17 +24,17 @@ local ItemsToBuy =
     "item_robe",
     "item_recipe_ancient_janggo",
 
+    "item_recipe_boots_of_bearing",
+
     "item_fluffy_hat",
-	"item_staff_of_wizardry",
-	"item_recipe_force_staff",
+    "item_staff_of_wizardry",
+    "item_recipe_force_staff",
 
     "item_ring_of_regen",
     "item_recipe_headdress",
     "item_cloak",
     "item_ring_of_tarrasque",
     "item_recipe_pipe",
-
-    "item_recipe_boots_of_bearing",
 
     "item_aghanims_shard",
 
@@ -45,14 +45,14 @@ local ItemsToBuy =
     "item_staff_of_wizardry",
     "item_blade_of_alacrity",
 
-	"item_tiara_of_selemene",
-	"item_mystic_staff",
-	"item_recipe_sheepstick",
+    "item_tiara_of_selemene",
+    "item_mystic_staff",
+    "item_recipe_sheepstick",
 
     "item_recipe_ultimate_scepter_2",
 
     "item_mystic_staff",
-	"item_recipe_arcane_blink",
+    "item_recipe_arcane_blink",
 
     "item_energy_booster",
     "item_vitality_booster",

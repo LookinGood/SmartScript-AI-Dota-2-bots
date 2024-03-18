@@ -110,7 +110,7 @@ function ItemPurchase(ItemsToBuy)
                 else
                     if courier == nil
                     then
-                        BuyCourier()
+                        --BuyCourier()
                     else
                         if courier:DistanceFromSecretShop() <= 200 and not utility.IsCourierItemSlotsFull()
                         then
@@ -181,10 +181,12 @@ end
 
 function SellSpecifiedItem(item_name)
     local npcBot = GetBot();
-    if not npcBot:IsAlive()
+    if not npcBot:IsAlive() or item_name == nil
     then
         return;
     end
+
+    local courier = utility.GetBotCourier(npcBot);
 
     for i = 0, 8
     do
@@ -211,14 +213,26 @@ function SellSpecifiedItem(item_name)
         end
     end
 
-    -- or npcBot:DistanceFromSideShop() <= 200
+    for i = 0, 8
+    do
+        local slotItem = courier:GetItemInSlot(i);
+        if slotItem ~= nil and slotItem:GetName() == item_name
+        then
+            if courier:DistanceFromFountain() <= 600 or courier:DistanceFromSecretShop() <= 200
+            then
+                npcBot:ActionImmediate_Chat("Продаю лишний предмет из курьера!", true);
+                npcBot:ActionImmediate_SellItem(slotItem);
+                break;
+            end
+        end
+    end
 end
 
 function SellExtraItem()
     local npcBot = GetBot();
     if utility.IsItemSlotsFull()
     then
-        if (DotaTime() > 10 * 60)
+        if (DotaTime() > 5 * 60)
         then
             SellSpecifiedItem("item_tango")
             SellSpecifiedItem("item_clarity")

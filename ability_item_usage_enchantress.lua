@@ -104,6 +104,7 @@ function AbilityUsageThink()
                     then
                         if GetUnitToUnitDistance(npcBot, ally) > (NaturesAttendants:GetSpecialValueInt("radius"))
                         then
+                            npcBot:Action_ClearActions(false);
                             npcBot:Action_MoveToLocation(ally:GetLocation() +
                                 RandomVector(NaturesAttendants:GetSpecialValueInt("radius")));
                         end

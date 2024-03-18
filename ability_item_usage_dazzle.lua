@@ -153,11 +153,14 @@ function ConsiderPoisonTouch()
         -- Cast when laning
     elseif botMode == BOT_MODE_LANING
     then
-        local enemy = utility.GetWeakest(enemyAbility);
-        if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)
+        if (#enemyAbility > 0) and (ManaPercentage >= 0.7)
         then
-            --npcBot:ActionImmediate_Chat("Использую PoisonTouch по цели на ЛАЙНЕ!", true);
-            return BOT_ACTION_DESIRE_VERYHIGH, enemy;
+            local enemy = utility.GetWeakest(enemyAbility);
+            if utility.CanCastSpellOnTarget(ability, enemy)
+            then
+                --npcBot:ActionImmediate_Chat("Использую PoisonTouch по цели на ЛАЙНЕ!", true);
+                return BOT_ACTION_DESIRE_VERYHIGH, enemy;
+            end
         end
     end
 end

@@ -1218,7 +1218,6 @@ function PurchaseBottle(npcBot)
 		end
 	end
 
-	--npcBot:ActionImmediate_Chat("Покупаю BOTTLE!", true);
 	npcBot:ActionImmediate_PurchaseItem("item_bottle");
 end
 

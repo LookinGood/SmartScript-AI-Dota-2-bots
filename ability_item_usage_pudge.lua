@@ -50,7 +50,7 @@ local Eject = AbilitiesReal[4]
 local Dismember = AbilitiesReal[6]
 
 function AbilityUsageThink()
-    if not utility.CanCast(npcBot) then
+    if not utility.CanCastWhenChanneling(npcBot) then
         return;
     end
 
@@ -59,8 +59,19 @@ function AbilityUsageThink()
     HealthPercentage = npcBot:GetHealth() / npcBot:GetMaxHealth();
     ManaPercentage = npcBot:GetMana() / npcBot:GetMaxMana();
 
-    local castMeatHookDesire, castMeatHookLocation = ConsiderMeatHook();
     local castRotDesire = ConsiderRot();
+
+    if (castRotDesire ~= nil)
+    then
+        npcBot:Action_UseAbility(Rot);
+        return;
+    end
+
+    if not utility.CanCast(npcBot) then
+        return;
+    end
+
+    local castMeatHookDesire, castMeatHookLocation = ConsiderMeatHook();
     local castFleshHeapDesire = ConsiderFleshHeap();
     local castEjectDesire = ConsiderEject();
     local castDismemberDesire, castDismemberTarget = ConsiderDismember();
@@ -68,12 +79,6 @@ function AbilityUsageThink()
     if (castMeatHookDesire ~= nil)
     then
         npcBot:Action_UseAbilityOnLocation(MeatHook, castMeatHookLocation);
-        return;
-    end
-
-    if (castRotDesire ~= nil)
-    then
-        npcBot:Action_UseAbility(Rot);
         return;
     end
 
@@ -152,7 +157,7 @@ function ConsiderMeatHook()
                     targetLocation = botTarget:GetLocation();
                 end
                 if not utility.IsAllyHeroesBetweenMeAndTarget(npcBot, botTarget, targetLocation, abilityRadius) and
-                    not IsAllyCreepBetweenMeAndTarget(npcBot, botTarget, targetLocation, abilityRadius) and
+                    not utility.IsAllyCreepBetweenMeAndTarget(npcBot, botTarget, targetLocation, abilityRadius) and
                     not utility.IsEnemyCreepBetweenMeAndTarget(npcBot, botTarget, targetLocation, abilityRadius)
                 then
                     --npcBot:ActionImmediate_Chat("Использую MeatHook для атаки!", true);
@@ -222,7 +227,7 @@ function ConsiderRot()
         return;
     end
 
---[[     local radiusAbility
+    --[[     local radiusAbility
     if not npcBot:HasScepter()
     then
         radiusAbility = ability:GetSpecialValueInt("rot_radius");
@@ -279,7 +284,7 @@ function ConsiderRot()
             end
         end
         -- Try to self-denyi
---[[         if (HealthPercentage < 0.1) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
+        --[[         if (HealthPercentage < 0.1) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
         then
             if ability:GetToggleState() == false
             then

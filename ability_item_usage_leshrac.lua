@@ -103,6 +103,7 @@ function AbilityUsageThink()
             if GetUnitToUnitDistance(npcBot, attackTarget) > (DiabolicEdict:GetSpecialValueInt("radius") - 100)
             then
                 --npcBot:ActionImmediate_Chat("Сближаюсь с врагом что бы обжечь его!",true);
+                npcBot:Action_ClearActions(false);
                 npcBot:Action_MoveToLocation(attackTarget:GetLocation());
             end
         end
@@ -116,6 +117,7 @@ function AbilityUsageThink()
             if GetUnitToUnitDistance(npcBot, attackTarget) > (PulseNova:GetSpecialValueInt("radius") - 100)
             then
                 --npcBot:ActionImmediate_Chat("Сближаюсь с врагом что бы обжечь его ультой!",true);
+                npcBot:Action_ClearActions(false);
                 npcBot:Action_MoveToLocation(attackTarget:GetLocation());
             end
         end

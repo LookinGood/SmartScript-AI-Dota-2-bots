@@ -208,7 +208,7 @@ function ConsiderPowershot()
         -- Cast when laning
     elseif botMode == BOT_MODE_LANING
     then
-        local enemyAbility = npcBot:GetNearbyHeroes(utility.GetCurretCastDistance(castRangeAbility), true, BOT_MODE_NONE);
+        local enemyAbility = npcBot:GetNearbyHeroes(utility.GetCurrentCastDistance(castRangeAbility), true, BOT_MODE_NONE);
         local enemy = utility.GetWeakest(enemyAbility);
         if GetUnitToUnitDistance(npcBot, enemy) <= castRangeAbility and utility.CanCastSpellOnTarget(ability, enemy)
             and (ManaPercentage >= 0.7)

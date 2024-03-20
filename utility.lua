@@ -30,6 +30,61 @@ function IsNight()
 	end
 end
 
+function IsBaseUnderAttack()
+	local radiusUnit = 3000;
+	local towers = {
+		TOWER_TOP_3,
+		TOWER_MID_3,
+		TOWER_BOT_3,
+		TOWER_BASE_1,
+		TOWER_BASE_2,
+	}
+
+	for _, t in pairs(towers)
+	do
+		local tower = GetTower(GetTeam(), t);
+		if tower ~= nil
+		then
+			if utility.CountEnemyCreepAroundUnit(tower, radiusUnit) > 1 or utility.CountEnemyHeroAroundUnit(tower, radiusUnit) > 0
+			then
+				return true;
+			end
+		end
+	end
+
+	local barracks = {
+		BARRACKS_TOP_MELEE,
+		BARRACKS_TOP_RANGED,
+		BARRACKS_MID_MELEE,
+		BARRACKS_MID_RANGED,
+		BARRACKS_BOT_MELEE,
+		BARRACKS_BOT_RANGED,
+	}
+
+	for _, b in pairs(barracks)
+	do
+		local barrack = GetBarracks(GetTeam(), b);
+		if barrack ~= nil
+		then
+			if utility.CountEnemyCreepAroundUnit(barrack, radiusUnit) > 1 or utility.CountEnemyHeroAroundUnit(barrack, radiusUnit) > 0
+			then
+				return true;
+			end
+		end
+	end
+
+	local ancient = GetAncient(GetTeam());
+	if ancient ~= nil
+	then
+		if utility.CountEnemyCreepAroundUnit(ancient, radiusUnit) > 1 or utility.CountEnemyHeroAroundUnit(ancient, radiusUnit) > 0
+		then
+			return true;
+		end
+	end
+
+	return false;
+end
+
 function IsUnitNeedToHide(npcTarget)
 	return IsValidTarget(npcTarget) and
 		(npcTarget:IsDominated() or
@@ -199,7 +254,7 @@ function GetBiggerAttribute(npcTarget)
 	end
 end
 
-function GetCurretCastDistance(castRangeAbility)
+function GetCurrentCastDistance(castRangeAbility)
 	local distance = castRangeAbility;
 	if distance > 1600
 	then

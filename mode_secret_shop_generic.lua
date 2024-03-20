@@ -7,7 +7,7 @@ function GetDesire()
 	local enemyHeroes = npcBot:GetNearbyHeroes(1000, true, BOT_MODE_NONE);
 
 	if not utility.IsHero(npcBot) or not npcBot:IsAlive() or utility.IsBusy(npcBot) or not utility.CanMove(npcBot) or utility.IsClone(npcBot) or
-		(#enemyHeroes > 0) or npcBot.secretShopMode == false or secretShopDistance > 3000 or utility.IsItemSlotsFull()
+		(#enemyHeroes > 0) or npcBot.secretShopMode == false or secretShopDistance > 3000 or utility.IsItemSlotsFull() or utility.IsBaseUnderAttack()
 	then
 		return BOT_ACTION_DESIRE_NONE;
 	end

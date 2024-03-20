@@ -7,7 +7,6 @@ local ItemsToBuy =
 	"item_wind_lace",
 	"item_branches",
 	"item_branches",
-
 	"item_flask",
 
 	"item_recipe_magic_wand",
@@ -23,12 +22,6 @@ local ItemsToBuy =
 	"item_void_stone",
 	"item_recipe_aether_lens",
 
-	"item_blink",
-
-	"item_aghanims_shard",
-
-	"item_sobi_mask",
-
 	"item_wind_lace",
 	"item_belt_of_strength",
 	"item_robe",
@@ -36,10 +29,17 @@ local ItemsToBuy =
 
 	"item_recipe_boots_of_bearing",
 
+	"item_blink",
+
+	"item_aghanims_shard",
+
 	"item_voodoo_mask",
 	"item_diadem",
 	"item_recipe_dagon",
 
+	"item_recipe_dagon",
+	"item_recipe_dagon",
+	"item_recipe_dagon",
 	"item_recipe_dagon",
 
 	"item_point_booster",
@@ -47,26 +47,22 @@ local ItemsToBuy =
 	"item_staff_of_wizardry",
 	"item_blade_of_alacrity",
 
-	"item_recipe_ultimate_scepter_2",
-
 	"item_ghost",
 	"item_recipe_ethereal_blade",
-
-	"item_recipe_dagon",
-	"item_recipe_dagon",
-	"item_recipe_dagon",
 
 	"item_mystic_staff",
 	"item_recipe_arcane_blink",
 
+	"item_recipe_ultimate_scepter_2",
+
+	"item_energy_booster",
+	"item_vitality_booster",
+	"item_point_booster",
+	"item_tiara_of_selemene",
+
 	"item_energy_booster",
 	"item_vitality_booster",
 	"item_recipe_aeon_disk",
-
-	"item_energy_booster",
-    "item_vitality_booster",
-    "item_point_booster",
-    "item_tiara_of_selemene",
 }
 
 function ItemPurchaseThink()

@@ -160,7 +160,7 @@ function GetDesire()
         return BOT_ACTION_DESIRE_NONE;
     end
 
-    if not utility.IsHero(npcBot) or not npcBot:IsAlive() or not utility.CanMove(npcBot) or utility.IsBusy(npcBot)
+    if not utility.IsHero(npcBot) or not npcBot:IsAlive() or not utility.CanMove(npcBot) or utility.IsBusy(npcBot) or utility.IsBaseUnderAttack()
     then
         return BOT_ACTION_DESIRE_NONE;
     end

@@ -17,9 +17,9 @@ local ItemsToBuy =
 	"item_slippers",
 	"item_recipe_wraith_band",
 
-    "item_boots",
-    "item_blades_of_attack",
-    "item_chainmail",
+	"item_boots",
+	"item_blades_of_attack",
+	"item_chainmail",
 
 	"item_lifesteal",
 	"item_broadsword",
@@ -43,6 +43,13 @@ local ItemsToBuy =
 
 	"item_demon_edge",
 	"item_recipe_greater_crit",
+
+	"item_point_booster",
+	"item_ogre_axe",
+	"item_staff_of_wizardry",
+	"item_blade_of_alacrity",
+
+	"item_recipe_ultimate_scepter_2",
 
 	"item_blade_of_alacrity",
 	"item_boots_of_elves",

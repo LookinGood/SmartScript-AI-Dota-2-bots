@@ -13,32 +13,33 @@ local ItemsToBuy =
 	"item_recipe_magic_wand",
 
 	"item_circlet",
-	"item_slippers",
-	"item_recipe_wraith_band",
+	"item_mantle",
+	"item_recipe_null_talisman",
 
-	"item_boots",
-	"item_gloves",
-	"item_boots_of_elves",
+    "item_boots",
+    "item_blades_of_attack",
+    "item_chainmail",
 
-	"item_blade_of_alacrity",
-	"item_boots_of_elves",
-	"item_recipe_yasha",
+	"item_helm_of_iron_will",
+    "item_crown",
+    "item_recipe_veil_of_discord",
 
-	"item_diadem",
-	"item_recipe_manta",
+	"item_staff_of_wizardry",
+	"item_robe",
+	"item_recipe_kaya",
 
-	"item_blades_of_attack",
-	"item_claymore",
-	"item_recipe_lesser_crit",
+	"item_belt_of_strength",
+    "item_ogre_axe",
+    "item_recipe_sange",
 
-	"item_demon_edge",
-	"item_recipe_greater_crit",
+	"item_aghanims_shard",
 
 	"item_ogre_axe",
 	"item_mithril_hammer",
 	"item_recipe_black_king_bar",
 
-	"item_aghanims_shard",
+	"item_platemail",
+    "item_recipe_shivas_guard",
 
 	"item_point_booster",
 	"item_ogre_axe",
@@ -46,17 +47,16 @@ local ItemsToBuy =
 	"item_blade_of_alacrity",
 
 	"item_point_booster",
-	"item_ultimate_orb",
-	"item_recipe_skadi",
+    "item_energy_booster",
+    "item_vitality_booster",
+    "item_void_stone",
+    "item_voodoo_mask",
 
 	"item_recipe_ultimate_scepter_2",
 
-	"item_hyperstone",
-	"item_hyperstone",
-
-	"item_claymore",
-	"item_talisman_of_evasion",
-	"item_eagle",
+	"item_tiara_of_selemene",
+	"item_mystic_staff",
+	"item_recipe_sheepstick",
 
 	"item_recipe_travel_boots",
 	"item_boots",

@@ -165,7 +165,7 @@ function ConsiderIlluminate()
     local damageAbility = ability:GetSpecialValueInt("total_damage")
     local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
     local speedAbility = ability:GetSpecialValueInt("speed");
-    local enemyAbility = npcBot:GetNearbyHeroes(utility.GetCurretCastDistance(castRangeAbility), true, BOT_MODE_NONE);
+    local enemyAbility = npcBot:GetNearbyHeroes(utility.GetCurrentCastDistance(castRangeAbility), true, BOT_MODE_NONE);
 
     -- Cast if can kill somebody
     if (#enemyAbility > 0) and npcBot:TimeSinceDamagedByAnyHero() >= 5.0
@@ -240,7 +240,7 @@ function ConsiderIlluminateSpiritForm()
     local damageAbility = ability:GetSpecialValueInt("total_damage")
     local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
     local speedAbility = ability:GetSpecialValueInt("speed");
-    local enemyAbility = npcBot:GetNearbyHeroes(utility.GetCurretCastDistance(castRangeAbility), true, BOT_MODE_NONE);
+    local enemyAbility = npcBot:GetNearbyHeroes(utility.GetCurrentCastDistance(castRangeAbility), true, BOT_MODE_NONE);
 
     -- Cast if can kill somebody
     if (#enemyAbility > 0)
@@ -570,7 +570,7 @@ function ConsiderRecall()
                         then
                             if allyAbility[i]:DistanceFromFountain() < 3000 and GetUnitToUnitDistance(npcBot, allyAbility[i]) >= 3000
                             then
-                                npcBot:ActionImmediate_Chat("Использую Recall что бы вызвать союзника в бой!", true);
+                                --npcBot:ActionImmediate_Chat("Использую Recall что бы вызвать союзника в бой!", true);
                                 return BOT_ACTION_DESIRE_HIGH,
                                     utility.GetTargetCastPosition(npcBot, allyAbility[i], delayAbility, 0);
                             end

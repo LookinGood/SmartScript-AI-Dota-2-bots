@@ -95,7 +95,7 @@ function ConsiderDualBreath()
     local damageAbility = ability:GetSpecialValueInt("burn_damage") * ability:GetSpecialValueInt("AbilityDuration");
     local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
     local speedAbility = ability:GetSpecialValueInt("speed");
-    local enemyAbility = npcBot:GetNearbyHeroes(utility.GetCurretCastDistance(castRangeAbility + 200), true,
+    local enemyAbility = npcBot:GetNearbyHeroes(utility.GetCurrentCastDistance(castRangeAbility + 200), true,
         BOT_MODE_NONE);
 
     -- Cast if can kill somebody
@@ -169,7 +169,7 @@ function ConsiderIcePath()
     local radiusAbility = ability:GetSpecialValueInt("path_radius");
     local damageAbility = ability:GetSpecialValueInt("damage") * ability:GetSpecialValueInt("path_duration");
     local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
-    local enemyAbility = npcBot:GetNearbyHeroes(utility.GetCurretCastDistance(castRangeAbility + 200), true,
+    local enemyAbility = npcBot:GetNearbyHeroes(utility.GetCurrentCastDistance(castRangeAbility + 200), true,
         BOT_MODE_NONE);
 
     -- Cast if can kill somebody/interrupt cast
@@ -256,7 +256,8 @@ function ConsiderMacropyre()
     local castRangeAbility = ability:GetCastRange();
     local radiusAbility = ability:GetSpecialValueInt("path_width");
     local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
-    local enemyAbility = npcBot:GetNearbyHeroes(utility.GetCurretCastDistance(castRangeAbility + 200), true, BOT_MODE_NONE);
+    local enemyAbility = npcBot:GetNearbyHeroes(utility.GetCurrentCastDistance(castRangeAbility + 200), true,
+        BOT_MODE_NONE);
 
     -- Cast if enemy hero immobilized
     if (#enemyAbility > 0)

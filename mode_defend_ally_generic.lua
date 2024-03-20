@@ -69,7 +69,7 @@ function GetDesire()
     if escortAlly ~= nil and mostDangerousEnemy ~= nil
     then
         SetTarget(mostDangerousEnemy);
-        return BOT_ACTION_DESIRE_MODERATE;
+        return BOT_ACTION_DESIRE_LOW;
     else
         return BOT_ACTION_DESIRE_NONE;
     end
@@ -92,8 +92,10 @@ end
 function Think()
     if mostDangerousEnemy ~= nil
     then
+        --print(npcBot:GetTarget():GetUnitName())
         if GetUnitToUnitDistance(npcBot, mostDangerousEnemy) <= (npcBot:GetAttackRange() * 4)
         then
+            npcBot:Action_ClearActions(false);
             --npcBot:ActionImmediate_Chat("Я атакую врага защищая союзника!", true);
             npcBot:Action_AttackUnit(mostDangerousEnemy, false);
             return;
@@ -105,9 +107,11 @@ function Think()
                 local escortAlyPosition = escortAlly:GetLocation();
                 if GetUnitToUnitDistance(npcBot, escortAlly) > 300
                 then
+                    npcBot:Action_ClearActions(false);
                     npcBot:Action_MoveToLocation(escortAlyPosition);
                     return;
                 else
+                    npcBot:Action_ClearActions(false);
                     npcBot:Action_MoveToLocation(npcBot:GetLocation() + RandomVector(npcBot:GetAttackRange() * 2));
                     return;
                 end

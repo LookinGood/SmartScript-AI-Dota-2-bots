@@ -8,6 +8,7 @@ function GetDesire()
 	local desire = 0.0;
 
 	if not npcBot:IsAlive() or utility.IsBusy(npcBot) or not utility.CanMove(npcBot) or utility.IsClone(npcBot) or (#enemyHeroes > 0)
+		or utility.IsBaseUnderAttack()
 	then
 		return BOT_ACTION_DESIRE_NONE;
 	end

@@ -204,6 +204,11 @@ function ConsiderEyeOfTheStorm()
         return;
     end
 
+    if npcBot:HasModifier("modifier_razor_eye_of_the_storm")
+    then
+        return;
+    end
+
     local radiusAbility = ability:GetAOERadius();
     local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
 

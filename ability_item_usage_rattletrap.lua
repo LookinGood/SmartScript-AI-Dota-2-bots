@@ -126,7 +126,6 @@ function IsCogNeedsToBeBroken()
                 if utility.IsValidTarget(botTarget)
                 then
                     if GetUnitToUnitDistance(npcBot, botTarget) > npcBot:GetAttackRange() and GetUnitToUnitDistance(npcBot, cog) <= npcBot:GetAttackRange()
-                        and npcBot:IsFacingLocation(cog:GetLocation(), 20)
                     then
                         mainCog = cog;
                     end
@@ -134,7 +133,7 @@ function IsCogNeedsToBeBroken()
                 if utility.RetreatMode(npcBot)
                 then
                     if GetUnitToLocationDistance(cog, fountainLocation) < GetUnitToLocationDistance(npcBot, fountainLocation) and
-                        GetUnitToUnitDistance(npcBot, cog) <= npcBot:GetAttackRange() and npcBot:IsFacingLocation(cog:GetLocation(), 20)
+                        GetUnitToUnitDistance(npcBot, cog) <= npcBot:GetAttackRange()
                     then
                         mainCog = cog;
                     end
@@ -390,7 +389,7 @@ function ConsiderHookshot()
     local damageAbility = ability:GetSpecialValueInt("damage");
     local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
     local abilitySpeed = ability:GetSpecialValueInt("speed");
-    local enemyAbility = npcBot:GetNearbyHeroes(utility.GetCurretCastDistance(castRangeAbility), true, BOT_MODE_NONE);
+    local enemyAbility = npcBot:GetNearbyHeroes(utility.GetCurrentCastDistance(castRangeAbility), true, BOT_MODE_NONE);
 
     -- Cast if can kill somebody/interrupt cast
     if (#enemyAbility > 0) and not utility.RetreatMode(npcBot)

@@ -216,7 +216,7 @@ function ConsiderFlamebreak()
         (ability:GetSpecialValueInt("damage_per_second") * ability:GetSpecialValueInt("damage_duration"));
     local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
     local speedAbility = ability:GetSpecialValueInt("speed");
-    local enemyAbility = npcBot:GetNearbyHeroes(utility.GetCurretCastDistance(castRangeAbility + radiusAbility), true,
+    local enemyAbility = npcBot:GetNearbyHeroes(utility.GetCurrentCastDistance(castRangeAbility + radiusAbility), true,
         BOT_MODE_NONE);
 
     -- Cast if can kill somebody/interrupt cast

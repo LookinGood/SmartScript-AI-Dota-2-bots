@@ -66,27 +66,27 @@ function AbilityUsageThink()
     local castFriendlyShadowDesire, castFriendlyShadowTarget = ConsiderFriendlyShadow();
     local castTrackDesire, castTrackTarget = ConsiderTrack();
 
-    if (castShadowWalkDesire ~= nil)
-    then
-        npcBot:Action_UseAbility(ShadowWalk);
-        return;
-    end
-
-    if (castTrackDesire ~= nil)
-    then
-        npcBot:Action_UseAbilityOnEntity(Track, castTrackTarget);
-        return;
-    end
-
     if (castShurikenTossDesire ~= nil)
     then
         npcBot:Action_UseAbilityOnEntity(ShurikenToss, castShurikenTossTarget);
         return;
     end
 
+    if (castShadowWalkDesire ~= nil)
+    then
+        npcBot:Action_UseAbility(ShadowWalk);
+        return;
+    end
+
     if (castFriendlyShadowDesire ~= nil)
     then
         npcBot:Action_UseAbilityOnEntity(FriendlyShadow, castFriendlyShadowTarget);
+        return;
+    end
+
+    if (castTrackDesire ~= nil)
+    then
+        npcBot:Action_UseAbilityOnEntity(Track, castTrackTarget);
         return;
     end
 
@@ -159,12 +159,9 @@ function ConsiderShurikenToss()
                             end
                         end
                     end
-                    --npcBot:ActionImmediate_Chat("Использую ShurikenToss по омеченному врагу, других целей нет!", true);
-                    return BOT_MODE_DESIRE_HIGH, botTarget;
-                else
-                    --npcBot:ActionImmediate_Chat("Использую ShurikenToss по не помеченному врагу!", true);
-                    return BOT_MODE_DESIRE_HIGH, botTarget;
                 end
+                --npcBot:ActionImmediate_Chat("Использую ShurikenToss по не помеченному врагу!", true);
+                return BOT_MODE_DESIRE_HIGH, botTarget;
             end
         end
         -- Retreat use
@@ -348,16 +345,16 @@ function ConsiderTrack()
                 end
             end
         end
-    else
-        -- General use
-        if (#enemyAbility > 0) and (ManaPercentage >= 0.3)
-        then
-            for _, enemy in pairs(enemyAbility) do
-                if utility.CanCastSpellOnTarget(ability, enemy) and not enemy:HasModifier("modifier_bounty_hunter_track")
-                then
-                    --npcBot:ActionImmediate_Chat("Использую Track для отметки врага!", true);
-                    return BOT_ACTION_DESIRE_VERYHIGH, enemy;
-                end
+    end
+
+    -- General use
+    if (#enemyAbility > 0) and (ManaPercentage >= 0.3)
+    then
+        for _, enemy in pairs(enemyAbility) do
+            if utility.CanCastSpellOnTarget(ability, enemy) and not enemy:HasModifier("modifier_bounty_hunter_track")
+            then
+                --npcBot:ActionImmediate_Chat("Использую Track для отметки врага!", true);
+                return BOT_ACTION_DESIRE_VERYHIGH, enemy;
             end
         end
     end

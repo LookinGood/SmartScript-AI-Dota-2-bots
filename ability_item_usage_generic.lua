@@ -550,7 +550,7 @@ function ItemUsageThink()
 	local soulRing = IsItemAvailable("item_soul_ring");
 	if soulRing ~= nil and soulRing:IsFullyCastable()
 	then
-		if utility.PvPMode(npcBot)
+		if utility.PvPMode(npcBot) and not npcBot:IsSilenced()
 		then
 			if utility.IsHero(botTarget) and (npcBot:GetHealth() / npcBot:GetMaxHealth() > 0.1)
 				and GetUnitToUnitDistance(npcBot, botTarget) <= (attackRange * 3)

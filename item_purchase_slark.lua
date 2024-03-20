@@ -23,14 +23,17 @@ local ItemsToBuy =
 	"item_gloves",
 	"item_boots_of_elves",
 
-    "item_ogre_axe",
-    "item_broadsword",
-    "item_void_stone",
+	"item_ogre_axe",
+	"item_broadsword",
+	"item_void_stone",
+
+	"item_ring_of_health",
+	"item_vitality_booster",
 
 	"item_ring_of_health",
 	"item_void_stone",
-    "item_ultimate_orb",
-    "item_recipe_sphere",
+	"item_ultimate_orb",
+	"item_recipe_sphere",
 
 	"item_aghanims_shard",
 
@@ -41,17 +44,11 @@ local ItemsToBuy =
 	"item_demon_edge",
 	"item_recipe_greater_crit",
 
-	"item_ring_of_health",
-	"item_vitality_booster",
-
 	"item_mithril_hammer",
 	"item_belt_of_strength",
 	"item_recipe_basher",
 
 	"item_recipe_abyssal_blade",
-
-	"item_diadem",
-	"item_recipe_harpoon",
 
 	"item_point_booster",
 	"item_ogre_axe",
@@ -59,6 +56,9 @@ local ItemsToBuy =
 	"item_blade_of_alacrity",
 
 	"item_recipe_ultimate_scepter_2",
+
+	"item_diadem",
+	"item_recipe_harpoon",
 
 	"item_hyperstone",
 	"item_hyperstone",

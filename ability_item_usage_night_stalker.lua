@@ -117,11 +117,11 @@ function ConsiderVoid()
                 then
                     if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_UNIT_TARGET)
                     then
-                        npcBot:ActionImmediate_Chat("Использую Void для убийства без аганима!", true);
+                        --npcBot:ActionImmediate_Chat("Использую Void для убийства без аганима!", true);
                         return BOT_ACTION_DESIRE_ABSOLUTE, enemy, "target";
                     elseif utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_POINT)
                     then
-                        npcBot:ActionImmediate_Chat("Использую Void для убийства с аганимом!", true);
+                        --npcBot:ActionImmediate_Chat("Использую Void для убийства с аганимом!", true);
                         return BOT_ACTION_DESIRE_ABSOLUTE,
                             utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0), "location";
                     end

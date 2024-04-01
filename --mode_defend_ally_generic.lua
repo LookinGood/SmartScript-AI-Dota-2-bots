@@ -68,7 +68,7 @@ function GetDesire()
 
     if escortAlly ~= nil and mostDangerousEnemy ~= nil
     then
-        SetTarget(mostDangerousEnemy);
+        npcBot:SetTarget(mostDangerousEnemy);
         return BOT_ACTION_DESIRE_LOW;
     else
         return BOT_ACTION_DESIRE_NONE;
@@ -86,7 +86,7 @@ end
 function OnEnd()
     escortAlly = nil;
     mostDangerousEnemy = nil;
-    SetTarget(nil);
+    npcBot:SetTarget(nil);
 end
 
 function Think()

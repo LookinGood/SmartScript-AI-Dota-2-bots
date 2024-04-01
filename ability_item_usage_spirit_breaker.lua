@@ -67,12 +67,13 @@ function AbilityUsageThink()
 
     if (castChargeOfDarknessDesire ~= nil)
     then
-        npcBot:Action_UseAbilityOnEntity(ChargeOfDarkness, castChargeOfDarknessTarget);
         if castChargeOfDarknessTarget ~= nil
         then
             npcBot:ActionImmediate_Ping(castChargeOfDarknessTarget.x, castChargeOfDarknessTarget.y, false);
             npcBot:ActionImmediate_Chat("Бегу на " .. castChargeOfDarknessTarget:GetUnitName(), false);
         end
+        npcBot:Action_ClearActions(true);
+        npcBot:Action_UseAbilityOnEntity(ChargeOfDarkness, castChargeOfDarknessTarget);
         return;
     end
 

@@ -20,17 +20,17 @@ local ItemsToBuy =
     "item_blades_of_attack",
     "item_chainmail",
 
-	"item_boots_of_elves",
-	"item_blade_of_alacrity",
-	"item_recipe_yasha",
-
-    "item_ogre_axe",
-	"item_mithril_hammer",
-	"item_recipe_black_king_bar",
+    "item_boots_of_elves",
+    "item_blade_of_alacrity",
+    "item_recipe_yasha",
 
     "item_belt_of_strength",
-	"item_ogre_axe",
-	"item_recipe_sange",
+    "item_ogre_axe",
+    "item_recipe_sange",
+
+    "item_ogre_axe",
+    "item_mithril_hammer",
+    "item_recipe_black_king_bar",
 
     "item_aghanims_shard",
 
@@ -50,17 +50,17 @@ local ItemsToBuy =
 
     "item_recipe_ultimate_scepter_2",
 
-	"item_hyperstone",
-	"item_hyperstone",
+    "item_hyperstone",
+    "item_hyperstone",
 
     "item_claymore",
-	"item_talisman_of_evasion",
-	"item_eagle",
+    "item_talisman_of_evasion",
+    "item_eagle",
 
-	"item_recipe_travel_boots",
-	"item_boots",
+    "item_recipe_travel_boots",
+    "item_boots",
 
-	"item_recipe_travel_boots",
+    "item_recipe_travel_boots",
 }
 
 function ItemPurchaseThink()

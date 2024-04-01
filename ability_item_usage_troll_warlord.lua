@@ -108,20 +108,15 @@ function ConsiderBerserkersRage()
     -- Generic use
     if utility.CanCastOnInvulnerableTarget(botTarget)
     then
-        if GetUnitToUnitDistance(npcBot, botTarget) <= attackRangeMelee
+        if GetUnitToUnitDistance(npcBot, botTarget) <= attackRangeMelee and ability:GetToggleState() == false
         then
-            if ability:GetToggleState() == false
-            then
-                --npcBot:ActionImmediate_Chat("Включаю BerserkersRage для атаки в мили!", true);
-                return BOT_ACTION_DESIRE_HIGH;
-            end
+            --npcBot:ActionImmediate_Chat("Включаю BerserkersRage для атаки в мили!", true);
+            return BOT_ACTION_DESIRE_HIGH;
         elseif GetUnitToUnitDistance(npcBot, botTarget) <= attackRangeMissle and GetUnitToUnitDistance(npcBot, botTarget) > attackRangeMelee
+            and ability:GetToggleState() == true
         then
-            if ability:GetToggleState() == true
-            then
-                --npcBot:ActionImmediate_Chat("Выключаю BerserkersRage для атаки в дальнем бою!", true);
-                return BOT_ACTION_DESIRE_HIGH;
-            end
+            --npcBot:ActionImmediate_Chat("Выключаю BerserkersRage для атаки в дальнем бою!", true);
+            return BOT_ACTION_DESIRE_HIGH;
         else
             if ability:GetToggleState() == false
             then

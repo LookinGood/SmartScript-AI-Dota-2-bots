@@ -105,7 +105,7 @@ function ConsiderTheSwarm()
     local damageAbility = ability:GetSpecialValueInt("damage") * ability:GetSpecialValueInt("duration");
     local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
     local speedAbility = ability:GetSpecialValueInt("speed");
-    local enemyAbility = npcBot:GetNearbyHeroes(utility.GetCurretCastDistance(castRangeAbility), true, BOT_MODE_NONE);
+    local enemyAbility = npcBot:GetNearbyHeroes(utility.GetCurrentCastDistance(castRangeAbility), true, BOT_MODE_NONE);
 
     -- Cast if can kill somebody
     if (#enemyAbility > 0)

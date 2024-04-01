@@ -113,6 +113,7 @@ require(GetScriptDirectory() .. "/hero_role_generic")
 	"npc_dota_hero_skywrath_mage",
 	"npc_dota_hero_earthshaker",
 	"npc_dota_hero_death_prophet",
+	"npc_dota_hero_bloodseeker",
 ]]
 --#endregion
 
@@ -225,6 +226,7 @@ local hero_pool_my =
 	"npc_dota_hero_skywrath_mage",
 	"npc_dota_hero_earthshaker",
 	"npc_dota_hero_death_prophet",
+	"npc_dota_hero_bloodseeker",
 }
 
 local heroesCarry =
@@ -293,6 +295,7 @@ local heroesCarry =
 	"npc_dota_hero_storm_spirit",
 	"npc_dota_hero_bristleback",
 	"npc_dota_hero_death_prophet",
+	"npc_dota_hero_bloodseeker",
 }
 
 local heroesSupport =
@@ -436,7 +439,7 @@ function Think()
 
 	-- Insert here hero hame and set "testmode = true" if you want the bot to choose a specific hero
 	local testmode = false;
-	local testHero = "npc_dota_hero_death_prophet"
+	local testHero = "npc_dota_hero_bloodseeker"
 
 	if testmode
 	then
@@ -453,7 +456,6 @@ function Think()
 			if testPlayer == nil
 			then
 				testPlayer = math.random(1, #botPlayers);
-			else
 				SelectHero(testPlayer, testHero);
 				print("Персонаж: ", testHero, " выбран для теста.");
 			end

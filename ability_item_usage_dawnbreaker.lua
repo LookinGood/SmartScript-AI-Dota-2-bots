@@ -46,6 +46,7 @@ end
 local Starbreaker = AbilitiesReal[1]
 local CelestialHammer = AbilitiesReal[2]
 local Converge = npcBot:GetAbilityByName("dawnbreaker_converge");
+local SolarGuardianLand = npcBot:GetAbilityByName("dawnbreaker_land");
 local SolarGuardian = AbilitiesReal[6]
 
 function AbilityUsageThink()
@@ -61,6 +62,7 @@ function AbilityUsageThink()
     local castStarbreakerDesire, castStarbreakerLocation = ConsiderStarbreaker();
     local castCelestialHammerDesire, castCelestialHammerLocation = ConsiderCelestialHammer();
     local castConvergeDesire = ConsiderConverge();
+    local castSolarGuardianLandDesire = ConsiderSolarGuardianLand();
     local castSolarGuardianDesire, castSolarGuardianLocation = ConsiderSolarGuardian();
 
     if (castStarbreakerDesire ~= nil)
@@ -81,6 +83,12 @@ function AbilityUsageThink()
         return;
     end
 
+    if (castSolarGuardianLandDesire ~= nil)
+    then
+        npcBot:Action_UseAbility(SolarGuardianLand);
+        return;
+    end
+
     if (castSolarGuardianDesire ~= nil)
     then
         npcBot:Action_UseAbilityOnLocation(SolarGuardian, castSolarGuardianLocation);
@@ -92,6 +100,24 @@ function ConsiderStarbreaker()
     local ability = Starbreaker;
     if not utility.IsAbilityAvailable(ability) then
         return;
+    end
+
+    if npcBot:HasModifier("modifier_starbreaker_fire_wreath_caster") or
+        npcBot:HasModifier("modifier_fire_wreath_magic_immunity_tooltip")
+    then
+        return;
+    end
+
+    local projectiles = GetLinearProjectiles();
+    if (#projectiles > 0)
+    then
+        for _, project in pairs(projectiles)
+        do
+            if project ~= nil and project.ability:GetName() == "dawnbreaker_celestial_hammer"
+            then
+                return;
+            end
+        end
     end
 
     local castRangeAbility = ability:GetSpecialValueInt("swipe_radius");
@@ -119,7 +145,7 @@ function ConsiderStarbreaker()
     then
         if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
         then
-            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) < castRangeAbility
             then
                 return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
             end
@@ -159,7 +185,8 @@ function ConsiderCelestialHammer()
             then
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility);
+                    return BOT_ACTION_DESIRE_ABSOLUTE,
+                        utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility);
                 end
             end
         end
@@ -173,7 +200,8 @@ function ConsiderCelestialHammer()
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
                 and GetUnitToUnitDistance(npcBot, botTarget) > attackRange
             then
-                return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, speedAbility);
+                return BOT_ACTION_DESIRE_VERYHIGH,
+                    utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, speedAbility);
             end
         end
         -- Cast if push/defend/farm
@@ -198,7 +226,7 @@ function ConsiderCelestialHammer()
     elseif botMode == BOT_MODE_LANING
     then
         local enemy = utility.GetWeakest(enemyAbility);
-        if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)
+        if enemy ~= nil and utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)
         then
             --npcBot:ActionImmediate_Chat("Использую CelestialHammer по цели на ЛАЙНЕ!", true);
             return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility);
@@ -214,20 +242,20 @@ function ConsiderConverge()
 
     local castRangeAbility = ability:GetCastRange();
     local radiusAbility = CelestialHammer:GetSpecialValueInt("flare_radius");
+    local projectiles = GetLinearProjectiles();
 
     -- Cast if attack enemy
     if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
     then
         if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
         then
-            local projectiles = GetLinearProjectiles();
             if (#projectiles > 0)
             then
                 for _, project in pairs(projectiles)
                 do
                     if project ~= nil and project.ability:GetName() == "dawnbreaker_celestial_hammer"
                     then
-                        if GetUnitToLocationDistance(botTarget, project.location) <= radiusAbility * 2 and GetUnitToUnitDistance(npcBot, botTarget) >= castRangeAbility / 2
+                        if GetUnitToLocationDistance(botTarget, project.location) <= radiusAbility and GetUnitToUnitDistance(npcBot, botTarget) >= castRangeAbility
                         then
                             --npcBot:ActionImmediate_Chat("Использую Converge рядом с врагом!", true);
                             return BOT_ACTION_DESIRE_HIGH;
@@ -238,7 +266,35 @@ function ConsiderConverge()
         end
     elseif utility.RetreatMode(npcBot)
     then
-        --npcBot:ActionImmediate_Chat("Использую Converger для отхода!", true);
+        return BOT_ACTION_DESIRE_HIGH;
+--[[         local fountain = utility.GetFountain(npcBot);
+        if fountain ~= nil and (#projectiles > 0)
+        then
+            for _, project in pairs(projectiles)
+            do
+                if project ~= nil and project.ability:GetName() == "dawnbreaker_celestial_hammer"
+                then
+                    if GetUnitToLocationDistance(fountain, project.location) < GetUnitToLocationDistance(npcBot, project.location)
+                        and GetUnitToLocationDistance(npcBot, project.location) >= CelestialHammer:GetSpecialValueInt("range") / 2
+                    then
+                        --npcBot:ActionImmediate_Chat("Использую Converger для отхода!", true);
+                        return BOT_ACTION_DESIRE_HIGH;
+                    end
+                end
+            end
+        end ]]
+    end
+end
+
+function ConsiderSolarGuardianLand()
+    local ability = SolarGuardianLand;
+    if not utility.IsAbilityAvailable(ability) then
+        return;
+    end
+
+    if utility.RetreatMode(npcBot)
+    then
+        --npcBot:ActionImmediate_Chat("Использую SolarGuardianLand!", true);
         return BOT_ACTION_DESIRE_HIGH;
     end
 end
@@ -258,13 +314,24 @@ function ConsiderSolarGuardian()
     then
         if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget)
         then
-            for i = 1, #allyAbility do
+            if (#allyAbility > 0)
+            then
+                for _, ally in pairs(allyAbility)
+                do
+                    if utility.IsValidTarget(ally) and GetUnitToUnitDistance(ally, botTarget) < castRangeAbility
+                    then
+                        --npcBot:ActionImmediate_Chat("Использую SolarGuardian на союзника рядом с врагом!", true);
+                        return BOT_ACTION_DESIRE_HIGH, botTarget:GetLocation();
+                    end
+                end
+            end
+            --[[             for i = 1, #allyAbility do
                 if utility.IsValidTarget(allyAbility[i]) and GetUnitToUnitDistance(allyAbility[i], botTarget) <= castRangeAbility
                 then
                     --npcBot:ActionImmediate_Chat("Использую SolarGuardian на союзника рядом с врагом!",true);
                     return BOT_MODE_DESIRE_ABSOLUTE, allyAbility[i]:GetLocation();
                 end
-            end
+            end ]]
         end
         -- Use if need retreat
     elseif utility.RetreatMode(npcBot)
@@ -272,14 +339,26 @@ function ConsiderSolarGuardian()
         if (HealthPercentage <= 0.7) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
         then
             local fountainLocation = utility.SafeLocation(npcBot);
-            for i = 1, #allyAbility do
+            if (#allyAbility > 0)
+            then
+                for _, ally in pairs(allyAbility)
+                do
+                    if utility.IsValidTarget(ally) and ally ~= npcBot and (GetUnitToLocationDistance(ally, fountainLocation) < GetUnitToLocationDistance(npcBot, fountainLocation)
+                            and (GetUnitToUnitDistance(ally, npcBot) > radiusAbility))
+                    then
+                        --npcBot:ActionImmediate_Chat("Использую SolarGuardian для отхода!", true);
+                        return BOT_ACTION_DESIRE_HIGH, ally:GetLocation() + RandomVector(castRangeAbility);
+                    end
+                end
+            end
+            --[[             for i = 1, #allyAbility do
                 if utility.IsValidTarget(allyAbility[i]) and allyAbility[i] ~= npcBot and GetUnitToLocationDistance(allyAbility[i], fountainLocation) < GetUnitToLocationDistance(npcBot, fountainLocation)
                     and (GetUnitToUnitDistance(allyAbility[i], npcBot) > radiusAbility)
                 then
                     --npcBot:ActionImmediate_Chat("Использую SolarGuardian на союзника ближе к фонтану!",true);
                     return BOT_MODE_DESIRE_ABSOLUTE, allyAbility[i]:GetLocation() + RandomVector(castRangeAbility);
                 end
-            end
+            end ]]
         end
     end
 end

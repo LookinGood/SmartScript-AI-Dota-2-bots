@@ -75,7 +75,7 @@ function GetDesire()
         runeStatus = GetRuneStatus(closestRune);
         if runeStatus == RUNE_STATUS_AVAILABLE and runeDistance <= 2000
         then
-            return BOT_MODE_DESIRE_LOW;
+            return BOT_MODE_DESIRE_MODERATE;
         else
             return BOT_MODE_DESIRE_NONE;
         end

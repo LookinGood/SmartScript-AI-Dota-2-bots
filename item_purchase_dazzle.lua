@@ -33,13 +33,13 @@ local ItemsToBuy =
 	"item_chainmail",
 	"item_recipe_mekansm",
 
+	"item_recipe_guardian_greaves",
+
 	"item_energy_booster",
 	"item_void_stone",
 	"item_recipe_aether_lens",
 
 	"item_aghanims_shard",
-
-	"item_recipe_guardian_greaves",
 
 	"item_tiara_of_selemene",
 	"item_mystic_staff",

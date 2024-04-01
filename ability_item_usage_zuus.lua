@@ -288,7 +288,7 @@ function ConsiderNimbus()
             then
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    npcBot:ActionImmediate_Chat("Использую Nimbus что бы добить " .. enemy:GetUnitName(), true);
+                    --npcBot:ActionImmediate_Chat("Использую Nimbus что бы добить " .. enemy:GetUnitName(), true);
                     return BOT_ACTION_DESIRE_ABSOLUTE, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
                 end
             end
@@ -342,7 +342,7 @@ function ConsiderNimbus()
                     local enemyHeroAroundTower = utility.CountEnemyHeroAroundUnit(enemy, radiusAbility);
                     if (enemyHeroAroundTower > 0)
                     then
-                        npcBot:ActionImmediate_Chat("Использую Nimbus под вражескую башню " .. enemy:GetUnitName(), true);
+                        --npcBot:ActionImmediate_Chat("Использую Nimbus под вражескую башню " .. enemy:GetUnitName(), true);
                         return BOT_MODE_DESIRE_LOW, enemy:GetLocation();
                     end
                 end
@@ -357,7 +357,7 @@ function ConsiderNimbus()
                     local enemyCreepsAroundTower = utility.CountEnemyCreepAroundUnit(enemy, radiusAbility);
                     if (enemyHeroAroundTower > 0) or (enemyCreepsAroundTower > 2)
                     then
-                        npcBot:ActionImmediate_Chat("Использую Nimbus под союзную башню " .. enemy:GetUnitName(), true);
+                        --npcBot:ActionImmediate_Chat("Использую Nimbus под союзную башню " .. enemy:GetUnitName(), true);
                         return BOT_MODE_DESIRE_LOW, ally:GetLocation();
                     end
                 end

@@ -19,27 +19,21 @@ function ClosestSafeBuilding(unit, distance, enemyRadius, enemyCount)
     local allyBuildings = GetUnitList(UNIT_LIST_ALLIED_BUILDINGS);
     local allyHeroes = utility.CountAllyHeroAroundUnit(unit, enemyRadius)
     local enemyHeroes = utility.CountEnemyHeroAroundUnit(unit, enemyRadius);
-    if (enemyHeroes <= enemyCount) or (allyHeroes >= 1)
+    if (enemyHeroes <= enemyCount) or (allyHeroes >= 1) or (unit == ancient)
     then
         safeBuilding = unit;
         return safeBuilding;
     else
         for _, building in pairs(allyBuildings)
         do
-            if building == ancient
+            if building ~= unit
             then
-                safeBuilding = utility.GetFountain(npcBot);
-                return safeBuilding;
-            else
-                if building ~= unit
+                local enemyHeroes = utility.CountEnemyHeroAroundUnit(building, enemyRadius);
+                if GetUnitToUnitDistance(unit, building) <= distance and GetUnitToUnitDistance(npcBot, building) > distance
+                    and (enemyHeroes <= enemyCount)
                 then
-                    local enemyHeroes = utility.CountEnemyHeroAroundUnit(building, enemyRadius);
-                    if GetUnitToUnitDistance(unit, building) <= distance and GetUnitToUnitDistance(npcBot, building) > distance
-                        and (enemyHeroes <= enemyCount)
-                    then
-                        safeBuilding = building;
-                        return safeBuilding;
-                    end
+                    safeBuilding = building;
+                    return safeBuilding;
                 end
             end
         end

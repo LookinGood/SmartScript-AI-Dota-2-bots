@@ -9,7 +9,7 @@ local castAbility = nil;
 function GetDesire()
     local botMode = npcBot:GetActiveMode();
 
-    if botMode == BOT_MODE_SHRINE or npcBot:GetCurrentActionType() == BOT_ACTION_TYPE_SHRINE
+    if botMode == BOT_MODE_SHRINE or botMode == BOT_MODE_OUTPOST or npcBot:GetCurrentActionType() == BOT_ACTION_TYPE_SHRINE
     then
         return BOT_ACTION_DESIRE_NONE;
     end

@@ -5,39 +5,6 @@ require(GetScriptDirectory() .. "/utility")
 
 local npcBot = GetBot();
 
-local function IsEnemiesStronger()
-    local allyPower = 0;
-    local enemyPower = 0;
-    local allyHeroAround = npcBot:GetNearbyHeroes(1600, false, BOT_MODE_NONE);
-    local enemyHeroAround = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
-
-    if (#enemyHeroAround > 0)
-    then
-        for _, enemy in pairs(enemyHeroAround) do
-            if utility.IsValidTarget(enemy)
-            then
-                local enemyOffensivePower = enemy:GetRawOffensivePower();
-                enemyPower = enemyPower + enemyOffensivePower;
-            end
-        end
-    end
-
-    if (#allyHeroAround > 0)
-    then
-        for _, ally in pairs(allyHeroAround) do
-            local allyOffensivePower = ally:GetOffensivePower();
-            allyPower = allyPower + allyOffensivePower;
-        end
-    end
-
-    if enemyPower > allyPower
-    then
-        return true;
-    else
-        return false;
-    end
-end
-
 function GetDesire()
     if not npcBot:IsAlive() or utility.IsBusy(npcBot) or utility.IsClone(npcBot) or
         npcBot:HasModifier("modifier_skeleton_king_reincarnation_scepter") or
@@ -76,15 +43,26 @@ function GetDesire()
         return BOT_ACTION_DESIRE_HIGH;
     end
 
-    if (#enemyHeroAround > #allyHeroAround + 1) and IsEnemiesStronger()
+    if (#enemyHeroAround > #allyHeroAround + 1) and utility.IsEnemiesAroundStronger()
     then
         --npcBot:ActionImmediate_Chat("Враги сильнее, нужно отступить!", true);
         return BOT_ACTION_DESIRE_VERYHIGH;
     end
 
-    if (#allyHeroAround <= 1 and #enemyHeroAround > 1) and IsEnemiesStronger()
+    if (#allyHeroAround <= 1 and #enemyHeroAround > 1) and utility.IsEnemiesAroundStronger()
     then
         return BOT_ACTION_DESIRE_VERYHIGH;
+    end
+
+    if (#enemyHeroAround > 0)
+    then
+        for _, enemy in pairs(enemyHeroAround) do
+            if utility.IsValidTarget(enemy) and utility.IsHero(enemy:GetAttackTarget())
+                and npcBot:GetCurrentActionType() ~= BOT_ACTION_TYPE_ATTACK
+            then
+                return BOT_ACTION_DESIRE_MODERATE;
+            end
+        end
     end
 
     return BOT_ACTION_DESIRE_NONE;

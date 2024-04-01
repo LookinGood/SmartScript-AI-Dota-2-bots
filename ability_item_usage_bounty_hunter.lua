@@ -181,7 +181,7 @@ function ConsiderShurikenToss()
     elseif botMode == BOT_MODE_LANING
     then
         local enemy = utility.GetWeakest(enemyAbility);
-        if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)
+        if enemy ~= nil and utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)
         then
             --npcBot:ActionImmediate_Chat("Использую ShurikenToss по цели на ЛАЙНЕ!", true);
             return BOT_ACTION_DESIRE_HIGH, enemy;
@@ -195,9 +195,7 @@ function ConsiderJinada()
         return;
     end
 
-    local attackTarget = npcBot:GetAttackTarget();
-
-    if (utility.IsHero(attackTarget) or utility.IsRoshan(attackTarget)) and utility.CanCastSpellOnTarget(ability, attackTarget)
+    if (utility.IsHero(botTarget) or utility.IsRoshan(botTarget)) and utility.CanCastSpellOnTarget(ability, botTarget)
     then
         if not ability:GetAutoCastState() then
             ability:ToggleAutoCast()
@@ -254,7 +252,7 @@ function ConsiderShadowWalk()
     local attackRange = npcBot:GetAttackRange();
 
     -- Try to interrupt enemy cast
-    if attackTarget:IsChanneling()
+    if attackTarget ~= nil and attackTarget:IsChanneling()
     then
         --npcBot:ActionImmediate_Chat("Использую ShadowWalk против кастующей цели!", true);
         return BOT_MODE_DESIRE_VERYHIGH;
@@ -263,7 +261,7 @@ function ConsiderShadowWalk()
     -- Attack use
     if utility.PvPMode(npcBot)
     then
-        if utility.IsHero(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) > attackRange and GetUnitToUnitDistance(npcBot, botTarget) <= 3000
+        if utility.IsHero(botTarget) and (GetUnitToUnitDistance(npcBot, botTarget) > attackRange and GetUnitToUnitDistance(npcBot, botTarget) <= 3000)
         then
             --npcBot:ActionImmediate_Chat("Использую ShadowWalk для нападения!", true);
             return BOT_ACTION_DESIRE_VERYHIGH;
@@ -300,8 +298,8 @@ function ConsiderFriendlyShadow()
         do
             if ally ~= npcBot and utility.IsHero(ally) and not ally:IsInvisible()
             then
-                if ally:GetHealth() / ally:GetMaxHealth() <= 0.8 and (ally:WasRecentlyDamagedByAnyHero(2.0) or ally:WasRecentlyDamagedByTower(2.0))
-                    or ally:IsChanneling()
+                if ally:GetHealth() / ally:GetMaxHealth() <= 0.8 and ((ally:WasRecentlyDamagedByAnyHero(2.0) or ally:WasRecentlyDamagedByTower(2.0))
+                        or ally:IsChanneling())
                 then
                     --npcBot:ActionImmediate_Chat("Использую FriendlyShadow на союзника!", true);
                     return BOT_MODE_DESIRE_VERYHIGH, ally;

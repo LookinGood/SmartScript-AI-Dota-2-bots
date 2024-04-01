@@ -68,6 +68,7 @@ C["carryHeroes"] = {
     ["npc_dota_hero_storm_spirit"] = 1,
     ["npc_dota_hero_bristleback"] = 1,
     ["npc_dota_hero_death_prophet"] = 1,
+    ["npc_dota_hero_bloodseeker"] = 1,
 }
 
 local S = {}

@@ -329,10 +329,9 @@ function IsCourierItemSlotsFull()
 	return itemCount >= 9;
 end
 
---[[ function GetBotCourier(npcBot)
+function GetBotCourier(npcBot)
 	local courier = GetCourier(0);
 	local numPlayer = GetTeamPlayers(GetTeam());
-
 	for i = 1, #numPlayer do
 		local member = GetTeamMember(i);
 		if member ~= nil and member:GetUnitName() == npcBot:GetUnitName()
@@ -341,9 +340,9 @@ end
 		end
 	end
 	return courier;
-end ]]
+end
 
-function GetBotCourier(npcBot)
+--[[ function GetBotCourier(npcBot)
 	local courier = GetCourier(0);
 
 	if npcBot:GetTeam() == TEAM_RADIANT
@@ -363,7 +362,7 @@ function GetBotCourier(npcBot)
 		end
 	end
 	return courier;
-end
+end ]]
 
 function IsIllusion(npcTarget)
 	return IsValidTarget(npcTarget) and
@@ -379,7 +378,7 @@ function IsIllusion(npcTarget)
 end
 
 function IsAlly(npcBot, npcTarget)
-	return IsValidTarget(npcBot) and IsValidTarget(npcTarget) and npcBot:GetTeam() == npcTarget:GetTeam();
+	return (IsValidTarget(npcBot) and IsValidTarget(npcTarget)) and (npcBot:GetTeam() == npcTarget:GetTeam());
 end
 
 function IsHero(npcTarget)
@@ -559,6 +558,40 @@ function IsAnyUnitsBetweenMeAndTarget(hSource, hTarget, vLoc, nRadius)
 		IsEnemyHeroesBetweenMeAndTarget(hSource, hTarget, vLoc, nRadius) or
 		IsAllyCreepBetweenMeAndTarget(hSource, hTarget, vLoc, nRadius) or
 		IsEnemyCreepBetweenMeAndTarget(hSource, hTarget, vLoc, nRadius);
+end
+
+function IsEnemiesAroundStronger()
+	local npcBot = GetBot();
+	local allyPower = 0;
+	local enemyPower = 0;
+	local allyHeroAround = npcBot:GetNearbyHeroes(1600, false, BOT_MODE_NONE);
+	local enemyHeroAround = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
+
+	if (#enemyHeroAround > 0)
+	then
+		for _, enemy in pairs(enemyHeroAround) do
+			if utility.IsValidTarget(enemy)
+			then
+				local enemyOffensivePower = enemy:GetRawOffensivePower();
+				enemyPower = enemyPower + enemyOffensivePower;
+			end
+		end
+	end
+
+	if (#allyHeroAround > 0)
+	then
+		for _, ally in pairs(allyHeroAround) do
+			local allyOffensivePower = ally:GetOffensivePower();
+			allyPower = allyPower + allyOffensivePower;
+		end
+	end
+
+	if enemyPower > allyPower
+	then
+		return true;
+	else
+		return false;
+	end
 end
 
 function IsBusy(npcTarget)
@@ -1510,6 +1543,214 @@ function PurchaseDust(npcBot)
 		npcBot:ActionImmediate_PurchaseItem("item_dust");
 		return;
 	end
+end
+
+function GetLineForPush()
+	local npcBot = GetBot();
+	local botLevel = npcBot:GetLevel();
+	local countEnemyTopBuilding = 5;
+	local countEnemyMidBuilding = 5;
+	local countEnemyBotBuilding = 5;
+
+	local countAllyTopBuilding = 5;
+	local countAllyMidBuilding = 5;
+	local countAllyBotBuilding = 5;
+
+	local lanes = {
+		LANE_TOP,
+		LANE_MID,
+		LANE_BOT,
+	}
+
+	local towersTop = {
+		TOWER_TOP_1,
+		TOWER_TOP_2,
+		TOWER_TOP_3,
+	}
+
+	local barracksTop = {
+		BARRACKS_TOP_MELEE,
+		BARRACKS_TOP_RANGED,
+	}
+
+	local towersMid = {
+		TOWER_MID_1,
+		TOWER_MID_2,
+		TOWER_MID_3,
+	}
+
+	local barracksMid = {
+		BARRACKS_MID_MELEE,
+		BARRACKS_MID_RANGED,
+	}
+
+	local towersBot = {
+		TOWER_BOT_1,
+		TOWER_BOT_2,
+		TOWER_BOT_3,
+	}
+
+	local barracksBot = {
+		BARRACKS_BOT_MELEE,
+		BARRACKS_BOT_RANGED,
+	}
+
+	-- TOP LINE
+	for _, t in pairs(towersTop)
+	do
+		local allyTower = GetTower(GetTeam(), t);
+		local enemyTower = GetTower(GetOpposingTeam(), t);
+		if allyTower == nil or not allyTower:IsAlive()
+		then
+			countAllyTopBuilding = countAllyTopBuilding - 1;
+		end
+		if enemyTower == nil or not enemyTower:IsAlive()
+		then
+			countEnemyTopBuilding = countEnemyTopBuilding - 1;
+		end
+	end
+
+	for _, b in pairs(barracksTop)
+	do
+		local allybarrack = GetBarracks(GetTeam(), b);
+		local enemyBarrack = GetBarracks(GetOpposingTeam(), b);
+		if allyBarrack == nil or not allybarrack:IsAlive()
+		then
+			countAllyTopBuilding = countAllyTopBuilding - 1;
+		end
+		if enemyBarrack == nil or not enemyBarrack:IsAlive()
+		then
+			countEnemyTopBuilding = countEnemyTopBuilding - 1;
+		end
+	end
+
+	-- MID LINE
+	for _, t in pairs(towersMid)
+	do
+		local allyTower = GetTower(GetTeam(), t);
+		local enemyTower = GetTower(GetOpposingTeam(), t);
+		if allyTower == nil or not allyTower:IsAlive()
+		then
+			countAllyMidBuilding = countAllyMidBuilding - 1;
+		end
+		if enemyTower == nil or not enemyTower:IsAlive()
+		then
+			countEnemyMidBuilding = countEnemyMidBuilding - 1;
+		end
+	end
+
+	for _, b in pairs(barracksMid)
+	do
+		local allybarrack = GetBarracks(GetTeam(), b);
+		local enemyBarrack = GetBarracks(GetOpposingTeam(), b);
+		if allyBarrack == nil or not allybarrack:IsAlive()
+		then
+			countAllyMidBuilding = countAllyMidBuilding - 1;
+		end
+		if enemyBarrack == nil or not enemyBarrack:IsAlive()
+		then
+			countEnemyMidBuilding = countEnemyMidBuilding - 1;
+		end
+	end
+
+	-- BOT LINE
+	for _, t in pairs(towersBot)
+	do
+		local allyTower = GetTower(GetTeam(), t);
+		local enemyTower = GetTower(GetOpposingTeam(), t);
+		if allyTower == nil or not allyTower:IsAlive()
+		then
+			countAllyBotBuilding = countAllyBotBuilding - 1;
+		end
+		if enemyTower == nil or not enemyTower:IsAlive()
+		then
+			countEnemyBotBuilding = countEnemyBotBuilding - 1;
+		end
+	end
+
+	for _, b in pairs(barracksBot)
+	do
+		local allybarrack = GetBarracks(GetTeam(), b);
+		local enemyBarrack = GetBarracks(GetOpposingTeam(), b);
+		if allyBarrack == nil or not allybarrack:IsAlive()
+		then
+			countAllyBotBuilding = countAllyBotBuilding - 1;
+		end
+		if enemyBarrack == nil or not enemyBarrack:IsAlive()
+		then
+			countEnemyBotBuilding = countEnemyBotBuilding - 1;
+		end
+	end
+
+	local strongestEnemyLane = math.max(countEnemyTopBuilding, countEnemyMidBuilding, countEnemyBotBuilding);
+	local weakestAllyLane = math.min(countAllyTopBuilding, countAllyMidBuilding, countAllyBotBuilding);
+
+	--local botLocation = npcBot:GetLocation();
+	--local botAmountTop = GetAmountAlongLane(LANE_TOP, botLocation);
+	--local botAmountMid = GetAmountAlongLane(LANE_MID, botLocation);
+	--local botAmountBot = GetAmountAlongLane(LANE_BOT, botLocation);
+	--local frontlocationTop = GetLaneFrontLocation(npcBot:GetTeam(), LANE_TOP, 0);
+	--local frontlocationMid = GetLaneFrontLocation(npcBot:GetTeam(), LANE_MID, 0);
+	--local frontlocationBot = GetLaneFrontLocation(npcBot:GetTeam(), LANE_BOT, 0);
+
+	--[[ 	if weakestEnemyLane == countEnemyTopBuilding and (GetUnitToLocationDistance(npcBot, frontlocationTop) < GetUnitToLocationDistance(npcBot, frontlocationMid))
+		and (GetUnitToLocationDistance(npcBot, frontlocationTop) < GetUnitToLocationDistance(npcBot, frontlocationBot))
+	then
+		currentLine = LANE_TOP;
+	elseif weakestEnemyLane == countEnemyMidBuilding and (GetUnitToLocationDistance(npcBot, frontlocationMid) < GetUnitToLocationDistance(npcBot, frontlocationTop))
+		and (GetUnitToLocationDistance(npcBot, frontlocationMid) < GetUnitToLocationDistance(npcBot, frontlocationBot))
+	then
+		currentLine = LANE_MID;
+	elseif weakestEnemyLane == countEnemyBotBuilding and (GetUnitToLocationDistance(npcBot, frontlocationBot) < GetUnitToLocationDistance(npcBot, frontlocationTop))
+		and (GetUnitToLocationDistance(npcBot, frontlocationBot) < GetUnitToLocationDistance(npcBot, frontlocationMid))
+	then
+		currentLine = LANE_BOT;
+	end ]]
+
+	if (DotaTime() >= 10 * 60) or (botLevel > 6)
+	then
+		if strongestEnemyLane ~= 0 and ((countEnemyTopBuilding ~= countEnemyMidBuilding and countEnemyTopBuilding ~= countEnemyBotBuilding)
+				and (countEnemyMidBuilding ~= countEnemyTopBuilding and countEnemyMidBuilding ~= countEnemyBotBuilding)
+				and (countEnemyBotBuilding ~= countEnemyTopBuilding and countEnemyBotBuilding ~= countEnemyMidBuilding))
+		then
+			if strongestEnemyLane == countEnemyTopBuilding
+			then
+				currentLine = LANE_TOP;
+			end
+			if strongestEnemyLane == countEnemyMidBuilding
+			then
+				currentLine = LANE_MID;
+			end
+			if strongestEnemyLane == countEnemyBotBuilding
+			then
+				currentLine = LANE_BOT;
+			end
+		elseif weakestAllyLane ~= 0 and ((countAllyTopBuilding ~= countAllyMidBuilding and countAllyTopBuilding ~= countAllyBotBuilding)
+				and (countAllyMidBuilding ~= countAllyTopBuilding and countAllyMidBuilding ~= countAllyBotBuilding)
+				and (countAllyBotBuilding ~= countAllyTopBuilding and countAllyBotBuilding ~= countAllyMidBuilding))
+		then
+			if weakestAllyLane == countAllyTopBuilding
+			then
+				currentLine = LANE_TOP;
+			end
+			if weakestAllyLane == countAllyMidBuilding
+			then
+				currentLine = LANE_MID;
+			end
+			if weakestAllyLane == countAllyBotBuilding
+			then
+				currentLine = LANE_BOT;
+			end
+		else
+			currentLine = npcBot:GetAssignedLane();
+		end
+	else
+		currentLine = npcBot:GetAssignedLane();
+	end
+
+	return currentLine;
+
+	--currentLine = lanes[RandomInt(1, #lanes)];
 end
 
 ---------------------------------------------------------------------------------------------------

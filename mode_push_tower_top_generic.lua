@@ -168,7 +168,8 @@ function Think()
                         npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -500) + RandomVector(wanderRadius));
                         return;
                     end
-                elseif GetUnitToUnitDistance(npcBot, enemyBuildings[1]) <= 800
+                elseif GetUnitToUnitDistance(npcBot, enemyBuildings[1]) <= 1000 and not enemyBuildings[1]:IsTower() and not enemyBuildings[1]:IsBarracks()
+                    and not enemyBuildings[1]:IsFort()
                 then
                     mainBuilding = enemyBuildings[1];
                     npcBot:SetTarget(mainBuilding);

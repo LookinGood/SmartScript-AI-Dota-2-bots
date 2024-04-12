@@ -180,7 +180,7 @@ function ConsiderLightningBolt()
             then
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
+                    return BOT_ACTION_DESIRE_ABSOLUTE, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
                 end
             end
         end
@@ -275,7 +275,7 @@ function ConsiderNimbus()
     end
 
     local castRangeAbility = ability:GetSpecialValueInt("cloud_radius") * 10;
-    local radiusAbility = ability:GetSpecialValueInt("cloud_radius");
+    --local radiusAbility = ability:GetSpecialValueInt("cloud_radius");
     local damageAbility = LightningBolt:GetAbilityDamage();
     local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
     local enemyAbility = GetUnitList(UNIT_LIST_ENEMY_HEROES);
@@ -329,7 +329,7 @@ function ConsiderNimbus()
                 end
             end
         end
-        -- Pushing/defending
+--[[         -- Pushing/defending
     elseif utility.PvEMode(npcBot)
     then
         local enemyTower = GetUnitList(UNIT_LIST_ENEMY_BUILDINGS);
@@ -362,7 +362,7 @@ function ConsiderNimbus()
                     end
                 end
             end
-        end
+        end ]]
     end
 end
 

@@ -88,6 +88,12 @@ function CourierUsageThink()
 			then
 				npcBot:ActionImmediate_Courier(courier, COURIER_ACTION_SECRET_SHOP);
 				return;
+			else
+				if (state ~= COURIER_STATE_AT_BASE) and (state ~= COURIER_STATE_RETURNING_TO_BASE)
+				then
+					npcBot:ActionImmediate_Courier(courier, COURIER_ACTION_RETURN_STASH_ITEMS);
+					return;
+				end
 			end
 		elseif not npcBot:IsAlive()
 		then
@@ -95,6 +101,12 @@ function CourierUsageThink()
 			then
 				npcBot:ActionImmediate_Courier(courier, COURIER_ACTION_SECRET_SHOP);
 				return;
+			else
+				if (state ~= COURIER_STATE_AT_BASE) and (state ~= COURIER_STATE_RETURNING_TO_BASE)
+				then
+					npcBot:ActionImmediate_Courier(courier, COURIER_ACTION_RETURN_STASH_ITEMS);
+					return;
+				end
 			end
 		end
 	end
@@ -320,6 +332,8 @@ function ItemUsageThink()
 	local botMode = npcBot:GetActiveMode();
 	local attackRange = npcBot:GetAttackRange();
 	local botTarget = npcBot:GetTarget();
+	local healthPercent = npcBot:GetHealth() / npcBot:GetMaxHealth();
+	local manaPercent = npcBot:GetMana() / npcBot:GetMaxMana();
 	local incomingSpells = npcBot:GetIncomingTrackingProjectiles();
 
 	-- NO INTERRUPT CAST ITEM
@@ -333,12 +347,13 @@ function ItemUsageThink()
 		then
 			for _, ally in pairs(allies)
 			do
-				if utility.IsHero(ally) and not ally:IsInvisible() and not ally:HasModifier("modifier_spirit_breaker_charge_of_darkness")
+				if utility.IsHero(ally) and not ally:IsInvisible()
 				then
 					if (ally:GetHealth() / ally:GetMaxHealth() <= 0.8 and ally:WasRecentlyDamagedByAnyHero(2.0)) or ally:IsChanneling()
 						or ally:HasModifier("modifier_crystal_maiden_freezing_field")
 					then
 						if shadowAmulet ~= nil and not ally:HasModifier("modifier_item_shadow_amulet_fade")
+							and not ally:HasModifier("modifier_spirit_breaker_charge_of_darkness")
 						then
 							npcBot:Action_UseAbilityOnEntity(shadowAmulet, ally);
 							--npcBot:ActionImmediate_Chat("Использую shadow Amulet на союзнике!", true);
@@ -367,14 +382,12 @@ function ItemUsageThink()
 	local tps = npcBot:GetItemInSlot(15);
 	if tps ~= nil and tps:IsFullyCastable()
 	then
-		if not utility.PvPMode(npcBot)
+		if not utility.PvPMode(npcBot) and not botMode == BOT_MODE_EVASIVE_MANEUVERS
 		then
-			local tpLocation = nil;
-			local shouldTP = false;
-			shouldTP, tpLocation = teleportation_usage_generic.ShouldTP()
+			local shouldTP, tpLocation = teleportation_usage_generic.ShouldTP()
 			if shouldTP
 			then
-				npcBot:Action_UseAbilityOnLocation(tps, tpLocation + RandomVector(100));
+				npcBot:Action_UseAbilityOnLocation(tps, tpLocation);
 				--return;
 			end
 		end
@@ -487,8 +500,8 @@ function ItemUsageThink()
 	local faerieFire = IsItemAvailable("item_faerie_fire");
 	if faerieFire ~= nil and faerieFire:IsFullyCastable()
 	then
-		if npcBot:DistanceFromFountain() > 1000 and (npcBot:GetHealth() / npcBot:GetMaxHealth() <= 0.2) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
-			and utility.CanBeHeal(npcBot)
+		if npcBot:DistanceFromFountain() > 1000 and (healthPercent <= 0.2) and utility.CanBeHeal(npcBot) and
+			(npcBot:WasRecentlyDamagedByAnyHero(2.0) or npcBot:WasRecentlyDamagedByTower(2.0) or npcBot:WasRecentlyDamagedByCreep(2.0))
 		then
 			npcBot:Action_UseAbility(faerieFire);
 			--npcBot:ActionImmediate_Chat("Использую предмет Faerie Fire что бы подлечить себя!",true);
@@ -500,14 +513,11 @@ function ItemUsageThink()
 	local enchantedMango = IsItemAvailable("item_enchanted_mango");
 	if enchantedMango ~= nil and enchantedMango:IsFullyCastable()
 	then
-		if utility.PvPMode(npcBot)
+		if utility.PvPMode(npcBot) and (manaPercent <= 0.3)
 		then
-			if npcBot:GetMana() / npcBot:GetMaxMana() <= 0.3
-			then
-				npcBot:Action_UseAbility(enchantedMango);
-				--npcBot:ActionImmediate_Chat("Использую предмет Enchanted Mango! что бы восстановить себе ману!",true);
-				--return;
-			end
+			npcBot:Action_UseAbility(enchantedMango);
+			--npcBot:ActionImmediate_Chat("Использую предмет Enchanted Mango! что бы восстановить себе ману!",true);
+			--return;
 		end
 	end
 
@@ -518,7 +528,7 @@ function ItemUsageThink()
 	if (healingLotus ~= nil and healingLotus:IsFullyCastable()) or (greatHealingLotus ~= nil and greatHealingLotus:IsFullyCastable())
 		or (greaterHealingLotus ~= nil and greaterHealingLotus:IsFullyCastable())
 	then
-		if npcBot:GetHealth() / npcBot:GetMaxHealth() <= 0.5 or npcBot:GetMana() / npcBot:GetMaxMana() <= 0.5
+		if (healthPercent <= 0.5) or (manaPercent <= 0.5)
 		then
 			if healingLotus ~= nil
 			then
@@ -537,12 +547,9 @@ function ItemUsageThink()
 	local cheese = IsItemAvailable("item_cheese");
 	if cheese ~= nil and cheese:IsFullyCastable()
 	then
-		if npcBot:GetHealth() / npcBot:GetMaxHealth() <= 0.3
+		if (healthPercent <= 0.3) and (npcBot:WasRecentlyDamagedByAnyHero(2.0) or npcBot:WasRecentlyDamagedByTower(2.0))
 		then
-			if npcBot:WasRecentlyDamagedByAnyHero(5.0) or npcBot:WasRecentlyDamagedByTower(2.0)
-			then
-				npcBot:Action_UseAbility(cheese);
-			end
+			npcBot:Action_UseAbility(cheese);
 		end
 	end
 
@@ -552,7 +559,7 @@ function ItemUsageThink()
 	then
 		if utility.PvPMode(npcBot) and not npcBot:IsSilenced()
 		then
-			if utility.IsHero(botTarget) and (npcBot:GetHealth() / npcBot:GetMaxHealth() > 0.1)
+			if utility.IsHero(botTarget) and (healthPercent > 0.1)
 				and GetUnitToUnitDistance(npcBot, botTarget) <= (attackRange * 3)
 			then
 				for i = 0, 23, 1 do
@@ -573,7 +580,7 @@ function ItemUsageThink()
 		then
 			local reincarnation = npcBot:GetAbilityByName("skeleton_king_reincarnation");
 			if reincarnation ~= nil and not reincarnation:IsHidden() and reincarnation:IsCooldownReady() and npcBot:GetMana() < reincarnation:GetManaCost()
-				and (npcBot:GetHealth() / npcBot:GetMaxHealth() <= 0.2) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
+				and (healthPercent <= 0.2) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
 			then
 				if npcBot:GetMana() + 170 >= reincarnation:GetManaCost()
 				then
@@ -596,7 +603,7 @@ function ItemUsageThink()
 	local magicWand = IsItemAvailable("item_magic_wand");
 	if (magicStick ~= nil and magicStick:IsFullyCastable()) or (magicWand ~= nil and magicWand:IsFullyCastable())
 	then
-		if (npcBot:GetHealth() / npcBot:GetMaxHealth() <= 0.5) or (npcBot:GetMana() / npcBot:GetMaxMana() <= 0.4)
+		if (healthPercent <= 0.5) or (manaPercent <= 0.4)
 			and utility.CanBeHeal(npcBot)
 		then
 			if magicStick ~= nil and magicStick:GetCurrentCharges() > 0
@@ -728,7 +735,7 @@ function ItemUsageThink()
 		then
 			for _, ally in pairs(allies)
 			do
-				if ally:GetMana() / ally:GetMaxMana() <= 0.6 and utility.IsHero(ally)
+				if utility.IsHero(ally) and ally:GetMana() / ally:GetMaxMana() <= 0.6
 				then
 					npcBot:Action_UseAbility(arcaneBoots);
 					--npcBot:ActionImmediate_Chat("Использую предмет Arcane Boots что бы восстановить ману союзнику!",true);
@@ -1078,7 +1085,6 @@ function ItemUsageThink()
 	then
 		local itemRange = 150 * 2;
 		local enemys = npcBot:GetNearbyHeroes(itemRange, true, BOT_MODE_NONE);
-
 		if (#enemys > 0)
 		then
 			for _, enemy in pairs(enemys) do
@@ -1145,6 +1151,24 @@ function ItemUsageThink()
 	if (orchid ~= nil and orchid:IsFullyCastable()) or (bloodthorn ~= nil and bloodthorn:IsFullyCastable())
 	then
 		local itemRange = 900;
+		local enemys = npcBot:GetNearbyHeroes(itemRange, true, BOT_MODE_NONE);
+		if (#enemys > 0)
+		then
+			for _, enemy in pairs(enemys) do
+				if enemy:IsChanneling() or enemy:IsUsingAbility() or enemy:IsCastingAbility()
+				then
+					if orchid ~= nil
+					then
+						npcBot:Action_UseAbilityOnEntity(orchid, enemy);
+						break;
+					elseif bloodthorn ~= nil
+					then
+						npcBot:Action_UseAbilityOnEntity(bloodthorn, enemy);
+						break;
+					end
+				end
+			end
+		end
 		if utility.PvPMode(npcBot)
 		then
 			if utility.IsHero(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= itemRange
@@ -1384,7 +1408,7 @@ function ItemUsageThink()
 			end
 		elseif utility.RetreatMode(npcBot)
 		then
-			if (npcBot:GetHealth() / npcBot:GetMaxHealth() <= 0.8) and npcBot:WasRecentlyDamagedByAnyHero(5.0)
+			if (npcBot:GetHealth() / npcBot:GetMaxHealth() <= 0.8) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
 			then
 				npcBot:Action_UseAbility(bladeMail);
 				--npcBot:ActionImmediate_Chat("Использую предмет blade Mail для отступления!",true);
@@ -1399,7 +1423,7 @@ function ItemUsageThink()
 	then
 		if not npcBot:HasModifier("modifier_item_bloodstone_active") and not npcBot:HasModifier("modifier_item_bloodstone_drained")
 		then
-			if utility.PvPMode(npcBot) and (npcBot:GetHealth() / npcBot:GetMaxHealth() <= 0.5)
+			if utility.PvPMode(npcBot) and (healthPercent <= 0.5)
 			then
 				if utility.IsHero(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= (attackRange * 2)
 				then
@@ -1407,7 +1431,7 @@ function ItemUsageThink()
 				end
 			elseif utility.RetreatMode(npcBot)
 			then
-				if (npcBot:GetHealth() / npcBot:GetMaxHealth() <= 0.5) and npcBot:WasRecentlyDamagedByAnyHero(5.0)
+				if (healthPercent <= 0.5) and npcBot:WasRecentlyDamagedByAnyHero(5.0)
 				then
 					npcBot:Action_UseAbility(bloodstone);
 				end
@@ -1425,7 +1449,7 @@ function ItemUsageThink()
 			then
 				if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
 				then
-					if (npcBot:GetHealth() / npcBot:GetMaxHealth() <= 0.5) and GetUnitToUnitDistance(npcBot, botTarget) <= attackRange
+					if (healthPercent <= 0.5) and GetUnitToUnitDistance(npcBot, botTarget) <= attackRange
 						and npcBot:GetAttackTarget() == botTarget
 					then
 						npcBot:Action_UseAbility(satanic);
@@ -1587,11 +1611,11 @@ function ItemUsageThink()
 		if utility.PvPMode(npcBot)
 		then
 			local enemys = npcBot:GetNearbyHeroes(itemRange, true, BOT_MODE_NONE);
-			if (#enemys > 0)
+			if (#enemys > 1)
 			then
 				for _, enemy in pairs(enemys)
 				do
-					if enemy ~= npcBot:GetAttackTarget() and utility.CanCastOnMagicImmuneTarget(enemy) and utility.SafeCast(enemy)
+					if enemy ~= botTarget and utility.CanCastOnMagicImmuneTarget(enemy) and utility.SafeCast(enemy)
 					then
 						if eulScepter ~= nil
 						then
@@ -1867,11 +1891,11 @@ function ItemUsageThink()
 			if ghost ~= nil
 			then
 				local enemys = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
-				if #enemys > 0
+				if (#enemys > 0)
 				then
 					for _, enemy in pairs(enemys)
 					do
-						if enemy:GetAttackTarget() == npcBot and npcBot:GetHealth() / npcBot:GetMaxHealth() <= 0.8
+						if enemy:GetAttackTarget() == npcBot and (healthPercent <= 0.8)
 						then
 							--npcBot:ActionImmediate_Chat("Использую предмет ghost!", true);
 							npcBot:Action_UseAbility(ghost);
@@ -1917,7 +1941,7 @@ function ItemUsageThink()
 			end
 		elseif utility.RetreatMode(npcBot)
 		then
-			if (npcBot:GetHealth() / npcBot:GetMaxHealth() <= 0.8) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
+			if (healthPercent <= 0.8)
 			then
 				if shadowBlade ~= nil
 				then
@@ -1962,10 +1986,9 @@ function ItemUsageThink()
 	if (diffusalBlade ~= nil and diffusalBlade:IsFullyCastable()) or (disperser ~= nil and disperser:IsFullyCastable())
 	then
 		local itemRange = 600;
-		local allies = npcBot:GetNearbyHeroes(itemRange, false, BOT_MODE_NONE);
 		if utility.PvPMode(npcBot)
 		then
-			if utility.IsHero(botTarget) and not utility.IsDisabled(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= (itemRange)
+			if utility.IsHero(botTarget) and not utility.IsDisabled(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= itemRange
 			then
 				if diffusalBlade ~= nil and not botTarget:HasModifier("modifier_item_diffusal_blade_slow")
 				then
@@ -2005,13 +2028,14 @@ function ItemUsageThink()
 				end
 			end
 		end
-		if (#allies > 0)
+		if disperser ~= nil
 		then
-			for _, ally in pairs(allies)
-			do
-				if utility.IsDisabled(ally) or ally:WasRecentlyDamagedByAnyHero(2.0)
-				then
-					if disperser ~= nil
+			local allies = npcBot:GetNearbyHeroes(itemRange, false, BOT_MODE_NONE);
+			if (#allies > 0)
+			then
+				for _, ally in pairs(allies)
+				do
+					if utility.IsDisabled(ally) or ally:WasRecentlyDamagedByAnyHero(2.0)
 					then
 						npcBot:Action_UseAbilityOnEntity(disperser, ally);
 						--npcBot:ActionImmediate_Chat("Использую предмет disperser на союзнике!",true);

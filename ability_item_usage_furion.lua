@@ -59,25 +59,21 @@ function AbilityUsageThink()
     HealthPercentage = npcBot:GetHealth() / npcBot:GetMaxHealth();
     ManaPercentage = npcBot:GetMana() / npcBot:GetMaxMana();
 
-    local castSproutDesire, castSproutTarget, castSproutType = ConsiderSprout();
+    local castSproutDesire, castSproutTarget, castSproutTargetType = ConsiderSprout();
     local castTeleportationDesire, castTeleportationLocation = ConsiderTeleportation();
     local castNaturesCallDesire, castNaturesCallLocation = ConsiderNaturesCall();
     local castCurseOfTheOldgrowthDesire = ConsiderCurseOfTheOldgrowth();
-    local castWrathOfNatureDesire, castWrathOfNatureTarget, castWrathOfNatureTargetType = ConsiderWrathOfNature();
+    local castWrathOfNatureDesire, castWrathOfNatureTarget = ConsiderWrathOfNature();
 
     if (castSproutDesire ~= nil)
     then
-        if (castSproutType == "combo")
+        if (castSproutTargetType == "combo")
         then
             npcBot:Action_ClearActions(true);
-            npcBot:ActionQueue_UseAbilityOnEntity(Sprout, npcBot);
+            npcBot:Action_UseAbilityOnLocation(Sprout, castSproutTarget);
             npcBot:ActionQueue_UseAbilityOnLocation(Teleportation, utility.SafeLocation(npcBot));
             return;
-        elseif (castSproutType == "target")
-        then
-            npcBot:Action_UseAbilityOnEntity(Sprout, castSproutTarget);
-            return;
-        elseif (castSproutType == "nil")
+        elseif (castSproutTargetType == nil)
         then
             npcBot:Action_UseAbilityOnLocation(Sprout, castSproutTarget);
             return;
@@ -104,15 +100,8 @@ function AbilityUsageThink()
 
     if (castWrathOfNatureDesire ~= nil)
     then
-        if (castWrathOfNatureTargetType == "target")
-        then
-            npcBot:Action_UseAbilityOnEntity(WrathOfNature, castWrathOfNatureTarget);
-            return;
-        elseif (castWrathOfNatureTargetType == "location")
-        then
-            npcBot:Action_UseAbilityOnLocation(WrathOfNature, castWrathOfNatureTarget);
-            return;
-        end
+        npcBot:Action_UseAbilityOnLocation(WrathOfNature, castWrathOfNatureTarget);
+        return;
     end
 end
 
@@ -123,6 +112,25 @@ function ConsiderSprout()
     end
 
     local castRangeAbility = ability:GetCastRange();
+    local damageAbility = ability:GetSpecialValueInt("sprout_damage_per_second") * ability:GetSpecialValueInt("duration");
+    local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
+    local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility + 200, true, BOT_MODE_NONE);
+
+    -- Cast if can kill somebody
+    if (#enemyAbility > 0)
+    then
+        for _, enemy in pairs(enemyAbility) do
+            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType())
+            then
+                if utility.CanCastSpellOnTarget(ability, enemy)
+                then
+                    npcBot:ActionImmediate_Chat("Использую Sprout что бы убить " .. enemy:GetUnitName(), true);
+                    return BOT_ACTION_DESIRE_ABSOLUTE, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0),
+                        nil;
+                end
+            end
+        end
+    end
 
     -- Attack use
     if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
@@ -133,7 +141,7 @@ function ConsiderSprout()
                 and not botTarget:IsChanneling()
             then
                 --npcBot:ActionImmediate_Chat("Использую Sprout для атаки!", true);
-                return BOT_ACTION_DESIRE_VERYHIGH, botTarget, "target";
+                return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0), nil;
             end
         end
         -- Retreat use
@@ -142,16 +150,16 @@ function ConsiderSprout()
         local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
         if (#enemyAbility > 0)
         then
-            if utility.IsAbilityAvailable(Teleportation) and npcBot:GetMana() >= ability:GetManaCost() + Teleportation:GetManaCost()
+            if utility.IsAbilityAvailable(Teleportation) and npcBot:GetMana() > (ability:GetManaCost() + Teleportation:GetManaCost())
             then
-                --npcBot:ActionImmediate_Chat("Использую Sprout для отступления в комбе с телепортом!",true);
-                return BOT_ACTION_DESIRE_VERYHIGH, nil, "combo";
+                --npcBot:ActionImmediate_Chat("Использую Sprout для отступления в комбе с телепортом!", true);
+                return BOT_ACTION_DESIRE_VERYHIGH, npcBot:GetLocation(), "combo";
             else
                 for _, enemy in pairs(enemyAbility) do
                     if not utility.IsDisabled(enemy)
                     then
                         --npcBot:ActionImmediate_Chat("Использую Sprout для отступления!", true);
-                        return BOT_ACTION_DESIRE_HIGH, enemy:GetLocation(), "nil";
+                        return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0), nil;
                     end
                 end
             end
@@ -168,11 +176,7 @@ function ConsiderTeleportation()
     local tps = npcBot:GetItemInSlot(15);
     if tps == nil or not tps:IsFullyCastable()
     then
-        local tpLocation = nil;
-        local shouldTP = false;
-
-        shouldTP, tpLocation = teleportation_usage_generic.ShouldTP()
-
+        local shouldTP, tpLocation = teleportation_usage_generic.ShouldTP();
         if shouldTP
         then
             --npcBot:ActionImmediate_Chat("Использую Teleportation!", true);
@@ -216,7 +220,7 @@ function ConsiderNaturesCall()
                 if #trees >= (maxUnits - maxUnits % 1)
                 then
                     --npcBot:ActionImmediate_Chat("Использую NaturesCall для атаки!", true);
-                    return BOT_ACTION_DESIRE_HIGH, GetTreeLocation(trees[1]);
+                    return BOT_ACTION_DESIRE_HIGH, GetTreeLocation(trees[2]);
                 end
             end
         end
@@ -230,7 +234,7 @@ function ConsiderNaturesCall()
             if #trees >= (maxUnits - maxUnits % 1)
             then
                 --npcBot:ActionImmediate_Chat("Использую NaturesCall для пуша дефа!", true);
-                return BOT_ACTION_DESIRE_HIGH, GetTreeLocation(trees[1]);
+                return BOT_ACTION_DESIRE_HIGH, GetTreeLocation(trees[2]);
             end
         end
     end
@@ -274,17 +278,20 @@ function ConsiderWrathOfNature()
     end
 
     local damageAbility = ability:GetSpecialValueInt("damage");
+    local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
     local enemyAbility = GetUnitList(UNIT_LIST_ENEMY_HEROES);
 
     -- Cast if can kill somebody
     if (#enemyAbility > 0)
     then
-        for i = 1, #enemyAbility do
-            if utility.CanAbilityKillTarget(enemyAbility[i], damageAbility, ability:GetDamageType())
-                and utility.CanCastSpellOnTarget(ability, enemyAbility[i])
+        for _, enemy in pairs(enemyAbility) do
+            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType())
             then
-                --npcBot:ActionImmediate_Chat("Использую WrathOfNature что бы убить цель!", true);
-                return BOT_ACTION_DESIRE_VERYHIGH, enemyAbility[i], "target";
+                if utility.CanCastSpellOnTarget(ability, enemy)
+                then
+                    --npcBot:ActionImmediate_Chat("Использую WrathOfNature что бы убить " .. enemy:GetUnitName(), true);
+                    return BOT_ACTION_DESIRE_ABSOLUTE, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
+                end
             end
         end
     end
@@ -294,19 +301,25 @@ function ConsiderWrathOfNature()
     then
         if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget)
         then
-            for i = 1, #enemyAbility do
-                if enemyAbility[i] ~= botTarget and utility.IsValidTarget(enemyAbility[i]) and GetUnitToUnitDistance(enemyAbility[i], botTarget) >= 5000
-                then
-                    --npcBot:ActionImmediate_Chat("Использую WrathOfNature по дальнему герою!", true);
-                    return BOT_ACTION_DESIRE_VERYHIGH, enemyAbility[i]:GetLocation(), "location";
+            if (#enemyAbility > 1)
+            then
+                for _, enemy in pairs(enemyAbility) do
+                    if enemy ~= botTarget and utility.CanCastSpellOnTarget(ability, enemy) and GetUnitToUnitDistance(enemy, botTarget) >= 5000
+                    then
+                        --npcBot:ActionImmediate_Chat("Использую WrathOfNature по дальнему герою!", true);
+                        return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
+                    end
                 end
             end
             local enemyCreeps = GetUnitList(UNIT_LIST_ENEMY_CREEPS);
-            for i = 1, #enemyCreeps do
-                if utility.IsValidTarget(enemyCreeps[i]) and GetUnitToUnitDistance(enemyCreeps[i], botTarget) >= 5000
-                then
-                    --npcBot:ActionImmediate_Chat("Использую WrathOfNature по дальнему крипу!",true);
-                    return BOT_ACTION_DESIRE_VERYHIGH, enemyCreeps[i]:GetLocation(), "location";
+            if (#enemyCreeps > 0)
+            then
+                for _, enemy in pairs(enemyCreeps) do
+                    if utility.CanCastSpellOnTarget(ability, enemy) and GetUnitToUnitDistance(enemy, botTarget) >= 5000
+                    then
+                        --npcBot:ActionImmediate_Chat("Использую WrathOfNature по дальнему крипу!", true);
+                        return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
+                    end
                 end
             end
         end

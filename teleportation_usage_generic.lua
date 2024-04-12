@@ -8,7 +8,7 @@ require(GetScriptDirectory() .. "/utility")
 function IsValidTower(target)
     return target ~= nil and
         target:CanBeSeen() and
-        target:IsAlive() and
+        target:GetHealth() > 0 and
         not target:IsInvulnerable()
 end
 
@@ -94,6 +94,7 @@ function ShouldTP()
     local towerDefend = nil;
     local towerPush = nil;
     local botMode = npcBot:GetActiveMode();
+    local modDesire = npcBot:GetActiveModeDesire();
     local botLoc = npcBot:GetLocation();
     local botTeam = GetTeam();
     local enemyHeroes = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
@@ -192,7 +193,8 @@ function ShouldTP()
         end
     end
 
-    if botMode == BOT_MODE_DEFEND_TOWER_TOP
+    -- Defend desire
+    if botMode == BOT_MODE_DEFEND_TOWER_TOP and modDesire >= BOT_MODE_DESIRE_MODERATE
     then
         if towerDefend == nil
         then
@@ -223,7 +225,7 @@ function ShouldTP()
                 end
             end
         end
-    elseif botMode == BOT_MODE_DEFEND_TOWER_MID
+    elseif botMode == BOT_MODE_DEFEND_TOWER_MID and modDesire >= BOT_MODE_DESIRE_MODERATE
     then
         if towerDefend == nil
         then
@@ -254,7 +256,7 @@ function ShouldTP()
                 end
             end
         end
-    elseif botMode == BOT_MODE_DEFEND_TOWER_BOT
+    elseif botMode == BOT_MODE_DEFEND_TOWER_BOT and modDesire >= BOT_MODE_DESIRE_MODERATE
     then
         if towerDefend == nil
         then
@@ -287,7 +289,8 @@ function ShouldTP()
         end
     end
 
-    if botMode == BOT_MODE_PUSH_TOWER_TOP
+    -- Push desire
+    if botMode == BOT_MODE_PUSH_TOWER_TOP and modDesire >= BOT_MODE_DESIRE_MODERATE
     then
         local enemytopTower1 = GetTower(GetOpposingTeam(), TOWER_TOP_1);
         local enemytopTower2 = GetTower(GetOpposingTeam(), TOWER_TOP_2);
@@ -303,7 +306,8 @@ function ShouldTP()
             elseif IsValidTower(enemytopTower3)
             then
                 towerPush = enemytopTower3;
-            else
+            elseif IsValidTower(enemyAncient)
+            then
                 towerPush = enemyAncient;
             end
         end
@@ -321,7 +325,7 @@ function ShouldTP()
                 end
             end
         end
-    elseif botMode == BOT_MODE_PUSH_TOWER_MID
+    elseif botMode == BOT_MODE_PUSH_TOWER_MID and modDesire >= BOT_MODE_DESIRE_MODERATE
     then
         local enemymidTower1 = GetTower(GetOpposingTeam(), TOWER_MID_1);
         local enemymidTower2 = GetTower(GetOpposingTeam(), TOWER_MID_2);
@@ -337,7 +341,8 @@ function ShouldTP()
             elseif IsValidTower(enemymidTower3)
             then
                 towerPush = enemymidTower3;
-            else
+            elseif IsValidTower(enemyAncient)
+            then
                 towerPush = enemyAncient;
             end
         end
@@ -355,7 +360,7 @@ function ShouldTP()
                 end
             end
         end
-    elseif botMode == BOT_MODE_PUSH_TOWER_BOT
+    elseif botMode == BOT_MODE_PUSH_TOWER_BOT and modDesire >= BOT_MODE_DESIRE_MODERATE
     then
         local enemybotTower1 = GetTower(GetOpposingTeam(), TOWER_BOT_1);
         local enemybotTower2 = GetTower(GetOpposingTeam(), TOWER_BOT_2);
@@ -371,7 +376,8 @@ function ShouldTP()
             elseif IsValidTower(enemybotTower3)
             then
                 towerPush = enemybotTower3;
-            else
+            elseif IsValidTower(enemyAncient)
+            then
                 towerPush = enemyAncient;
             end
         end

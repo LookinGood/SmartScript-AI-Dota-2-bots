@@ -308,7 +308,7 @@ function ConsiderTorrentStorm()
             for _, enemy in pairs(enemyAbility) do
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    npcBot:ActionImmediate_Chat("Использую TorrentStorm для отхода!", true);
+                    --npcBot:ActionImmediate_Chat("Использую TorrentStorm для отхода!", true);
                     return BOT_ACTION_DESIRE_VERYHIGH, npcBot:GetLocation();
                 end
             end

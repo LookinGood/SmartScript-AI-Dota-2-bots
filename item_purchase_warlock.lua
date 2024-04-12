@@ -6,7 +6,6 @@ local ItemsToBuy =
 	"item_magic_stick",
 	"item_branches",
 	"item_branches",
-
 	"item_flask",
 	"item_clarity",
 	"item_clarity",
@@ -54,15 +53,15 @@ local ItemsToBuy =
     "item_point_booster",
     "item_tiara_of_selemene",
 
-	"item_energy_booster",
-	"item_vitality_booster",
-	"item_recipe_aeon_disk",
-
 	"item_ring_of_health",
 	"item_void_stone",
 	"item_energy_booster",
 	"item_platemail",
 	"item_recipe_lotus_orb",
+
+	"item_energy_booster",
+	"item_vitality_booster",
+	"item_recipe_aeon_disk",
 }
 
 function ItemPurchaseThink()

@@ -53,6 +53,8 @@ local SpellSteal = AbilitiesReal[6]
 --local ability4 = AbilitiesReal[4]
 --local ability5 = AbilitiesReal[5]
 
+local castLandTimer = 0;
+
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
         return;
@@ -65,7 +67,6 @@ function AbilityUsageThink()
     botTarget = npcBot:GetTarget();
     HealthPercentage = npcBot:GetHealth() / npcBot:GetMaxHealth();
     ManaPercentage = npcBot:GetMana() / npcBot:GetMaxMana();
-    castLandTimer = 0;
 
     local castTelekinesisDesire, castTelekinesisTarget = ConsiderTelekinesis();
     local castTelekinesisLandDesire, castTelekinesisLandLocation = ConsiderTelekinesisLand();
@@ -81,8 +82,8 @@ function AbilityUsageThink()
 
     if (castTelekinesisLandDesire ~= nil)
     then
-        npcBot:Action_UseAbilityOnLocation(TelekinesisLand, castTelekinesisLandLocation);
         castLandTimer = DotaTime();
+        npcBot:Action_UseAbilityOnLocation(TelekinesisLand, castTelekinesisLandLocation);
         return;
     end
 
@@ -166,9 +167,9 @@ function ConsiderTelekinesisLand()
         return;
     end
 
-    local liftDuration = Telekinesis:GetSpecialValueInt("lift_duration");
+    --local liftDuration = Telekinesis:GetSpecialValueInt("lift_duration");
 
-    if DotaTime() < (castLandTimer + liftDuration)
+    if DotaTime() < (castLandTimer + 1.7)
     then
         return;
     end

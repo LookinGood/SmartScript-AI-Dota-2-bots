@@ -20,6 +20,11 @@ local ItemsToBuy =
 	"item_gloves",
 	"item_boots_of_elves",
 
+	"item_point_booster",
+	"item_ogre_axe",
+	"item_staff_of_wizardry",
+	"item_blade_of_alacrity",
+
 	"item_blade_of_alacrity",
 	"item_boots_of_elves",
 	"item_recipe_yasha",
@@ -40,19 +45,14 @@ local ItemsToBuy =
 
 	"item_aghanims_shard",
 
-	"item_point_booster",
-	"item_ogre_axe",
-	"item_staff_of_wizardry",
-	"item_blade_of_alacrity",
-
-	"item_point_booster",
-	"item_ultimate_orb",
-	"item_recipe_skadi",
-
 	"item_recipe_ultimate_scepter_2",
 
 	"item_hyperstone",
 	"item_hyperstone",
+
+	"item_point_booster",
+	"item_ultimate_orb",
+	"item_recipe_skadi",
 
 	"item_claymore",
 	"item_talisman_of_evasion",

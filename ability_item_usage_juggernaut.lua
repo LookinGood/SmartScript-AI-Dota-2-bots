@@ -115,7 +115,7 @@ function ConsiderBladeFury()
     end
 
     -- Attack use
-    if utility.PvPMode(npcBot) or npcBot:GetActiveMode() == BOT_MODE_ROSHAN
+    if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
     then
         if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
         then
@@ -156,7 +156,9 @@ function ConsiderHealingWard()
     end
 
     local castRangeAbility = ability:GetCastRange();
-    local allyAbility = npcBot:GetNearbyHeroes(castRangeAbility, false, BOT_MODE_NONE);
+    local radiusAbility = ability:GetSpecialValueInt("healing_ward_aura_radius");
+    local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
+    local allyAbility = npcBot:GetNearbyHeroes(castRangeAbility + radiusAbility, false, BOT_MODE_NONE);
 
     -- Use to heal damaged ally
     if (#allyAbility > 0)
@@ -166,8 +168,13 @@ function ConsiderHealingWard()
             if utility.IsHero(ally) and utility.CanBeHeal(ally) and (ally:GetHealth() / ally:GetMaxHealth() < 0.7)
                 and not ally:HasModifier("modifier_juggernaut_healing_ward_heal")
             then
-                --npcBot:ActionImmediate_Chat("Использую HealingWard!", true);
-                return BOT_ACTION_DESIRE_HIGH, ally:GetLocation();
+                if GetUnitToUnitDistance(npcBot, ally) <= castRangeAbility
+                then
+                    return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, ally, delayAbility, 0);
+                elseif GetUnitToUnitDistance(npcBot, ally) <= castRangeAbility + radiusAbility
+                then
+                    return BOT_ACTION_DESIRE_HIGH, utility.GetMaxRangeCastLocation(npcBot, ally, castRangeAbility);
+                end
             end
         end
     end

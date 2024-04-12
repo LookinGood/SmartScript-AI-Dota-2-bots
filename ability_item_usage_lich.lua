@@ -111,7 +111,7 @@ function ConsiderFrostBlast()
 
     local castRangeAbility = ability:GetCastRange();
     local radiusAbility = ability:GetSpecialValueInt("radius");
-    local damageAbility = ability:GetAbilityDamage() + ability:GetSpecialValueInt("aoe_damage")
+    local damageAbility = ability:GetAbilityDamage() + ability:GetSpecialValueInt("aoe_damage");
     local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility + 200, true, BOT_MODE_NONE);
 
     -- Cast if can kill somebody
@@ -123,7 +123,7 @@ function ConsiderFrostBlast()
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую FrostBlast что бы убить цель!",true);
-                    return BOT_ACTION_DESIRE_VERYHIGH, enemy;
+                    return BOT_ACTION_DESIRE_ABSOLUTE, enemy;
                 end
             end
         end
@@ -165,7 +165,7 @@ function ConsiderFrostBlast()
                     if utility.CanCastSpellOnTarget(ability, enemy)
                     then
                         --npcBot:ActionImmediate_Chat("Использую FrostBlast на крипов!", true);
-                        return BOT_ACTION_DESIRE_VERYHIGH, enemy;
+                        return BOT_ACTION_DESIRE_VERYLOW, enemy;
                     end
                 end
             end
@@ -174,7 +174,7 @@ function ConsiderFrostBlast()
     elseif botMode == BOT_MODE_LANING
     then
         local enemy = utility.GetWeakest(enemyAbility);
-        if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)
+        if enemy ~= nil and utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)
         then
             --npcBot:ActionImmediate_Chat("Использую FrostBlast по цели на ЛАЙНЕ!", true);
             return BOT_ACTION_DESIRE_VERYHIGH, enemy;
@@ -219,7 +219,7 @@ function ConsiderFrostShield()
             if utility.IsHero(ally) and not ally:HasModifier("modifier_lich_frost_shield")
             then
                 if ally:GetHealth() / ally:GetMaxHealth() <= 0.8 and
-                    ally:WasRecentlyDamagedByAnyHero(2.0) or ally:WasRecentlyDamagedByTower(2.0) or ally:WasRecentlyDamagedByCreep(2.0)
+                    (ally:WasRecentlyDamagedByAnyHero(2.0) or ally:WasRecentlyDamagedByTower(2.0) or ally:WasRecentlyDamagedByCreep(2.0))
                 then
                     --npcBot:ActionImmediate_Chat("Использую FrostShield на союзника для защиты!",true);
                     return BOT_MODE_DESIRE_HIGH, ally;
@@ -290,7 +290,8 @@ function ConsiderSinisterGaze()
                     elseif utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_POINT)
                     then
                         --npcBot:ActionImmediate_Chat("Использую SinisterGaze сбивая каст с аганимом!",true);
-                        return BOT_MODE_DESIRE_HIGH, utility.GetTargetPosition(enemy, delayAbility), "location";
+                        return BOT_MODE_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0),
+                            "location";
                     end
                 end
             end
@@ -312,24 +313,20 @@ function ConsiderSinisterGaze()
                 elseif utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_POINT)
                 then
                     --npcBot:ActionImmediate_Chat("Использую SinisterGaze по врагу с аганимом!", true);
-                    return BOT_MODE_DESIRE_HIGH, utility.GetTargetPosition(botTarget, delayAbility), "location";
+                    return BOT_MODE_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0),
+                        "location";
                 end
             end
         end
         if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_POINT)
         then
             -- Cast if enemy >=2
-            if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_POINT)
+            local locationAoE = npcBot:FindAoELocation(true, true, npcBot:GetLocation(), castRangeAbility,
+                radiusAbility, 0, 0);
+            if locationAoE ~= nil and (locationAoE.count >= 2)
             then
-                local locationAoE = npcBot:FindAoELocation(true, true, npcBot:GetLocation(), castRangeAbility,
-                    radiusAbility,
-                    0,
-                    0);
-                if (locationAoE.count >= 2)
-                then
-                    --npcBot:ActionImmediate_Chat("Использую SinisterGaze по врагам!", true);
-                    return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc, "location";
-                end
+                --npcBot:ActionImmediate_Chat("Использую SinisterGaze по врагам!", true);
+                return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc, "location";
             end
         end
         -- Retreat use
@@ -347,7 +344,8 @@ function ConsiderSinisterGaze()
                     elseif utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_POINT)
                     then
                         --npcBot:ActionImmediate_Chat("Использую SinisterGaze для отхода с аганимом!",true);
-                        return BOT_MODE_DESIRE_HIGH, utility.GetTargetPosition(enemy, delayAbility), "location";
+                        return BOT_MODE_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0),
+                            "location";
                     end
                 end
             end
@@ -365,7 +363,7 @@ function ConsiderSinisterGaze()
             elseif utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_POINT)
             then
                 --npcBot:ActionImmediate_Chat("Использую SinisterGaze на лайне с аганимом!", true);
-                return BOT_MODE_DESIRE_HIGH, utility.GetTargetPosition(enemy, delayAbility), "location";
+                return BOT_MODE_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0), "location";
             end
         end
     end
@@ -378,26 +376,50 @@ function ConsiderIceSpire()
     end
 
     local castRangeAbility = ability:GetCastRange();
+    local radiusAbility = ability:GetSpecialValueInt("aura_radius");
     local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
 
-    -- Cast if attack enemy
+    -- Attack use
     if utility.PvPMode(npcBot)
     then
-        if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+        if utility.IsHero(botTarget)
         then
-            return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetPosition(botTarget, delayAbility);
+            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility + radiusAbility
+                and not utility.IsDisabled(botTarget)
+            then
+                if GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+                then
+                    return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
+                elseif GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility + radiusAbility
+                then
+                    return BOT_ACTION_DESIRE_HIGH, utility.GetMaxRangeCastLocation(npcBot, botTarget, castRangeAbility);
+                end
+            end
         end
-        -- Use if need retreat
+        -- Cast if enemy >=2
+        local locationAoE = npcBot:FindAoELocation(true, true, npcBot:GetLocation(), castRangeAbility, radiusAbility, 0,
+            0);
+        if locationAoE ~= nil and (locationAoE.count >= 2)
+        then
+            return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
+        end
+        -- Retreat use
     elseif utility.RetreatMode(npcBot)
     then
-        local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
-        if (#enemyAbility > 0) and (HealthPercentage <= 0.7)
+        local enemyAbility = npcBot:GetNearbyHeroes(utility.GetCurrentCastDistance(castRangeAbility + radiusAbility),
+            true, BOT_MODE_NONE);
+        if (#enemyAbility > 0)
         then
             for _, enemy in pairs(enemyAbility) do
-                if utility.CanCastSpellOnTarget(ability, enemy)
+                if utility.CanCastSpellOnTarget(ability, enemy) and not utility.IsDisabled(enemy)
                 then
-                    --npcBot:ActionImmediate_Chat("Использую IceSpire что бы оторваться от врага!",true);
-                    return BOT_ACTION_DESIRE_HIGH, utility.GetTargetPosition(enemy, delayAbility);
+                    if GetUnitToUnitDistance(npcBot, enemy) <= castRangeAbility
+                    then
+                        return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
+                    elseif GetUnitToUnitDistance(npcBot, enemy) <= castRangeAbility + radiusAbility
+                    then
+                        return BOT_ACTION_DESIRE_HIGH, utility.GetMaxRangeCastLocation(npcBot, enemy, castRangeAbility);
+                    end
                 end
             end
         end
@@ -424,7 +446,7 @@ function ConsiderChainFrost()
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую ChainFrost что бы убить цель!", true);
-                    return BOT_ACTION_DESIRE_VERYHIGH, enemy;
+                    return BOT_ACTION_DESIRE_ABSOLUTE, enemy;
                 end
             end
         end
@@ -440,7 +462,7 @@ function ConsiderChainFrost()
                 local enemyHeroAround = botTarget:GetNearbyHeroes(radiusAbility, false, BOT_MODE_NONE);
                 local iceSpires = utility.CountUnitAroundTarget(botTarget, "npc_dota_lich_ice_spire", false,
                     radiusAbility);
-                if #enemyHeroAround > 1 or iceSpires > 0 or (botTarget:GetHealth() / botTarget:GetMaxHealth() <= 0.4
+                if (#enemyHeroAround > 1 or iceSpires > 0) or (botTarget:GetHealth() / botTarget:GetMaxHealth() <= 0.4
                         and botTarget:GetHealth() / botTarget:GetMaxHealth() > 0.1)
                 then
                     --npcBot:ActionImmediate_Chat("Использую ChainFrost для атаки!", true);
@@ -459,7 +481,7 @@ function ConsiderChainFrost()
                     local enemyHeroAround = enemy:GetNearbyHeroes(radiusAbility, false, BOT_MODE_NONE);
                     local iceSpires = utility.CountUnitAroundTarget(enemy, "npc_dota_lich_ice_spire", false,
                         radiusAbility);
-                    if #enemyHeroAround > 1 or iceSpires > 0
+                    if (#enemyHeroAround > 1 or iceSpires > 0)
                     then
                         --npcBot:ActionImmediate_Chat("Использую ChainFrost для отхода!", true);
                         return BOT_ACTION_DESIRE_HIGH, enemy;

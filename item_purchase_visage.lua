@@ -1,3 +1,4 @@
+---@diagnostic disable: undefined-global
 require(GetScriptDirectory() .. "/item_purchase_generic")
 
 local ItemsToBuy =
@@ -7,7 +8,7 @@ local ItemsToBuy =
 	"item_wind_lace",
 	"item_branches",
 	"item_branches",
-	"item_clarity",
+	"item_enchanted_mango",
 	"item_flask",
 
 	"item_recipe_magic_wand",
@@ -26,42 +27,41 @@ local ItemsToBuy =
 
 	"item_recipe_boots_of_bearing",
 
-	"item_cloak",
-	"item_shadow_amulet",
-	"item_recipe_glimmer_cape",
+	"item_sobi_mask",
+	"item_robe",
+	"item_blitz_knuckles",
+	"item_chainmail",
+	"item_recipe_witch_blade",
 
-	"item_staff_of_wizardry",
-	"item_vitality_booster",
-	"item_recipe_rod_of_atos",
+	"item_sobi_mask",
+	"item_robe",
+	"item_blitz_knuckles",
+	"item_cornucopia",
+	"item_recipe_orchid",
 
 	"item_aghanims_shard",
-
-	"item_cornucopia",
-	"item_ring_of_tarrasque",
-	"item_tiara_of_selemene",
-	"item_recipe_refresher",
 
 	"item_point_booster",
 	"item_ogre_axe",
 	"item_staff_of_wizardry",
 	"item_blade_of_alacrity",
 
-	"item_energy_booster",
-	"item_vitality_booster",
-	"item_point_booster",
 	"item_tiara_of_selemene",
+	"item_mystic_staff",
+	"item_recipe_sheepstick",
 
 	"item_recipe_ultimate_scepter_2",
 
-	"item_gloves",
-	"item_mithril_hammer",
 	"item_javelin",
+	"item_hyperstone",
+	"item_recipe_bloodthorn",
 
-	"item_recipe_gungir",
+	"item_mystic_staff",
+	"item_recipe_devastator",
 
-	"item_energy_booster",
-	"item_vitality_booster",
-	"item_recipe_aeon_disk",
+	"item_point_booster",
+	"item_ultimate_orb",
+	"item_recipe_skadi",
 }
 
 function ItemPurchaseThink()

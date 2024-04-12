@@ -54,6 +54,8 @@ local ReturnChakram = npcBot:GetAbilityByName("shredder_return_chakram");
 
 local chakramPosition = nil;
 local chakram2Position = nil;
+local castChakramTimer = 0;
+local castSecondChakramTimer = 0;
 
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
@@ -101,6 +103,7 @@ function AbilityUsageThink()
     if (castSecondChakramDesire ~= nil)
     then
         chakram2Position = castSecondChakramLocation;
+        castSecondChakramTimer = DotaTime();
         npcBot:Action_UseAbilityOnLocation(SecondChakram, castSecondChakramLocation);
         return;
     end
@@ -114,6 +117,7 @@ function AbilityUsageThink()
     if (castChakramDesire ~= nil)
     then
         chakramPosition = castChakramLocation;
+        castChakramTimer = DotaTime();
         npcBot:Action_UseAbilityOnLocation(Chakram, castChakramLocation);
         return;
     end
@@ -558,16 +562,17 @@ function ConsiderReturnChakram()
         return;
     end
 
-    if npcBot:HasModifier("modifier_shredder_timber_chain")
+    if npcBot:HasModifier("modifier_shredder_timber_chain") or chakramPosition == nil
     then
         return;
     end
 
-    if chakramPosition == nil
+    if DotaTime() > (castChakramTimer + 2.0)
     then
-        return;
+        return BOT_MODE_DESIRE_MODERATE;
     end
 
+    --[[
     if (npcBot.idletime == nil)
     then
         npcBot.idletime = GameTime()
@@ -577,7 +582,7 @@ function ConsiderReturnChakram()
             npcBot.idletime = nil
             return BOT_MODE_DESIRE_MODERATE;
         end
-    end
+    end ]]
 
     --[[     local radiusAbility = Chakram:GetSpecialValueInt("radius");
 
@@ -700,16 +705,17 @@ function ConsiderReturnSecondChakram()
         return;
     end
 
-    if npcBot:HasModifier("modifier_shredder_timber_chain")
+    if npcBot:HasModifier("modifier_shredder_timber_chain") or chakram2Position == nil
     then
         return;
     end
 
-    if chakram2Position == nil
+    if DotaTime() > (castSecondChakramTimer + 2.0)
     then
-        return;
+        return BOT_MODE_DESIRE_MODERATE;
     end
 
+    --[[
     if (npcBot.idletime == nil)
     then
         npcBot.idletime = GameTime()
@@ -719,7 +725,7 @@ function ConsiderReturnSecondChakram()
             npcBot.idletime = nil
             return BOT_MODE_DESIRE_MODERATE;
         end
-    end
+    end ]]
 
     --[[     local radiusAbility = SecondChakram:GetSpecialValueInt("radius");
 

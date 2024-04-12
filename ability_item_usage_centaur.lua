@@ -114,7 +114,7 @@ function ConsiderHoofStomp()
             then
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    return BOT_ACTION_DESIRE_VERYHIGH;
+                    return BOT_ACTION_DESIRE_ABSOLUTE;
                 end
             end
         end
@@ -157,7 +157,7 @@ function ConsiderDoubleEdge()
             then
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    return BOT_ACTION_DESIRE_VERYHIGH, enemy;
+                    return BOT_ACTION_DESIRE_ABSOLUTE, enemy;
                 end
             end
         end

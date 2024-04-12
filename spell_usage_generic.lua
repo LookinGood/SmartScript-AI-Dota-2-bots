@@ -559,9 +559,9 @@ function ConsiderCast(ability)
         then
             castRangeAbility = npcBot:GetAttackRange() + 200;
         end
-        allyAbility = npcBot:GetNearbyHeroes(utility.GetCurretCastDistance(castRangeAbility), false, BOT_MODE_NONE);
-        enemyAbility = npcBot:GetNearbyHeroes(utility.GetCurretCastDistance(castRangeAbility), true, BOT_MODE_NONE);
-        enemyCreeps = npcBot:GetNearbyCreeps(utility.GetCurretCastDistance(castRangeAbility), true);
+        allyAbility = npcBot:GetNearbyHeroes(utility.GetCurrentCastDistance(castRangeAbility), false, BOT_MODE_NONE);
+        enemyAbility = npcBot:GetNearbyHeroes(utility.GetCurrentCastDistance(castRangeAbility), true, BOT_MODE_NONE);
+        enemyCreeps = npcBot:GetNearbyCreeps(utility.GetCurrentCastDistance(castRangeAbility), true);
     elseif utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_NO_TARGET)
     then
         castRangeAbility = ability:GetAOERadius();
@@ -569,9 +569,9 @@ function ConsiderCast(ability)
         then
             castRangeAbility = npcBot:GetAttackRange() - 200;
         end
-        allyAbility = npcBot:GetNearbyHeroes(utility.GetCurretCastDistance(castRangeAbility), false, BOT_MODE_NONE);
-        enemyAbility = npcBot:GetNearbyHeroes(utility.GetCurretCastDistance(castRangeAbility), true, BOT_MODE_NONE);
-        enemyCreeps = npcBot:GetNearbyCreeps(utility.GetCurretCastDistance(castRangeAbility), true);
+        allyAbility = npcBot:GetNearbyHeroes(utility.GetCurrentCastDistance(castRangeAbility), false, BOT_MODE_NONE);
+        enemyAbility = npcBot:GetNearbyHeroes(utility.GetCurrentCastDistance(castRangeAbility), true, BOT_MODE_NONE);
+        enemyCreeps = npcBot:GetNearbyCreeps(utility.GetCurrentCastDistance(castRangeAbility), true);
     elseif utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_OVERSHOOT)
     then
         castRangeAbility = 10000;

@@ -8,7 +8,6 @@ local ItemsToBuy =
     "item_branches",
     "item_branches",
     "item_enchanted_mango",
-
     "item_flask",
     "item_clarity",
 
@@ -51,6 +50,11 @@ local ItemsToBuy =
     "item_helm_of_iron_will",
     "item_recipe_crimson_guard",
 
+    "item_point_booster",
+    "item_ogre_axe",
+    "item_staff_of_wizardry",
+    "item_blade_of_alacrity",
+
     "item_aghanims_shard",
 
     "item_belt_of_strength",
@@ -59,11 +63,6 @@ local ItemsToBuy =
 
     "item_talisman_of_evasion",
     "item_recipe_heavens_halberd",
-
-    "item_point_booster",
-    "item_ogre_axe",
-    "item_staff_of_wizardry",
-    "item_blade_of_alacrity",
 
     "item_recipe_ultimate_scepter_2",
 

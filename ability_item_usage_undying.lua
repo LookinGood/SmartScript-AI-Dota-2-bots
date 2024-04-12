@@ -31,7 +31,7 @@ local AbilityToLevelUp =
     Abilities[6],
     Abilities[2],
     Abilities[2],
-    Talents[3],
+    Talents[4],
     Abilities[2],
     Abilities[6],
     Talents[5],
@@ -79,7 +79,7 @@ function AbilityUsageThink()
     then
         if (castTombstoneTargetType == "location")
         then
-            npcBot:Action_UseAbilityOnLocation(Tombstone, castTombstoneTarget + RandomVector(200));
+            npcBot:Action_UseAbilityOnLocation(Tombstone, castTombstoneTarget);
             return;
         elseif (castTombstoneTargetType == "target")
         then
@@ -105,15 +105,47 @@ function ConsiderDecay()
     local radiusAbility = ability:GetSpecialValueInt("radius");
     local damageAbility = ability:GetSpecialValueInt("decay_damage");
     local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
-    local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility + 200, true, BOT_MODE_NONE);
+    local enemyAbility = npcBot:GetNearbyHeroes(utility.GetCurrentCastDistance(castRangeAbility + radiusAbility), true,
+        BOT_MODE_NONE);
+
+    -- Cast if can kill somebody
+    if (#enemyAbility > 0)
+    then
+        for _, enemy in pairs(enemyAbility) do
+            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType())
+            then
+                if utility.CanCastSpellOnTarget(ability, enemy)
+                then
+                    if GetUnitToUnitDistance(npcBot, enemy) <= castRangeAbility
+                    then
+                        npcBot:ActionImmediate_Chat("Использую Decay1 что бы добить " .. enemy:GetUnitName(), true);
+                        return BOT_ACTION_DESIRE_ABSOLUTE, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
+                    elseif GetUnitToUnitDistance(npcBot, enemy) <= castRangeAbility + radiusAbility
+                    then
+                        --npcBot:ActionImmediate_Chat("Использую Decay2 что бы добить " .. enemy:GetUnitName(), true);
+                        return BOT_ACTION_DESIRE_ABSOLUTE,
+                            utility.GetMaxRangeCastLocation(npcBot, enemy, castRangeAbility);
+                    end
+                end
+            end
+        end
+    end
 
     -- Cast if attack enemy
     if utility.PvPMode(npcBot)
     then
-        if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+        if utility.IsHero(botTarget)
         then
-            --npcBot:ActionImmediate_Chat("Использую Decay по врагу в радиусе действия!",true);
-            return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
+            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility + radiusAbility
+            then
+                if GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+                then
+                    return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
+                elseif GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility + radiusAbility
+                then
+                    return BOT_ACTION_DESIRE_HIGH, utility.GetMaxRangeCastLocation(npcBot, botTarget, castRangeAbility);
+                end
+            end
         end
         -- Use if need retreat
     elseif utility.RetreatMode(npcBot)
@@ -121,18 +153,24 @@ function ConsiderDecay()
         if (#enemyAbility > 0)
         then
             for _, enemy in pairs(enemyAbility) do
-                if utility.CanCastSpellOnTarget(ability, enemy)
+                if utility.CanCastSpellOnTarget(ability, enemy) and not utility.IsDisabled(enemy)
                 then
-                    --npcBot:ActionImmediate_Chat("Использую Decay что бы оторваться от врага!",true);
-                    return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
+                    if GetUnitToUnitDistance(npcBot, enemy) <= castRangeAbility
+                    then
+                        return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
+                    elseif GetUnitToUnitDistance(npcBot, enemy) <= castRangeAbility + radiusAbility
+                    then
+                        return BOT_ACTION_DESIRE_HIGH,
+                            utility.GetMaxRangeCastLocation(npcBot, enemy, castRangeAbility);
+                    end
                 end
             end
         end
         -- Cast if push/defend/farm
     elseif utility.PvEMode(npcBot)
     then
-        local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility, radiusAbility, 0,
-            0);
+        local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility, radiusAbility,
+            0, 0);
         if locationAoE ~= nil and (ManaPercentage >= 0.5) and (locationAoE.count >= 2) and (damageAbility > 0)
         then
             --npcBot:ActionImmediate_Chat("Использую Decay по вражеским крипам!", true);
@@ -144,8 +182,14 @@ function ConsiderDecay()
         local enemy = utility.GetWeakest(enemyAbility);
         if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.5)
         then
-            --npcBot:ActionImmediate_Chat("Использую DragonSlave по цели на ЛАЙНЕ!", true);
-            return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
+            if GetUnitToUnitDistance(npcBot, enemy) <= castRangeAbility
+            then
+                return BOT_ACTION_DESIRE_MODERATE, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
+            elseif GetUnitToUnitDistance(npcBot, enemy) <= castRangeAbility + radiusAbility
+            then
+                return BOT_ACTION_DESIRE_MODERATE,
+                    utility.GetMaxRangeCastLocation(npcBot, enemy, castRangeAbility);
+            end
         end
     end
 end
@@ -157,37 +201,57 @@ function ConsiderSoulRip()
     end
 
     local castRangeAbility = ability:GetCastRange();
-    local radiusAbility = (ability:GetSpecialValueInt("radius"));
-    local allyHeroAbilityHeal = npcBot:GetNearbyHeroes(castRangeAbility + 200, false, BOT_MODE_NONE);
-    local allyCreepsAbility = npcBot:GetNearbyCreeps(radiusAbility, false);
-    local allyHeroAbility = npcBot:GetNearbyHeroes(radiusAbility, false, BOT_MODE_NONE);
-    local enemyCreepsAbility = npcBot:GetNearbyCreeps(radiusAbility, true);
-    local enemyHeroAbility = npcBot:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
-    local unitAroundMe = #allyCreepsAbility + #allyHeroAbility + #enemyCreepsAbility + #enemyHeroAbility;
+    local radiusAbility = ability:GetSpecialValueInt("radius");
+    local maxUnits = ability:GetSpecialValueInt("max_units");
+    local damageForUnit = ability:GetSpecialValueInt("damage_per_unit");
+    local allyCreepsAround = npcBot:GetNearbyCreeps(radiusAbility, false);
+    local allyHeroAbilityAround = npcBot:GetNearbyHeroes(radiusAbility, false, BOT_MODE_NONE);
+    local enemyCreepsAround = npcBot:GetNearbyCreeps(radiusAbility, true);
+    local enemyHeroAround = npcBot:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
+    local unitAroundMe = #allyCreepsAround + #allyHeroAbilityAround + #enemyCreepsAround + #enemyHeroAround;
+    local allyAbility = npcBot:GetNearbyHeroes(castRangeAbility + 200, false, BOT_MODE_NONE);
+    local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility + 200, true, BOT_MODE_NONE);
 
-    if (unitAroundMe > 1)
+    if unitAroundMe <= maxUnits
     then
-        -- Cast to heal ally hero
-        if #allyHeroAbilityHeal > 0
+        local damageAbility = unitAroundMe * damageForUnit;
+        -- Cast if can kill somebody
+        if (#enemyAbility > 0)
         then
-            for _, ally in pairs(allyHeroAbilityHeal)
-            do
-                if utility.IsHero(ally) and utility.CanBeHeal(ally) and (ally:GetHealth() / ally:GetMaxHealth() <= 0.8)
+            for _, enemy in pairs(enemyAbility) do
+                if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType())
                 then
-                    --npcBot:ActionImmediate_Chat("Использую Soul Rip на союзного героя со здоровьем ниже 80%",true);
-                    return BOT_ACTION_DESIRE_HIGH, ally;
+                    if utility.CanCastSpellOnTarget(ability, enemy)
+                    then
+                        --npcBot:ActionImmediate_Chat("Использую SoulRip что бы добить " .. enemy:GetUnitName(), true);
+                        return BOT_ACTION_DESIRE_ABSOLUTE, enemy;
+                    end
                 end
             end
         end
-        -- Attack use
-        if utility.PvPMode(npcBot)
-        then
-            if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget)
-                and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+    end
+
+    -- Cast to heal ally hero
+    if (#allyAbility > 0) and (unitAroundMe > 1)
+    then
+        for _, ally in pairs(allyAbility)
+        do
+            if utility.IsHero(ally) and utility.CanBeHeal(ally) and (ally:GetHealth() / ally:GetMaxHealth() <= 0.8)
             then
-                --npcBot:ActionImmediate_Chat("Использую Soul Rip по врагу в радиусе действия!",true);
-                return BOT_ACTION_DESIRE_HIGH, botTarget;
+                --npcBot:ActionImmediate_Chat("Использую Soul Rip на союзного героя со здоровьем ниже 80%",true);
+                return BOT_ACTION_DESIRE_HIGH, ally;
             end
+        end
+    end
+
+    -- Attack use
+    if utility.PvPMode(npcBot)
+    then
+        if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget)
+            and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility and damageAbility >= 300
+        then
+            --npcBot:ActionImmediate_Chat("Использую Soul Rip по врагу в радиусе действия!",true);
+            return BOT_ACTION_DESIRE_HIGH, botTarget;
         end
     end
 end
@@ -200,6 +264,7 @@ function ConsiderTombstone()
 
     local castRangeAbility = ability:GetCastRange();
     local radiusAbility = ability:GetSpecialValueInt("radius");
+    local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
 
     if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_POINT)
     then
@@ -209,19 +274,20 @@ function ConsiderTombstone()
             if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
             then
                 -- npcBot:ActionImmediate_Chat("Использую Tombstone для нападения!", true);
-                return BOT_ACTION_DESIRE_HIGH, botTarget:GetLocation(), "location";
+                return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0),
+                    "location";
             end
             -- Use if need retreat
         elseif utility.RetreatMode(npcBot)
         then
             local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
-            if (#enemyAbility > 0) and (HealthPercentage <= 0.6)
+            if (#enemyAbility > 0) and (HealthPercentage <= 0.7)
             then
                 for _, enemy in pairs(enemyAbility) do
                     if utility.CanCastSpellOnTarget(ability, enemy)
                     then
                         --npcBot:ActionImmediate_Chat("Использую Tombstone что бы оторваться от врага!", true);
-                        return BOT_ACTION_DESIRE_HIGH, npcBot:GetLocation(), "location";
+                        return BOT_ACTION_DESIRE_HIGH, npcBot:GetLocation() + RandomVector(200), "location";
                     end
                 end
             end
@@ -238,7 +304,7 @@ function ConsiderTombstone()
             do
                 if utility.IsHero(ally) and not ally:IsChanneling()
                 then
-                    if utility.IsDisabled(ally) and (ally:GetHealth() / ally:GetMaxHealth() <= 0.5) and ally:WasRecentlyDamagedByAnyHero(2.0)
+                    if utility.IsDisabled(ally) or ((ally:GetHealth() / ally:GetMaxHealth() <= 0.5) and ally:WasRecentlyDamagedByAnyHero(2.0))
                     then
                         --npcBot:ActionImmediate_Chat("Использую Tombstone на союзника в стане!", true);
                         return BOT_ACTION_DESIRE_HIGH, ally, "target";

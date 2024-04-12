@@ -20,14 +20,14 @@ local AbilityToLevelUp =
     Abilities[3],
     Abilities[1],
     Abilities[3],
-    Abilities[2],
+    Abilities[1],
     Abilities[3],
     Abilities[6],
     Abilities[3],
     Abilities[1],
     Abilities[1],
     Talents[1],
-    Abilities[1],
+    Abilities[2],
     Abilities[6],
     Abilities[2],
     Abilities[2],
@@ -112,26 +112,49 @@ function ConsiderReflection()
     end
 
     local castRangeAbility = ability:GetCastRange();
+    local radiusAbility = ability:GetSpecialValueInt("range");
+    local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
 
     -- Attack use
     if utility.PvPMode(npcBot)
     then
-        if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+        if utility.IsHero(botTarget)
         then
-            --npcBot:ActionImmediate_Chat("Использую Reflection для нападения!", true);
-            return BOT_ACTION_DESIRE_HIGH, botTarget:GetLocation();
+            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility + radiusAbility
+                and not utility.IsDisabled(botTarget)
+            then
+                if GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+                then
+                    return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
+                elseif GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility + radiusAbility
+                then
+                    return BOT_ACTION_DESIRE_HIGH, utility.GetMaxRangeCastLocation(npcBot, botTarget, castRangeAbility);
+                end
+            end
+        end
+        -- Cast if enemy >=2
+        local locationAoE = npcBot:FindAoELocation(true, true, npcBot:GetLocation(), castRangeAbility, radiusAbility, 0,
+            0);
+        if locationAoE ~= nil and (locationAoE.count >= 2)
+        then
+            return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
         end
         -- Retreat use
     elseif utility.RetreatMode(npcBot)
     then
-        local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility + 200, true, BOT_MODE_NONE);
+        local enemyAbility = npcBot:GetNearbyHeroes(utility.GetCurrentCastDistance(castRangeAbility + radiusAbility), true, BOT_MODE_NONE);
         if (#enemyAbility > 0)
         then
             for _, enemy in pairs(enemyAbility) do
-                if utility.CanCastSpellOnTarget(ability, enemy)
+                if utility.CanCastSpellOnTarget(ability, enemy) and not utility.IsDisabled(enemy)
                 then
-                    --npcBot:ActionImmediate_Chat("Использую Reflection для отступления!", true);
-                    return BOT_ACTION_DESIRE_HIGH, enemy:GetLocation();
+                    if GetUnitToUnitDistance(npcBot, enemy) <= castRangeAbility
+                    then
+                        return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
+                    elseif GetUnitToUnitDistance(npcBot, enemy) <= castRangeAbility + radiusAbility
+                    then
+                        return BOT_ACTION_DESIRE_HIGH, utility.GetMaxRangeCastLocation(npcBot, enemy, castRangeAbility);
+                    end
                 end
             end
         end
@@ -165,7 +188,11 @@ function ConsiderConjureImage()
     elseif utility.PvEMode(npcBot)
     then
         local enemyCreeps = npcBot:GetNearbyCreeps(1600, true);
-        if (#enemyCreeps > 0) and (ManaPercentage >= 0.4)
+        local enemyTowers = npcBot:GetNearbyTowers(1600, true);
+        local enemyBarracks = npcBot:GetNearbyBarracks(1600, true);
+        local enemyAncient = GetAncient(GetOpposingTeam());
+        local attackTarget = npcBot:GetAttackTarget();
+        if (ManaPercentage >= 0.4) and ((#enemyCreeps > 0) or (#enemyTowers > 0) or (#enemyBarracks > 0) or attackTarget == enemyAncient)
         then
             --npcBot:ActionImmediate_Chat("Использую ConjureImage против вражеских сил!", true);
             return BOT_ACTION_DESIRE_LOW;
@@ -179,13 +206,17 @@ function ConsiderMetamorphosis()
         return;
     end
 
+    if npcBot:HasModifier("modifier_terrorblade_metamorphosis")
+    then
+        return;
+    end
+
     local attackRange = npcBot:GetAttackRange() + ability:GetSpecialValueInt("bonus_range");
 
     -- Attack use
     if utility.PvPMode(npcBot)
     then
         if utility.CanCastOnInvulnerableTarget(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= attackRange
-            and not npcBot:HasModifier("modifier_terrorblade_metamorphosis")
         then
             --npcBot:ActionImmediate_Chat("Использую Metamorphosis для нападения!", true);
             return BOT_ACTION_DESIRE_HIGH;
@@ -199,13 +230,17 @@ function ConsiderDemonZeal()
         return;
     end
 
+    if npcBot:HasModifier("modifier_terrorblade_metamorphosis") or (HealthPercentage <= 0.2)
+    then
+        return;
+    end
+
     local attackRange = npcBot:GetAttackRange();
 
     -- Attack use
     if utility.PvPMode(npcBot)
     then
-        if utility.CanCastOnInvulnerableTarget(botTarget) and (HealthPercentage > 0.2)
-            and GetUnitToUnitDistance(npcBot, botTarget) <= (attackRange + 200)
+        if utility.CanCastOnInvulnerableTarget(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= (attackRange * 2)
         then
             --npcBot:ActionImmediate_Chat("Использую DemonZeal для нападения!", true);
             return BOT_ACTION_DESIRE_HIGH;
@@ -214,7 +249,7 @@ function ConsiderDemonZeal()
     elseif utility.RetreatMode(npcBot)
     then
         local enemyAbility = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
-        if (#enemyAbility > 0) and (HealthPercentage > 0.2) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
+        if (#enemyAbility > 0) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
         then
             --npcBot:ActionImmediate_Chat("Использую DemonZeal для отступления!", true);
             return BOT_ACTION_DESIRE_HIGH;
@@ -229,7 +264,7 @@ function ConsiderTerrorWave()
     end
 
     local radiusAbility = ability:GetSpecialValueInt("scepter_radius");
-    local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
+    local enemyAbility = npcBot:GetNearbyHeroes(utility.GetCurrentCastDistance(radiusAbility), true, BOT_MODE_NONE);
 
     -- Interrupt cast
     if (#enemyAbility > 0)
@@ -247,6 +282,7 @@ function ConsiderTerrorWave()
     if utility.PvPMode(npcBot)
     then
         if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= radiusAbility
+            and not utility.IsDisabled(botTarget)
         then
             --npcBot:ActionImmediate_Chat("Использую TerrorWave для нападения!", true);
             return BOT_ACTION_DESIRE_HIGH;
@@ -254,10 +290,10 @@ function ConsiderTerrorWave()
         -- Retreat use
     elseif utility.RetreatMode(npcBot)
     then
-        if (#enemyAbility > 0) and (HealthPercentage <= 0.6) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
+        if (#enemyAbility > 0) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
         then
             for _, enemy in pairs(enemyAbility) do
-                if utility.CanCastSpellOnTarget(ability, enemy)
+                if utility.CanCastSpellOnTarget(ability, enemy) and not utility.IsDisabled(enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую TerrorWave для отступления!", true);
                     return BOT_ACTION_DESIRE_HIGH;
@@ -282,16 +318,16 @@ function ConsiderSunder()
     if (#enemyAbility > 0) and (HealthPercentage <= 0.2)
     then
         for _, enemy in pairs(enemyAbility) do
-            if utility.CanCastSpellOnTarget(ability, enemy) and (enemy:GetHealth() / enemy:GetMaxHealth()) > 0.3
+            if utility.CanCastSpellOnTarget(ability, enemy) and (enemy:GetHealth() / enemy:GetMaxHealth() > 0.3)
             then
                 --npcBot:ActionImmediate_Chat("Использую Sunder на врага со здоровьем ниже 30%!",true);
-                return BOT_MODE_DESIRE_VERYHIGH, enemy;
+                return BOT_MODE_DESIRE_ABSOLUTE, enemy;
             end
         end
     end
 
     -- Try to safe ally
-    if (#allyAbility > 0) and (HealthPercentage >= 0.3) and
+    if (#allyAbility > 1) and (HealthPercentage >= 0.3) and
         (not npcBot:WasRecentlyDamagedByAnyHero(2.0) and
             not npcBot:WasRecentlyDamagedByCreep(2.0) and
             not npcBot:WasRecentlyDamagedByTower(2.0))

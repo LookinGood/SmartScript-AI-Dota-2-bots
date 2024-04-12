@@ -131,14 +131,14 @@ function ConsiderHomingMissile()
             then
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    return BOT_ACTION_DESIRE_VERYHIGH, enemy;
+                    return BOT_ACTION_DESIRE_ABSOLUTE, enemy;
                 end
             end
         end
     end
 
     -- Attack use
-    if utility.PvPMode(npcBot) or npcBot:GetActiveMode() == BOT_MODE_ROSHAN
+    if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
     then
         if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
         then
@@ -171,8 +171,8 @@ function ConsiderFlakCannon()
     end
 
     local attackTarget = npcBot:GetAttackTarget();
-    local castRadiusAbility = ability:GetSpecialValueInt("radius");
-    local enemyAbility = attackTarget:GetNearbyHeroes(castRadiusAbility, false, BOT_MODE_NONE);
+    local radiusAbility = ability:GetSpecialValueInt("radius");
+    local enemyAbility = attackTarget:GetNearbyHeroes(radiusAbility, false, BOT_MODE_NONE);
 
     -- Cast if enemy hero at the range of attack
     if utility.PvPMode(npcBot)

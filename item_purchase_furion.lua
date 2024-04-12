@@ -8,7 +8,6 @@ local ItemsToBuy =
 	"item_branches",
 	"item_branches",
 	"item_faerie_fire",
-
 	"item_flask",
 
 	"item_recipe_magic_wand",
@@ -17,9 +16,9 @@ local ItemsToBuy =
 	"item_mantle",
 	"item_recipe_null_talisman",
 
-    "item_boots",
-    "item_blades_of_attack",
-    "item_chainmail",
+	"item_boots",
+	"item_blades_of_attack",
+	"item_chainmail",
 
 	"item_shadow_amulet",
 	"item_blitz_knuckles",
@@ -28,10 +27,6 @@ local ItemsToBuy =
 	"item_gloves",
 	"item_javelin",
 	"item_mithril_hammer",
-
-	"item_ogre_axe",
-	"item_mithril_hammer",
-	"item_recipe_black_king_bar",
 
 	"item_aghanims_shard",
 
@@ -44,19 +39,23 @@ local ItemsToBuy =
 	"item_cornucopia",
 	"item_recipe_orchid",
 
+	"item_point_booster",
+	"item_ogre_axe",
+	"item_staff_of_wizardry",
+	"item_blade_of_alacrity",
+
+	"item_ogre_axe",
+	"item_mithril_hammer",
+	"item_recipe_black_king_bar",
+
+	"item_recipe_ultimate_scepter_2",
+
 	"item_hyperstone",
 	"item_recipe_mjollnir",
 
 	"item_javelin",
 	"item_hyperstone",
 	"item_recipe_bloodthorn",
-
-	"item_point_booster",
-	"item_ogre_axe",
-	"item_staff_of_wizardry",
-	"item_blade_of_alacrity",
-
-	"item_recipe_ultimate_scepter_2",
 
 	"item_hyperstone",
 	"item_hyperstone",

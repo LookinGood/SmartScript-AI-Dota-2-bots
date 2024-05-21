@@ -247,6 +247,10 @@ function ConsiderWindrun()
         then
             return BOT_ACTION_DESIRE_HIGH;
         end
+        if (HealthPercentage <= 0.3) and npcBot:WasRecentlyDamagedByCreep(2.0)
+        then
+            return BOT_ACTION_DESIRE_HIGH;
+        end
     end
 end
 

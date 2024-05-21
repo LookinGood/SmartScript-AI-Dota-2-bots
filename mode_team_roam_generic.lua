@@ -1,6 +1,4 @@
 ---@diagnostic disable: undefined-global
-_G._savedEnv = getfenv()
-module("mode_retreat_generic", package.seeall)
 require(GetScriptDirectory() .. "/utility")
 
 local npcBot = GetBot();
@@ -30,6 +28,8 @@ function GetDesire()
     if castAbility == nil then castAbility = npcBot:GetAbilityByName("windrunner_shackleshot") end;
     if castAbility == nil then castAbility = npcBot:GetAbilityByName("spirit_breaker_charge_of_darkness") end;
 
+    LaunchSnowball = npcBot:GetAbilityByName("tusk_launch_snowball");
+
     if npcBot:IsChanneling() or (castAbility ~= nil and castAbility:IsInAbilityPhase()) or
         npcBot:HasModifier("modifier_spirit_breaker_charge_of_darkness")
     then
@@ -48,11 +48,6 @@ function Think()
         return;
     end
 end
-
----------------------------------------------------------------------------------------------------
-for k, v in pairs(mode_retreat_generic) do _G._savedEnv[k] = v end
-
-
 
 --[[     if castAbility == nil or not npcBot:IsChanneling()
     then

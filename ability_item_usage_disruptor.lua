@@ -96,7 +96,7 @@ function ConsiderThunderStrike()
 
     local castRangeAbility = ability:GetCastRange();
     local damageAbility = ability:GetSpecialValueInt("strike_damage") * ability:GetSpecialValueInt("strikes");
-    local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
+    local enemyAbility = npcBot:GetNearbyHeroes(utility.GetCurrentCastDistance(castRangeAbility), true, BOT_MODE_NONE);
 
     -- Cast if can kill somebody
     if (#enemyAbility > 0)
@@ -169,7 +169,7 @@ function ConsiderGlimpse()
     end
 
     local castRangeAbility = ability:GetCastRange();
-    local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
+    local enemyAbility = npcBot:GetNearbyHeroes(utility.GetCurrentCastDistance(castRangeAbility), true, BOT_MODE_NONE);
 
     -- Interrupt cast
     if (#enemyAbility > 0)

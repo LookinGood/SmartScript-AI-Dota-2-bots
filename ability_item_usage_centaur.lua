@@ -144,9 +144,9 @@ function ConsiderDoubleEdge()
     end
 
     local castRangeAbility = ability:GetCastRange() * 2;
-    local strengthDamage = npcBot:GetAttributeValue(ATTRIBUTE_STRENGTH) / 100 *
-        ability:GetSpecialValueInt("strength_damage");
-    local damageAbility = ability:GetSpecialValueInt("edge_damage") + strengthDamage;
+    local damageAbility = ability:GetSpecialValueInt("edge_damage") +
+    (npcBot:GetAttributeValue(ATTRIBUTE_STRENGTH) / 100 *
+        ability:GetSpecialValueInt("strength_damage"));
     local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
 
     -- Cast if can kill somebody

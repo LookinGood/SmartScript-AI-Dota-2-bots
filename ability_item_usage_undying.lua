@@ -118,7 +118,7 @@ function ConsiderDecay()
                 then
                     if GetUnitToUnitDistance(npcBot, enemy) <= castRangeAbility
                     then
-                        npcBot:ActionImmediate_Chat("Использую Decay1 что бы добить " .. enemy:GetUnitName(), true);
+                        --npcBot:ActionImmediate_Chat("Использую Decay1 что бы добить " .. enemy:GetUnitName(), true);
                         return BOT_ACTION_DESIRE_ABSOLUTE, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
                     elseif GetUnitToUnitDistance(npcBot, enemy) <= castRangeAbility + radiusAbility
                     then

@@ -51,6 +51,13 @@ local WalrusKick = AbilitiesReal[4]
 local WalrusPunch = AbilitiesReal[6]
 
 function AbilityUsageThink()
+    local castLaunchSnowballDesire = ConsiderLaunchSnowball();
+    if (castLaunchSnowballDesire ~= nil)
+    then
+        npcBot:Action_UseAbility(LaunchSnowball);
+        return;
+    end
+
     if not utility.CanCast(npcBot) then
         return;
     end
@@ -62,7 +69,6 @@ function AbilityUsageThink()
 
     local castIceShardsDesire, castIceShardsLocation = ConsiderIceShards();
     local castSnowballDesire, castSnowballTarget = ConsiderSnowball();
-    local castLaunchSnowballDesire = ConsiderLaunchSnowball();
     local castTagTeamDesire = ConsiderTagTeam();
     local castWalrusKickDesire, castWalrusKickTarget = ConsiderWalrusKick();
     local castWalrusPunchDesire, castWalrusPunchTarget = ConsiderWalrusPunch();
@@ -75,15 +81,7 @@ function AbilityUsageThink()
 
     if (castSnowballDesire ~= nil)
     then
-        npcBot:Action_ClearActions(false);
-        npcBot:ActionQueue_UseAbilityOnEntity(Snowball, castSnowballTarget);
-        npcBot:ActionQueue_UseAbility(LaunchSnowball);
-        return;
-    end
-
-    if (castLaunchSnowballDesire ~= nil)
-    then
-        npcBot:Action_UseAbility(LaunchSnowball);
+        npcBot:Action_UseAbilityOnEntity(Snowball, castSnowballTarget);
         return;
     end
 
@@ -127,7 +125,8 @@ function ConsiderIceShards()
             then
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility);
+                    return BOT_ACTION_DESIRE_ABSOLUTE,
+                        utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility);
                 end
             end
         end
@@ -140,7 +139,8 @@ function ConsiderIceShards()
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
             then
-                return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, speedAbility);
+                return BOT_ACTION_DESIRE_VERYHIGH,
+                    utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, speedAbility);
             end
         end
         -- Cast if push/defend/farm
@@ -185,7 +185,7 @@ function ConsiderSnowball()
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую Snowball что бы сбить заклинание или убить цель!",true);
-                    return BOT_ACTION_DESIRE_VERYHIGH, enemy;
+                    return BOT_ACTION_DESIRE_ABSOLUTE, enemy;
                 end
             end
         end
@@ -264,7 +264,7 @@ function ConsiderTagTeam()
             end
         end
         -- Retreat use
---[[     elseif utility.RetreatMode(npcBot)
+        --[[     elseif utility.RetreatMode(npcBot)
     then
         local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
         if (HealthPercentage <= 0.8) and (#enemyAbility > 0)
@@ -294,7 +294,7 @@ function ConsiderWalrusKick()
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую WalrusKick что бы сбить заклинание или убить цель!",true);
-                    return BOT_ACTION_DESIRE_VERYHIGH, enemy;
+                    return BOT_ACTION_DESIRE_ABSOLUTE, enemy;
                 end
             end
         end

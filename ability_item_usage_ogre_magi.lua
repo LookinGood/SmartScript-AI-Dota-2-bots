@@ -35,7 +35,7 @@ local AbilityToLevelUp =
     Abilities[3],
     Abilities[7],
     Talents[5],
-    Talents[8],
+    Talents[7],
 }
 
 function AbilityLevelUpThink()
@@ -54,7 +54,7 @@ function AbilityUsageThink()
         return;
     end
 
---[[     print(npcBot:GetAbilityInSlot(0):GetName())
+    --[[     print(npcBot:GetAbilityInSlot(0):GetName())
     print(npcBot:GetAbilityInSlot(1):GetName())
     print(npcBot:GetAbilityInSlot(2):GetName())
     print(npcBot:GetAbilityInSlot(3):GetName())
@@ -124,7 +124,7 @@ function ConsiderFireblast()
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую Fireblast что бы сбить заклинание или убить цель!",true);
-                    return BOT_ACTION_DESIRE_VERYHIGH, enemy;
+                    return BOT_ACTION_DESIRE_ABSOLUTE, enemy;
                 end
             end
         end
@@ -223,14 +223,11 @@ function ConsiderIgnite()
         -- Cast when laning
     elseif botMode == BOT_MODE_LANING
     then
-        if (ManaPercentage >= 0.7)
+        local enemy = utility.GetWeakest(enemyAbility);
+        if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)
         then
-            local enemy = utility.GetWeakest(enemyAbility);
-            if utility.CanCastSpellOnTarget(ability, enemy)
-            then
-                --npcBot:ActionImmediate_Chat("Использую Ignite на лайне!", true);
-                return BOT_ACTION_DESIRE_HIGH, enemy;
-            end
+            --npcBot:ActionImmediate_Chat("Использую Ignite на лайне!", true);
+            return BOT_ACTION_DESIRE_HIGH, enemy;
         end
     end
 end
@@ -319,13 +316,10 @@ function ConsiderUnrefinedFireblast()
         return;
     end
 
-    if Fireblast:IsCooldownReady()
-    then
-        return;
-    end
-
     local castRangeAbility = ability:GetCastRange();
-    local damageAbility = ability:GetSpecialValueInt("fireblast_damage");
+    local damageAbility = ability:GetSpecialValueInt("base_damage") +
+        (npcBot:GetAttributeValue(ATTRIBUTE_STRENGTH) / 100 *
+            ability:GetSpecialValueInt("str_multiplier"));
     local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility + 200, true, BOT_MODE_NONE);
 
     -- Cast if can kill somebody/interrupt cast
@@ -337,10 +331,15 @@ function ConsiderUnrefinedFireblast()
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую UnrefinedFireblast что бы сбить заклинание или убить цель!",true);
-                    return BOT_ACTION_DESIRE_VERYHIGH, enemy;
+                    return BOT_ACTION_DESIRE_ABSOLUTE, enemy;
                 end
             end
         end
+    end
+
+    if Fireblast:IsCooldownReady()
+    then
+        return;
     end
 
     -- Attack use

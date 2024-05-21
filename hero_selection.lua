@@ -116,6 +116,7 @@ require(GetScriptDirectory() .. "/hero_role_generic")
 	"npc_dota_hero_bloodseeker",
 	"npc_dota_hero_brewmaster",
 	"npc_dota_hero_visage",
+	"npc_dota_hero_phoenix",
 ]]
 --#endregion
 
@@ -231,6 +232,7 @@ local hero_pool_my =
 	"npc_dota_hero_bloodseeker",
 	"npc_dota_hero_brewmaster",
 	"npc_dota_hero_visage",
+	"npc_dota_hero_phoenix",
 }
 
 local heroesCarry =
@@ -349,6 +351,7 @@ local heroesSupport =
 	"npc_dota_hero_skywrath_mage",
 	"npc_dota_hero_earthshaker",
 	"npc_dota_hero_visage",
+	"npc_dota_hero_phoenix",
 }
 
 function GetBotNames()
@@ -444,8 +447,8 @@ function Think()
 	end
 
 	-- Insert here hero hame and set "testmode = true" if you want the bot to choose a specific hero
-	local testmode = true;
-	local testHero = "npc_dota_hero_undying"
+	local testmode = false;
+	local testHero = "npc_dota_hero_sniper"
 
 	if testmode
 	then

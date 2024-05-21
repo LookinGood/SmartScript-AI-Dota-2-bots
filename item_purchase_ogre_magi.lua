@@ -29,10 +29,6 @@ local ItemsToBuy =
 	"item_gloves",
 	"item_recipe_hand_of_midas",
 
-	"item_energy_booster",
-	"item_void_stone",
-	"item_recipe_aether_lens",
-
 	"item_point_booster",
 	"item_ogre_axe",
 	"item_staff_of_wizardry",
@@ -40,30 +36,30 @@ local ItemsToBuy =
 
 	"item_aghanims_shard",
 
-    "item_point_booster",
+	"item_voodoo_mask",
+	"item_diadem",
+	"item_recipe_dagon",
+
+	"item_robe",
+	"item_staff_of_wizardry",
+	"item_recipe_kaya",
+
+	"item_belt_of_strength",
+    "item_ogre_axe",
+    "item_recipe_sange",
+
+	"item_recipe_dagon",
+	"item_recipe_dagon",
+	"item_recipe_dagon",
+	"item_recipe_dagon",
+
+	"item_point_booster",
     "item_energy_booster",
     "item_vitality_booster",
     "item_void_stone",
     "item_voodoo_mask",
 
-    "item_energy_booster",
-    "item_vitality_booster",
-    "item_point_booster",
-    "item_tiara_of_selemene",
-
 	"item_recipe_ultimate_scepter_2",
-
-	"item_ring_of_protection",
-	"item_recipe_buckler",
-	"item_ring_of_regen",
-	"item_recipe_headdress",
-	"item_chainmail",
-	"item_recipe_mekansm",
-
-	"item_recipe_guardian_greaves",
-
-	"item_ghost",
-	"item_recipe_ethereal_blade",
 
 	"item_tiara_of_selemene",
 	"item_ultimate_orb",
@@ -72,6 +68,11 @@ local ItemsToBuy =
 	"item_ring_of_tarrasque",
     "item_reaver",
     "item_recipe_heart",
+
+	"item_recipe_travel_boots",
+	"item_boots",
+
+	"item_recipe_travel_boots",
 }
 
 function ItemPurchaseThink()

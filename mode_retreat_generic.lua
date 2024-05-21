@@ -1,6 +1,4 @@
 ---@diagnostic disable: undefined-global
-_G._savedEnv = getfenv()
-module("mode_retreat_generic", package.seeall)
 require(GetScriptDirectory() .. "/utility")
 
 local npcBot = GetBot();
@@ -16,6 +14,9 @@ function GetDesire()
     --local botMode = npcBot:GetActiveMode();
     --local allyHeroes = utility.CountAllyHeroAroundUnit(npcBot, 2000);
     --local enemyHeroes = utility.CountEnemyHeroAroundUnit(npcBot, 2000);
+
+    local healthPercent = npcBot:GetHealth() / npcBot:GetMaxHealth();
+    local manaPercent = npcBot:GetMana() / npcBot:GetMaxMana();
     local allyHeroAround = npcBot:GetNearbyHeroes(1600, false, BOT_MODE_NONE);
     local enemyHeroAround = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
 
@@ -24,21 +25,20 @@ function GetDesire()
         return BOT_ACTION_DESIRE_ABSOLUTE;
     end
 
-    if (npcBot:GetHealth() / npcBot:GetMaxHealth() <= 0.4) or (npcBot:GetHealth() / npcBot:GetMaxHealth() <= 0.6 and npcBot:DistanceFromFountain() <= 3000)
+    if (healthPercent <= 0.4) or (healthPercent <= 0.6 and npcBot:DistanceFromFountain() <= 2000)
     then
-        return BOT_ACTION_DESIRE_VERYHIGH;
+        return BOT_ACTION_DESIRE_HIGH;
     end
 
     if string.find(npcBot:GetUnitName(), "medusa") or npcBot:HasModifier("modifier_medusa_mana_shield")
     then
-        if (npcBot:GetMana() / npcBot:GetMaxMana() <= 0.3) and (#enemyHeroAround > 0) and npcBot:WasRecentlyDamagedByAnyHero(5.0)
+        if (manaPercent <= 0.3) and (#enemyHeroAround > 0) and npcBot:WasRecentlyDamagedByAnyHero(5.0)
         then
             return BOT_ACTION_DESIRE_VERYHIGH;
         end
     end
 
-    if npcBot:HasModifier("modifier_fountain_aura_buff") and (#enemyHeroAround <= 0) and (npcBot:GetHealth() / npcBot:GetMaxHealth() <= 0.8
-            or npcBot:GetMana() / npcBot:GetMaxMana() <= 0.8)
+    if npcBot:HasModifier("modifier_fountain_aura_buff") and (#enemyHeroAround <= 0) and (healthPercent <= 0.8 or manaPercent <= 0.8)
     then
         return BOT_ACTION_DESIRE_HIGH;
     end
@@ -87,21 +87,20 @@ function Think()
         if GetUnitToLocationDistance(npcBot, fountainLocation) >= 200
         then
             --npcBot:ActionImmediate_Chat("ОТСТУПАЮ!", true);
+            npcBot:Action_ClearActions(false);
             npcBot:Action_MoveToLocation(fountainLocation + RandomVector(100));
             return;
         else
-            npcBot:Action_MoveToLocation(npcBot:GetLocation() + RandomVector(100));
+            npcBot:Action_ClearActions(false);
+            npcBot:Action_MoveToLocation(npcBot:GetLocation() + RandomVector(200));
             return;
         end
     else
+        npcBot:Action_ClearActions(false);
         npcBot:Action_AttackMove(npcBot:GetLocation());
         return;
     end
 end
-
----------------------------------------------------------------------------------------------------
-for k, v in pairs(mode_retreat_generic) do _G._savedEnv[k] = v end
-
 
 --botMode ~= BOT_MODE_DEFEND_TOWER_TOP and
 --botMode ~= BOT_MODE_DEFEND_TOWER_MID and

@@ -209,7 +209,7 @@ function SellSpecifiedItem(item_name)
             then
                 --npcBot:ActionImmediate_Chat("Продаю лишний предмет!", true);
                 npcBot:ActionImmediate_SellItem(slotItem);
-                break;
+                return;
             end
         end
     end
@@ -221,7 +221,7 @@ function SellSpecifiedItem(item_name)
         then
             --npcBot:ActionImmediate_Chat("Продаю лишний предмет из тайника!", true);
             npcBot:ActionImmediate_SellItem(slotItem);
-            break;
+            return;
         end
     end
 
@@ -282,7 +282,7 @@ function SellExtraItem()
     end
     if utility.HaveTravelBoots(npcBot)
     then
-        SellSpecifiedItem("item_boots")
+        --SellSpecifiedItem("item_boots")
         SellSpecifiedItem("item_arcane_boots")
         SellSpecifiedItem("item_power_treads")
         SellSpecifiedItem("item_phase_boots")

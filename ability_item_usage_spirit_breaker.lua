@@ -149,13 +149,13 @@ function ConsiderChargeOfDarkness()
             then
                 if GetUnitToUnitDistance(npcBot, botTarget) <= 3000
                 then
-                    npcBot:ActionImmediate_Ping(botTarget.x, botTarget.y, false);
+                    --npcBot:ActionImmediate_Ping(botTarget.x, botTarget.y, false);
                     return BOT_MODE_DESIRE_HIGH, botTarget;
                 else
                     local allyHeroes = botTarget:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
                     if (#allyHeroes > 1)
                     then
-                        npcBot:ActionImmediate_Ping(botTarget.x, botTarget.y, false);
+                        --npcBot:ActionImmediate_Ping(botTarget.x, botTarget.y, false);
                         --npcBot:ActionImmediate_Chat("Бегу на " .. botTarget:GetUnitName(), false);
                         return BOT_MODE_DESIRE_HIGH, botTarget;
                     end

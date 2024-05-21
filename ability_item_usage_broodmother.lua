@@ -151,17 +151,22 @@ function ConsiderSpinWeb()
         then
             if GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
             then
-                return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
+                return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, npcBot, delayAbility, 0);
             end
         end
-        -- Retreat/laning use
-    elseif utility.RetreatMode(npcBot) or botMode == BOT_MODE_LANING
+    elseif botMode == BOT_MODE_LANING
     then
         local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
         if (#enemyAbility > 0)
         then
             return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, npcBot, delayAbility, 0);
         end
+    end
+
+    -- General use
+    if npcBot:WasRecentlyDamagedByCreep(2.0) or npcBot:WasRecentlyDamagedByTower(2.0) or npcBot:WasRecentlyDamagedByAnyHero(2.0)
+    then
+        return BOT_ACTION_DESIRE_MODERATE, utility.GetTargetCastPosition(npcBot, npcBot, delayAbility, 0);
     end
 end
 
@@ -172,9 +177,33 @@ function ConsiderSilkenBola()
     end
 
     local castRangeAbility = ability:GetCastRange();
+    local damageAbility = ability:GetSpecialValueInt("impact_damage");
     local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
     local speedAbility = ability:GetSpecialValueInt("projectile_speed");
     local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
+
+    -- Cast if can kill somebody
+    if (#enemyAbility > 0)
+    then
+        for _, enemy in pairs(enemyAbility) do
+            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType())
+            then
+                if utility.CanCastSpellOnTarget(ability, enemy)
+                then
+                    if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_UNIT_TARGET)
+                    then
+                        --npcBot:ActionImmediate_Chat("Использую SilkenBola 1 что бы добить " .. enemy:GetUnitName(), true);
+                        return BOT_ACTION_DESIRE_ABSOLUTE, enemy, "target";
+                    elseif utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_POINT)
+                    then
+                        --npcBot:ActionImmediate_Chat("Использую SilkenBola 2 что бы добить " .. enemy:GetUnitName(), true);
+                        return BOT_ACTION_DESIRE_ABSOLUTE,
+                            utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility), "location";
+                    end
+                end
+            end
+        end
+    end
 
     -- Attack use
     if utility.PvPMode(npcBot)

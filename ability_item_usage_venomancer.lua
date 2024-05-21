@@ -156,7 +156,7 @@ function ConsiderVenomousGale()
     elseif botMode == BOT_MODE_LANING
     then
         local enemy = utility.GetWeakest(enemyAbility);
-        if enemy ~= nil and utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)
+        if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)
         then
             --npcBot:ActionImmediate_Chat("Использую VenomousGale по цели на ЛАЙНЕ!", true);
             return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility);

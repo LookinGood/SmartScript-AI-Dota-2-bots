@@ -498,7 +498,7 @@ function CastCustomSpell(ability)
     HealthPercentage = npcBot:GetHealth() / npcBot:GetMaxHealth();
     ManaPercentage = npcBot:GetMana() / npcBot:GetMaxMana();
 
-    print(ability:GetName())
+    --print(ability:GetName())
     --print(GetAbilityRange(ability))
     --print(GetAbilityDamage(ability))
 
@@ -583,7 +583,7 @@ function ConsiderCast(ability)
     end
     --#endregion
 
-    print(castRangeAbility)
+    --print(castRangeAbility)
 
     if ability:GetName() == "doom_bringer_devour"
     then
@@ -722,7 +722,7 @@ function ConsiderCast(ability)
                                 return BOT_ACTION_DESIRE_HIGH, ally, ally:GetLocation(), "target";
                             end
                         else
-                            npcBot:ActionImmediate_Chat("Target/Heal лечу " .. ability:GetName(), true);
+                            --npcBot:ActionImmediate_Chat("Target/Heal лечу " .. ability:GetName(), true);
                             return BOT_ACTION_DESIRE_HIGH, ally, ally:GetLocation(), "target";
                         end
                     end
@@ -749,7 +749,7 @@ function ConsiderCast(ability)
                     end
                     if utility.IsHero(ally:GetAttackTarget()) or utility.IsDisabled(ally)
                     then
-                        npcBot:ActionImmediate_Chat("Target/Buff бафаю " .. ability:GetName(), true);
+                        --npcBot:ActionImmediate_Chat("Target/Buff бафаю " .. ability:GetName(), true);
                         return BOT_MODE_DESIRE_HIGH, ally, ally:GetLocation(), "target";
                     end
                 end

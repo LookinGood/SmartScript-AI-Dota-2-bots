@@ -4,10 +4,9 @@ module("utility", package.seeall)
 require(GetScriptDirectory() .. "/hero_role_generic")
 
 function IsValidTarget(target)
-	if target ~= nil
+	if target ~= nil and target:CanBeSeen()
 	then
-		if target:CanBeSeen() and
-			target:IsAlive()
+		if target:IsAlive()
 		then
 			return true;
 		end
@@ -94,27 +93,14 @@ end
 function GetFountain(npcTarget)
 	if IsValidTarget(npcTarget)
 	then
-		if npcTarget:GetTeam() == TEAM_RADIANT
+		if npcTarget:GetTeam() == TEAM_RADIANT or npcTarget:GetTeam() == TEAM_DIRE
 		then
 			local buildings = GetUnitList(UNIT_LIST_ALLIED_BUILDINGS);
 			if (#buildings > 0)
 			then
 				for _, ally in pairs(buildings)
 				do
-					if ally ~= nil and (ally:GetName() == "dota_fountain" or ally:DistanceFromFountain() == 0)
-					then
-						return ally;
-					end
-				end
-			end
-		elseif npcTarget:GetTeam() == TEAM_DIRE
-		then
-			local buildings = GetUnitList(UNIT_LIST_ALLIED_BUILDINGS);
-			if (#buildings > 0)
-			then
-				for _, ally in pairs(buildings)
-				do
-					if ally ~= nil and (ally:GetName() == "dota_fountain" or ally:DistanceFromFountain() == 0)
+					if ally ~= nil and (string.find(ally:GetUnitName(), "fountain") or ally:DistanceFromFountain() == 0 or ally:HasModifier('modifier_fountain_aura_buff'))
 					then
 						return ally;
 					end
@@ -1127,7 +1113,7 @@ end ]]
 
 function PurchaseWardObserver(npcBot)
 	if npcBot:GetGold() < GetItemCost("item_ward_observer") or IsItemSlotsFull() or IsStashSlotsFull() or GetItemStockCount("item_ward_observer") < 1
-		or (npcBot:GetNextItemPurchaseValue() > 0 and npcBot:GetGold() >= npcBot:GetNextItemPurchaseValue())
+		or (npcBot:GetNextItemPurchaseValue() > 0 and npcBot:GetGold() >= npcBot:GetNextItemPurchaseValue()) or not npcBot:IsAlive()
 	then
 		return;
 	end
@@ -1193,6 +1179,7 @@ end
 function PurchaseWardSentry(npcBot)
 	if npcBot:GetGold() < GetItemCost("item_ward_sentry") * 2 or IsItemSlotsFull() or IsStashSlotsFull() or GetItemStockCount("item_ward_sentry") < 1
 		or (npcBot:GetNextItemPurchaseValue() > 0 and npcBot:GetGold() >= npcBot:GetNextItemPurchaseValue()) or GetGameState() ~= GAME_STATE_GAME_IN_PROGRESS
+		or not npcBot:IsAlive()
 	then
 		return;
 	end
@@ -1247,8 +1234,8 @@ function PurchaseWardSentry(npcBot)
 end
 
 function PurchaseTP(npcBot)
-	if npcBot:GetGold() < GetItemCost("item_tpscroll") or IsStashSlotsFull() or HaveTravelBoots(npcBot)
-		or (npcBot:GetNextItemPurchaseValue() > 0 and npcBot:GetGold() >= npcBot:GetNextItemPurchaseValue())
+	if npcBot:GetGold() < GetItemCost("item_tpscroll") or IsStashSlotsFull() or
+		(npcBot:GetNextItemPurchaseValue() > 0 and npcBot:GetGold() >= npcBot:GetNextItemPurchaseValue()) or not npcBot:IsAlive()
 	then
 		return;
 	end
@@ -1283,7 +1270,7 @@ function PurchaseBottle(npcBot)
 	end
 
 	if npcBot:GetGold() < GetItemCost("item_bottle") * 2 or IsItemSlotsFull() or IsStashSlotsFull() or DotaTime() > 20 * 60
-		or (npcBot:GetNextItemPurchaseValue() > 0 and npcBot:GetGold() >= npcBot:GetNextItemPurchaseValue())
+		or (npcBot:GetNextItemPurchaseValue() > 0 and npcBot:GetGold() >= npcBot:GetNextItemPurchaseValue()) or not npcBot:IsAlive()
 	then
 		return;
 	end
@@ -1421,7 +1408,7 @@ end
 
 function PurchaseInfusedRaindrop(npcBot)
 	if npcBot:GetGold() < GetItemCost("item_infused_raindrop") * 2 or IsItemSlotsFull() or IsStashSlotsFull() or GetItemStockCount("item_infused_raindrop") < 1
-		or npcBot:GetLevel() > 10 or (npcBot:GetNextItemPurchaseValue() > 0 and npcBot:GetGold() >= npcBot:GetNextItemPurchaseValue())
+		or npcBot:GetLevel() > 10 or (npcBot:GetNextItemPurchaseValue() > 0 and npcBot:GetGold() >= npcBot:GetNextItemPurchaseValue()) or not npcBot:IsAlive()
 	then
 		return;
 	end
@@ -1448,6 +1435,7 @@ function PurchaseInfusedRaindrop(npcBot)
 	then
 		--npcBot:ActionImmediate_Chat("Покупаю infused raindrop против врагов магов!", true);
 		npcBot:ActionImmediate_PurchaseItem("item_infused_raindrop");
+		return;
 	end
 end
 
@@ -1512,7 +1500,7 @@ end
 
 function PurchaseDust(npcBot)
 	if npcBot:GetGold() < GetItemCost("item_dust") * 2 or IsItemSlotsFull() or IsStashSlotsFull() or DotaTime() < 5 * 60
-		or (npcBot:GetNextItemPurchaseValue() > 0 and npcBot:GetGold() >= npcBot:GetNextItemPurchaseValue())
+		or (npcBot:GetNextItemPurchaseValue() > 0 and npcBot:GetGold() >= npcBot:GetNextItemPurchaseValue()) or not npcBot:IsAlive()
 	then
 		return;
 	end

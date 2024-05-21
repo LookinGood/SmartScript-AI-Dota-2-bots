@@ -50,10 +50,7 @@ local TelekinesisLandSelf = npcBot:GetAbilityByName("rubick_telekinesis_land_sel
 local FadeBolt = AbilitiesReal[2]
 local SpellSteal = AbilitiesReal[6]
 
---local ability4 = AbilitiesReal[4]
---local ability5 = AbilitiesReal[5]
-
-local castLandTimer = 0;
+local castLandTimer = 0.0;
 
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
@@ -80,10 +77,10 @@ function AbilityUsageThink()
         return;
     end
 
-    if (castTelekinesisLandDesire ~= nil)
+    if (castTelekinesisLandDesire ~= nil) and (DotaTime() >= castLandTimer + 2.0)
     then
-        castLandTimer = DotaTime();
         npcBot:Action_UseAbilityOnLocation(TelekinesisLand, castTelekinesisLandLocation);
+        castLandTimer = DotaTime();
         return;
     end
 
@@ -169,11 +166,6 @@ function ConsiderTelekinesisLand()
 
     --local liftDuration = Telekinesis:GetSpecialValueInt("lift_duration");
 
-    if DotaTime() < (castLandTimer + 1.7)
-    then
-        return;
-    end
-
     -- Attack use
     if utility.PvPMode(npcBot)
     then
@@ -198,16 +190,9 @@ function ConsiderTelekinesisLandSelf()
         return;
     end
 
-    local liftDuration = Telekinesis:GetSpecialValueInt("lift_duration");
-
-    if DotaTime() < (castLandTimer + liftDuration)
-    then
-        return;
-    end
-
     if utility.RetreatMode(npcBot)
     then
-        npcBot:ActionImmediate_Chat("Использую TelekinesisLandSelf при отходе", true);
+        --npcBot:ActionImmediate_Chat("Использую TelekinesisLandSelf при отходе", true);
         return BOT_MODE_DESIRE_MODERATE, utility.SafeLocation(npcBot);
     end
 end

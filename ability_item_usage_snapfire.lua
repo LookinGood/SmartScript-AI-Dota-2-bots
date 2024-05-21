@@ -31,11 +31,11 @@ local AbilityToLevelUp =
     Abilities[6],
     Abilities[2],
     Abilities[2],
-    Talents[4],
+    Talents[3],
     Abilities[2],
     Abilities[6],
-    Talents[6],
-    Talents[8],
+    Talents[5],
+    Talents[7],
 }
 
 function AbilityLevelUpThink()
@@ -109,7 +109,9 @@ function AbilityUsageThink()
         local speedAbility = MortimerKisses:GetSpecialValueInt("projectile_speed");
         if utility.IsValidTarget(botTarget)
         then
+            npcBot:Action_ClearActions(false);
             npcBot:ActionPush_MoveToLocation(utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, speedAbility));
+            return;
         else
             local enemyAbility = npcBot:GetNearbyHeroes(MortimerKisses:GetCastRange(), true, BOT_MODE_NONE);
             if (#enemyAbility > 0)
@@ -117,8 +119,10 @@ function AbilityUsageThink()
                 for _, enemy in pairs(enemyAbility) do
                     if utility.IsValidTarget(enemy)
                     then
+                        npcBot:Action_ClearActions(false);
                         npcBot:ActionPush_MoveToLocation(utility.GetTargetCastPosition(npcBot, enemy, delayAbility,
                             speedAbility));
+                        return;
                     end
                 end
             end
@@ -153,7 +157,7 @@ function ConsiderScatterblast()
                     if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType())
                     then
                         --npcBot:ActionImmediate_Chat("Использую Scatterblast что бы убить цель!",true);
-                        return BOT_ACTION_DESIRE_VERYHIGH,
+                        return BOT_ACTION_DESIRE_ABSOLUTE,
                             utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility);
                     end
                 elseif GetUnitToUnitDistance(npcBot, enemy) <= meleeCastRangeAbility
@@ -161,7 +165,7 @@ function ConsiderScatterblast()
                     if utility.CanAbilityKillTarget(enemy, meleeDamageAbility, ability:GetDamageType())
                     then
                         --npcBot:ActionImmediate_Chat("Использую Scatterblast что бы убить цель ВБЛИЗИ!",true);
-                        return BOT_ACTION_DESIRE_VERYHIGH,
+                        return BOT_ACTION_DESIRE_ABSOLUTE,
                             utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility);
                     end
                 end
@@ -182,7 +186,7 @@ function ConsiderScatterblast()
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
             then
                 --npcBot:ActionImmediate_Chat("Использую Scatterblast по врагу в радиусе действия!",true);
-                return BOT_ACTION_DESIRE_VERYHIGH,
+                return BOT_ACTION_DESIRE_HIGH,
                     utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, speedAbility);
             end
         end
@@ -217,7 +221,7 @@ function ConsiderScatterblast()
         if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)
         then
             --npcBot:ActionImmediate_Chat("Использую Scatterblast по цели на ЛАЙНЕ!", true);
-            return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility);
+            return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility);
         end
     end
 end
@@ -290,7 +294,7 @@ function ConsiderLilShredder()
         return;
     end
 
-    if npcBot:HasModifier("modifier_snapfire_mortimer_kisses")
+    if npcBot:HasModifier("modifier_snapfire_lil_shredder_buff")
     then
         return;
     end
@@ -317,7 +321,7 @@ function ConsiderGobbleUp()
         return;
     end
 
-    if npcBot:HasModifier("modifier_snapfire_mortimer_kisses")
+    if npcBot:HasModifier("modifier_snapfire_gobble_up_belly_has_unit")
     then
         return;
     end
@@ -385,8 +389,8 @@ function ConsiderMortimerKisses()
         return;
     end
 
-    local minRangeAbility = ability:GetSpecialValueInt("min_range");
     local castRangeAbility = ability:GetCastRange();
+    local minRangeAbility = ability:GetSpecialValueInt("min_range");
     local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
     local speedAbility = ability:GetSpecialValueInt("projectile_speed");
 

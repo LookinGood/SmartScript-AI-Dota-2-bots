@@ -48,6 +48,8 @@ local TakeAim = AbilitiesReal[3]
 local ConcussiveGrenade = AbilitiesReal[4]
 local Assassinate = AbilitiesReal[6]
 
+local castShrapnelTimer = 0.0;
+
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
         return;
@@ -63,9 +65,10 @@ function AbilityUsageThink()
     local castConcussiveGrenadeDesire, castConcussiveGrenadeLocation = ConsiderConcussiveGrenade();
     local castAssassinateDesire, castAssassinateTarget = ConsiderAssassinate();
 
-    if (castShrapnelDesire ~= nil)
+    if (castShrapnelDesire ~= nil) and (DotaTime() >= castShrapnelTimer + 2.0)
     then
         npcBot:Action_UseAbilityOnLocation(Shrapnel, castShrapnelLocation);
+        castShrapnelTimer = DotaTime();
         return;
     end
 
@@ -204,15 +207,12 @@ function ConsiderAssassinate()
     if not npcBot:WasRecentlyDamagedByAnyHero(5.0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if GetUnitToUnitDistance(npcBot, enemy) <= castRangeAbility
+            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) or enemy:IsChanneling()
             then
-                if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) or enemy:IsChanneling()
+                if utility.CanCastSpellOnTarget(ability, enemy) and GetUnitToUnitDistance(npcBot, enemy) <= castRangeAbility
                 then
-                    if utility.CanCastSpellOnTarget(ability, enemy)
-                    then
-                        --npcBot:ActionImmediate_Chat("Использую Assassinate что бы убить цель или сбить каст!", true);
-                        return BOT_ACTION_DESIRE_VERYHIGH, enemy;
-                    end
+                    --npcBot:ActionImmediate_Chat("Использую Assassinate что бы убить цель или сбить каст!", true);
+                    return BOT_ACTION_DESIRE_VERYHIGH, enemy;
                 end
             end
         end

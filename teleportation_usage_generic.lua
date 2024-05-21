@@ -42,6 +42,43 @@ function ClosestSafeBuilding(unit, distance, enemyRadius, enemyCount)
     return safeBuilding;
 end
 
+function ClosestPositionForPush(frontlocation, distance, enemyRadius, enemyCount)
+    local npcBot = GetBot();
+    local safePosition = nil;
+    local allyBuildings = GetUnitList(UNIT_LIST_ALLIED_BUILDINGS);
+
+    if utility.HaveTravelBoots(npcBot)
+    then
+        local allyCreeps = GetUnitList(UNIT_LIST_ALLIED_CREEPS);
+        if (#allyCreeps > 0)
+        then
+            for _, ally in pairs(allyCreeps)
+            do
+                if GetUnitToUnitDistance(npcBot, ally) > distance and GetUnitToLocationDistance(ally, frontlocation) <= 1000
+                    and utility.CountEnemyHeroAroundUnit(ally, enemyRadius) <= enemyCount
+                then
+                    safePosition = ally;
+                end
+            end
+        end
+    else
+        if (#allyBuildings > 0)
+        then
+            for _, building in pairs(allyBuildings)
+            do
+                local enemyHeroes = utility.CountEnemyHeroAroundUnit(building, enemyRadius);
+                if GetUnitToLocationDistance(building, frontlocation) < GetUnitToLocationDistance(npcBot, frontlocation)
+                    and GetUnitToUnitDistance(npcBot, building) > distance and (enemyHeroes <= enemyCount)
+                then
+                    safePosition = building;
+                end
+            end
+        end
+    end
+
+    return safePosition;
+end
+
 --[[ function ClosestSafeBuilding(unit, distance, enemyRadius, enemyCount)
     local npcBot = GetBot();
     local allyBuildings = GetUnitList(UNIT_LIST_ALLIED_BUILDINGS);
@@ -78,13 +115,9 @@ end ]]
 
 function ShouldTP()
     local npcBot = GetBot();
-    if utility.IsHaveMaxSpeed(npcBot)
-    then
-        return false, nil;
-    end
-
     local enemyTower = npcBot:GetNearbyTowers(1000, true);
-    if (#enemyTower > 0)
+
+    if utility.IsHaveMaxSpeed(npcBot) or (#enemyTower > 0)
     then
         return false, nil;
     end
@@ -92,9 +125,9 @@ function ShouldTP()
     --local tpLocation = nil;
     local towerLaning = nil;
     local towerDefend = nil;
-    local towerPush = nil;
+    --local towerPush = nil;
     local botMode = npcBot:GetActiveMode();
-    local modDesire = npcBot:GetActiveModeDesire();
+    --local modDesire = npcBot:GetActiveModeDesire();
     local botLoc = npcBot:GetLocation();
     local botTeam = GetTeam();
     local enemyHeroes = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
@@ -103,7 +136,7 @@ function ShouldTP()
     local tpDistance = 4000;
     local minTpDistance = 6000;
     local ancient = GetAncient(GetTeam());
-    local enemyAncient = GetAncient(GetOpposingTeam());
+    --local enemyAncient = GetAncient(GetOpposingTeam());
     local topTower1 = GetTower(GetTeam(), TOWER_TOP_1);
     local topTower2 = GetTower(GetTeam(), TOWER_TOP_2);
     local topTower3 = GetTower(GetTeam(), TOWER_TOP_3);
@@ -124,6 +157,53 @@ function ShouldTP()
             then
                 --npcBot:ActionImmediate_Chat("Использую tpscroll для отступления!", true);
                 return true, utility.SafeLocation(npcBot);
+            end
+        end
+    end
+
+    if botMode == BOT_MODE_ATTACK
+    then
+        local botTarget = npcBot:GetTarget();
+        local allyBuildings = GetUnitList(UNIT_LIST_ALLIED_BUILDINGS);
+        local allyHeroes = botTarget:GetNearbyHeroes(1600, true, BOT_MODE_DESIRE_NONE);
+        if (utility.IsHero(botTarget) or utility.IsRoshan(botTarget)) and (#allyHeroes >= 1)
+        then
+            if utility.HaveTravelBoots(npcBot)
+            then
+                local allyCreeps = GetUnitList(UNIT_LIST_ALLIED_CREEPS);
+                if (#allyCreeps > 0)
+                then
+                    for _, ally in pairs(allyCreeps)
+                    do
+                        if GetUnitToUnitDistance(npcBot, ally) > tpDistance and GetUnitToUnitDistance(ally, botTarget) <= 1000
+                        then
+                            --npcBot:ActionImmediate_Chat("Использую tpscroll для атаки с травелами!", true);
+                            return true, ally:GetLocation();
+                        end
+                    end
+                end
+                if (#allyBuildings > 0)
+                then
+                    for _, building in pairs(allyBuildings)
+                    do
+                        if GetUnitToUnitDistance(npcBot, building) > tpDistance and GetUnitToUnitDistance(building, botTarget) <= 2000
+                        then
+                            return true, building:GetLocation();
+                        end
+                    end
+                end
+            else
+                if (#allyBuildings > 0)
+                then
+                    for _, building in pairs(allyBuildings)
+                    do
+                        if GetUnitToUnitDistance(npcBot, building) > tpDistance and GetUnitToUnitDistance(building, botTarget) <= 2000
+                        then
+                            --npcBot:ActionImmediate_Chat("Использую tpscroll для атаки!", true);
+                            return true, building:GetLocation();
+                        end
+                    end
+                end
             end
         end
     end
@@ -194,7 +274,7 @@ function ShouldTP()
     end
 
     -- Defend desire
-    if botMode == BOT_MODE_DEFEND_TOWER_TOP and modDesire >= BOT_MODE_DESIRE_MODERATE
+    if botMode == BOT_MODE_DEFEND_TOWER_TOP
     then
         if towerDefend == nil
         then
@@ -225,7 +305,7 @@ function ShouldTP()
                 end
             end
         end
-    elseif botMode == BOT_MODE_DEFEND_TOWER_MID and modDesire >= BOT_MODE_DESIRE_MODERATE
+    elseif botMode == BOT_MODE_DEFEND_TOWER_MID
     then
         if towerDefend == nil
         then
@@ -256,7 +336,7 @@ function ShouldTP()
                 end
             end
         end
-    elseif botMode == BOT_MODE_DEFEND_TOWER_BOT and modDesire >= BOT_MODE_DESIRE_MODERATE
+    elseif botMode == BOT_MODE_DEFEND_TOWER_BOT
     then
         if towerDefend == nil
         then
@@ -290,9 +370,17 @@ function ShouldTP()
     end
 
     -- Push desire
-    if botMode == BOT_MODE_PUSH_TOWER_TOP and modDesire >= BOT_MODE_DESIRE_MODERATE
+    if botMode == BOT_MODE_PUSH_TOWER_TOP
     then
-        local enemytopTower1 = GetTower(GetOpposingTeam(), TOWER_TOP_1);
+        local frontlocation = GetLaneFrontLocation(botTeam, LANE_TOP, 0);
+        local tpTarget = ClosestPositionForPush(frontlocation, minTpDistance, 1000, 1);
+        if tpTarget ~= nil
+        then
+            --npcBot:ActionImmediate_Chat("Использую tpscroll пуша топа!", true);
+            return true, tpTarget:GetLocation() + RandomVector(300);
+        end
+
+        --[[         local enemytopTower1 = GetTower(GetOpposingTeam(), TOWER_TOP_1);
         local enemytopTower2 = GetTower(GetOpposingTeam(), TOWER_TOP_2);
         local enemytopTower3 = GetTower(GetOpposingTeam(), TOWER_TOP_3);
         if towerPush == nil
@@ -324,10 +412,18 @@ function ShouldTP()
                     return true, tpTarget:GetLocation() + RandomVector(300);
                 end
             end
-        end
-    elseif botMode == BOT_MODE_PUSH_TOWER_MID and modDesire >= BOT_MODE_DESIRE_MODERATE
+        end ]]
+    elseif botMode == BOT_MODE_PUSH_TOWER_MID
     then
-        local enemymidTower1 = GetTower(GetOpposingTeam(), TOWER_MID_1);
+        local frontlocation = GetLaneFrontLocation(botTeam, LANE_MID, 0);
+        local tpTarget = ClosestPositionForPush(frontlocation, minTpDistance, 1000, 1);
+        if tpTarget ~= nil
+        then
+            --npcBot:ActionImmediate_Chat("Использую tpscroll пуша мида!", true);
+            return true, tpTarget:GetLocation() + RandomVector(300);
+        end
+
+        --[[         local enemymidTower1 = GetTower(GetOpposingTeam(), TOWER_MID_1);
         local enemymidTower2 = GetTower(GetOpposingTeam(), TOWER_MID_2);
         local enemymidTower3 = GetTower(GetOpposingTeam(), TOWER_MID_3);
         if towerPush == nil
@@ -359,9 +455,17 @@ function ShouldTP()
                     return true, tpTarget:GetLocation() + RandomVector(300);
                 end
             end
-        end
-    elseif botMode == BOT_MODE_PUSH_TOWER_BOT and modDesire >= BOT_MODE_DESIRE_MODERATE
+        end ]]
+    elseif botMode == BOT_MODE_PUSH_TOWER_BOT
     then
+        local frontlocation = GetLaneFrontLocation(botTeam, LANE_BOT, 0);
+        local tpTarget = ClosestPositionForPush(frontlocation, minTpDistance, 1000, 1);
+        if tpTarget ~= nil
+        then
+            --npcBot:ActionImmediate_Chat("Использую tpscroll пуша Бота!", true);
+            return true, tpTarget:GetLocation() + RandomVector(300);
+        end
+        --[[
         local enemybotTower1 = GetTower(GetOpposingTeam(), TOWER_BOT_1);
         local enemybotTower2 = GetTower(GetOpposingTeam(), TOWER_BOT_2);
         local enemybotTower3 = GetTower(GetOpposingTeam(), TOWER_BOT_3);
@@ -394,7 +498,7 @@ function ShouldTP()
                     return true, tpTarget:GetLocation() + RandomVector(300);
                 end
             end
-        end
+        end ]]
     end
 
     return false, nil;

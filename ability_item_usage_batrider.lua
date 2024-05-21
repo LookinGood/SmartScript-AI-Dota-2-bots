@@ -48,6 +48,8 @@ local Flamebreak = AbilitiesReal[2]
 local Firefly = AbilitiesReal[3]
 local FlamingLasso = AbilitiesReal[6]
 
+local castFlamebreakTimer = 0.0;
+
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
         return;
@@ -69,9 +71,10 @@ function AbilityUsageThink()
         return;
     end
 
-    if (castFlamebreakDesire ~= nil)
+    if (castFlamebreakDesire ~= nil) and (DotaTime() >= castFlamebreakTimer + 2.0)
     then
         npcBot:Action_UseAbilityOnLocation(Flamebreak, castFlamebreakLocation);
+        castFlamebreakTimer = DotaTime();
         return;
     end
 

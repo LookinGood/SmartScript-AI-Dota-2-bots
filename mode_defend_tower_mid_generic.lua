@@ -121,6 +121,11 @@ function OnEnd()
 end
 
 function Think()
+    if utility.IsBusy(npcBot)
+    then
+        return;
+    end
+
     if mainBuilding ~= nil
     then
         local defendZone = utility.GetEscapeLocation(mainBuilding, 500);

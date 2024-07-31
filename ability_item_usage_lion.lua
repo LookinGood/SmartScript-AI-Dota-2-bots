@@ -79,7 +79,7 @@ function AbilityUsageThink()
         then
             npcBot:Action_UseAbilityOnEntity(Hex, castHexTarget);
             return;
-        elseif (castElectricVortexTargetType == "location")
+        elseif (castHexTargetType == "location")
         then
             npcBot:Action_UseAbilityOnLocation(Hex, castHexTarget);
             return;

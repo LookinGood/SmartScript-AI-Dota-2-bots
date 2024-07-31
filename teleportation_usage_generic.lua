@@ -117,7 +117,7 @@ function ShouldTP()
     local npcBot = GetBot();
     local enemyTower = npcBot:GetNearbyTowers(1000, true);
 
-    if utility.IsHaveMaxSpeed(npcBot) or (#enemyTower > 0)
+    if utility.IsHaveMaxSpeed(npcBot) or (#enemyTower > 0) or utility.IsHaveStunEffect(npcBot)
     then
         return false, nil;
     end

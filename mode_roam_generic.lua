@@ -14,5 +14,8 @@ function OnEnd()
 end
 
 function Think()
-    --
+    if utility.IsBusy(npcBot)
+    then
+        return;
+    end
 end

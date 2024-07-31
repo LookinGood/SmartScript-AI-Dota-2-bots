@@ -80,6 +80,11 @@ function OnEnd()
 end
 
 function Think()
+    if utility.IsBusy(npcBot)
+    then
+        return;
+    end
+
     local fountainLocation = utility.SafeLocation(npcBot);
 
     if utility.CanMove(npcBot)

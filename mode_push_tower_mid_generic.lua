@@ -1,10 +1,15 @@
 ---@diagnostic disable: undefined-global
---require(GetScriptDirectory() .. "/utility")
+require(GetScriptDirectory() .. "/utility")
 require(GetScriptDirectory() .. "/push_generic")
 
---local npcBot = GetBot();
+local npcBot = GetBot();
 
 function Think()
+    if utility.IsBusy(npcBot)
+    then
+        return;
+    end
+
     push_generic.Think()
 end
 

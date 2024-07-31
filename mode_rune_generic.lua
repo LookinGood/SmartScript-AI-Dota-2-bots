@@ -120,6 +120,11 @@ function OnEnd()
 end
 
 function Think()
+    if utility.IsBusy(npcBot)
+    then
+        return;
+    end
+
     local bountyRuneRadiant = Vector(2183.8, -3906.2, 155.7);
     local powerfulRuneRadiant = Vector(1155.8, -1230.5, 84.7);
     local bountyRuneDire = Vector(-1559.8, 3460.0, 208.5);

@@ -429,6 +429,11 @@ function IsHaveMaxSpeed(npcTarget)
 			npcTarget:GetCurrentMovementSpeed() >= 500)
 end
 
+function IsHaveStunEffect(npcTarget)
+	return IsValidTarget(npcTarget) and
+		npcTarget:HasModifier("modifier_enigma_malefice");
+end
+
 function IsAllyHeroesBetweenMeAndTarget(hSource, hTarget, vLoc, nRadius)
 	local vStart = hSource:GetLocation();
 	local vEnd = vLoc;

@@ -254,6 +254,11 @@ function OnEnd()
 end
 
 function Think()
+    if utility.IsBusy(npcBot)
+    then
+        return;
+    end
+
     if enemyWard ~= nil
     then
         if GetUnitToUnitDistance(npcBot, enemyWard) > (npcBot:GetAttackRange() + 150)

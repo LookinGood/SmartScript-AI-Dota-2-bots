@@ -38,6 +38,11 @@ function OnEnd()
 end
 
 function Think()
+    if utility.IsBusy(npcBot)
+    then
+        return;
+    end
+
 	local shopLoc1 = GetShopLocation(GetTeam(), SHOP_SECRET);
 	local shopLoc2 = GetShopLocation(GetTeam(), SHOP_SECRET2);
 

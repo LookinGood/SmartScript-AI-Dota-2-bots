@@ -28,6 +28,11 @@ function GetDesire()
 end
 
 function Think()
+    if utility.IsBusy(npcBot)
+    then
+        return;
+    end
+
 	local shopLoc1 = GetShopLocation(GetTeam(), SHOP_SIDE);
 	local shopLoc2 = GetShopLocation(GetTeam(), SHOP_SIDE2);
 

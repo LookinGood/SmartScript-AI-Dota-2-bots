@@ -75,7 +75,7 @@ function GetDesire()
         runeStatus = GetRuneStatus(closestRune);
         if runeStatus == RUNE_STATUS_AVAILABLE and runeDistance <= 2000
         then
-            return BOT_MODE_DESIRE_MODERATE;
+            return BOT_MODE_DESIRE_HIGH;
         else
             return BOT_MODE_DESIRE_NONE;
         end
@@ -128,7 +128,7 @@ function Think()
     -- Message at the beginning of the game
     if not bMessageDone
         and GetGameState() == GAME_STATE_PRE_GAME
-        and DotaTime() < 5
+        and (DotaTime() < 10 and DotaTime() > 5)
         and npcBot:GetGold() < 300
         and npcBot == chattingBot
     then

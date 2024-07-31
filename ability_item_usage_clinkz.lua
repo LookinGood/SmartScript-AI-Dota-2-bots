@@ -36,6 +36,10 @@ local AbilityToLevelUp =
     Abilities[6],
     Talents[6],
     Talents[8],
+    Talents[2],
+    Talents[4],
+    Talents[5],
+    Talents[7],
 }
 
 function AbilityLevelUpThink()
@@ -114,7 +118,7 @@ function ConsiderStrafe()
     local attackRange = npcBot:GetAttackRange() + ability:GetSpecialValueInt("attack_range_bonus");
 
     -- Attack use
-    if utility.PvPMode(npcBot) or npcBot:GetActiveMode() == BOT_MODE_ROSHAN
+    if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
     then
         if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
         then

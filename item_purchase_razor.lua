@@ -31,8 +31,6 @@ local ItemsToBuy =
 	"item_mithril_hammer",
 	"item_recipe_black_king_bar",
 
-    "item_aghanims_shard",
-
     "item_blades_of_attack",
 	"item_claymore",
 	"item_recipe_lesser_crit",
@@ -65,6 +63,8 @@ local ItemsToBuy =
 	"item_boots",
 
 	"item_recipe_travel_boots",
+
+    "item_aghanims_shard",
 }
 
 function ItemPurchaseThink()

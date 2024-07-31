@@ -36,6 +36,10 @@ local AbilityToLevelUp =
     Abilities[6],
     Talents[6],
     Talents[7],
+    Talents[1],
+    Talents[3],
+    Talents[5],
+    Talents[8],
 }
 
 function AbilityLevelUpThink()
@@ -60,7 +64,7 @@ function AbilityUsageThink()
     ManaPercentage = npcBot:GetMana() / npcBot:GetMaxMana();
 
     local castFluxDesire, castFluxTarget = ConsiderFlux();
-    local castMagneticFieldDesire, castMagneticFieldLocation = ConsiderMagneticField();
+    local castMagneticFieldDesire = ConsiderMagneticField();
     local castSparkWraithDesire, castSparkWraithLocation = ConsiderSparkWraith();
     local castTempestDoubleDesire, castTempestDoubleLocation = ConsiderTempestDouble();
 
@@ -82,7 +86,7 @@ function AbilityUsageThink()
     then
         if (castMagneticFieldDesire > castFluxDesire and castSparkWraithDesire and castTempestDoubleDesire)
         then
-            npcBot:Action_UseAbilityOnLocation(MagneticField, castMagneticFieldLocation);
+            npcBot:Action_UseAbility(MagneticField);
             return;
         end
     end
@@ -181,10 +185,8 @@ function ConsiderMagneticField()
         return;
     end
 
-    local castRangeAbility = ability:GetCastRange();
     local radiusAbility = ability:GetSpecialValueInt("radius");
-    local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
-    local allyAbility = npcBot:GetNearbyHeroes(1600, false, BOT_MODE_NONE);
+    local allyAbility = npcBot:GetNearbyHeroes(radiusAbility, false, BOT_MODE_NONE);
 
     if (#allyAbility > 0)
     then
@@ -198,16 +200,7 @@ function ConsiderMagneticField()
                 then
                     if utility.IsHero(ally) and not ally:HasModifier("modifier_arc_warden_magnetic_field_attack_speed")
                     then
-                        if GetUnitToUnitDistance(npcBot, ally) <= castRangeAbility
-                        then
-                            --npcBot:ActionImmediate_Chat("Использую MagneticField в радиусе каста для атаки!", true);
-                            return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, ally, delayAbility, 0);
-                        elseif GetUnitToUnitDistance(npcBot, ally) <= castRangeAbility + radiusAbility
-                        then
-                            --npcBot:ActionImmediate_Chat("Использую MagneticField в касте+радиусе для атаки!", true);
-                            return BOT_ACTION_DESIRE_HIGH,
-                                utility.GetMaxRangeCastLocation(npcBot, ally, castRangeAbility);
-                        end
+                        return BOT_ACTION_DESIRE_HIGH;
                     end
                 end
             end
@@ -219,78 +212,8 @@ function ConsiderMagneticField()
             then
                 if ally:GetHealth() / ally:GetMaxHealth() <= 0.8 and (ally:WasRecentlyDamagedByAnyHero(2.0) or ally:WasRecentlyDamagedByTower(2.0))
                 then
-                    if GetUnitToUnitDistance(npcBot, ally) <= castRangeAbility
-                    then
-                        --npcBot:ActionImmediate_Chat("Использую MagneticField в радиусе каста для защиты!", true);
-                        return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, ally, delayAbility, 0);
-                    elseif GetUnitToUnitDistance(npcBot, ally) <= castRangeAbility + radiusAbility
-                    then
-                        --npcBot:ActionImmediate_Chat("Использую MagneticField в касте+радиусе для защиты!", true);
-                        return BOT_ACTION_DESIRE_HIGH,
-                            utility.GetMaxRangeCastLocation(npcBot, ally, castRangeAbility);
-                    end
+                    return BOT_ACTION_DESIRE_HIGH;
                 end
-            end
-        end
-    end
-
-    -- Cast to buff ally buildings
-    if botTeam == TEAM_RADIANT and not utility.PvPMode(npcBot)
-    then
-        local allyTowers = npcBot:GetNearbyTowers(1600, false);
-        local allyBarracks = npcBot:GetNearbyBarracks(1600, false);
-        local allyAncient = GetAncient(GetTeam());
-        if (#allyTowers > 0)
-        then
-            for _, ally in pairs(allyTowers)
-            do
-                if not ally:HasModifier("modifier_arc_warden_magnetic_field_attack_speed") and utility.IsTargetedByEnemy(ally, true)
-                then
-                    if GetUnitToUnitDistance(npcBot, ally) <= castRangeAbility
-                    then
-                        --npcBot:ActionImmediate_Chat("Использую MagneticField в радиусе каста на башню!", true);
-                        return BOT_ACTION_DESIRE_MODERATE, utility.GetTargetCastPosition(npcBot, ally, delayAbility, 0);
-                    elseif GetUnitToUnitDistance(npcBot, ally) <= castRangeAbility + radiusAbility
-                    then
-                        --npcBot:ActionImmediate_Chat("Использую MagneticField в касте+радиусе на башню!", true);
-                        return BOT_ACTION_DESIRE_MODERATE,
-                            utility.GetMaxRangeCastLocation(npcBot, ally, castRangeAbility);
-                    end
-                end
-            end
-        end
-        if (#allyBarracks > 0)
-        then
-            for _, ally in pairs(allyBarracks)
-            do
-                if not ally:HasModifier("modifier_arc_warden_magnetic_field_attack_speed") and utility.IsTargetedByEnemy(ally, true)
-                then
-                    if GetUnitToUnitDistance(npcBot, ally) <= castRangeAbility
-                    then
-                        npcBot:ActionImmediate_Chat("Использую MagneticField в радиусе каста на барраки!", true);
-                        return BOT_ACTION_DESIRE_MODERATE, utility.GetTargetCastPosition(npcBot, ally, delayAbility, 0);
-                    elseif GetUnitToUnitDistance(npcBot, ally) <= castRangeAbility + radiusAbility
-                    then
-                        npcBot:ActionImmediate_Chat("Использую MagneticField в касте+радиусе на барраки!", true);
-                        return BOT_ACTION_DESIRE_MODERATE,
-                            utility.GetMaxRangeCastLocation(npcBot, ally, castRangeAbility);
-                    end
-                end
-            end
-        end
-        if utility.IsTargetedByEnemy(allyAncient, true) and npcBot:DistanceFromFountain() <= 3000
-        then
-            if GetUnitToUnitDistance(npcBot, allyAncient) <= castRangeAbility
-                and not allyAncient:HasModifier("modifier_arc_warden_magnetic_field_attack_speed")
-            then
-                --npcBot:ActionImmediate_Chat("Использую MagneticField в радиусе каста на ДРЕВНЕГО!", true);
-                return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, allyAncient, delayAbility, 0);
-            elseif GetUnitToUnitDistance(npcBot, allyAncient) <= castRangeAbility + radiusAbility
-                and not allyAncient:HasModifier("modifier_arc_warden_magnetic_field_attack_speed")
-            then
-                --npcBot:ActionImmediate_Chat("Использую MagneticField в касте+радиусе на ДРЕВНЕГО!", true);
-                return BOT_ACTION_DESIRE_HIGH,
-                    utility.GetMaxRangeCastLocation(npcBot, allyAncient, castRangeAbility);
             end
         end
     end
@@ -435,6 +358,133 @@ function ConsiderTempestDouble()
         end
     end
 end
+
+--[[ function ConsiderMagneticField() --- СТАРАЯ ВЕРСИЯ по области
+    local ability = MagneticField;
+    if not utility.IsAbilityAvailable(ability) then
+        return;
+    end
+
+    local castRangeAbility = ability:GetCastRange();
+    local radiusAbility = ability:GetSpecialValueInt("radius");
+    local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
+    local allyAbility = npcBot:GetNearbyHeroes(1600, false, BOT_MODE_NONE);
+
+    if (#allyAbility > 0)
+    then
+        -- Attack use
+        if botMode ~= BOT_MODE_LANING
+        then
+            for _, ally in pairs(allyAbility)
+            do
+                local attackTarget = ally:GetAttackTarget();
+                if utility.IsHero(attackTarget) or utility.IsRoshan(attackTarget)
+                then
+                    if utility.IsHero(ally) and not ally:HasModifier("modifier_arc_warden_magnetic_field_attack_speed")
+                    then
+                        if GetUnitToUnitDistance(npcBot, ally) <= castRangeAbility
+                        then
+                            --npcBot:ActionImmediate_Chat("Использую MagneticField в радиусе каста для атаки!", true);
+                            return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, ally, delayAbility, 0);
+                        elseif GetUnitToUnitDistance(npcBot, ally) <= castRangeAbility + radiusAbility
+                        then
+                            --npcBot:ActionImmediate_Chat("Использую MagneticField в касте+радиусе для атаки!", true);
+                            return BOT_ACTION_DESIRE_HIGH,
+                                utility.GetMaxRangeCastLocation(npcBot, ally, castRangeAbility);
+                        end
+                    end
+                end
+            end
+        end
+        -- Buff allies
+        for _, ally in pairs(allyAbility)
+        do
+            if utility.IsHero(ally) and not ally:HasModifier("modifier_arc_warden_magnetic_field_attack_speed")
+            then
+                if ally:GetHealth() / ally:GetMaxHealth() <= 0.8 and (ally:WasRecentlyDamagedByAnyHero(2.0) or ally:WasRecentlyDamagedByTower(2.0))
+                then
+                    if GetUnitToUnitDistance(npcBot, ally) <= castRangeAbility
+                    then
+                        --npcBot:ActionImmediate_Chat("Использую MagneticField в радиусе каста для защиты!", true);
+                        return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, ally, delayAbility, 0);
+                    elseif GetUnitToUnitDistance(npcBot, ally) <= castRangeAbility + radiusAbility
+                    then
+                        --npcBot:ActionImmediate_Chat("Использую MagneticField в касте+радиусе для защиты!", true);
+                        return BOT_ACTION_DESIRE_HIGH,
+                            utility.GetMaxRangeCastLocation(npcBot, ally, castRangeAbility);
+                    end
+                end
+            end
+        end
+    end
+
+    -- Cast to buff ally buildings
+    if botTeam == TEAM_RADIANT and not utility.PvPMode(npcBot)
+    then
+        local allyTowers = npcBot:GetNearbyTowers(1600, false);
+        local allyBarracks = npcBot:GetNearbyBarracks(1600, false);
+        local allyAncient = GetAncient(GetTeam());
+        if (#allyTowers > 0)
+        then
+            for _, ally in pairs(allyTowers)
+            do
+                if not ally:HasModifier("modifier_arc_warden_magnetic_field_attack_speed") and utility.IsTargetedByEnemy(ally, true)
+                then
+                    if GetUnitToUnitDistance(npcBot, ally) <= castRangeAbility
+                    then
+                        --npcBot:ActionImmediate_Chat("Использую MagneticField в радиусе каста на башню!", true);
+                        return BOT_ACTION_DESIRE_MODERATE, utility.GetTargetCastPosition(npcBot, ally, delayAbility, 0);
+                    elseif GetUnitToUnitDistance(npcBot, ally) <= castRangeAbility + radiusAbility
+                    then
+                        --npcBot:ActionImmediate_Chat("Использую MagneticField в касте+радиусе на башню!", true);
+                        return BOT_ACTION_DESIRE_MODERATE,
+                            utility.GetMaxRangeCastLocation(npcBot, ally, castRangeAbility);
+                    end
+                end
+            end
+        end
+        if (#allyBarracks > 0)
+        then
+            for _, ally in pairs(allyBarracks)
+            do
+                if not ally:HasModifier("modifier_arc_warden_magnetic_field_attack_speed") and utility.IsTargetedByEnemy(ally, true)
+                then
+                    if GetUnitToUnitDistance(npcBot, ally) <= castRangeAbility
+                    then
+                        npcBot:ActionImmediate_Chat("Использую MagneticField в радиусе каста на барраки!", true);
+                        return BOT_ACTION_DESIRE_MODERATE, utility.GetTargetCastPosition(npcBot, ally, delayAbility, 0);
+                    elseif GetUnitToUnitDistance(npcBot, ally) <= castRangeAbility + radiusAbility
+                    then
+                        npcBot:ActionImmediate_Chat("Использую MagneticField в касте+радиусе на барраки!", true);
+                        return BOT_ACTION_DESIRE_MODERATE,
+                            utility.GetMaxRangeCastLocation(npcBot, ally, castRangeAbility);
+                    end
+                end
+            end
+        end
+        if utility.IsTargetedByEnemy(allyAncient, true) and npcBot:DistanceFromFountain() <= 3000
+        then
+            if GetUnitToUnitDistance(npcBot, allyAncient) <= castRangeAbility
+                and not allyAncient:HasModifier("modifier_arc_warden_magnetic_field_attack_speed")
+            then
+                --npcBot:ActionImmediate_Chat("Использую MagneticField в радиусе каста на ДРЕВНЕГО!", true);
+                return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, allyAncient, delayAbility, 0);
+            elseif GetUnitToUnitDistance(npcBot, allyAncient) <= castRangeAbility + radiusAbility
+                and not allyAncient:HasModifier("modifier_arc_warden_magnetic_field_attack_speed")
+            then
+                --npcBot:ActionImmediate_Chat("Использую MagneticField в касте+радиусе на ДРЕВНЕГО!", true);
+                return BOT_ACTION_DESIRE_HIGH,
+                    utility.GetMaxRangeCastLocation(npcBot, allyAncient, castRangeAbility);
+            end
+        end
+    end
+end ]]
+
+
+
+
+
+
 
 --[[             for _, enemy in pairs(enemyAbility) do
                 if GetUnitToUnitDistance(npcBot, enemy) <= castRangeAbility

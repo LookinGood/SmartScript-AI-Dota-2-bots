@@ -36,6 +36,10 @@ local AbilityToLevelUp =
     Abilities[6],
     Talents[6],
     Talents[8],
+    Talents[2],
+    Talents[3],
+    Talents[5],
+    Talents[7],
 }
 
 function AbilityLevelUpThink()
@@ -45,6 +49,7 @@ end
 -- Abilities
 local Burrowstrike = AbilitiesReal[1]
 local SandStorm = AbilitiesReal[2]
+local Stinger = AbilitiesReal[3]
 local Epicenter = AbilitiesReal[6]
 
 function AbilityUsageThink()
@@ -59,6 +64,7 @@ function AbilityUsageThink()
 
     local castBurrowstrikeDesire, castBurrowstrikeLocation = ConsiderBurrowstrike();
     local castSandStormDesire = ConsiderSandStorm();
+    local castStingerDesire, castStingerLocation = ConsiderStinger();
     local castEpicenterDesire = ConsiderEpicenter();
 
     if (castBurrowstrikeDesire ~= nil)
@@ -70,6 +76,12 @@ function AbilityUsageThink()
     if (castSandStormDesire ~= nil)
     then
         npcBot:Action_UseAbility(SandStorm);
+        return;
+    end
+
+    if (castStingerDesire ~= nil)
+    then
+        npcBot:Action_UseAbilityOnLocation(Stinger, castStingerLocation);
         return;
     end
 
@@ -183,6 +195,101 @@ function ConsiderSandStorm()
                 then
                     return BOT_ACTION_DESIRE_HIGH;
                 end
+            end
+        end
+    end
+end
+
+function ConsiderStinger()
+    local ability = Stinger;
+    if not utility.IsAbilityAvailable(ability) then
+        return;
+    end
+
+    local castRangeAbility = ability:GetCastRange();
+    local radiusAbility = ability:GetSpecialValueInt("radius");
+    local damageAbility = npcBot:GetAttackDamage() + ability:GetSpecialValueInt("attack_damage");
+    local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
+    local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility + radiusAbility, true, BOT_MODE_NONE);
+
+    -- Cast if can kill somebody
+    if (#enemyAbility > 0)
+    then
+        for _, enemy in pairs(enemyAbility) do
+            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType())
+            then
+                if utility.CanCastSpellOnTarget(ability, enemy)
+                then
+                    if GetUnitToUnitDistance(npcBot, enemy) <= castRangeAbility
+                    then
+                        --npcBot:ActionImmediate_Chat("Использую Stinger в радиусе каста добивая!", true);
+                        return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
+                    elseif GetUnitToUnitDistance(npcBot, enemy) <= castRangeAbility + radiusAbility
+                    then
+                        --npcBot:ActionImmediate_Chat("Использую Stinger в касте+радиусе добивая!!", true);
+                        return BOT_ACTION_DESIRE_HIGH, utility.GetMaxRangeCastLocation(npcBot, enemy, castRangeAbility);
+                    end
+                end
+            end
+        end
+    end
+
+    -- Attack use
+    if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
+    then
+        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
+        then
+            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= (castRangeAbility + radiusAbility)
+                and not utility.IsDisabled(botTarget)
+            then
+                if GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+                then
+                    return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
+                elseif GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility + radiusAbility
+                then
+                    return BOT_ACTION_DESIRE_HIGH, utility.GetMaxRangeCastLocation(npcBot, botTarget, castRangeAbility);
+                end
+            end
+        end
+        -- Retreat use
+    elseif utility.RetreatMode(npcBot)
+    then
+        if (#enemyAbility > 0)
+        then
+            for _, enemy in pairs(enemyAbility) do
+                if utility.CanCastSpellOnTarget(ability, enemy) and not utility.IsDisabled(enemy)
+                then
+                    if GetUnitToUnitDistance(npcBot, enemy) <= castRangeAbility
+                    then
+                        return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
+                    elseif GetUnitToUnitDistance(npcBot, enemy) <= castRangeAbility + radiusAbility
+                    then
+                        return BOT_ACTION_DESIRE_HIGH, utility.GetMaxRangeCastLocation(npcBot, enemy, castRangeAbility);
+                    end
+                end
+            end
+        end
+        -- Cast if push/defend/farm
+    elseif utility.PvEMode(npcBot)
+    then
+        local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility, radiusAbility,
+            0, 0);
+        if locationAoE ~= nil and (ManaPercentage >= 0.5) and (locationAoE.count >= 3)
+        then
+            return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
+        end
+        -- Cast when laning
+    elseif botMode == BOT_MODE_LANING
+    then
+        local enemy = utility.GetWeakest(enemyAbility);
+        if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)
+        then
+            if GetUnitToUnitDistance(npcBot, enemy) <= castRangeAbility
+            then
+                return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
+            elseif GetUnitToUnitDistance(npcBot, enemy) <= castRangeAbility + radiusAbility
+            then
+                return BOT_ACTION_DESIRE_HIGH, utility.GetMaxRangeCastLocation(npcBot, enemy, castRangeAbility);
             end
         end
     end

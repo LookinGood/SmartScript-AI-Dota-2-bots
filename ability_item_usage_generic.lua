@@ -30,32 +30,14 @@ function CourierUsageThink()
 	local shield = courier:GetAbilityByName("courier_shield");
 	local canCastBurst = burst ~= nil and burst:IsFullyCastable();
 	local canCastShield = shield ~= nil and shield:IsFullyCastable();
+	local courierInDanger = false;
 	--local courierHealth = courier:GetHealth() / courier:GetMaxHealth();
 
-	if not courier:IsInvulnerable() and (state ~= COURIER_STATE_AT_BASE)
+	if (state == COURIER_STATE_IDLE)
 	then
-		if utility.CountEnemyHeroAroundUnit(courier, 1000) > 0 or utility.CountEnemyTowerAroundUnit(courier, 1000) > 0
-			or courier:GetHealth() < courier:GetMaxHealth()
-		then
-			if (canCastBurst) and (state == COURIER_STATE_MOVING)
-			then
-				npcBot:ActionImmediate_Courier(courier, COURIER_ACTION_BURST);
-				return;
-			end
-			if (canCastShield)
-			then
-				--courier:Action_UseAbility(shield);
-				npcBot:ActionImmediate_Courier(courier, COURIER_ACTION_SHIELD);
-				--npcBot:ActionImmediate_Chat("Курьер юзает щит!", true);
-				return;
-			end
-			if (state ~= COURIER_STATE_AT_BASE) and (state ~= COURIER_STATE_RETURNING_TO_BASE)
-			then
-				npcBot:ActionImmediate_Courier(courier, COURIER_ACTION_RETURN_STASH_ITEMS);
-				return;
-			end
-			return;
-		end
+		--npcBot:ActionImmediate_Chat("Курьер бездельничает!", true);
+		npcBot:ActionImmediate_Courier(courier, COURIER_ACTION_RETURN_STASH_ITEMS);
+		return;
 	end
 
 	if (state == COURIER_STATE_DELIVERING_ITEMS)
@@ -67,54 +49,61 @@ function CourierUsageThink()
 		end
 	end
 
-	if (state ~= COURIER_STATE_MOVING) and (state ~= COURIER_STATE_DELIVERING_ITEMS)
+	if ((utility.CountEnemyHeroAroundUnit(courier, 1000) > 0 or utility.CountEnemyTowerAroundUnit(courier, 1000) > 0) and not courier:IsInvulnerable())
+		or (courier:GetHealth() < courier:GetMaxHealth())
 	then
-		if npcBot:IsAlive()
+		courierInDanger = true;
+	else
+		courierInDanger = false;
+	end
+
+	if courierInDanger
+	then
+		if (canCastBurst) and (state == COURIER_STATE_MOVING)
 		then
-			if (npcBot:GetStashValue() > 100) and (state == COURIER_STATE_AT_BASE)
+			npcBot:ActionImmediate_Courier(courier, COURIER_ACTION_BURST);
+			return;
+		end
+		if (canCastShield)
+		then
+			--courier:Action_UseAbility(shield);
+			npcBot:ActionImmediate_Courier(courier, COURIER_ACTION_SHIELD);
+			--npcBot:ActionImmediate_Chat("Курьер юзает щит!", true);
+			return;
+		end
+		if (state ~= COURIER_STATE_RETURNING_TO_BASE)
+		then
+			npcBot:ActionImmediate_Courier(courier, COURIER_ACTION_RETURN_STASH_ITEMS);
+			return;
+		end
+	else
+		if (state ~= COURIER_STATE_MOVING) and (state ~= COURIER_STATE_DELIVERING_ITEMS)
+		then
+			if npcBot:IsAlive()
 			then
-				npcBot:ActionImmediate_Courier(courier, COURIER_ACTION_TAKE_AND_TRANSFER_ITEMS);
-				return;
-			elseif (npcBot:GetCourierValue() > 0) and (npcBot:GetStashValue() <= 0)
-			then
-				npcBot:ActionImmediate_Courier(courier, COURIER_ACTION_TRANSFER_ITEMS);
-				return;
-			elseif (npcBot.secretShopMode == true) and (npcBot:DistanceFromSecretShop() >= 3000) and (courier:DistanceFromSecretShop() > 200)
-				and not utility.IsCourierItemSlotsFull()
-			then
-				npcBot:ActionImmediate_Courier(courier, COURIER_ACTION_SECRET_SHOP);
-				return;
-			else
-				if (state ~= COURIER_STATE_AT_BASE) and (state ~= COURIER_STATE_RETURNING_TO_BASE)
+				if (npcBot:GetStashValue() > 100) and (state == COURIER_STATE_AT_BASE)
 				then
-					--npcBot:ActionImmediate_Chat("Курьер идёт домой1!", true);
-					npcBot:ActionImmediate_Courier(courier, COURIER_ACTION_RETURN_STASH_ITEMS);
+					npcBot:ActionImmediate_Courier(courier, COURIER_ACTION_TAKE_AND_TRANSFER_ITEMS);
 					return;
-				end
-			end
-		elseif not npcBot:IsAlive()
-		then
-			if (npcBot.secretShopMode == true)
-			then
-				if (courier:DistanceFromSecretShop() > 200) and not utility.IsCourierItemSlotsFull()
+				elseif (npcBot:GetCourierValue() > 0) and (npcBot:GetStashValue() <= 0)
+				then
+					npcBot:ActionImmediate_Courier(courier, COURIER_ACTION_TRANSFER_ITEMS);
+					return;
+				elseif (npcBot.secretShopMode == true) and (npcBot:DistanceFromSecretShop() >= 3000) and (courier:DistanceFromSecretShop() > 200)
+					and not utility.IsCourierItemSlotsFull()
 				then
 					npcBot:ActionImmediate_Courier(courier, COURIER_ACTION_SECRET_SHOP);
 					return;
 				end
 			else
-				if (state ~= COURIER_STATE_AT_BASE) and (state ~= COURIER_STATE_RETURNING_TO_BASE)
+				if (npcBot.secretShopMode == true) and (courier:DistanceFromSecretShop() > 200) and not utility.IsCourierItemSlotsFull()
+					and npcBot:GetCourierValue() <= 0
 				then
-					--npcBot:ActionImmediate_Chat("Курьер идёт домой2!", true);
-					npcBot:ActionImmediate_Courier(courier, COURIER_ACTION_RETURN_STASH_ITEMS);
+					npcBot:ActionImmediate_Courier(courier, COURIER_ACTION_SECRET_SHOP);
 					return;
 				end
 			end
 		end
-	elseif (state == COURIER_STATE_IDLE)
-	then
-		--npcBot:ActionImmediate_Chat("Курьер бездельничает!", true);
-		npcBot:ActionImmediate_Courier(courier, COURIER_ACTION_RETURN_STASH_ITEMS);
-		return;
 	end
 end
 
@@ -1542,7 +1531,7 @@ function ItemUsageThink()
 						--npcBot:ActionImmediate_Chat("Использую предмет Blink для нападения!",true);
 					end
 				end
-			elseif utility.RetreatMode(npcBot) and npcBot:DistanceFromFountain() >= (itemRange / 2)
+			elseif (utility.RetreatMode(npcBot) and npcBot:DistanceFromFountain() >= (itemRange / 2)) or npcBot:GetCurrentActionType() == BOT_ACTION_TYPE_IDLE
 			then
 				if blink ~= nil
 				then

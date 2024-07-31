@@ -36,6 +36,10 @@ local AbilityToLevelUp =
     Abilities[6],
     Talents[6],
     Talents[8],
+    Talents[1],
+    Talents[4],
+    Talents[5],
+    Talents[7],
 }
 
 function AbilityLevelUpThink()
@@ -47,6 +51,8 @@ local BerserkersRage = AbilitiesReal[1]
 local WhirlingAxesMissle = AbilitiesReal[2]
 local WhirlingAxesMelee = AbilitiesReal[3]
 local BattleTrance = AbilitiesReal[6]
+
+local castBerserkersRageTimer = 0.0;
 
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
@@ -63,9 +69,10 @@ function AbilityUsageThink()
     local castWhirlingAxesMeleeDesire = ConsiderWhirlingAxesMelee();
     local castBattleTranceDesire = ConsiderBattleTrance();
 
-    if (castBerserkersRageDesire ~= nil)
+    if (castBerserkersRageDesire ~= nil) and (DotaTime() >= castBerserkersRageTimer + 2.0)
     then
         npcBot:Action_UseAbility(BerserkersRage);
+        castBerserkersRageTimer = DotaTime();
         return;
     end
 
@@ -102,21 +109,26 @@ function ConsiderBerserkersRage()
     end ]]
 
     --local attackTarget = npcBot:GetAttackTarget();
-    local attackRangeMelee = 500 - ability:GetSpecialValueInt("bonus_range");
-    local attackRangeMissle = 500;
+    local attackRangeMelee = 150;
+    local attackRangeMissle = attackRangeMelee + ability:GetSpecialValueInt("bonus_range");
 
     -- Generic use
     if utility.CanCastOnInvulnerableTarget(botTarget)
     then
-        if GetUnitToUnitDistance(npcBot, botTarget) <= attackRangeMelee and ability:GetToggleState() == false
+        if GetUnitToUnitDistance(npcBot, botTarget) <= attackRangeMissle and GetUnitToUnitDistance(npcBot, botTarget) > attackRangeMelee
         then
-            --npcBot:ActionImmediate_Chat("Включаю BerserkersRage для атаки в мили!", true);
-            return BOT_ACTION_DESIRE_HIGH;
-        elseif GetUnitToUnitDistance(npcBot, botTarget) <= attackRangeMissle and GetUnitToUnitDistance(npcBot, botTarget) > attackRangeMelee
-            and ability:GetToggleState() == true
+            if ability:GetToggleState() == true
+            then
+                --npcBot:ActionImmediate_Chat("Выключаю BerserkersRage для атаки в дальнем бою!", true);
+                return BOT_ACTION_DESIRE_HIGH;
+            end
+        elseif GetUnitToUnitDistance(npcBot, botTarget) <= attackRangeMelee
         then
-            --npcBot:ActionImmediate_Chat("Выключаю BerserkersRage для атаки в дальнем бою!", true);
-            return BOT_ACTION_DESIRE_HIGH;
+            if ability:GetToggleState() == false
+            then
+                --npcBot:ActionImmediate_Chat("Включаю BerserkersRage для атаки в мили!", true);
+                return BOT_ACTION_DESIRE_HIGH;
+            end
         else
             if ability:GetToggleState() == false
             then

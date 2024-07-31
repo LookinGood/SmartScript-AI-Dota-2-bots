@@ -18,24 +18,28 @@ local Abilities, Talents, AbilitiesReal = ability_levelup_generic.GetHeroAbiliti
 local AbilityToLevelUp =
 {
     Abilities[1],
+    Abilities[5],
     Abilities[4],
+    Abilities[1],
+    Abilities[1],
     Abilities[5],
     Abilities[1],
-    Abilities[1],
-    Abilities[4],
-    Abilities[1],
-    Abilities[4],
-    Abilities[4],
+    Abilities[5],
+    Abilities[5],
     Talents[2],
-    Abilities[5],
+    Abilities[4],
     Abilities[6],
     Abilities[6],
-    Abilities[5],
+    Abilities[4],
     Talents[4],
-    Abilities[5],
+    Abilities[4],
     Abilities[6],
     Talents[5],
     Talents[8],
+    Talents[1],
+    Talents[3],
+    Talents[6],
+    Talents[7],
 }
 
 function AbilityLevelUpThink()
@@ -46,7 +50,8 @@ end
 local Shadowraze1 = AbilitiesReal[1]
 local Shadowraze2 = AbilitiesReal[2]
 local Shadowraze3 = AbilitiesReal[3]
-local Necromastery = AbilitiesReal[4]
+local FeastOfSoul = AbilitiesReal[4]
+local Necromastery = npcBot:GetAbilityByName("nevermore_necromastery");
 local RequiemOfSouls = AbilitiesReal[6]
 
 function AbilityUsageThink()
@@ -62,6 +67,7 @@ function AbilityUsageThink()
     local castShadowraze1Desire = ConsiderShadowraze1();
     local castShadowraze2Desire = ConsiderShadowraze2();
     local castShadowraze3Desire = ConsiderShadowraze3();
+    local castFeastOfSoulDesire = ConsiderFeastOfSoul();
     local castNecromasteryDesire, castNecromasteryTarget = ConsiderNecromastery();
     local castRequiemOfSoulsDesire = ConsiderRequiemOfSouls();
 
@@ -80,6 +86,12 @@ function AbilityUsageThink()
     if (castShadowraze3Desire ~= nil)
     then
         npcBot:Action_UseAbility(Shadowraze3);
+        return;
+    end
+
+    if (castFeastOfSoulDesire ~= nil)
+    then
+        npcBot:Action_UseAbility(FeastOfSoul);
         return;
     end
 
@@ -299,6 +311,33 @@ function ConsiderShadowraze3()
         then
             --npcBot:ActionImmediate_Chat("Использую Shadowraze3 по цели на ЛАЙНЕ!", true);
             return BOT_ACTION_DESIRE_VERYHIGH;
+        end
+    end
+end
+
+function ConsiderFeastOfSoul()
+    local ability = FeastOfSoul;
+    if not utility.IsAbilityAvailable(ability) then
+        return;
+    end
+
+    local attackTarget = npcBot:GetAttackTarget();
+    local abilityCount = ability:GetSpecialValueInt("soul_cost");
+
+    if utility.GetModifierCount(npcBot, "modifier_nevermore_necromastery") <= abilityCount
+    then
+        return;
+    end
+
+    -- Attack use
+    if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
+    then
+        if utility.IsHero(attackTarget) or utility.IsRoshan(attackTarget)
+        then
+            if utility.CanCastOnInvulnerableTarget(attackTarget)
+            then
+                return BOT_ACTION_DESIRE_HIGH;
+            end
         end
     end
 end

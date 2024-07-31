@@ -588,8 +588,10 @@ function IsBusy(npcTarget)
 end
 
 function IsAbilityAvailable(ability)
-	return ability:IsFullyCastable() and
+	return ability ~= nil and
+		ability:IsFullyCastable() and
 		ability:IsActivated() and
+		ability:IsTrained() and
 		not ability:IsHidden() and
 		not ability:IsPassive()
 end

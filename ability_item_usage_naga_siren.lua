@@ -36,6 +36,10 @@ local AbilityToLevelUp =
     Abilities[6],
     Talents[6],
     Talents[7],
+    Talents[1],
+    Talents[4],
+    Talents[5],
+    Talents[8],
 }
 
 function AbilityLevelUpThink()
@@ -45,6 +49,7 @@ end
 -- Abilities
 local MirrorImage = AbilitiesReal[1]
 local Ensnare = AbilitiesReal[2]
+local Deluge = npcBot:GetAbilityByName("naga_siren_deluge");
 local SongOfTheSiren = AbilitiesReal[6]
 
 function AbilityUsageThink()
@@ -59,6 +64,7 @@ function AbilityUsageThink()
 
     local castMirrorImageDesire = ConsiderMirrorImage();
     local castEnsnareDesire, castEnsnareTarget = ConsiderEnsnare();
+    local castDelugeDesire = ConsiderDeluge();
     local castSongOfTheSirenDesire = ConsiderSongOfTheSiren();
 
     if (castMirrorImageDesire ~= nil)
@@ -70,6 +76,12 @@ function AbilityUsageThink()
     if (castEnsnareDesire ~= nil)
     then
         npcBot:Action_UseAbilityOnEntity(Ensnare, castEnsnareTarget);
+        return;
+    end
+
+    if (castDelugeDesire ~= nil)
+    then
+        npcBot:Action_UseAbility(Deluge);
         return;
     end
 
@@ -172,6 +184,62 @@ function ConsiderEnsnare()
                 if utility.CanCastSpellOnTarget(ability, enemy) and not utility.IsDisabled(enemy)
                 then
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy;
+                end
+            end
+        end
+    end
+end
+
+function ConsiderDeluge()
+    local ability = Deluge;
+    if not utility.IsAbilityAvailable(ability) then
+        return;
+    end
+
+    local radiusAbility = ability:GetAOERadius();
+    local damageAbility = ability:GetSpecialValueInt("damage");
+    local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
+
+    -- Cast if can kill somebody
+    if (#enemyAbility > 0)
+    then
+        for _, enemy in pairs(enemyAbility) do
+            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType())
+            then
+                if utility.CanCastSpellOnTarget(ability, enemy)
+                then
+                    return BOT_ACTION_DESIRE_HIGH;
+                end
+            end
+        end
+    end
+
+    -- Attack use
+    if utility.PvPMode(npcBot) or utility.RetreatMode(npcBot)
+    then
+        if (#enemyAbility > 0)
+        then
+            for _, enemy in pairs(enemyAbility) do
+                if utility.CanCastSpellOnTarget(ability, enemy)
+                then
+                    return BOT_ACTION_DESIRE_HIGH;
+                end
+            end
+        end
+        -- Roshan use
+        if utility.IsRoshan(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= radiusAbility
+        then
+            return BOT_ACTION_DESIRE_HIGH;
+        end
+    elseif utility.PvEMode(npcBot)
+    then
+        local enemyCreeps = npcBot:GetNearbyCreeps(radiusAbility, true);
+        if (#enemyCreeps > 2) and (ManaPercentage >= 0.6)
+        then
+            for _, enemy in pairs(enemyCreeps) do
+                if utility.CanCastSpellOnTarget(ability, enemy)
+                then
+                    return BOT_ACTION_DESIRE_HIGH;
                 end
             end
         end

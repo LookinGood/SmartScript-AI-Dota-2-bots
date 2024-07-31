@@ -448,7 +448,7 @@ function Think()
 
 	-- Insert here hero hame and set "testmode = true" if you want the bot to choose a specific hero
 	local testmode = false;
-	local testHero = "npc_dota_hero_sniper"
+	local testHero = "npc_dota_hero_warlock"
 
 	if testmode
 	then

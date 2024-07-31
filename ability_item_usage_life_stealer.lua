@@ -36,6 +36,10 @@ local AbilityToLevelUp =
     Abilities[6],
     Talents[6],
     Talents[8],
+    Talents[1],
+    Talents[3],
+    Talents[5],
+    Talents[7],
 }
 
 function AbilityLevelUpThink()
@@ -44,7 +48,8 @@ end
 
 -- Abilities
 local Rage = AbilitiesReal[1]
-local OpenWounds = AbilitiesReal[4]
+local Unfettered = npcBot:GetAbilityByName("life_stealer_unfettered");
+local OpenWounds = npcBot:GetAbilityByName("life_stealer_open_wounds");
 local Consume = npcBot:GetAbilityByName("life_stealer_consume");
 local Infest = AbilitiesReal[6]
 
@@ -59,6 +64,7 @@ function AbilityUsageThink()
     ManaPercentage = npcBot:GetMana() / npcBot:GetMaxMana();
 
     local castRageDesire = ConsiderRage();
+    local castUnfetteredDesire = ConsiderUnfettered();
     local castOpenWoundsDesire, castOpenWoundsTarget = ConsiderOpenWounds();
     local castConsumeDesire = ConsiderConsume();
     local castInfestDesire, castInfestTarget = ConsiderInfest();
@@ -66,6 +72,12 @@ function AbilityUsageThink()
     if (castRageDesire ~= nil)
     then
         npcBot:Action_UseAbility(Rage);
+        return;
+    end
+
+    if (castUnfetteredDesire ~= nil)
+    then
+        npcBot:Action_UseAbility(Unfettered);
         return;
     end
 
@@ -98,6 +110,51 @@ end
 
 function ConsiderRage()
     local ability = Rage;
+    if not utility.IsAbilityAvailable(ability)
+    then
+        return;
+    end
+
+    if not utility.CanCastOnMagicImmuneTarget(npcBot)
+    then
+        return;
+    end
+
+    local incomingSpells = npcBot:GetIncomingTrackingProjectiles();
+
+    -- Cast if get incoming spell
+    if (#incomingSpells > 0)
+    then
+        for _, spell in pairs(incomingSpells)
+        do
+            if not utility.IsAlly(npcBot, spell.caster) and GetUnitToLocationDistance(npcBot, spell.location) <= 300 and spell.is_attack == false and
+                not npcBot:HasModifier("modifier_antimage_counterspell") and
+                not npcBot:HasModifier("modifier_item_sphere_target") and
+                not npcBot:HasModifier("modifier_item_lotus_orb_active")
+            then
+                return BOT_ACTION_DESIRE_VERYHIGH;
+            end
+        end
+    end
+
+    -- Attack use
+    if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
+    then
+        if (utility.IsHero(botTarget) or utility.IsRoshan(botTarget)) and (GetUnitToUnitDistance(npcBot, botTarget) <= npcBot:GetAttackRange() * 4)
+        then
+            return BOT_ACTION_DESIRE_HIGH;
+        end
+    end
+
+    -- General use
+    if (HealthPercentage <= 0.8) and ((npcBot:WasRecentlyDamagedByAnyHero(2.0) or npcBot:WasRecentlyDamagedByTower(2.0)))
+    then
+        return BOT_ACTION_DESIRE_HIGH;
+    end
+end
+
+function ConsiderUnfettered()
+    local ability = Unfettered;
     if not utility.IsAbilityAvailable(ability)
     then
         return;

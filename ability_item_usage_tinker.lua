@@ -36,6 +36,10 @@ local AbilityToLevelUp =
     Abilities[6],
     Talents[5],
     Talents[7],
+    Talents[1],
+    Talents[3],
+    Talents[6],
+    Talents[8],
 }
 
 function AbilityLevelUpThink()
@@ -44,7 +48,8 @@ end
 
 -- Abilities
 local Laser = AbilitiesReal[1]
-local HeatSeekingMissile = AbilitiesReal[2]
+local HeatSeekingMissile = npcBot:GetAbilityByName("tinker_heat_seeking_missile");
+local MarchOfTheMachines = AbilitiesReal[2]
 local DefenseMatrix = AbilitiesReal[3]
 local WarpFlare = AbilitiesReal[4]
 local KeenConveyance = AbilitiesReal[5]
@@ -61,6 +66,7 @@ function AbilityUsageThink()
     ManaPercentage = npcBot:GetMana() / npcBot:GetMaxMana();
 
     local castLaserDesire, castLaserTarget = ConsiderLaser();
+    local castMarchOfTheMachinesDesire, castMarchOfTheMachinesLocation = ConsiderMarchOfTheMachines();
     local castHeatSeekingMissileDesire = ConsiderHeatSeekingMissile();
     local castDefenseMatrixDesire, castDefenseMatrixTarget = ConsiderDefenseMatrix();
     local castWarpFlareDesire, castWarpFlareTarget = ConsiderWarpFlare();
@@ -70,6 +76,12 @@ function AbilityUsageThink()
     if (castLaserDesire ~= nil)
     then
         npcBot:Action_UseAbilityOnEntity(Laser, castLaserTarget);
+        return;
+    end
+
+    if (castMarchOfTheMachinesDesire ~= nil)
+    then
+        npcBot:Action_UseAbilityOnLocation(MarchOfTheMachines, castMarchOfTheMachinesLocation);
         return;
     end
 
@@ -99,7 +111,7 @@ function AbilityUsageThink()
 
     if (castRearmDesire ~= nil)
     then
-        npcBot:Action_ClearAction(true);
+        --npcBot:Action_ClearAction(false);
         npcBot:Action_UseAbility(Rearm);
         return;
     end
@@ -152,6 +164,38 @@ function ConsiderLaser()
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy;
                 end
             end
+        end
+    end
+end
+
+function ConsiderMarchOfTheMachines()
+    local ability = MarchOfTheMachines;
+    if not utility.IsAbilityAvailable(ability) then
+        return;
+    end
+
+    local castRangeAbility = ability:GetCastRange();
+    local radiusAbility = ability:GetSpecialValueInt("radius");
+
+    -- Cast if attack enemy
+    if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
+    then
+        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
+        then
+            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= radiusAbility
+            then
+                return BOT_ACTION_DESIRE_VERYHIGH, utility.GetMaxRangeCastLocation(npcBot, botTarget, castRangeAbility);
+            end
+        end
+        -- Cast if push/defend/farm
+    elseif utility.PvEMode(npcBot)
+    then
+        local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility, radiusAbility,
+            0, 0);
+        if locationAoE ~= nil and (ManaPercentage >= 0.5) and (locationAoE.count >= 3)
+        then
+            --npcBot:ActionImmediate_Chat("Использую Shrapnel по вражеским крипам!", true);
+            return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
         end
     end
 end
@@ -308,23 +352,20 @@ function ConsiderRearm()
         return;
     end
 
-    -- Бот постоянно сбивает каст способности передвижением поэтому ниже я поставил ограничение для каста в 99% случаев до тех пор пока не валв не починят каст ботам либо пока не найдется другое решение
---[[     if not npcBot:IsRooted()
-    then
-        return;
-    end ]]
+    local ability1 = npcBot:GetAbilityInSlot(0);
+    local ability2 = npcBot:GetAbilityInSlot(1);
 
     -- General use
     if utility.PvPMode(npcBot)
     then
-        if (not Laser:IsCooldownReady() and not HeatSeekingMissile:IsCooldownReady())
-            and (npcBot:GetMana() >= Laser:GetManaCost() + HeatSeekingMissile:GetManaCost() + Rearm:GetManaCost())
+        if (not ability1:IsCooldownReady() and not ability2:IsCooldownReady())
+            and (npcBot:GetMana() >= ability1:GetManaCost() + ability2:GetManaCost() + ability:GetManaCost())
         then
             --npcBot:ActionImmediate_Chat("Использую Rearm в бою!", true);
             return BOT_ACTION_DESIRE_HIGH;
         end
     else
-        if not KeenConveyance:IsCooldownReady() and (npcBot:GetMana() >= KeenConveyance:GetManaCost() + Rearm:GetManaCost())
+        if not KeenConveyance:IsCooldownReady() and (npcBot:GetMana() >= KeenConveyance:GetManaCost() + ability:GetManaCost())
         then
             --npcBot:ActionImmediate_Chat("Использую Rearm вне боя!", true);
             return BOT_ACTION_DESIRE_MODERATE;

@@ -137,6 +137,8 @@ function ConsiderWraithfireBlast()
     end
 end
 
+-- utility.GetModifierCount(npcBot, "modifier_skeleton_king_vampiric_aura") >= abilityCount / 2
+
 function ConsiderVampiricSpirit()
     local ability = VampiricSpirit;
     if not utility.IsAbilityAvailable(ability) then
@@ -146,7 +148,7 @@ function ConsiderVampiricSpirit()
     local abilityCount = ability:GetSpecialValueInt("max_skeleton_charges");
     local enemyAbility = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
 
-    if utility.GetModifierCount(npcBot, "modifier_skeleton_king_vampiric_aura") >= abilityCount / 2
+    if utility.GetModifierCount(npcBot, "modifier_skeleton_king_bone_guard") >= abilityCount / 2
     then
         -- Attack use
         if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN

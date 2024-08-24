@@ -7,7 +7,7 @@ require(GetScriptDirectory() .. "/hero_role_generic")
 local npcBot = GetBot();
 
 function GetDesire()
-    if not utility.IsHero(npcBot) or not npcBot:IsAlive() or not utility.CanMove(npcBot) or utility.IsBusy(npcBot) or utility.IsBaseUnderAttack()
+    if not utility.IsHero(npcBot) or not npcBot:IsAlive() or utility.IsBaseUnderAttack()
     then
         return BOT_ACTION_DESIRE_NONE;
     end

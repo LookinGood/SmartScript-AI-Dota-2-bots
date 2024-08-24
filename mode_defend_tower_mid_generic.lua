@@ -81,8 +81,7 @@ function GetDesire()
     --local botMode = npcBot:GetActiveMode();
     local botLevel = npcBot:GetLevel();
 
-    if not utility.IsHero(npcBot) or not npcBot:IsAlive() or not utility.CanMove(npcBot) or utility.IsBusy(npcBot) or npcBot:WasRecentlyDamagedByAnyHero(2.0)
-        or healthPercent <= 0.3 or (botLevel <= 3)
+    if not utility.IsHero(npcBot) or not npcBot:IsAlive() or npcBot:WasRecentlyDamagedByAnyHero(2.0) or healthPercent <= 0.3 or botLevel <= 3
     then
         return BOT_ACTION_DESIRE_NONE;
     end

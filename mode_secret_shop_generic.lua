@@ -6,8 +6,8 @@ local npcBot = GetBot();
 function GetDesire()
 	local enemyHeroes = npcBot:GetNearbyHeroes(1000, true, BOT_MODE_NONE);
 
-	if not utility.IsHero(npcBot) or not npcBot:IsAlive() or utility.IsBusy(npcBot) or not utility.CanMove(npcBot) or utility.IsClone(npcBot) or
-		(#enemyHeroes > 0) or npcBot.secretShopMode == false or secretShopDistance > 3000 or utility.IsItemSlotsFull() or utility.IsBaseUnderAttack()
+	if not utility.IsHero(npcBot) or not npcBot:IsAlive() or utility.IsClone(npcBot) or (#enemyHeroes > 0)
+		or npcBot.secretShopMode == false or secretShopDistance > 3000 or utility.IsItemSlotsFull() or utility.IsBaseUnderAttack()
 	then
 		return BOT_ACTION_DESIRE_NONE;
 	end
@@ -27,21 +27,21 @@ function GetDesire()
 end
 
 function OnStart()
-    if RollPercentage(5)
-    then
-        npcBot:ActionImmediate_Chat("Иду в секретную лавку.", false);
-    end
+	if RollPercentage(5)
+	then
+		npcBot:ActionImmediate_Chat("Иду в секретную лавку.", false);
+	end
 end
 
 function OnEnd()
---
+	--
 end
 
 function Think()
-    if utility.IsBusy(npcBot)
-    then
-        return;
-    end
+	if utility.IsBusy(npcBot)
+	then
+		return;
+	end
 
 	local shopLoc1 = GetShopLocation(GetTeam(), SHOP_SECRET);
 	local shopLoc2 = GetShopLocation(GetTeam(), SHOP_SECRET2);

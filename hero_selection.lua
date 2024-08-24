@@ -117,6 +117,7 @@ require(GetScriptDirectory() .. "/hero_role_generic")
 	"npc_dota_hero_brewmaster",
 	"npc_dota_hero_visage",
 	"npc_dota_hero_phoenix",
+	"npc_dota_hero_chen",
 ]]
 --#endregion
 
@@ -233,6 +234,7 @@ local hero_pool_my =
 	"npc_dota_hero_brewmaster",
 	"npc_dota_hero_visage",
 	"npc_dota_hero_phoenix",
+	"npc_dota_hero_chen",
 }
 
 local heroesCarry =
@@ -352,6 +354,15 @@ local heroesSupport =
 	"npc_dota_hero_earthshaker",
 	"npc_dota_hero_visage",
 	"npc_dota_hero_phoenix",
+	"npc_dota_hero_chen",
+}
+
+local testTeam =
+{
+	"npc_dota_hero_lycan",
+	"npc_dota_hero_enchantress",
+	"npc_dota_hero_venomancer",
+	"npc_dota_hero_beastmaster",
 }
 
 function GetBotNames()
@@ -440,15 +451,36 @@ function GetRandomHero()
 	return hero;
 end
 
+function GetTestPick()
+	local hero;
+	local picks = GetPicks();
+	local selectedHeroes = {};
+
+	for slot, hero in pairs(picks) do
+		selectedHeroes[hero] = true;
+	end
+
+	if (hero == nil)
+	then
+		hero = testTeam[RandomInt(1, #testTeam)];
+	end
+
+	while (selectedHeroes[hero] == true) do
+		hero = testTeam[RandomInt(1, #testTeam)];
+	end
+
+	return hero;
+end
+
 function Think()
 	if GetGameState() ~= GAME_STATE_HERO_SELECTION
 	then
 		return;
 	end
 
-	-- Insert here hero hame and set "testmode = true" if you want the bot to choose a specific hero
+	-- Insert here hero hame and set "testmode = true" if you want the bot to choose a specific hero (Work only in Radiant team)
 	local testmode = false;
-	local testHero = "npc_dota_hero_lion"
+	local testHero = "npc_dota_hero_luna"
 
 	if testmode
 	then
@@ -473,32 +505,50 @@ function Think()
 	--
 
 	local lastpick = 10;
+	local testPick = false;
 
-	if (IsHumansPickHeroes() and GameTime() >= lastpick + 5) or
-		(GameTime() >= 60 and GameTime() >= lastpick + 2)
+	if testPick
 	then
-		for _, i in pairs(GetTeamPlayers(GetTeam()))
-		do
-			if IsPlayerBot(i) and GetSelectedHeroName(i) == "" and (i ~= testPlayer)
-			then
-				local hero = nil;
-				if hero_role_generic.GetCountCarryHeroInTeam() < 3
+		if GameTime() >= lastpick + 5
+		then
+			for _, i in pairs(GetTeamPlayers(GetTeam()))
+			do
+				if IsPlayerBot(i) and GetSelectedHeroName(i) == "" and (i ~= testPlayer)
 				then
-					hero = GetCarryHero();
+					hero = GetTestPick();
 					SelectHero(i, hero);
 					lastpick = GameTime();
 					return;
-				elseif hero_role_generic.GetCountSupportHeroInTeam() < 2
+				end
+			end
+		end
+	else
+		if (IsHumansPickHeroes() and GameTime() >= lastpick + 5) or
+			(GameTime() >= 60 and GameTime() >= lastpick + 2)
+		then
+			for _, i in pairs(GetTeamPlayers(GetTeam()))
+			do
+				if IsPlayerBot(i) and GetSelectedHeroName(i) == "" and (i ~= testPlayer)
 				then
-					hero = GetSupportHero();
-					SelectHero(i, hero);
-					lastpick = GameTime();
-					return;
-				else
-					hero = GetRandomHero();
-					SelectHero(i, hero);
-					lastpick = GameTime();
-					return;
+					local hero = nil;
+					if hero_role_generic.GetCountCarryHeroInTeam() < 3
+					then
+						hero = GetCarryHero();
+						SelectHero(i, hero);
+						lastpick = GameTime();
+						return;
+					elseif hero_role_generic.GetCountSupportHeroInTeam() < 2
+					then
+						hero = GetSupportHero();
+						SelectHero(i, hero);
+						lastpick = GameTime();
+						return;
+					else
+						hero = GetRandomHero();
+						SelectHero(i, hero);
+						lastpick = GameTime();
+						return;
+					end
 				end
 			end
 		end

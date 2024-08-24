@@ -48,7 +48,7 @@ end
 
 -- Abilities
 local LucentBeam = AbilitiesReal[1]
-local MoonGlaives = AbilitiesReal[2]
+local LunarOrbit = AbilitiesReal[2]
 local Eclipse = AbilitiesReal[6]
 
 function AbilityUsageThink()
@@ -62,7 +62,7 @@ function AbilityUsageThink()
     ManaPercentage = npcBot:GetMana() / npcBot:GetMaxMana();
 
     local castLucentBeamDesire, castLucentBeamTarget = ConsiderLucentBeam();
-    local castMoonGlaivesDesire = ConsiderMoonGlaives();
+    local castLunarOrbitDesire = ConsiderLunarOrbit();
     local castEclipseDesire, castEclipseLocation, castEclipseTargetType = ConsiderEclipse();
 
     if (castLucentBeamDesire ~= nil)
@@ -71,9 +71,9 @@ function AbilityUsageThink()
         return;
     end
 
-    if (castMoonGlaivesDesire ~= nil)
+    if (castLunarOrbitDesire ~= nil)
     then
-        npcBot:Action_UseAbility(MoonGlaives);
+        npcBot:Action_UseAbility(LunarOrbit);
         return;
     end
 
@@ -143,16 +143,16 @@ function ConsiderLucentBeam()
     end
 end
 
-function ConsiderMoonGlaives()
-    local ability = MoonGlaives;
+function ConsiderLunarOrbit()
+    local ability = LunarOrbit;
     if not utility.IsAbilityAvailable(ability) then
         return;
     end
 
-    if not utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_NO_TARGET)
+--[[     if not utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_NO_TARGET)
     then
         return;
-    end
+    end ]]
 
     local radiusAbility = ability:GetSpecialValueInt("rotating_glaives_movement_radius");
 
@@ -170,8 +170,11 @@ function ConsiderMoonGlaives()
         -- Retreat use
     elseif utility.RetreatMode(npcBot)
     then
-        --npcBot:ActionImmediate_Chat("Использую MoonGlaives для отступления!", true);
-        return BOT_ACTION_DESIRE_HIGH;
+        if (npcBot:WasRecentlyDamagedByAnyHero(2.0) or npcBot:WasRecentlyDamagedByTower(2.0))
+        then
+            --npcBot:ActionImmediate_Chat("Использую MoonGlaives для отступления!", true);
+            return BOT_ACTION_DESIRE_HIGH;
+        end
     end
 end
 
@@ -197,7 +200,8 @@ function ConsiderEclipse()
             elseif utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_POINT) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
             then
                 --npcBot:ActionImmediate_Chat("Использую Eclipse для нападения с аганимом!",true);
-                return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0), "location";
+                return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0),
+                    "location";
             end
         end
     end

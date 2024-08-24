@@ -22,9 +22,9 @@ local ItemsToBuy =
     "item_recipe_ring_of_basilius",
 	"item_recipe_arcane_boots",
 
-	"item_circlet",
 	"item_sobi_mask",
 	"item_ring_of_protection",
+	"item_fluffy_hat",
 	"item_recipe_urn_of_shadows",
 
 	"item_cloak",
@@ -35,11 +35,10 @@ local ItemsToBuy =
 	"item_void_stone",
 	"item_recipe_aether_lens",
 
-	"item_aghanims_shard",
-
-	"item_fluffy_hat",
-	"item_crown",
+	"item_vitality_booster",
 	"item_recipe_spirit_vessel",
+
+	"item_aghanims_shard",
 
 	"item_blink",
 

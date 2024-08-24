@@ -26,15 +26,14 @@ local ItemsToBuy =
     "item_recipe_ring_of_basilius",
     "item_recipe_arcane_boots",
 
-    "item_circlet",
-    "item_sobi_mask",
-    "item_ring_of_protection",
-    "item_recipe_urn_of_shadows",
+	"item_sobi_mask",
+	"item_ring_of_protection",
+	"item_fluffy_hat",
+	"item_recipe_urn_of_shadows",
 
-    "item_fluffy_hat",
-    "item_crown",
-    "item_recipe_spirit_vessel",
-
+	"item_vitality_booster",
+	"item_recipe_spirit_vessel",
+    
     "item_chainmail",
     "item_broadsword",
     "item_recipe_blade_mail",

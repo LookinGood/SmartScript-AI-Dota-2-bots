@@ -65,7 +65,7 @@ function AbilityUsageThink()
     local castPurificationDesire, castPurificationTarget = ConsiderPurification();
     local castRepelDesire, castRepelTarget = ConsiderRepel();
     local castHammerOfPurityDesire, castHammerOfPurityTarget = ConsiderHammerOfPurity();
-    local castGuardianAngelDesire, castGuardianAngelTarget = ConsiderGuardianAngel();
+    local castGuardianAngelDesire, castGuardianAngelLocation = ConsiderGuardianAngel();
 
     if (castPurificationDesire ~= nil)
     then
@@ -87,7 +87,7 @@ function AbilityUsageThink()
 
     if (castGuardianAngelDesire ~= nil)
     then
-        npcBot:Action_UseAbilityOnEntity(GuardianAngel, castGuardianAngelTarget);
+        npcBot:Action_UseAbilityOnLocation(GuardianAngel, castGuardianAngelLocation);
         return;
     end
 end
@@ -287,6 +287,22 @@ function ConsiderHammerOfPurity()
             return BOT_ACTION_DESIRE_VERYHIGH, enemy;
         end
     end
+
+    if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_AUTOCAST)
+    then
+        if (utility.IsHero(botTarget) or utility.IsRoshan(botTarget)) and utility.CanCastSpellOnTarget(ability, botTarget)
+        then
+            if not ability:GetAutoCastState()
+            then
+                ability:ToggleAutoCast()
+            end
+        else
+            if ability:GetAutoCastState()
+            then
+                ability:ToggleAutoCast()
+            end
+        end
+    end
 end
 
 function ConsiderGuardianAngel()
@@ -295,19 +311,30 @@ function ConsiderGuardianAngel()
         return;
     end
 
+    local castRangeAbility = ability:GetCastRange();
+    local radiusAbility = ability:GetSpecialValueInt("radius");
+    local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
+
     if not npcBot:HasScepter()
     then
-        local castRangeAbility = ability:GetCastRange();
-        local allyAbility = npcBot:GetNearbyHeroes(castRangeAbility + 200, false, BOT_MODE_NONE);
+        local allyAbility = npcBot:GetNearbyHeroes(utility.GetCurrentCastDistance(castRangeAbility + radiusAbility),
+            false, BOT_MODE_NONE);
         if (#allyAbility > 0)
         then
             for _, ally in pairs(allyAbility)
             do
-                if utility.IsHero(ally) and (ally:GetHealth() / ally:GetMaxHealth() <= 0.6) and ally:WasRecentlyDamagedByAnyHero(2.0)
-                    and not ally:HasModifier("modifier_omninight_guardian_angel")
+                if utility.IsHero(ally) and (ally:GetHealth() / ally:GetMaxHealth() <= 0.5) and not ally:HasModifier("modifier_omninight_guardian_angel")
+                    and (ally:WasRecentlyDamagedByAnyHero(2.0) or ally:WasRecentlyDamagedByTower(2.0))
                 then
-                    --npcBot:ActionImmediate_Chat("Использую GuardianAngel без аганима!", true);
-                    return BOT_ACTION_DESIRE_HIGH, ally;
+                    if GetUnitToUnitDistance(npcBot, ally) <= castRangeAbility
+                    then
+                        --npcBot:ActionImmediate_Chat("Использую GuardianAngel в радиусе каста без аганима!", true);
+                        return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, ally, delayAbility, 0);
+                    elseif GetUnitToUnitDistance(npcBot, ally) <= castRangeAbility + radiusAbility
+                    then
+                        --npcBot:ActionImmediate_Chat("Использую GuardianAngel в зоне каста+радиуса без аганима!", true);
+                        return BOT_ACTION_DESIRE_HIGH, utility.GetMaxRangeCastLocation(npcBot, ally, castRangeAbility);
+                    end
                 end
             end
         end
@@ -316,28 +343,16 @@ function ConsiderGuardianAngel()
         local allyAbility = GetUnitList(UNIT_LIST_ALLIED_HEROES);
         if (#allyAbility > 0)
         then
-            for i = 1, #allyAbility do
+            -- Cast to protect ally hero
+            if (#allyAbility > 0)
+            then
+                for _, ally in pairs(allyAbility)
                 do
-                    if utility.IsHero(allyAbility[i]) and (allyAbility[i]:GetHealth() / allyAbility[i]:GetMaxHealth() <= 0.6) and allyAbility[i]:WasRecentlyDamagedByAnyHero(2.0)
-                        and not allyAbility[i]:HasModifier("modifier_omninight_guardian_angel")
+                    if utility.IsHero(ally) and (ally:GetHealth() / ally:GetMaxHealth() <= 0.5) and not ally:HasModifier("modifier_omninight_guardian_angel")
+                        and (ally:WasRecentlyDamagedByAnyHero(2.0) or ally:WasRecentlyDamagedByTower(2.0))
                     then
-                        if (#allyAbility > 1)
-                        then
-                            if allyAbility[i] ~= npcBot
-                            then
-                                --npcBot:ActionImmediate_Chat("Использую GuardianAngel с аганимом на союзного героя!", true);
-                                return BOT_ACTION_DESIRE_HIGH, allyAbility[i];
-                            elseif allyAbility[i] == npcBot
-                            then
-                                npcBot:ActionImmediate_Chat("Использую GuardianAngel с аганимом на союзника но ранен я!",
-                                    true);
-                                return BOT_ACTION_DESIRE_HIGH, allyAbility[2];
-                            end
-                        elseif (#allyAbility == 1)
-                        then
-                            npcBot:ActionImmediate_Chat("Использую GuardianAngel с аганимом на себя когда я один!", true);
-                            return BOT_ACTION_DESIRE_HIGH, npcBot;
-                        end
+                        npcBot:ActionImmediate_Chat("Использую GuardianAngel для защиты " .. ally:GetUnitName(), true);
+                        return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, ally, delayAbility, 0);
                     end
                 end
             end
@@ -404,4 +419,70 @@ function ConsiderGuardianAngel()
             return BOT_MODE_DESIRE_HIGH;
         end
     end
-end ]]
+end
+
+function ConsiderGuardianAngel()
+    local ability = GuardianAngel;
+    if not utility.IsAbilityAvailable(ability) then
+        return;
+    end
+
+    local castRangeAbility = ability:GetCastRange();
+    local radiusAbility = ability:GetSpecialValueInt("radius");
+    local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
+
+    if not npcBot:HasScepter()
+    then
+        local allyAbility = npcBot:GetNearbyHeroes(castRangeAbility + radiusAbility, false, BOT_MODE_NONE);
+        if (#allyAbility > 0)
+        then
+            for _, ally in pairs(allyAbility)
+            do
+                if utility.IsHero(ally) and (ally:GetHealth() / ally:GetMaxHealth() <= 0.6) and ally:WasRecentlyDamagedByAnyHero(2.0)
+                    and not ally:HasModifier("modifier_omninight_guardian_angel")
+                then
+                    if GetUnitToUnitDistance(npcBot, ally) <= castRangeAbility
+                    then
+                        npcBot:ActionImmediate_Chat("Использую GuardianAngel в радиусе каста без аганима!", true);
+                        return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, ally, delayAbility, 0);
+                    elseif GetUnitToUnitDistance(npcBot, ally) <= castRangeAbility + radiusAbility
+                    then
+                        npcBot:ActionImmediate_Chat("Использую GuardianAngel в зоне каста+радиуса без аганима!", true);
+                        return BOT_ACTION_DESIRE_HIGH, utility.GetMaxRangeCastLocation(npcBot, ally, castRangeAbility);
+                    end
+                end
+            end
+        end
+    elseif npcBot:HasScepter()
+    then
+        local allyAbility = GetUnitList(UNIT_LIST_ALLIED_HEROES);
+        if (#allyAbility > 0)
+        then
+            for i = 1, #allyAbility do
+                do
+                    if utility.IsHero(allyAbility[i]) and (allyAbility[i]:GetHealth() / allyAbility[i]:GetMaxHealth() <= 0.6) and allyAbility[i]:WasRecentlyDamagedByAnyHero(2.0)
+                        and not allyAbility[i]:HasModifier("modifier_omninight_guardian_angel")
+                    then
+                        if (#allyAbility > 1)
+                        then
+                            if allyAbility[i] ~= npcBot
+                            then
+                                --npcBot:ActionImmediate_Chat("Использую GuardianAngel с аганимом на союзного героя!", true);
+                                return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, allyAbility[i], delayAbility, 0);
+                            elseif allyAbility[i] == npcBot
+                            then
+                                npcBot:ActionImmediate_Chat("Использую GuardianAngel с аганимом на союзника но ранен я!",
+                                    true);
+                                return BOT_ACTION_DESIRE_HIGH, allyAbility[2];
+                            end
+                        elseif (#allyAbility == 1)
+                        then
+                            npcBot:ActionImmediate_Chat("Использую GuardianAngel с аганимом на себя когда я один!", true);
+                            return BOT_ACTION_DESIRE_HIGH, npcBot;
+                        end
+                    end
+                end
+            end
+        end
+    end
+]]

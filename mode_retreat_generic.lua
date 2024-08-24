@@ -4,8 +4,8 @@ require(GetScriptDirectory() .. "/utility")
 local npcBot = GetBot();
 
 function GetDesire()
-    if not npcBot:IsAlive() or utility.IsBusy(npcBot) or utility.IsClone(npcBot) or
-        npcBot:HasModifier("modifier_skeleton_king_reincarnation_scepter") or
+    if not npcBot:IsAlive() or utility.IsClone(npcBot) or
+        --npcBot:HasModifier("modifier_skeleton_king_reincarnation_scepter") or
         npcBot:HasModifier("modifier_skeleton_king_reincarnation_scepter_active")
     then
         return BOT_ACTION_DESIRE_NONE;

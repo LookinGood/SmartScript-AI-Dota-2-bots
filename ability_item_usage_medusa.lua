@@ -49,6 +49,7 @@ end
 -- Abilities
 local SplitShot = AbilitiesReal[1]
 local MysticSnake = AbilitiesReal[2]
+local GorgonsGrasp = AbilitiesReal[3]
 local StoneGaze = AbilitiesReal[6]
 
 function AbilityUsageThink()
@@ -63,6 +64,7 @@ function AbilityUsageThink()
 
     local castSplitShotDesire = ConsiderSplitShot();
     local castMysticSnakeDesire, castMysticSnakeTarget = ConsiderMysticSnake();
+    local castGorgonsGraspDesire, castGorgonsGraspLocation = ConsiderGorgonsGrasp();
     local castStoneGazeDesire = ConsiderStoneGaze();
 
     if (castSplitShotDesire ~= nil)
@@ -74,6 +76,12 @@ function AbilityUsageThink()
     if (castMysticSnakeDesire ~= nil)
     then
         npcBot:Action_UseAbilityOnEntity(MysticSnake, castMysticSnakeTarget);
+        return;
+    end
+
+    if (castGorgonsGraspDesire ~= nil)
+    then
+        npcBot:Action_UseAbilityOnLocation(GorgonsGrasp, castGorgonsGraspLocation);
         return;
     end
 
@@ -228,6 +236,89 @@ function ConsiderMysticSnake()
         if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)
         then
             return BOT_ACTION_DESIRE_VERYHIGH, enemy;
+        end
+    end
+end
+
+function ConsiderGorgonsGrasp()
+    local ability = GorgonsGrasp;
+    if not utility.IsAbilityAvailable(ability) then
+        return;
+    end
+
+    local castRangeAbility = ability:GetCastRange();
+    local radiusAbility = ability:GetSpecialValueInt("radius");
+    local bonusRange = ability:GetSpecialValueInt("radius") + ability:GetSpecialValueInt("radius_grow");
+    local damageAbility = ability:GetSpecialValueInt("damage") +
+        (ability:GetSpecialValueInt("damage_pers") * ability:GetSpecialValueInt("duration"));
+    local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
+    local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility + bonusRange, true, BOT_MODE_NONE);
+
+    -- Cast if can kill somebody
+    if (#enemyAbility > 0)
+    then
+        for _, enemy in pairs(enemyAbility) do
+            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType())
+            then
+                if utility.CanCastSpellOnTarget(ability, enemy)
+                then
+                    if GetUnitToUnitDistance(npcBot, enemy) <= castRangeAbility
+                    then
+                        --npcBot:ActionImmediate_Chat("Использую GorgonsGrasp в радиусе каста что бы убить " .. enemy:GetUnitName(), true);
+                        return BOT_ACTION_DESIRE_ABSOLUTE, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
+                    elseif GetUnitToUnitDistance(npcBot, enemy) <= castRangeAbility + bonusRange
+                    then
+                        --npcBot:ActionImmediate_Chat("Использую GorgonsGrasp в радиусе каста+радиус что бы убить " .. enemy:GetUnitName(), true);
+                        return BOT_ACTION_DESIRE_ABSOLUTE,
+                            utility.GetMaxRangeCastLocation(npcBot, enemy, castRangeAbility);
+                    end
+                end
+            end
+        end
+    end
+
+    -- Cast if attack enemy
+    if utility.PvPMode(npcBot)
+    then
+        if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget)
+        then
+            if GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+            then
+                return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
+            elseif GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility + bonusRange
+            then
+                return BOT_ACTION_DESIRE_HIGH, utility.GetMaxRangeCastLocation(npcBot, botTarget, castRangeAbility);
+            end
+        end
+        -- Retreat use
+    elseif utility.RetreatMode(npcBot)
+    then
+        if (#enemyAbility > 0)
+        then
+            for _, enemy in pairs(enemyAbility) do
+                if utility.CanCastSpellOnTarget(ability, enemy) and not utility.IsDisabled(enemy)
+                then
+                    if GetUnitToUnitDistance(npcBot, enemy) <= castRangeAbility
+                    then
+                        --npcBot:ActionImmediate_Chat("Использую GorgonsGrasp в радиусе каста для отхода!", true);
+                        return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
+                    elseif GetUnitToUnitDistance(npcBot, enemy) <= castRangeAbility + bonusRange
+                    then
+                        --npcBot:ActionImmediate_Chat("Использую GorgonsGrasp в радиусе каста+радиус для отхода!", true);
+                        return BOT_ACTION_DESIRE_VERYHIGH,
+                            utility.GetMaxRangeCastLocation(npcBot, enemy, castRangeAbility);
+                    end
+                end
+            end
+        end
+        -- Cast if push/defend/farm
+    elseif utility.PvEMode(npcBot)
+    then
+        local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility, radiusAbility,
+            0, 0);
+        if locationAoE ~= nil and (ManaPercentage >= 0.5) and (locationAoE.count >= 3)
+        then
+            return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
         end
     end
 end

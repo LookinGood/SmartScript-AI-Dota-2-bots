@@ -7,8 +7,7 @@ function GetDesire()
 	local enemyHeroes = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
 	local desire = 0.0;
 
-	if not npcBot:IsAlive() or utility.IsBusy(npcBot) or not utility.CanMove(npcBot) or utility.IsClone(npcBot) or (#enemyHeroes > 0)
-		or utility.IsBaseUnderAttack()
+	if not npcBot:IsAlive() or utility.IsClone(npcBot) or (#enemyHeroes > 0) or utility.IsBaseUnderAttack()
 	then
 		return BOT_ACTION_DESIRE_NONE;
 	end
@@ -22,16 +21,17 @@ function GetDesire()
 		end
 	else
 		npcBot.sideShopMode = false
+		return BOT_ACTION_DESIRE_NONE;
 	end
 
 	return desire;
 end
 
 function Think()
-    if utility.IsBusy(npcBot)
-    then
-        return;
-    end
+	if utility.IsBusy(npcBot)
+	then
+		return;
+	end
 
 	local shopLoc1 = GetShopLocation(GetTeam(), SHOP_SIDE);
 	local shopLoc2 = GetShopLocation(GetTeam(), SHOP_SIDE2);

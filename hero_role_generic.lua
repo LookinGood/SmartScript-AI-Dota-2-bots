@@ -120,6 +120,7 @@ S["supportHeroes"] = {
     ["npc_dota_hero_earthshaker"] = 1,
     ["npc_dota_hero_visage"] = 1,
     ["npc_dota_hero_phoenix"] = 1,
+    ["npc_dota_hero_chen"] = 1,
 }
 
 function IsHeroCarry(npcBot)

@@ -21,17 +21,16 @@ local ItemsToBuy =
     "item_blades_of_attack",
     "item_chainmail",
 
-    "item_circlet",
-    "item_sobi_mask",
-    "item_ring_of_protection",
-    "item_recipe_urn_of_shadows",
-
-	"item_mithril_hammer",
-	"item_mithril_hammer",
-
+	"item_sobi_mask",
+	"item_ring_of_protection",
 	"item_fluffy_hat",
-    "item_crown",
-    "item_recipe_spirit_vessel",
+	"item_recipe_urn_of_shadows",
+
+	"item_mithril_hammer",
+	"item_mithril_hammer",
+
+	"item_vitality_booster",
+	"item_recipe_spirit_vessel",
 
 	"item_ring_of_health",
 	"item_void_stone",

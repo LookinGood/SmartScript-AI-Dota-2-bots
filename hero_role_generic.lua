@@ -70,6 +70,7 @@ C["carryHeroes"] = {
     ["npc_dota_hero_death_prophet"] = 1,
     ["npc_dota_hero_bloodseeker"] = 1,
     ["npc_dota_hero_brewmaster"] = 1,
+    ["npc_dota_hero_morphling"] = 1,
 }
 
 local S = {}
@@ -121,6 +122,7 @@ S["supportHeroes"] = {
     ["npc_dota_hero_visage"] = 1,
     ["npc_dota_hero_phoenix"] = 1,
     ["npc_dota_hero_chen"] = 1,
+    ["npc_dota_hero_ringmaster"] = 1,
 }
 
 function IsHeroCarry(npcBot)

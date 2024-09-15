@@ -308,6 +308,31 @@ local _tableOfUltimatesAbility =
 	"zuus_thundergods_wrath",
 }
 
+local linesKillEnemyHero = {
+	"Ха! Получай!",
+	"Победа за мной!",
+	"Никакой удачи, чистое мастерство!",
+	"Было не так уж и трудно.",
+	"Гг изи!"
+}
+
+function BotChatMessages()
+	local npcBot = GetBot();
+	local botKills = GetHeroKills(npcBot:GetPlayerID());
+	local message = math.random(#linesKillEnemyHero);
+
+	--print(message);
+
+	if botKills >= botKills + 1
+	then
+		npcBot:ActionImmediate_Chat(message, true);
+		return;
+	end
+end
+
+--local message = nil;
+--local message = linesKillEnemyHero[math.random(#linesKillEnemyHero)];
+
 function ItemUsageThink()
 	local npcBot = GetBot();
 
@@ -317,6 +342,7 @@ function ItemUsageThink()
 	end
 
 	GlyphUsageThink()
+	BotChatMessages()
 
 	if not npcBot:IsAlive() or npcBot:IsMuted() or npcBot:IsDominated() or npcBot:IsStunned() or npcBot:IsHexed() or npcBot:IsNightmared()
 		or npcBot:IsInvisible()
@@ -2426,7 +2452,6 @@ function ItemUsageThink()
 			end
 		end
 	end
-
 	------------
 end
 

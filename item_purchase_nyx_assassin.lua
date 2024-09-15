@@ -21,31 +21,27 @@ local ItemsToBuy =
     "item_recipe_ring_of_basilius",
     "item_recipe_arcane_boots",
 
-    "item_circlet",
-    "item_sobi_mask",
-    "item_ring_of_protection",
-    "item_recipe_urn_of_shadows",
+	"item_sobi_mask",
+	"item_ring_of_protection",
+	"item_fluffy_hat",
+	"item_recipe_urn_of_shadows",
 
     "item_voodoo_mask",
     "item_diadem",
     "item_recipe_dagon",
 
+    "item_vitality_booster",
+	"item_recipe_spirit_vessel",
+
     "item_staff_of_wizardry",
     "item_robe",
     "item_recipe_kaya",
 
-    "item_recipe_dagon",
-
     "item_aghanims_shard",
 
     "item_recipe_dagon",
-
-    "item_fluffy_hat",
-    "item_crown",
-    "item_recipe_spirit_vessel",
-
     "item_recipe_dagon",
-
+    "item_recipe_dagon",
     "item_recipe_dagon",
 
     "item_belt_of_strength",

@@ -9,7 +9,7 @@ local npcBot = GetBot();
 function GetDesire()
     if not utility.IsHero(npcBot) or not npcBot:IsAlive() or utility.IsBaseUnderAttack()
     then
-        return BOT_ACTION_DESIRE_NONE;
+        return BOT_MODE_DESIRE_NONE;
     end
 
     local botLevel = npcBot:GetLevel();
@@ -21,7 +21,7 @@ function GetDesire()
 
     if botLevel >= 30 or (HealthPercentage < 0.5) or (#neutralCreeps == 0) or (#enemyHeroes > 0)
     then
-        return BOT_ACTION_DESIRE_NONE;
+        return BOT_MODE_DESIRE_NONE;
     end
 
     if (#allyHeroes > 1)
@@ -30,7 +30,7 @@ function GetDesire()
         do
             if ally ~= npcBot and ally:GetAttackTarget():IsCreep()
             then
-                return BOT_ACTION_DESIRE_NONE;
+                return BOT_MODE_DESIRE_NONE;
             end
         end
     end
@@ -49,11 +49,11 @@ function GetDesire()
                         then
                             if not creep:IsAncientCreep() and creep:GetLevel() < botLevel
                             then
-                                return BOT_ACTION_DESIRE_MODERATE;
+                                return BOT_MODE_DESIRE_MODERATE;
                             end
                         elseif botLevel >= 15
                         then
-                            return BOT_ACTION_DESIRE_MODERATE;
+                            return BOT_MODE_DESIRE_MODERATE;
                         end
                     end
                 end
@@ -67,7 +67,7 @@ function GetDesire()
                     do
                         if ally ~= npcBot and hero_role_generic.IsHeroCarry(ally) and ally:GetAttackTarget():IsCreep()
                         then
-                            return BOT_ACTION_DESIRE_MODERATE;
+                            return BOT_MODE_DESIRE_MODERATE;
                         end
                     end
                 end
@@ -75,15 +75,15 @@ function GetDesire()
                 do
                     if creep:CanBeSeen() and creep:IsAlive()
                     then
-                        if botLevel >= 6 and botLevel < 15
+                        if botLevel >= 10 and botLevel < 15
                         then
                             if not creep:IsAncientCreep() and creep:GetLevel() < botLevel
                             then
-                                return BOT_ACTION_DESIRE_MODERATE;
+                                return BOT_MODE_DESIRE_MODERATE;
                             end
                         elseif botLevel >= 15
                         then
-                            return BOT_ACTION_DESIRE_MODERATE;
+                            return BOT_MODE_DESIRE_MODERATE;
                         end
                     end
                 end
@@ -100,18 +100,18 @@ function GetDesire()
                     then
                         if not creep:IsAncientCreep() and creep:GetLevel() < botLevel
                         then
-                            return BOT_ACTION_DESIRE_MODERATE;
+                            return BOT_MODE_DESIRE_MODERATE;
                         end
                     elseif botLevel >= 15
                     then
-                        return BOT_ACTION_DESIRE_MODERATE;
+                        return BOT_MODE_DESIRE_MODERATE;
                     end
                 end
             end
         end
     end
 
-    return BOT_ACTION_DESIRE_NONE;
+    return BOT_MODE_DESIRE_NONE;
 end
 
 function OnStart()

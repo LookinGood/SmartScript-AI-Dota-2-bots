@@ -5,6 +5,7 @@ local npcBot = GetBot();
 
 function GetDesire()
 	local enemyHeroes = npcBot:GetNearbyHeroes(1000, true, BOT_MODE_NONE);
+	local secretShopDistance = npcBot:DistanceFromSecretShop();
 
 	if not utility.IsHero(npcBot) or not npcBot:IsAlive() or utility.IsClone(npcBot) or (#enemyHeroes > 0)
 		or npcBot.secretShopMode == false or secretShopDistance > 3000 or utility.IsItemSlotsFull() or utility.IsBaseUnderAttack()
@@ -12,18 +13,17 @@ function GetDesire()
 		return BOT_ACTION_DESIRE_NONE;
 	end
 
-	local desire = 0.0;
-	local secretShopDistance = npcBot:DistanceFromSecretShop();
+	--local desire = 0.0;
 
 	if npcBot.secretShopMode == true and npcBot:GetGold() >= npcBot:GetNextItemPurchaseValue() and secretShopDistance <= 3000
 	then
-		desire = (3000 - secretShopDistance) / secretShopDistance * 0.3 + 0.3;
-	else
-		npcBot.secretShopMode = false;
-		return BOT_ACTION_DESIRE_NONE;
+		--desire = (3000 - secretShopDistance) / secretShopDistance * 0.3 + 0.3;
+		return BOT_ACTION_DESIRE_HIGH;
 	end
 
-	return desire;
+	--return desire;
+	--npcBot.secretShopMode = false;
+	return BOT_ACTION_DESIRE_NONE;
 end
 
 function OnStart()
@@ -43,8 +43,8 @@ function Think()
 		return;
 	end
 
-	local shopLoc1 = GetShopLocation(GetTeam(), SHOP_SECRET);
-	local shopLoc2 = GetShopLocation(GetTeam(), SHOP_SECRET2);
+	local shopLoc1 = GetShopLocation(npcBot:GetTeam(), SHOP_SECRET);
+	local shopLoc2 = GetShopLocation(npcBot:GetTeam(), SHOP_SECRET2);
 
 	if (GetUnitToLocationDistance(npcBot, shopLoc1) <= GetUnitToLocationDistance(npcBot, shopLoc2))
 	then

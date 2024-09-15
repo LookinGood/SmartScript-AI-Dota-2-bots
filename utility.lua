@@ -4,14 +4,7 @@ module("utility", package.seeall)
 require(GetScriptDirectory() .. "/hero_role_generic")
 
 function IsValidTarget(target)
-	if target ~= nil and target:CanBeSeen()
-	then
-		if target:IsAlive()
-		then
-			return true;
-		end
-	end
-	return false;
+	return target:CanBeSeen() and target ~= nil and not target:IsNull() and target:IsAlive();
 end
 
 function IsClone(npcTarget)
@@ -88,6 +81,14 @@ function IsUnitNeedToHide(npcTarget)
 	return IsValidTarget(npcTarget) and
 		(npcTarget:IsDominated() or
 			npcTarget:HasModifier("modifier_necrolyte_reapers_scythe"))
+end
+
+function IsNotAttackTarget(npcTarget)
+	return IsValidTarget(npcTarget) and
+		(npcTarget:HasModifier("modifier_item_blade_mail_reflect") or
+			npcTarget:HasModifier("modifier_nyx_assassin_spiked_carapace") or
+			npcTarget:HasModifier("modifier_abaddon_borrowed_time") or
+			npcTarget:HasModifier("modifier_skeleton_king_reincarnation_scepter_active"));
 end
 
 function GetFountain(npcTarget)
@@ -406,6 +407,13 @@ function IsDisabled(npcTarget)
 			npcTarget:IsStunned());
 end
 
+function IsCantBeControlled(npcTarget)
+	return IsValidTarget(npcTarget) and
+		(npcTarget:IsDominated() or
+			npcTarget:IsNightmared() or
+			npcTarget:IsStunned());
+end
+
 function IsMoving(npcTarget)
 	local moveDirection = npcTarget:GetMovementDirectionStability();
 	return IsValidTarget(npcTarget) and
@@ -587,8 +595,9 @@ end
 
 function IsBusy(npcTarget)
 	return IsValidTarget(npcTarget) and
-		( --npcTarget:IsUsingAbility() or
-		--npcTarget:IsCastingAbility() or
+		(IsCantBeControlled(npcTarget) or
+			--npcTarget:IsUsingAbility() or
+			--npcTarget:IsCastingAbility() or
 			npcTarget:IsChanneling())
 end
 

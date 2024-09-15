@@ -250,8 +250,24 @@ function ConsiderHammerOfPurity()
                 then
                     npcBot:ActionImmediate_Chat("Использую HammerOfPurity что бы убить цель!",
                         true);
-                    return BOT_ACTION_DESIRE_VERYHIGH, enemy;
+                    return BOT_ACTION_DESIRE_ABSOLUTE, enemy;
                 end
+            end
+        end
+    end
+
+    if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_AUTOCAST)
+    then
+        if (utility.IsHero(botTarget) or utility.IsRoshan(botTarget)) and utility.CanCastSpellOnTarget(ability, botTarget)
+        then
+            if not ability:GetAutoCastState()
+            then
+                ability:ToggleAutoCast()
+            end
+        else
+            if ability:GetAutoCastState()
+            then
+                ability:ToggleAutoCast()
             end
         end
     end
@@ -285,22 +301,6 @@ function ConsiderHammerOfPurity()
         if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)
         then
             return BOT_ACTION_DESIRE_VERYHIGH, enemy;
-        end
-    end
-
-    if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_AUTOCAST)
-    then
-        if (utility.IsHero(botTarget) or utility.IsRoshan(botTarget)) and utility.CanCastSpellOnTarget(ability, botTarget)
-        then
-            if not ability:GetAutoCastState()
-            then
-                ability:ToggleAutoCast()
-            end
-        else
-            if ability:GetAutoCastState()
-            then
-                ability:ToggleAutoCast()
-            end
         end
     end
 end

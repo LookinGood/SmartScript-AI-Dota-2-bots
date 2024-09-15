@@ -115,9 +115,11 @@ end ]]
 
 function ShouldTP()
     local npcBot = GetBot();
+    local modDesire = npcBot:GetActiveModeDesire();
     local enemyTower = npcBot:GetNearbyTowers(1000, true);
 
-    if utility.IsHaveMaxSpeed(npcBot) or (#enemyTower > 0) or utility.IsHaveStunEffect(npcBot)
+    if utility.IsHaveMaxSpeed(npcBot) or (#enemyTower > 0) or utility.IsHaveStunEffect(npcBot) or modDesire < BOT_MODE_DESIRE_HIGH
+        or npcBot:HasModifier("modifier_fountain_fury_swipes_damage_increase")
     then
         return false, nil;
     end
@@ -127,7 +129,6 @@ function ShouldTP()
     local towerDefend = nil;
     --local towerPush = nil;
     local botMode = npcBot:GetActiveMode();
-    --local modDesire = npcBot:GetActiveModeDesire();
     local botLoc = npcBot:GetLocation();
     local botTeam = GetTeam();
     local enemyHeroes = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);

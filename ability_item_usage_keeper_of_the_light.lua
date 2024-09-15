@@ -114,7 +114,7 @@ function AbilityUsageThink()
         return;
     end
 
---[[     if (castReleaseIlluminateSpiritFormDesire ~= nil)
+    --[[     if (castReleaseIlluminateSpiritFormDesire ~= nil)
     then
         npcBot:Action_UseAbility(ReleaseIlluminateSpiritForm);
         return;
@@ -224,9 +224,9 @@ function ConsiderReleaseIlluminate()
         return;
     end
 
-    local allyAbility = npcBot:GetNearbyHeroes(1600, false, BOT_MODE_NONE);
+    --local allyAbility = npcBot:GetNearbyHeroes(1600, false, BOT_MODE_NONE);
 
-    if (#allyAbility <= 1) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
+    if npcBot:WasRecentlyDamagedByAnyHero(2.0)
     then
         --npcBot:ActionImmediate_Chat("Использую ReleaseIlluminate!", true);
         return BOT_ACTION_DESIRE_MODERATE;

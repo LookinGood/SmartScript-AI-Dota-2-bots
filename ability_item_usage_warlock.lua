@@ -242,7 +242,8 @@ function ConsiderUpheaval()
         end
 
         -- Cast if enemy >=2
-        local locationAoE = npcBot:FindAoELocation(true, true, npcBot:GetLocation(), castRangeAbility, radiusAbility, 0, 0);
+        local locationAoE = npcBot:FindAoELocation(true, true, npcBot:GetLocation(), castRangeAbility, radiusAbility, 0,
+            0);
         if locationAoE ~= nil and (locationAoE.count >= 2)
         then
             --npcBot:ActionImmediate_Chat("Использую Upheaval по врагам!", true);
@@ -261,7 +262,7 @@ function ConsiderChaoticOffering()
     local radiusAbility = ability:GetSpecialValueInt("aoe");
     local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
 
--- Attack use
+    -- Attack use
     if utility.PvPMode(npcBot)
     then
         if utility.IsHero(botTarget)
@@ -273,8 +274,9 @@ function ConsiderChaoticOffering()
                 return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
             end
         end
--- Cast if enemy >=2
-        local locationAoE = npcBot:FindAoELocation(true, true, npcBot:GetLocation(), castRangeAbility, radiusAbility, 0, 0);
+        -- Cast if enemy >=2
+        local locationAoE = npcBot:FindAoELocation(true, true, npcBot:GetLocation(), castRangeAbility, radiusAbility, 0,
+            0);
         if locationAoE ~= nil and (locationAoE.count >= 2)
         then
             --npcBot:ActionImmediate_Chat("Использую ChaoticOffering по 2+ врагам!", true);

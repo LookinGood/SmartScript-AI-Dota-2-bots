@@ -132,13 +132,13 @@ function Think()
             npcBot:GetCurrentActionType() ~= BOT_ACTION_TYPE_ATTACK and
             npcBot:GetCurrentActionType() ~= BOT_ACTION_TYPE_ATTACKMOVE
         then
-            npcBot:Action_ClearActions(false);
+            --npcBot:Action_ClearActions(false);
             npcBot:Action_MoveToLocation(defendZone);
             return;
         else
             if npcBot:WasRecentlyDamagedByAnyHero(2.0)
             then
-                npcBot:Action_ClearActions(false);
+                --npcBot:Action_ClearActions(false);
                 npcBot:Action_MoveToLocation(utility.SafeLocation(npcBot));
                 return;
             else
@@ -153,13 +153,13 @@ function Think()
                     mainCreep = enemyCreeps[1];
                     if (#enemyHeroes <= 1)
                     then
-                        npcBot:Action_ClearActions(false);
+                        --npcBot:Action_ClearActions(false);
                         npcBot:Action_AttackUnit(mainCreep, false);
                         return;
                     else
                         if npcBot:GetAttackRange() >= 500
                         then
-                            npcBot:Action_ClearActions(false);
+                            --npcBot:Action_ClearActions(false);
                             npcBot:Action_AttackUnit(mainCreep, true);
                             return;
                             --[[                         if GetUnitToUnitDistance(npcBot, mainCreep) > npcBot:GetAttackRange()
@@ -174,7 +174,7 @@ function Think()
                             return;
                         end ]]
                         else
-                            npcBot:Action_ClearActions(false);
+                            --npcBot:Action_ClearActions(false);
                             npcBot:Action_MoveToLocation(npcBot:GetLocation() + RandomVector(500));
                             --npcBot:Action_AttackMove(npcBot:GetLocation() + RandomVector(500));
                             return;
@@ -186,7 +186,7 @@ function Think()
                     mainEnemy = enemyHeroes[1];
                     if mainEnemy ~= nil
                     then
-                        npcBot:Action_ClearActions(false);
+                        --npcBot:Action_ClearActions(false);
                         npcBot:Action_AttackUnit(mainEnemy, true);
                         return;
 
@@ -203,7 +203,7 @@ function Think()
                     end ]]
                     end
                 else
-                    npcBot:Action_ClearActions(false);
+                    --npcBot:Action_ClearActions(false);
                     npcBot:Action_MoveToLocation(npcBot:GetLocation() + RandomVector(500));
                     return;
                     --npcBot:Action_AttackMove(npcBot:GetLocation() + RandomVector(500));

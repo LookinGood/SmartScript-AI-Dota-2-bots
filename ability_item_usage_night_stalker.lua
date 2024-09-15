@@ -216,30 +216,60 @@ function ConsiderCripplingFear()
     local radiusAbility = ability:GetAOERadius();
     local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
 
-    -- Cast if can interrupt cast
-    if (#enemyAbility > 0)
+    if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_TOGGLE)
     then
-        for _, enemy in pairs(enemyAbility) do
-            if enemy:IsChanneling()
+        -- Attack use
+        if utility.PvPMode(npcBot)
+        then
+            if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget)
+                and GetUnitToUnitDistance(npcBot, botTarget) <= radiusAbility
             then
-                if utility.CanCastSpellOnTarget(ability, enemy)
+                if ability:GetToggleState() == false
                 then
-                    return BOT_ACTION_DESIRE_ABSOLUTE;
+                    --npcBot:ActionImmediate_Chat("Использую CripplingFear против врага!", true);
+                    return BOT_ACTION_DESIRE_HIGH;
+                end
+            else
+                if ability:GetToggleState() == true
+                then
+                    --npcBot:ActionImmediate_Chat("Выключаю CripplingFear.", true);
+                    return BOT_ACTION_DESIRE_HIGH;
+                end
+            end
+        else
+            if ability:GetToggleState() == true
+            then
+                --npcBot:ActionImmediate_Chat("Выключаю CripplingFear2.", true);
+                return BOT_ACTION_DESIRE_HIGH;
+            end
+        end
+    elseif utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_NO_TARGET)
+    then
+        -- Cast if can interrupt cast
+        if (#enemyAbility > 0)
+        then
+            for _, enemy in pairs(enemyAbility) do
+                if enemy:IsChanneling()
+                then
+                    if utility.CanCastSpellOnTarget(ability, enemy)
+                    then
+                        return BOT_ACTION_DESIRE_ABSOLUTE;
+                    end
                 end
             end
         end
-    end
 
-    -- General use
-    if utility.PvPMode(npcBot) or utility.RetreatMode(npcBot)
-    then
-        if (#enemyAbility > 0)
+        -- General use
+        if utility.PvPMode(npcBot) or utility.RetreatMode(npcBot)
         then
-            for _, enemy in pairs(enemyAbility)
-            do
-                if utility.CanCastSpellOnTarget(ability, enemy) and not utility.IsDisabled(enemy)
-                then
-                    return BOT_ACTION_DESIRE_HIGH;
+            if (#enemyAbility > 0)
+            then
+                for _, enemy in pairs(enemyAbility)
+                do
+                    if utility.CanCastSpellOnTarget(ability, enemy) and not utility.IsDisabled(enemy)
+                    then
+                        return BOT_ACTION_DESIRE_HIGH;
+                    end
                 end
             end
         end

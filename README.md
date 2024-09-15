@@ -1,3 +1,3 @@
 Modified AI based on Valve's default scripts. My first work with LUA.
 
-Note: Because of the internal problems with bots that Valve does not want to fix, it is impossible to realize many heroes such as Hoodwink, as well as if any of the abilities has an “alternate use” it is likely to stop working because Valve simply did not make a funcional command to use such abilities.
+Note: If bots have stopped/are not using an ability/item correctly, the problem is most likely that Valve changed the way they use it, but didn't add the right command for LUA implementation - like “alternate use”.

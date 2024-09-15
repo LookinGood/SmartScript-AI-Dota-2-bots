@@ -8,64 +8,74 @@ function GetDesire()
         --npcBot:HasModifier("modifier_skeleton_king_reincarnation_scepter") or
         npcBot:HasModifier("modifier_skeleton_king_reincarnation_scepter_active")
     then
-        return BOT_ACTION_DESIRE_NONE;
+        return BOT_MODE_DESIRE_NONE;
     end
 
     --local botMode = npcBot:GetActiveMode();
     --local allyHeroes = utility.CountAllyHeroAroundUnit(npcBot, 2000);
     --local enemyHeroes = utility.CountEnemyHeroAroundUnit(npcBot, 2000);
+    -- string.find(npcBot:GetUnitName(), "medusa")
 
     local healthPercent = npcBot:GetHealth() / npcBot:GetMaxHealth();
     local manaPercent = npcBot:GetMana() / npcBot:GetMaxMana();
     local allyHeroAround = npcBot:GetNearbyHeroes(1600, false, BOT_MODE_NONE);
     local enemyHeroAround = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
 
-    if not utility.CanMove(npcBot) or npcBot:HasModifier("modifier_fountain_invulnerability")
+    if not utility.CanMove(npcBot) or
+        npcBot:HasModifier("modifier_fountain_invulnerability") or
+        npcBot:HasModifier("modifier_fountain_fury_swipes_damage_increase")
     then
-        return BOT_ACTION_DESIRE_ABSOLUTE;
+        return BOT_MODE_DESIRE_ABSOLUTE;
     end
 
     if (healthPercent <= 0.4) or (healthPercent <= 0.6 and npcBot:DistanceFromFountain() <= 2000)
     then
-        return BOT_ACTION_DESIRE_HIGH;
+        return BOT_MODE_DESIRE_HIGH;
     end
 
-    if string.find(npcBot:GetUnitName(), "medusa") or npcBot:HasModifier("modifier_medusa_mana_shield")
+    if npcBot:HasModifier("modifier_medusa_mana_shield")
     then
         if (manaPercent <= 0.3) and (#enemyHeroAround > 0) and npcBot:WasRecentlyDamagedByAnyHero(5.0)
         then
-            return BOT_ACTION_DESIRE_VERYHIGH;
+            return BOT_MODE_DESIRE_VERYHIGH;
         end
     end
 
-    if npcBot:HasModifier("modifier_fountain_aura_buff") and (#enemyHeroAround <= 0) and (healthPercent <= 0.8 or manaPercent <= 0.8)
+    if npcBot:HasModifier("modifier_fountain_aura_buff")
     then
-        return BOT_ACTION_DESIRE_HIGH;
+        if (healthPercent <= 0.8 or manaPercent <= 0.8)
+        then
+            return BOT_MODE_DESIRE_HIGH;
+        end
+        if (#enemyHeroAround > #allyHeroAround + 1) and utility.IsEnemiesAroundStronger()
+        then
+            return BOT_MODE_DESIRE_HIGH;
+        end
     end
 
     if (#enemyHeroAround > #allyHeroAround + 1) and utility.IsEnemiesAroundStronger()
     then
         --npcBot:ActionImmediate_Chat("Враги сильнее, нужно отступить!", true);
-        return BOT_ACTION_DESIRE_VERYHIGH;
+        return BOT_MODE_DESIRE_VERYHIGH;
     end
 
     if (#allyHeroAround <= 1 and #enemyHeroAround > 1) and utility.IsEnemiesAroundStronger()
     then
-        return BOT_ACTION_DESIRE_VERYHIGH;
+        return BOT_MODE_DESIRE_VERYHIGH;
     end
 
-    if (#enemyHeroAround > 0)
+    if (#enemyHeroAround > 0) and utility.IsEnemiesAroundStronger()
     then
         for _, enemy in pairs(enemyHeroAround) do
             if utility.IsValidTarget(enemy) and utility.IsHero(enemy:GetAttackTarget())
                 and npcBot:GetCurrentActionType() ~= BOT_ACTION_TYPE_ATTACK
             then
-                return BOT_ACTION_DESIRE_MODERATE;
+                return BOT_MODE_DESIRE_MODERATE;
             end
         end
     end
 
-    return BOT_ACTION_DESIRE_NONE;
+    return BOT_MODE_DESIRE_NONE;
 end
 
 function OnStart()
@@ -73,10 +83,6 @@ function OnStart()
     then
         npcBot:ActionImmediate_Chat("Отступаю!", false);
     end
-end
-
-function OnEnd()
-    --
 end
 
 function Think()
@@ -92,18 +98,37 @@ function Think()
         if GetUnitToLocationDistance(npcBot, fountainLocation) >= 200
         then
             --npcBot:ActionImmediate_Chat("ОТСТУПАЮ!", true);
-            npcBot:Action_ClearActions(false);
-            npcBot:Action_MoveToLocation(fountainLocation + RandomVector(100));
+            npcBot:Action_MoveToLocation(fountainLocation);
             return;
         else
-            npcBot:Action_ClearActions(false);
             npcBot:Action_MoveToLocation(npcBot:GetLocation() + RandomVector(200));
             return;
         end
     else
-        npcBot:Action_ClearActions(false);
-        npcBot:Action_AttackMove(npcBot:GetLocation());
-        return;
+        local enemyHeroAround = npcBot:GetNearbyHeroes(npcBot:GetAttackRange(), true, BOT_MODE_NONE);
+        local enemyCreepsAround = npcBot:GetNearbyCreeps(npcBot:GetAttackRange(), true);
+        if (#enemyHeroAround > 0)
+        then
+            for _, enemy in pairs(enemyHeroAround) do
+                if utility.CanCastOnInvulnerableTarget(enemy) and not utility.IsNotAttackTarget(enemy)
+                then
+                    npcBot:Action_AttackUnit(enemy, true);
+                    return;
+                end
+            end
+        elseif (#enemyCreepsAround > 0)
+        then
+            for _, enemy in pairs(enemyCreepsAround) do
+                if utility.CanCastOnInvulnerableTarget(enemy) and not utility.IsNotAttackTarget(enemy)
+                then
+                    npcBot:Action_AttackUnit(enemy, true);
+                    return;
+                end
+            end
+        else
+            npcBot:Action_AttackMove(npcBot:GetLocation());
+            return;
+        end
     end
 end
 

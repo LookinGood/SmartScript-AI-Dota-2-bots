@@ -19,9 +19,9 @@ local ItemsToBuy =
     "item_boots",
     "item_ring_of_regen",
 
-	"item_circlet",
 	"item_sobi_mask",
 	"item_ring_of_protection",
+	"item_fluffy_hat",
 	"item_recipe_urn_of_shadows",
 
     "item_wind_lace",
@@ -31,8 +31,7 @@ local ItemsToBuy =
 
     "item_recipe_boots_of_bearing",
 
-	"item_fluffy_hat",
-	"item_crown",
+	"item_vitality_booster",
 	"item_recipe_spirit_vessel",
 
 	"item_helm_of_iron_will",

@@ -1,9 +1,8 @@
 ---@diagnostic disable: undefined-global
-_G._savedEnv = getfenv()
-module("mode_rune_generic", package.seeall)
 require(GetScriptDirectory() .. "/utility")
 
 local npcBot = GetBot();
+local introMessageDone = false;
 local closestRune = nil;
 local runeList = {
     RUNE_POWERUP_1,
@@ -14,26 +13,43 @@ local runeList = {
     RUNE_BOUNTY_4,
 }
 
+local bountyRuneRadiant = Vector(2183.8, -3906.2, 155.7);
+local powerfulRuneRadiant = Vector(1155.8, -1230.5, 84.7);
+local bountyRuneDire = Vector(-1559.8, 3460.0, 208.5);
+local powerfulRuneDire = Vector(-1639.8, 1103.5, 58.3);
+
 function GetRandomBotPlayer()
-    local botPlayers = {};
-    local selectedBotPlayer = nil;
-    for _, i in pairs(GetTeamPlayers(GetTeam()))
+    local selectedBotHero = nil;
+    local goldMin = 100000;
+    local allyHeroes = GetUnitList(UNIT_LIST_ALLIED_HEROES);
+
+    for _, ally in pairs(allyHeroes) do
+        if IsPlayerBot(ally:GetPlayerID())
+        then
+            local playerGold = ally:GetGold();
+            if playerGold < goldMin
+            then
+                goldMin = playerGold;
+                selectedBotHero = ally;
+            end
+        end
+    end
+
+    --[[     for _, i in pairs(GetTeamPlayers(GetTeam()))
     do
         if IsPlayerBot(i)
         then
-            table.insert(botPlayers, i);
+            local playerGold = i:GetGold();
+            if playerGold < goldMin
+            then
+                goldMin = playerGold;
+                selectedBotPlayer = i;
+            end
         end
-    end
-    if (#botPlayers > 0) and selectedBotPlayer == nil
-    then
-        selectedBotPlayer = math.random(1, #botPlayers);
-    end
+    end ]]
 
-    return selectedBotPlayer;
+    return selectedBotHero;
 end
-
-local bMessageDone = false;
-local chattingBot = GetTeamMember(GetRandomBotPlayer());
 
 function GetClosestRune()
     local closestRune = nil;
@@ -60,7 +76,7 @@ function GetDesire()
 
     if not utility.IsHero(npcBot) or not npcBot:IsAlive() or utility.IsClone(npcBot) or (#enemyHeroes > 0) or utility.IsBaseUnderAttack()
     then
-        return BOT_ACTION_DESIRE_NONE;
+        return BOT_MODE_DESIRE_NONE;
     end
 
     if GetGameState() == GAME_STATE_PRE_GAME
@@ -78,37 +94,13 @@ function GetDesire()
         else
             return BOT_MODE_DESIRE_NONE;
         end
-    else
-        return BOT_MODE_DESIRE_NONE;
     end
 
-    --[[     for _, rune in pairs(runeList)
-    do
-        if IsRadiusVisible(GetRuneSpawnLocation(rune), 200)
-        then
-            local runeStatus = GetRuneStatus(rune);
-            if runeStatus == RUNE_STATUS_AVAILABLE
-            then
-                local runeLocation = GetRuneSpawnLocation(rune);
-                local runeDistance = GetUnitToLocationDistance(npcBot, runeLocation);
-                if runeDistance <= 1000
-                then
-                    return BOT_MODE_DESIRE_VERYHIGH;
-                elseif runeDistance <= 2000
-                then
-                    return BOT_MODE_DESIRE_HIGH;
-                else
-                    return BOT_MODE_DESIRE_NONE;
-                end
-            else
-                return BOT_MODE_DESIRE_NONE;
-            end
-        end
-    end ]]
+    return BOT_MODE_DESIRE_NONE;
 end
 
 function OnStart()
-    if RollPercentage(15)
+    if RollPercentage(15) and GetGameState() ~= GAME_STATE_PRE_GAME
     then
         npcBot:ActionImmediate_Chat("Иду за руной.", false);
     end
@@ -124,22 +116,23 @@ function Think()
         return;
     end
 
-    local bountyRuneRadiant = Vector(2183.8, -3906.2, 155.7);
-    local powerfulRuneRadiant = Vector(1155.8, -1230.5, 84.7);
-    local bountyRuneDire = Vector(-1559.8, 3460.0, 208.5);
-    local powerfulRuneDire = Vector(-1639.8, 1103.5, 58.3);
+    --print(DotaTime())
 
     -- Message at the beginning of the game
-    if not bMessageDone
-        and GetGameState() == GAME_STATE_PRE_GAME
-        and (DotaTime() < 10 and DotaTime() > 5)
-        and npcBot:GetGold() < 300
-        and npcBot == chattingBot
+    if GetGameState() == GAME_STATE_PRE_GAME
     then
-        local message =
-        "You are welcomed by the author of Smart Bots. Thank you for choosing us, we hope you enjoy the game!";
-        npcBot:ActionImmediate_Chat(message, true);
-        bMessageDone = true;
+        if introMessageDone == false and npcBot:HasModifier("modifier_fountain_aura_buff")
+        then
+            local chattingBot = GetRandomBotPlayer();
+            if npcBot == chattingBot
+            then
+                --introMessageTimer = GameTime();
+                local message =
+                "You are welcomed by the author of Smart Bots. Thank you for choosing us, we hope you enjoy the game!";
+                npcBot:ActionImmediate_Chat(message, false);
+                introMessageDone = true;
+            end
+        end
     end
     --
 
@@ -170,15 +163,35 @@ function Think()
 
     if runeDistance > 10
     then
-        npcBot:Action_MoveToLocation(GetRuneSpawnLocation(closestRune) + RandomVector(5));
+        npcBot:Action_MoveToLocation(GetRuneSpawnLocation(closestRune) + RandomVector(10));
         return;
     else
-        npcBot:Action_PickUpRune(closestRune);
         npcBot:ActionImmediate_Ping(runeLocation.x, runeLocation.y, true);
+        npcBot:Action_PickUpRune(closestRune);
         return;
     end
+end
 
-    --[[     for _, rune in pairs(runeList)
+--[[ function GetRandomBotPlayer()
+    local botPlayers = {};
+    local selectedBotPlayer = nil;
+    for _, i in pairs(GetTeamPlayers(GetTeam()))
+    do
+        if IsPlayerBot(i)
+        then
+            table.insert(botPlayers, i);
+        end
+    end
+    if (#botPlayers > 0) and selectedBotPlayer == nil
+    then
+        selectedBotPlayer = math.random(1, #botPlayers);
+    end
+
+    return selectedBotPlayer;
+end ]]
+
+
+--[[     for _, rune in pairs(runeList)
     do
         local runeStatus = GetRuneStatus(rune);
         if runeStatus == RUNE_STATUS_AVAILABLE
@@ -199,7 +212,27 @@ function Think()
             end
         end
     end ]]
-end
 
----------------------------------------------------------------------------------------------------
-for k, v in pairs(mode_rune_generic) do _G._savedEnv[k] = v end
+--[[     for _, rune in pairs(runeList)
+    do
+        if IsRadiusVisible(GetRuneSpawnLocation(rune), 200)
+        then
+            local runeStatus = GetRuneStatus(rune);
+            if runeStatus == RUNE_STATUS_AVAILABLE
+            then
+                local runeLocation = GetRuneSpawnLocation(rune);
+                local runeDistance = GetUnitToLocationDistance(npcBot, runeLocation);
+                if runeDistance <= 1000
+                then
+                    return BOT_MODE_DESIRE_VERYHIGH;
+                elseif runeDistance <= 2000
+                then
+                    return BOT_MODE_DESIRE_HIGH;
+                else
+                    return BOT_MODE_DESIRE_NONE;
+                end
+            else
+                return BOT_MODE_DESIRE_NONE;
+            end
+        end
+    end ]]

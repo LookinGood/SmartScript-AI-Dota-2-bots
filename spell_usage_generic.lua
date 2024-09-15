@@ -10,6 +10,7 @@ local ignoredAbility = {
     "dawnbreaker_converge",
     "morphling_morph_agi",
     "morphling_morph_str",
+    "morphling_morph_replicate",
     "pangolier_gyroshell_stop",
     "pangolier_rollup_stop",
     "phoenix_icarus_dive_stop",
@@ -693,7 +694,7 @@ function ConsiderCast(ability)
             then
                 if utility.CanCastSpellOnTarget(ability, enemy) and GetUnitToUnitDistance(npcBot, enemy) <= castRangeAbility
                 then
-                    npcBot:ActionImmediate_Chat("Target/Damage убиваю " .. ability:GetName(), true);
+                    --npcBot:ActionImmediate_Chat("Target/Damage убиваю " .. ability:GetName(), true);
                     return BOT_ACTION_DESIRE_ABSOLUTE, enemy, enemy:GetLocation(), "target";
                 end
             end

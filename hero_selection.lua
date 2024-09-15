@@ -118,6 +118,8 @@ require(GetScriptDirectory() .. "/hero_role_generic")
 	"npc_dota_hero_visage",
 	"npc_dota_hero_phoenix",
 	"npc_dota_hero_chen",
+	"npc_dota_hero_ringmaster",
+	"npc_dota_hero_morphling",
 ]]
 --#endregion
 
@@ -235,6 +237,8 @@ local hero_pool_my =
 	"npc_dota_hero_visage",
 	"npc_dota_hero_phoenix",
 	"npc_dota_hero_chen",
+	"npc_dota_hero_ringmaster",
+	"npc_dota_hero_morphling",
 }
 
 local heroesCarry =
@@ -305,6 +309,7 @@ local heroesCarry =
 	"npc_dota_hero_death_prophet",
 	"npc_dota_hero_bloodseeker",
 	"npc_dota_hero_brewmaster",
+	"npc_dota_hero_morphling",
 }
 
 local heroesSupport =
@@ -355,6 +360,7 @@ local heroesSupport =
 	"npc_dota_hero_visage",
 	"npc_dota_hero_phoenix",
 	"npc_dota_hero_chen",
+	"npc_dota_hero_ringmaster",
 }
 
 local testTeam =
@@ -480,7 +486,7 @@ function Think()
 
 	-- Insert here hero hame and set "testmode = true" if you want the bot to choose a specific hero (Work only in Radiant team)
 	local testmode = false;
-	local testHero = "npc_dota_hero_luna"
+	local testHero = "npc_dota_hero_morphling"
 
 	if testmode
 	then

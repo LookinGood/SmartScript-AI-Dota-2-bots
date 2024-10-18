@@ -3,7 +3,7 @@ _G._savedEnv = getfenv()
 module("purchase", package.seeall)
 require(GetScriptDirectory() .. "/utility")
 
-function ItemPurchase(ItemsToBuy)
+function ItemPurchase(ItemsToBuy, realItemsToBuy)
     if GetGameState() ~= GAME_STATE_GAME_IN_PROGRESS and GetGameState() ~= GAME_STATE_PRE_GAME
     then
         return;
@@ -28,166 +28,168 @@ function ItemPurchase(ItemsToBuy)
     utility.PurchaseInfusedRaindrop(npcBot)
     --utility.PurchaseTomeOfKnowledge(npcBot) -- Item deleted
 
-    if ItemsToBuy == nil or #ItemsToBuy == 0
+    if (#ItemsToBuy == 0)
     then
         npcBot:SetNextItemPurchaseValue(0);
         return;
     end
 
     local sNextItem = ItemsToBuy[1];
-    npcBot:SetNextItemPurchaseValue(GetItemCost(sNextItem))
+    local itemRecepie = GetItemComponents(sNextItem);
+    local itemComponents = itemRecepie[1];
+    local PurchaseResult;
 
-    if GetItemStockCount(sNextItem) <= 0
+    if (#itemRecepie > 0)
     then
-        if (DotaTime() > 20 * 60)
+        if (#realItemsToBuy == 0) and (#realItemsToBuy < #itemComponents)
         then
-            if sNextItem == "item_aghanims_shard"
-            then
-                npcBot.secretShopMode = false;
-                npcBot.sideShopMode = false;
-                table.remove(ItemsToBuy, 1)
-                sNextItem = ItemsToBuy[1];
-                npcBot:SetNextItemPurchaseValue(GetItemCost(sNextItem))
+            for _, item in pairs(itemComponents) do
+                if item ~= nil
+                then
+                    table.insert(realItemsToBuy, item);
+                else
+                    break;
+                end
             end
         end
-        if sNextItem == "item_tango" or
-            sNextItem == "item_clarity" or
-            sNextItem == "item_flask" or
-            sNextItem == "item_enchanted_mango" or
-            sNextItem == "item_infused_raindrop" or
-            sNextItem == "item_blood_grenade"
+    else
+        if (#realItemsToBuy == 0)
         then
-            npcBot.secretShopMode = false;
-            npcBot.sideShopMode = false;
-            table.remove(ItemsToBuy, 1)
-            sNextItem = ItemsToBuy[1];
-            npcBot:SetNextItemPurchaseValue(GetItemCost(sNextItem))
+            table.insert(realItemsToBuy, 1, sNextItem);
         end
     end
 
-    --[[     local itemRecipe = GetItemComponents(sNextItem);
-
-    if itemRecipe ~= nil and #itemRecipe > 0
+    if realItemsToBuy[1] ~= nil
     then
-        --print(tostring(itemRecipe[1]));
-        sNextItem = itemRecipe[1];
-        npcBot:SetNextItemPurchaseValue(GetItemCost(sNextItem))
-    end ]]
-
-    if npcBot:GetGold() < GetItemCost(sNextItem)
-    then
-        npcBot.secretShopMode = false;
-        npcBot.sideShopMode = false;
+        sNextItem = realItemsToBuy[1];
+        npcBot:SetNextItemPurchaseValue(GetItemCost(sNextItem));
     else
-        if npcBot.secretShopMode ~= true and npcBot.sideShopMode ~= true
-        then
-            if IsItemPurchasedFromSideShop(sNextItem) and npcBot:DistanceFromSideShop() <= 3000 and not utility.IsItemSlotsFull()
-                and npcBot:DistanceFromSideShop() ~= 0
-            then
-                npcBot.sideShopMode = true;
-            end
-            if IsItemPurchasedFromSecretShop(sNextItem) and npcBot:DistanceFromSecretShop() <= 3000 and not utility.IsItemSlotsFull()
-            then
-                npcBot.secretShopMode = true;
-            end
-        end
+        table.remove(realItemsToBuy, 1);
+    end
 
-        local PurchaseResult;
-
-        if npcBot.sideShopMode == true
+    if sNextItem ~= nil
+    then
+        if npcBot:GetGold() < GetItemCost(sNextItem)
         then
-            if npcBot:DistanceFromSideShop() <= 200 and not utility.IsItemSlotsFull()
+            npcBot.secretShopMode = false;
+            npcBot.sideShopMode = false;
+        else
+            if npcBot.secretShopMode ~= true and npcBot.sideShopMode ~= true
             then
-                PurchaseResult = npcBot:ActionImmediate_PurchaseItem(sNextItem);
-            end
-        elseif npcBot.secretShopMode == true
-        then
-            if npcBot:DistanceFromSecretShop() <= 200 and not utility.IsItemSlotsFull()
-            then
-                PurchaseResult = npcBot:ActionImmediate_PurchaseItem(sNextItem);
-            else
-                if courier ~= nil
+                if IsItemPurchasedFromSideShop(sNextItem) and npcBot:DistanceFromSideShop() <= 3000 and not utility.IsItemSlotsFull()
+                    and npcBot:DistanceFromSideShop() ~= 0
                 then
-                    if courier:DistanceFromSecretShop() <= 200 and not utility.IsCourierItemSlotsFull()
-                    then
-                        PurchaseResult = courier:ActionImmediate_PurchaseItem(sNextItem);
-                    end
+                    npcBot.sideShopMode = true;
+                end
+                if IsItemPurchasedFromSecretShop(sNextItem) and npcBot:DistanceFromSecretShop() <= 3000 and not utility.IsItemSlotsFull()
+                then
+                    npcBot.secretShopMode = true;
                 end
             end
-        else
-            if npcBot:DistanceFromFountain() <= 400
+
+            if npcBot.sideShopMode == true
             then
-                if not utility.IsItemSlotsFull() or (utility.IsItemSlotsFull() and not utility.IsStashSlotsFull())
+                if npcBot:DistanceFromSideShop() <= 200 and not utility.IsItemSlotsFull()
+                then
+                    PurchaseResult = npcBot:ActionImmediate_PurchaseItem(sNextItem);
+                end
+            elseif npcBot.secretShopMode == true
+            then
+                if npcBot:DistanceFromSecretShop() <= 200 and not utility.IsItemSlotsFull()
                 then
                     PurchaseResult = npcBot:ActionImmediate_PurchaseItem(sNextItem);
                 else
-                    if courierState == COURIER_STATE_AT_BASE and not utility.IsCourierItemSlotsFull()
+                    if courier ~= nil
                     then
-                        PurchaseResult = courier:ActionImmediate_PurchaseItem(sNextItem);
+                        if courier:DistanceFromSecretShop() <= 200 and not utility.IsCourierItemSlotsFull()
+                        then
+                            PurchaseResult = courier:ActionImmediate_PurchaseItem(sNextItem);
+                        end
                     end
                 end
             else
-                if not utility.IsStashSlotsFull()
+                if npcBot:DistanceFromFountain() <= 400
                 then
-                    PurchaseResult = npcBot:ActionImmediate_PurchaseItem(sNextItem);
-                else
-                    if courierState == COURIER_STATE_AT_BASE and not utility.IsCourierItemSlotsFull()
+                    if not utility.IsItemSlotsFull() or (utility.IsItemSlotsFull() and not utility.IsStashSlotsFull())
                     then
-                        PurchaseResult = courier:ActionImmediate_PurchaseItem(sNextItem);
+                        PurchaseResult = npcBot:ActionImmediate_PurchaseItem(sNextItem);
+                    else
+                        if courierState == COURIER_STATE_AT_BASE and not utility.IsCourierItemSlotsFull()
+                        then
+                            PurchaseResult = courier:ActionImmediate_PurchaseItem(sNextItem);
+                        end
+                    end
+                else
+                    if not utility.IsStashSlotsFull()
+                    then
+                        PurchaseResult = npcBot:ActionImmediate_PurchaseItem(sNextItem);
+                    else
+                        if courierState == COURIER_STATE_AT_BASE and not utility.IsCourierItemSlotsFull()
+                        then
+                            PurchaseResult = courier:ActionImmediate_PurchaseItem(sNextItem);
+                        end
                     end
                 end
             end
-
-            --[[             if utility.IsStashSlotsFull() and courierState == COURIER_STATE_AT_BASE and not utility.IsCourierItemSlotsFull()
+            if PurchaseResult == PURCHASE_ITEM_SUCCESS
             then
-                PurchaseResult = courier:ActionImmediate_PurchaseItem(sNextItem);
-            else
-                PurchaseResult = npcBot:ActionImmediate_PurchaseItem(sNextItem);
+                npcBot.secretShopMode = false;
+                npcBot.sideShopMode = false;
+                table.remove(realItemsToBuy, 1);
             end
-        else
-            if utility.IsItemSlotsFull() and utility.IsStashSlotsFull() and courierState == COURIER_STATE_AT_BASE and not utility.IsCourierItemSlotsFull()
+            if PurchaseResult == PURCHASE_ITEM_OUT_OF_STOCK
             then
-                PurchaseResult = courier:ActionImmediate_PurchaseItem(sNextItem);
-            else
-                PurchaseResult = npcBot:ActionImmediate_PurchaseItem(sNextItem);
-            end ]]
+                if sNextItem == "item_aghanims_shard"
+                then
+                    npcBot.secretShopMode = false;
+                    npcBot.sideShopMode = false;
+                    table.insert(realItemsToBuy, 3, "item_aghanims_shard");
+                    table.remove(realItemsToBuy, 1);
+                else
+                    if sNextItem == "item_tango" or
+                        sNextItem == "item_clarity" or
+                        sNextItem == "item_flask" or
+                        sNextItem == "item_enchanted_mango" or
+                        sNextItem == "item_infused_raindrop" or
+                        sNextItem == "item_blood_grenade"
+                    then
+                        npcBot.secretShopMode = false;
+                        npcBot.sideShopMode = false;
+                        table.remove(realItemsToBuy, 1);
+                    end
+                end
+            end
+            if PurchaseResult == PURCHASE_ITEM_INVALID_ITEM_NAME or PurchaseResult == PURCHASE_ITEM_DISALLOWED_ITEM
+            then
+                npcBot.secretShopMode = false;
+                npcBot.sideShopMode = false;
+                table.remove(realItemsToBuy, 1);
+            end
+            if PurchaseResult == PURCHASE_ITEM_INSUFFICIENT_GOLD
+            then
+                npcBot.secretShopMode = false;
+                npcBot.sideShopMode = false;
+            end
+            if PurchaseResult == PURCHASE_ITEM_NOT_AT_SECRET_SHOP
+            then
+                npcBot.secretShopMode = true
+                npcBot.sideShopMode = false;
+            end
+            if PurchaseResult == PURCHASE_ITEM_NOT_AT_SIDE_SHOP
+            then
+                npcBot.sideShopMode = true
+                npcBot.secretShopMode = false;
+            end
+            if PurchaseResult == PURCHASE_ITEM_NOT_AT_HOME_SHOP
+            then
+                npcBot.secretShopMode = false;
+                npcBot.sideShopMode = false;
+            end
         end
-        if PurchaseResult == PURCHASE_ITEM_SUCCESS
-        then
-            npcBot.secretShopMode = false;
-            npcBot.sideShopMode = false;
-            table.remove(ItemsToBuy, 1)
-        end
-        if PurchaseResult == PURCHASE_ITEM_OUT_OF_STOCK
-        then
-            SellExtraItem()
-        end
-        if PurchaseResult == PURCHASE_ITEM_INVALID_ITEM_NAME or PurchaseResult == PURCHASE_ITEM_DISALLOWED_ITEM
-        then
-            npcBot.secretShopMode = false;
-            npcBot.sideShopMode = false;
-            table.remove(ItemsToBuy, 1)
-        end
-        if PurchaseResult == PURCHASE_ITEM_INSUFFICIENT_GOLD
-        then
-            npcBot.secretShopMode = false;
-            npcBot.sideShopMode = false;
-        end
-        if PurchaseResult == PURCHASE_ITEM_NOT_AT_SECRET_SHOP
-        then
-            npcBot.secretShopMode = true
-            npcBot.sideShopMode = false;
-        end
-        if PurchaseResult == PURCHASE_ITEM_NOT_AT_SIDE_SHOP
-        then
-            npcBot.sideShopMode = true
-            npcBot.secretShopMode = false;
-        end
-        if PurchaseResult == PURCHASE_ITEM_NOT_AT_HOME_SHOP
-        then
-            npcBot.secretShopMode = false;
-            npcBot.sideShopMode = false;
-        end
+    end
+    if (#realItemsToBuy == 0)
+    then
+        table.remove(ItemsToBuy, 1);
     end
 end
 
@@ -197,8 +199,6 @@ function SellSpecifiedItem(item_name)
     then
         return;
     end
-
-    --local courier = utility.GetBotCourier(npcBot);
 
     for i = 0, 8
     do
@@ -224,6 +224,8 @@ function SellSpecifiedItem(item_name)
             return;
         end
     end
+
+    --local courier = utility.GetBotCourier(npcBot);
 
     --[[     for i = 0, 8
     do
@@ -292,7 +294,7 @@ function SellExtraItem()
     end
 end
 
-function BuyCourier()
+local function BuyCourier()
     local npcBot = GetBot();
     local courier = utility.GetBotCourier(npcBot);
     --local playerID = npcBot:GetPlayerID();

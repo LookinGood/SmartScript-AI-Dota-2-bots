@@ -351,6 +351,18 @@ end
 	return courier;
 end ]]
 
+function IsItemBreaksInvisibility(sItem)
+	local npcBot = GetBot();
+	if npcBot:IsInvisible()
+	then
+		if not sItem:UsingItemBreaksInvisibility()
+		then
+			return true;
+		end
+	end
+	return false;
+end
+
 function IsIllusion(npcTarget)
 	return IsValidTarget(npcTarget) and
 		(npcTarget:IsIllusion() or
@@ -598,7 +610,10 @@ function IsBusy(npcTarget)
 		(IsCantBeControlled(npcTarget) or
 			--npcTarget:IsUsingAbility() or
 			--npcTarget:IsCastingAbility() or
-			npcTarget:IsChanneling())
+			npcTarget:IsChanneling() or
+			npcTarget:IsUsingAbility() or
+			npcTarget:IsCastingAbility() or
+			npcTarget:NumQueuedActions() > 0)
 end
 
 function IsAbilityAvailable(ability)
@@ -787,6 +802,21 @@ function CountUnitAroundTarget(target, unitName, bEnemy, radius)
 				end
 			end
 		end
+
+		local otherUnitList = GetUnitList(UNIT_LIST_ENEMY_OTHER)
+		if #otherUnitList > 0
+		then
+			for _, creep in pairs(otherUnitList)
+			do
+				if IsValidTarget(creep) and creep:GetUnitName() == unitName
+				then
+					if GetUnitToUnitDistance(creep, target) <= radius
+					then
+						count = count + 1;
+					end
+				end
+			end
+		end
 	elseif bEnemy == false
 	then
 		local unitList = GetUnitList(UNIT_LIST_ALLIED_CREEPS);
@@ -818,6 +848,21 @@ function CountUnitAroundTarget(target, unitName, bEnemy, radius)
 				end
 			end
 		end
+
+		local otherUnitList = GetUnitList(UNIT_LIST_ALLIED_OTHER);
+		if #otherUnitList > 0
+		then
+			for _, creep in pairs(otherUnitList)
+			do
+				if IsValidTarget(creep) and creep:GetUnitName() == unitName
+				then
+					if GetUnitToUnitDistance(creep, target) <= radius
+					then
+						count = count + 1;
+					end
+				end
+			end
+		end
 	end
 
 	return count;
@@ -825,25 +870,32 @@ end
 
 function CanCast(npcTarget)
 	return npcTarget:IsAlive() and
+		npcTarget:NumQueuedActions() <= 0 and
 		not npcTarget:IsIllusion() and
-		--not npcTarget:IsUsingAbility() and
+		not npcTarget:IsUsingAbility() and
 		not npcTarget:IsCastingAbility() and
 		not npcTarget:IsChanneling() and
 		not npcTarget:IsSilenced() and
-		not npcTarget:IsDominated() and
-		not npcTarget:IsStunned() and
-		not npcTarget:IsHexed() and
-		not npcTarget:IsNightmared()
+		not IsCantBeControlled(npcTarget)
 end
 
 function CanCastWhenChanneling(npcTarget)
 	return npcTarget:IsAlive() and
+		npcTarget:NumQueuedActions() <= 0 and
 		not npcTarget:IsCastingAbility() and
 		not npcTarget:IsSilenced() and
-		not npcTarget:IsDominated() and
-		not npcTarget:IsStunned() and
-		not npcTarget:IsHexed() and
-		not npcTarget:IsNightmared()
+		not IsCantBeControlled(npcTarget)
+end
+
+function CanUseItems(npcTarget)
+	return npcTarget:IsAlive() and
+		npcTarget:NumQueuedActions() <= 0 and
+		not npcTarget:IsIllusion() and
+		--not npcTarget:IsUsingAbility() and
+		not npcTarget:IsCastingAbility() and
+		--not npcTarget:IsChanneling() and
+		not npcTarget:IsMuted() and
+		not IsCantBeControlled(npcTarget)
 end
 
 function CheckFlag(bitfield, flag)
@@ -891,7 +943,8 @@ function TargetCantDie(npcTarget)
 		(npcTarget:HasModifier("modifier_dazzle_shallow_grave") or
 			npcTarget:HasModifier("modifier_oracle_false_promise_timer") or
 			npcTarget:HasModifier("modifier_troll_warlord_battle_trance") or
-			npcTarget:HasModifier("modifier_item_aeon_disk_buff"))
+			npcTarget:HasModifier("modifier_item_aeon_disk_buff") or
+			npcTarget:HasModifier("modifier_skeleton_king_reincarnation_scepter_active"))
 end
 
 function IsTargetInvulnerable(npcTarget)
@@ -901,11 +954,13 @@ function IsTargetInvulnerable(npcTarget)
 			npcTarget:HasModifier("modifier_templar_assassin_refraction_absorb") or
 			npcTarget:HasModifier("modifier_abaddon_aphotic_shield") or
 			npcTarget:HasModifier("modifier_abaddon_borrowed_time") or
-			npcTarget:HasModifier("modifier_fountain_glyph"));
+			npcTarget:HasModifier("modifier_fountain_glyph") or
+			npcTarget:HasModifier("modifier_skeleton_king_reincarnation_scepter_active"));
 end
 
 function CanBeHeal(npcTarget)
-	return IsValidTarget(npcTarget) and not npcTarget:HasModifier("modifier_ice_blast")
+	return IsValidTarget(npcTarget) and not npcTarget:HasModifier("modifier_ice_blast") and
+		not npcTarget:HasModifier("modifier_skeleton_king_reincarnation_scepter_active")
 end
 
 function CanMove(npcTarget)
@@ -997,6 +1052,13 @@ function SafeCast(npcTarget)
 			and not npcTarget:HasModifier("modifier_item_lotus_orb_active")
 			and not npcTarget:HasModifier("modifier_item_blade_mail_reflect")
 			and not npcTarget:HasModifier("modifier_nyx_assassin_spiked_carapace"));
+end
+
+function HaveReflectSpell(npcTarget)
+	return IsValidTarget(npcTarget)
+		and (npcTarget:HasModifier("modifier_antimage_counterspell") or
+			npcTarget:HasModifier("modifier_item_sphere_target") or
+			npcTarget:HasModifier("modifier_item_lotus_orb_active"));
 end
 
 function PvPMode(npcBot)
@@ -1138,6 +1200,7 @@ function PurchaseWardObserver(npcBot)
 
 	local courier = GetBotCourier(npcBot);
 	local assignedLane = npcBot:GetAssignedLane();
+	local botMode = npcBot:GetActiveMode();
 
 	for i = 0, 16 do
 		local item = npcBot:GetItemInSlot(i);
@@ -1155,15 +1218,29 @@ function PurchaseWardObserver(npcBot)
 		end
 	end
 
-	if assignedLane == LANE_MID and GetGameState() == GAME_STATE_PRE_GAME
+	if assignedLane == LANE_MID and botMode == BOT_MODE_LANING
 	then
 		npcBot:ActionImmediate_PurchaseItem("item_ward_observer");
 		--npcBot:ActionImmediate_Chat("Покупаю вард на мид!", true);
 		return;
-	elseif HaveHumanInTeam(npcBot)
-	then
-		if GetItemStockCount("item_ward_observer") > 1
+	else
+		if HaveHumanInTeam(npcBot)
 		then
+			if GetItemStockCount("item_ward_observer") > 1
+			then
+				if hero_role_generic.HaveSupportInTeam(npcBot)
+				then
+					if hero_role_generic.IsHeroSupport(npcBot)
+					then
+						npcBot:ActionImmediate_PurchaseItem("item_ward_observer");
+						return;
+					end
+				else
+					npcBot:ActionImmediate_PurchaseItem("item_ward_observer");
+					return;
+				end
+			end
+		else
 			if hero_role_generic.HaveSupportInTeam(npcBot)
 			then
 				if hero_role_generic.IsHeroSupport(npcBot)
@@ -1175,19 +1252,6 @@ function PurchaseWardObserver(npcBot)
 				npcBot:ActionImmediate_PurchaseItem("item_ward_observer");
 				return;
 			end
-		end
-	elseif not HaveHumanInTeam(npcBot)
-	then
-		if hero_role_generic.HaveSupportInTeam(npcBot)
-		then
-			if hero_role_generic.IsHeroSupport(npcBot)
-			then
-				npcBot:ActionImmediate_PurchaseItem("item_ward_observer");
-				return;
-			end
-		else
-			npcBot:ActionImmediate_PurchaseItem("item_ward_observer");
-			return;
 		end
 	end
 end
@@ -1333,6 +1397,20 @@ function HasAganimShard(npcBot)
 		else
 			return false
 		end
+	end
+end
+
+function GetFountainLocation()
+	local npcBot = GetBot();
+	local botTeam = npcBot:GetTeam();
+	if botTeam == TEAM_RADIANT
+	then
+		return Vector(-7232.0, -6888.0, 364.5);
+	elseif botTeam == TEAM_DIRE
+	then
+		return Vector(7168.0, 6836.4, 423.6);
+	else
+		return Vector(0, 0, 0);
 	end
 end
 

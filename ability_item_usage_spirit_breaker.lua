@@ -157,7 +157,8 @@ function ConsiderChargeOfDarkness()
                     return BOT_MODE_DESIRE_HIGH, botTarget;
                 else
                     local allyHeroes = botTarget:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
-                    if (#allyHeroes > 1)
+                    local enemyHeroes = botTarget:GetNearbyHeroes(1600, false, BOT_MODE_NONE);
+                    if (#allyHeroes >= #enemyHeroes)
                     then
                         --npcBot:ActionImmediate_Ping(botTarget.x, botTarget.y, false);
                         --npcBot:ActionImmediate_Chat("Бегу на " .. botTarget:GetUnitName(), false);
@@ -171,7 +172,7 @@ function ConsiderChargeOfDarkness()
     then
         local enemyHeroes = GetUnitList(UNIT_LIST_ENEMY_HEROES);
         local enemyCreeps = GetUnitList(UNIT_LIST_ENEMY_CREEPS);
-        local fountainLocation = utility.SafeLocation(npcBot);
+        local fountainLocation = utility.GetFountainLocation();
         if (#enemyHeroes > 0)
         then
             for _, enemy in pairs(enemyHeroes) do
@@ -251,14 +252,12 @@ function ConsiderPlanarPocket()
     then
         for _, ally in pairs(allyAbility)
         do
-            if utility.IsHero(ally) and
-                not ally:HasModifier("modifier_antimage_counterspell") and
-                not ally:HasModifier("modifier_item_sphere_target") and
-                not ally:HasModifier("modifier_item_lotus_orb_active") and
-                not ally:HasModifier("modifier_spirit_breaker_planar_pocket")
+            local incomingSpells = ally:GetIncomingTrackingProjectiles();
+            if (#incomingSpells > 0)
             then
-                local incomingSpells = ally:GetIncomingTrackingProjectiles();
-                if (#incomingSpells > 0)
+                if utility.IsHero(ally) and
+                    not HaveReflectSpell(ally) and
+                    not ally:HasModifier("modifier_spirit_breaker_planar_pocket")
                 then
                     for _, spell in pairs(incomingSpells)
                     do
@@ -301,7 +300,7 @@ function ConsiderNetherStrike()
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую NetherStrike что бы сбить заклинание или убить цель!",true);
-                    return BOT_ACTION_DESIRE_VERYHIGH, enemy;
+                    return BOT_ACTION_DESIRE_ABSOLUTE, enemy;
                 end
             end
         end

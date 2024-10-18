@@ -112,7 +112,7 @@ function ConsiderPurification()
             then
                 local allyHeroAround = enemy:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
                 local allyCreepsAround = enemy:GetNearbyCreeps(radiusAbility, true);
-                if (#allyHeroAround > 1)
+                if (#allyHeroAround > 0)
                 then
                     for _, ally in pairs(allyHeroAround) do
                         if utility.IsValidTarget(ally) and GetUnitToUnitDistance(npcBot, ally) <= castRangeAbility
@@ -143,7 +143,7 @@ function ConsiderPurification()
     then
         for _, ally in pairs(allyAbility)
         do
-            if utility.IsHero(ally) and utility.CanBeHeal(ally) and (ally:GetHealth() / ally:GetMaxHealth() <= 0.8)
+            if utility.IsHero(ally) and utility.CanBeHeal(ally) and (ally:GetHealth() < ally:GetMaxHealth() - damageAbility)
             then
                 --npcBot:ActionImmediate_Chat("Использую Purification для лечения!", true);
                 return BOT_ACTION_DESIRE_HIGH, ally;
@@ -158,7 +158,7 @@ function ConsiderPurification()
         then
             local allyHeroAround = botTarget:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
             local allyCreepsAround = botTarget:GetNearbyCreeps(radiusAbility, true);
-            if (#allyHeroAround > 1)
+            if (#allyHeroAround > 0)
             then
                 for _, ally in pairs(allyHeroAround) do
                     if utility.IsValidTarget(ally) and GetUnitToUnitDistance(npcBot, ally) <= castRangeAbility
@@ -235,10 +235,11 @@ function ConsiderHammerOfPurity()
         return;
     end
 
+    local attackTarget = npcBot:GetAttackTarget();
     local castRangeAbility = ability:GetCastRange();
     local damageAbility = (npcBot:GetBaseDamage() / 100 * ability:GetSpecialValueInt("base_damage")) +
         ability:GetSpecialValueInt("bonus_damage");
-    local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility + 200, true, BOT_MODE_NONE);
+    local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility * 2, true, BOT_MODE_NONE);
 
     -- Cast if can kill somebody
     if (#enemyAbility > 0)
@@ -258,7 +259,7 @@ function ConsiderHammerOfPurity()
 
     if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_AUTOCAST)
     then
-        if (utility.IsHero(botTarget) or utility.IsRoshan(botTarget)) and utility.CanCastSpellOnTarget(ability, botTarget)
+        if (utility.IsHero(attackTarget) or utility.IsRoshan(attackTarget) or npcBot:GetAttackTarget():IsAncientCreep()) and utility.CanCastSpellOnTarget(ability, attackTarget)
         then
             if not ability:GetAutoCastState()
             then
@@ -315,7 +316,7 @@ function ConsiderGuardianAngel()
     local radiusAbility = ability:GetSpecialValueInt("radius");
     local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
 
-    if not npcBot:HasScepter()
+    if (castRangeAbility > 0)
     then
         local allyAbility = npcBot:GetNearbyHeroes(utility.GetCurrentCastDistance(castRangeAbility + radiusAbility),
             false, BOT_MODE_NONE);
@@ -338,8 +339,7 @@ function ConsiderGuardianAngel()
                 end
             end
         end
-    elseif npcBot:HasScepter()
-    then
+    else
         local allyAbility = GetUnitList(UNIT_LIST_ALLIED_HEROES);
         if (#allyAbility > 0)
         then
@@ -351,7 +351,7 @@ function ConsiderGuardianAngel()
                     if utility.IsHero(ally) and (ally:GetHealth() / ally:GetMaxHealth() <= 0.5) and not ally:HasModifier("modifier_omninight_guardian_angel")
                         and (ally:WasRecentlyDamagedByAnyHero(2.0) or ally:WasRecentlyDamagedByTower(2.0))
                     then
-                        npcBot:ActionImmediate_Chat("Использую GuardianAngel для защиты " .. ally:GetUnitName(), true);
+                        --npcBot:ActionImmediate_Chat("Использую GuardianAngel для защиты " .. ally:GetUnitName(), true);
                         return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, ally, delayAbility, 0);
                     end
                 end

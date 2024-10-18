@@ -120,6 +120,9 @@ require(GetScriptDirectory() .. "/hero_role_generic")
 	"npc_dota_hero_chen",
 	"npc_dota_hero_ringmaster",
 	"npc_dota_hero_morphling",
+	"npc_dota_hero_earth_spirit",
+	"npc_dota_hero_void_spirit",
+	"npc_dota_hero_invoker",
 ]]
 --#endregion
 
@@ -239,6 +242,9 @@ local hero_pool_my =
 	"npc_dota_hero_chen",
 	"npc_dota_hero_ringmaster",
 	"npc_dota_hero_morphling",
+	"npc_dota_hero_earth_spirit",
+	"npc_dota_hero_void_spirit",
+	"npc_dota_hero_invoker",
 }
 
 local heroesCarry =
@@ -310,6 +316,8 @@ local heroesCarry =
 	"npc_dota_hero_bloodseeker",
 	"npc_dota_hero_brewmaster",
 	"npc_dota_hero_morphling",
+	"npc_dota_hero_void_spirit",
+	"npc_dota_hero_invoker",
 }
 
 local heroesSupport =
@@ -361,6 +369,7 @@ local heroesSupport =
 	"npc_dota_hero_phoenix",
 	"npc_dota_hero_chen",
 	"npc_dota_hero_ringmaster",
+	"npc_dota_hero_earth_spirit",
 }
 
 local testTeam =
@@ -478,19 +487,22 @@ function GetTestPick()
 	return hero;
 end
 
+-- Insert here hero hame and set "testmode = true" if you want the bot to choose a specific hero (Work only in Radiant team)
+local testmode = false;
+local testHero = "npc_dota_hero_zuus"
+
+local botPlayers = {};
+local testPlayer = nil;
+local testPick = false;
+
 function Think()
 	if GetGameState() ~= GAME_STATE_HERO_SELECTION
 	then
 		return;
 	end
 
-	-- Insert here hero hame and set "testmode = true" if you want the bot to choose a specific hero (Work only in Radiant team)
-	local testmode = false;
-	local testHero = "npc_dota_hero_morphling"
-
 	if testmode
 	then
-		local botPlayers = {};
 		for _, i in pairs(GetTeamPlayers(GetTeam()))
 		do
 			if IsPlayerBot(i) and GetSelectedHeroName(i) == ""
@@ -511,7 +523,6 @@ function Think()
 	--
 
 	local lastpick = 10;
-	local testPick = false;
 
 	if testPick
 	then

@@ -2,7 +2,6 @@
 require(GetScriptDirectory() .. "/utility")
 
 local npcBot = GetBot();
-local castAbility = nil;
 
 function GetDesire()
     local botMode = npcBot:GetActiveMode();
@@ -11,6 +10,8 @@ function GetDesire()
     then
         return BOT_ACTION_DESIRE_NONE;
     end
+
+    castAbility = nil;
 
     if castAbility == nil then castAbility = npcBot:GetAbilityByName("tinker_rearm") end;
     if castAbility == nil then castAbility = npcBot:GetAbilityByName("elder_titan_echo_stomp") end;
@@ -28,7 +29,7 @@ function GetDesire()
     if castAbility == nil then castAbility = npcBot:GetAbilityByName("windrunner_shackleshot") end;
     if castAbility == nil then castAbility = npcBot:GetAbilityByName("spirit_breaker_charge_of_darkness") end;
 
-    LaunchSnowball = npcBot:GetAbilityByName("tusk_launch_snowball");
+    --LaunchSnowball = npcBot:GetAbilityByName("tusk_launch_snowball");
 
     if npcBot:IsChanneling() or (castAbility ~= nil and castAbility:IsInAbilityPhase()) or
         npcBot:HasModifier("modifier_spirit_breaker_charge_of_darkness")

@@ -66,8 +66,8 @@ function AbilityUsageThink()
     local castSpectralDaggerDesire, castSpectralDaggerTarget, castSpectralDaggerTargetType = ConsiderSpectralDagger();
     local castDispersionDesire = ConsiderDispersion();
     local castRealityDesire, castRealityLocation = ConsiderReality();
-    local castShadowStepDesire, castShadowStepTarget = ConsiderShadowStep();
     local castHauntDesire = ConsiderHaunt();
+    local castShadowStepDesire, castShadowStepTarget = ConsiderShadowStep();
 
     if (castSpectralDaggerDesire ~= nil)
     then
@@ -94,15 +94,15 @@ function AbilityUsageThink()
         return;
     end
 
-    if (castShadowStepDesire ~= nil)
-    then
-        npcBot:Action_UseAbilityOnEntity(ShadowStep, castShadowStepTarget);
-        return;
-    end
-
     if (castHauntDesire ~= nil)
     then
         npcBot:Action_UseAbility(Haunt);
+        return;
+    end
+
+    if (castShadowStepDesire ~= nil)
+    then
+        npcBot:Action_UseAbilityOnEntity(ShadowStep, castShadowStepTarget);
         return;
     end
 end
@@ -155,15 +155,14 @@ function ConsiderSpectralDagger()
                     then
                         --npcBot:ActionImmediate_Chat("Использую SpectralDagger для отхода, по врагу!", true);
                         return BOT_ACTION_DESIRE_VERYHIGH, enemy, "target";
-                    else
-                        --npcBot:ActionImmediate_Chat("Использую SpectralDagger для отхода!", true);
-                        return BOT_ACTION_DESIRE_HIGH, utility.GetEscapeLocation(npcBot, castRangeAbility), "location";
                     end
                 end
-            elseif (#enemyAbility <= 0) and npcBot:DistanceFromFountain() > castRangeAbility
-            then
-                --npcBot:ActionImmediate_Chat("Использую SpectralDagger для отхода!", true);
-                return BOT_ACTION_DESIRE_HIGH, utility.GetEscapeLocation(npcBot, castRangeAbility), "location";
+
+                if npcBot:DistanceFromFountain() > castRangeAbility
+                then
+                    --npcBot:ActionImmediate_Chat("Использую SpectralDagger для отхода!", true);
+                    return BOT_ACTION_DESIRE_HIGH, utility.GetEscapeLocation(npcBot, castRangeAbility), "location";
+                end
             end
         end
     end
@@ -207,12 +206,22 @@ function ConsiderReality()
         if utility.IsHero(botTarget) and utility.CanCastOnInvulnerableTarget(botTarget)
             and GetUnitToUnitDistance(npcBot, botTarget) > (attackRange * 2)
         then
-            for i = 1, #allyAbility do
-                if allyAbility[i]:IsIllusion() and GetUnitToUnitDistance(allyAbility[i], botTarget) <= 1600
+            for _, ally in pairs(allyAbility) do
+                if ally:IsIllusion()
+                    and string.find(ally:GetUnitName(), "spectre")
+                    and ally:GetPlayerID() == npcBot:GetPlayerID()
+                    and GetUnitToUnitDistance(ally, botTarget) < GetUnitToUnitDistance(npcBot, botTarget)
+                    and GetUnitToUnitDistance(ally, botTarget) < 2000
                 then
-                    return BOT_MODE_DESIRE_ABSOLUTE, allyAbility[i]:GetLocation();
+                    --npcBot:ActionImmediate_Chat("Использую Reality на свою иллюзию!", true);
+                    return BOT_MODE_DESIRE_ABSOLUTE, ally:GetLocation();
+                end
+            end
+        end
+    end
+    --allyAbility[i]:HasModifier("modifier_spectre_haunt")
 
-                    --[[             if (npcBot.idletime == nil)
+    --[[             if (npcBot.idletime == nil)
                     then
                         npcBot.idletime = GameTime()
                     else
@@ -223,11 +232,15 @@ function ConsiderReality()
                             return BOT_MODE_DESIRE_ABSOLUTE, allyAbility[i]:GetLocation();
                         end
                     end ]]
+
+
+
+    --[[             for i = 1, #allyAbility do
+                if allyAbility[i]:IsIllusion() and GetUnitToUnitDistance(allyAbility[i], botTarget) <= 1600
+                then
+                    return BOT_MODE_DESIRE_ABSOLUTE, allyAbility[i]:GetLocation();
                 end
-            end
-        end
-    end
-    --allyAbility[i]:HasModifier("modifier_spectre_haunt")
+            end ]]
 end
 
 function ConsiderShadowStep()
@@ -240,7 +253,7 @@ function ConsiderShadowStep()
     --local enemyAbility = GetUnitList(UNIT_LIST_ENEMY_HEROES);
 
     -- Cast if can kill somebody
---[[     for i = 1, #enemyAbility do
+    --[[     for i = 1, #enemyAbility do
         if utility.CanAbilityKillTarget(enemyAbility[i], damageAbility, SpectralDagger:GetDamageType())
             and utility.CanCastSpellOnTarget(SpectralDagger, enemyAbility[i])
         then

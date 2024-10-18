@@ -146,7 +146,8 @@ function ConsiderReflection()
         -- Retreat use
     elseif utility.RetreatMode(npcBot)
     then
-        local enemyAbility = npcBot:GetNearbyHeroes(utility.GetCurrentCastDistance(castRangeAbility + radiusAbility), true, BOT_MODE_NONE);
+        local enemyAbility = npcBot:GetNearbyHeroes(utility.GetCurrentCastDistance(castRangeAbility + radiusAbility),
+            true, BOT_MODE_NONE);
         if (#enemyAbility > 0)
         then
             for _, enemy in pairs(enemyAbility) do
@@ -234,7 +235,7 @@ function ConsiderDemonZeal()
         return;
     end
 
-    if npcBot:HasModifier("modifier_terrorblade_metamorphosis") or (HealthPercentage <= 0.2)
+    if npcBot:HasModifier("modifier_terrorblade_metamorphosis") or (utility.IsAbilityAvailable(Metamorphosis) or utility.IsAbilityAvailable(TerrorWave))
     then
         return;
     end

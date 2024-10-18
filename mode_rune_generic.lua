@@ -18,6 +18,8 @@ local powerfulRuneRadiant = Vector(1155.8, -1230.5, 84.7);
 local bountyRuneDire = Vector(-1559.8, 3460.0, 208.5);
 local powerfulRuneDire = Vector(-1639.8, 1103.5, 58.3);
 
+local checkRuneTimer = 0.0;
+
 function GetRandomBotPlayer()
     local selectedBotHero = nil;
     local goldMin = 100000;
@@ -49,6 +51,27 @@ function GetRandomBotPlayer()
     end ]]
 
     return selectedBotHero;
+end
+
+function GetClosestToLocationBotHero(vlocation)
+    local unit = nil;
+    local distance = 100000;
+    local allyHeroes = GetUnitList(UNIT_LIST_ALLIED_HEROES);
+
+    for _, ally in pairs(allyHeroes) do
+        if IsPlayerBot(ally:GetPlayerID()) and ally:IsAlive()
+        then
+            local botDistance = GetUnitToLocationDistance(ally, vlocation);
+            if botDistance < distance
+            then
+                unit = ally;
+                distance = botDistance;
+            end
+        end
+    end
+
+    --print(unit:GetUnitName())
+    return unit;
 end
 
 function GetClosestRune()
@@ -85,13 +108,29 @@ function GetDesire()
     end
 
     closestRune, runeDistance = GetClosestRune();
-    if closestRune ~= nil and IsRadiusVisible(GetRuneSpawnLocation(closestRune), 200)
+    --and IsRadiusVisible(GetRuneSpawnLocation(closestRune), 200)
+
+    runeStatus = GetRuneStatus(closestRune);
+    runeLocation = GetRuneSpawnLocation(closestRune);
+    closestAlly = GetClosestToLocationBotHero(runeLocation);
+
+    if runeDistance <= 3000 and npcBot == closestAlly
     then
-        runeStatus = GetRuneStatus(closestRune);
-        if runeStatus == RUNE_STATUS_AVAILABLE and runeDistance <= 2000
+        if runeStatus == RUNE_STATUS_AVAILABLE
         then
+            --npcBot:ActionImmediate_Chat("Иду за доступной руной!", true);
+            checkRuneTimer = DotaTime();
             return BOT_MODE_DESIRE_HIGH;
-        else
+        elseif runeStatus == RUNE_STATUS_UNKNOWN
+        then
+            if (DotaTime() >= checkRuneTimer + 2 * 60)
+            then
+                --npcBot:ActionImmediate_Chat("Иду проверять руну!", true);
+                return BOT_MODE_DESIRE_HIGH;
+            end
+        elseif runeStatus == RUNE_STATUS_MISSING
+        then
+            --npcBot:ActionImmediate_Chat("Руна пропала!", true);
             return BOT_MODE_DESIRE_NONE;
         end
     end
@@ -100,6 +139,7 @@ function GetDesire()
 end
 
 function OnStart()
+    --npcBot:ActionImmediate_Ping(runeLocation.x, runeLocation.y, true);
     if RollPercentage(15) and GetGameState() ~= GAME_STATE_PRE_GAME
     then
         npcBot:ActionImmediate_Chat("Иду за руной.", false);
@@ -107,7 +147,7 @@ function OnStart()
 end
 
 function OnEnd()
-    --
+    closestAlly = nil;
 end
 
 function Think()
@@ -135,6 +175,7 @@ function Think()
         end
     end
     --
+    --and GetGameStateTimeRemaining() <= 30.0
 
     if GetGameState() == GAME_STATE_PRE_GAME
     then
@@ -161,13 +202,22 @@ function Think()
         end
     end
 
-    if runeDistance > 10
+    if runeStatus == RUNE_STATUS_AVAILABLE
     then
-        npcBot:Action_MoveToLocation(GetRuneSpawnLocation(closestRune) + RandomVector(10));
-        return;
-    else
-        npcBot:ActionImmediate_Ping(runeLocation.x, runeLocation.y, true);
-        npcBot:Action_PickUpRune(closestRune);
+        if runeDistance > 10
+        then
+            npcBot:Action_MoveToLocation(runeLocation + RandomVector(10));
+            return;
+        else
+            npcBot:ActionImmediate_Ping(runeLocation.x, runeLocation.y, true);
+            npcBot:Action_ClearActions(false);
+            npcBot:ActionQueue_MoveToLocation(runeLocation + RandomVector(10));
+            npcBot:ActionQueue_PickUpRune(closestRune);
+            return;
+        end
+    elseif runeStatus == RUNE_STATUS_UNKNOWN
+    then
+        npcBot:Action_MoveToLocation(runeLocation + RandomVector(100));
         return;
     end
 end

@@ -132,7 +132,7 @@ function ConsiderBlink()
         end
     end
     -- Cast if get incoming spell
-    if not utility.IsAbilityAvailable(Counterspell)
+    if not utility.IsAbilityAvailable(Counterspell) and not utility.HaveReflectSpell(npcBot)
     then
         local incomingSpells = npcBot:GetIncomingTrackingProjectiles();
         if (#incomingSpells > 0)
@@ -161,6 +161,11 @@ function ConsiderCounterspell()
         return;
     end
 
+    if utility.HaveReflectSpell(npcBot)
+    then
+        return;
+    end
+
     local incomingSpells = npcBot:GetIncomingTrackingProjectiles();
 
     -- Cast if get incoming spell
@@ -168,10 +173,7 @@ function ConsiderCounterspell()
     then
         for _, spell in pairs(incomingSpells)
         do
-            if not utility.IsAlly(npcBot, spell.caster) and GetUnitToLocationDistance(npcBot, spell.location) <= 300 and spell.is_attack == false and
-                not npcBot:HasModifier("modifier_antimage_counterspell") and
-                not npcBot:HasModifier("modifier_item_sphere_target") and
-                not npcBot:HasModifier("modifier_item_lotus_orb_active")
+            if not utility.IsAlly(npcBot, spell.caster) and GetUnitToLocationDistance(npcBot, spell.location) <= 300 and spell.is_attack == false
             then
                 return BOT_ACTION_DESIRE_VERYHIGH;
             end
@@ -217,10 +219,7 @@ function ConsiderCounterspellAlly()
     then
         for _, ally in pairs(allyAbility)
         do
-            if ally ~= npcBot and utility.IsHero(ally) and
-                not ally:HasModifier("modifier_antimage_counterspell") and
-                not ally:HasModifier("modifier_item_sphere_target") and
-                not ally:HasModifier("modifier_item_lotus_orb_active")
+            if ally ~= npcBot and utility.IsHero(ally) and not utility.HaveReflectSpell(ally)
             then
                 local incomingSpells = ally:GetIncomingTrackingProjectiles();
                 if (#incomingSpells > 0)

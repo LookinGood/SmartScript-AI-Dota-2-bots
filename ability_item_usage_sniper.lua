@@ -69,10 +69,10 @@ function AbilityUsageThink()
     local castConcussiveGrenadeDesire, castConcussiveGrenadeLocation = ConsiderConcussiveGrenade();
     local castAssassinateDesire, castAssassinateTarget = ConsiderAssassinate();
 
-    if (castShrapnelDesire ~= nil) and (DotaTime() >= castShrapnelTimer + 2.0)
+    if (castShrapnelDesire ~= nil) and (GameTime() >= castShrapnelTimer + 2.0)
     then
         npcBot:Action_UseAbilityOnLocation(Shrapnel, castShrapnelLocation);
-        castShrapnelTimer = DotaTime();
+        castShrapnelTimer = GameTime();
         return;
     end
 

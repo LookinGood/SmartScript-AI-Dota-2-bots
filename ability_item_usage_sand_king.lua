@@ -147,7 +147,7 @@ function ConsiderBurrowstrike()
             0, 0);
         if locationAoE ~= nil and (ManaPercentage >= 0.6) and (locationAoE.count >= 3)
         then
-            return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc, "location";
+            return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
         end
     end
 end

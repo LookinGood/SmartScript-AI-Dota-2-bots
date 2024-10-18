@@ -4,6 +4,55 @@ require( GetScriptDirectory().."/item_purchase_generic" )
 local ItemsToBuy =
 { 
 	"item_tango",
+
+    "item_flask",
+
+    "item_enchanted_mango",
+
+    "item_magic_wand",
+
+	"item_wraith_band",
+
+	"item_power_treads",
+
+    "item_force_staff",
+
+    "item_phylactery",
+
+    "item_dragon_lance",
+	"item_hurricane_pike",
+
+    "item_black_king_bar",
+
+    "item_aghanims_shard",
+
+    "item_lesser_crit",
+	"item_angels_demise",
+
+    "item_yasha",
+	"item_manta",
+
+    "item_ultimate_scepter",
+	"item_ultimate_scepter_2",
+
+    "item_moon_shard",
+
+	"item_butterfly",
+
+	"item_travel_boots",
+	"item_travel_boots_2",
+}
+
+local realItemsToBuy = {}
+
+function ItemPurchaseThink()
+	purchase.ItemPurchase(ItemsToBuy, realItemsToBuy)
+end
+
+-- Old version
+--[[ local ItemsToBuy =
+{ 
+	"item_tango",
     "item_magic_stick",
     "item_wind_lace",
     "item_branches",
@@ -65,8 +114,4 @@ local ItemsToBuy =
     "item_energy_booster",
 	"item_vitality_booster",
 	"item_recipe_aeon_disk",
-}
-
-function ItemPurchaseThink()
-	purchase.ItemPurchase(ItemsToBuy)
-end
+} ]]

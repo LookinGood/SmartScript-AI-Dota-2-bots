@@ -1,6 +1,53 @@
+---@diagnostic disable: undefined-global
 require( GetScriptDirectory().."/item_purchase_generic" ) 
 
 local ItemsToBuy =
+{ 
+	"item_tango",
+
+	"item_flask",
+
+	"item_clarity",
+
+	"item_clarity",
+
+	"item_magic_wand",
+
+    "item_null_talisman",
+
+	"item_ring_of_basilius",
+	"item_arcane_boots",
+
+	"item_glimmer_cape",
+
+	"item_ultimate_scepter",
+
+	"item_refresher",
+
+	"item_aghanims_shard",
+
+	"item_sheepstick",
+
+	"item_headdress",
+	"item_pipe",
+
+	"item_ultimate_scepter_2",
+
+	"item_soul_booster",
+    "item_octarine_core",
+
+    "item_travel_boots",
+    "item_travel_boots_2",
+}
+
+local realItemsToBuy = {}
+
+function ItemPurchaseThink()
+	purchase.ItemPurchase(ItemsToBuy, realItemsToBuy)
+end
+
+-- Old version
+--[[ local ItemsToBuy =
 { 
 	"item_tango",
 	"item_magic_stick",
@@ -62,8 +109,4 @@ local ItemsToBuy =
 	"item_energy_booster",
 	"item_vitality_booster",
 	"item_recipe_aeon_disk",
-}
-
-function ItemPurchaseThink()
-	purchase.ItemPurchase(ItemsToBuy)
-end
+} ]]

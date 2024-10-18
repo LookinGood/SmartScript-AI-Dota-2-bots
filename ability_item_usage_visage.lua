@@ -308,7 +308,13 @@ function ConsiderSummonFamiliars()
         return;
     end
 
-    local maxFamiliars = ability:GetSpecialValueInt("tooltip_familiar_count");
+    -- Alternative use-mod broken this spell for bot
+    if npcBot:IsAlive()
+    then
+        return;
+    end
+
+    local maxFamiliars = ability:GetSpecialValueInt("familiar_count");
 
     if CountFamiliars() >= maxFamiliars
     then

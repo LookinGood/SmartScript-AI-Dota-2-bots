@@ -1,7 +1,55 @@
-require( GetScriptDirectory().."/item_purchase_generic" ) 
+---@diagnostic disable: undefined-global
+require(GetScriptDirectory() .. "/item_purchase_generic")
 
 local ItemsToBuy =
-{ 
+{
+	"item_tango",
+
+	"item_flask",
+
+	"item_enchanted_mango",
+
+	"item_magic_wand",
+
+	"item_bracer",
+
+	"item_power_treads",
+
+	"item_maelstrom",
+
+	"item_force_staff",
+	"item_dragon_lance",
+	"item_hurricane_pike",
+
+	"item_black_king_bar",
+
+	"item_lesser_crit",
+	"item_greater_crit",
+
+	"item_aghanims_shard",
+
+	"item_ultimate_scepter",
+	"item_ultimate_scepter_2",
+
+	"item_mjollnir",
+
+	"item_moon_shard",
+
+	"item_swift_blink",
+
+	"item_travel_boots",
+	"item_travel_boots_2",
+}
+
+local realItemsToBuy = {}
+
+function ItemPurchaseThink()
+	purchase.ItemPurchase(ItemsToBuy, realItemsToBuy)
+end
+
+-- Old version
+--[[ local ItemsToBuy =
+{
 	"item_tango",
 	"item_magic_stick",
 	"item_branches",
@@ -68,15 +116,11 @@ local ItemsToBuy =
     "item_boots",
 
     "item_recipe_travel_boots",
-}
-
-function ItemPurchaseThink()
-	purchase.ItemPurchase(ItemsToBuy)
-end
+} ]]
 
 -- Support build
 --[[ local ItemsToBuy =
-{ 
+{
 	"item_tango",
 	"item_magic_stick",
 	"item_branches",

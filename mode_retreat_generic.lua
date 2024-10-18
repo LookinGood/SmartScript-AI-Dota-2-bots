@@ -11,7 +11,7 @@ function GetDesire()
         return BOT_MODE_DESIRE_NONE;
     end
 
-    --local botMode = npcBot:GetActiveMode();
+    local botMode = npcBot:GetActiveMode();
     --local allyHeroes = utility.CountAllyHeroAroundUnit(npcBot, 2000);
     --local enemyHeroes = utility.CountEnemyHeroAroundUnit(npcBot, 2000);
     -- string.find(npcBot:GetUnitName(), "medusa")
@@ -30,7 +30,7 @@ function GetDesire()
 
     if (healthPercent <= 0.4) or (healthPercent <= 0.6 and npcBot:DistanceFromFountain() <= 2000)
     then
-        return BOT_MODE_DESIRE_HIGH;
+        return BOT_MODE_DESIRE_VERYHIGH;
     end
 
     if npcBot:HasModifier("modifier_medusa_mana_shield")
@@ -45,7 +45,7 @@ function GetDesire()
     then
         if (healthPercent <= 0.8 or manaPercent <= 0.8)
         then
-            return BOT_MODE_DESIRE_HIGH;
+            return BOT_MODE_DESIRE_VERYHIGH;
         end
         if (#enemyHeroAround > #allyHeroAround + 1) and utility.IsEnemiesAroundStronger()
         then
@@ -53,10 +53,18 @@ function GetDesire()
         end
     end
 
-    if (#enemyHeroAround > #allyHeroAround + 1) and utility.IsEnemiesAroundStronger()
+    if botMode == BOT_MODE_LANING
     then
-        --npcBot:ActionImmediate_Chat("Враги сильнее, нужно отступить!", true);
-        return BOT_MODE_DESIRE_VERYHIGH;
+        if (#enemyHeroAround > #allyHeroAround) and utility.IsEnemiesAroundStronger()
+        then
+            return BOT_MODE_DESIRE_VERYHIGH;
+        end
+    else
+        if utility.IsEnemiesAroundStronger()
+        then
+            --npcBot:ActionImmediate_Chat("Враги сильнее, нужно отступить!", true);
+            return BOT_MODE_DESIRE_VERYHIGH;
+        end
     end
 
     if (#allyHeroAround <= 1 and #enemyHeroAround > 1) and utility.IsEnemiesAroundStronger()
@@ -91,7 +99,7 @@ function Think()
         return;
     end
 
-    local fountainLocation = utility.SafeLocation(npcBot);
+    local fountainLocation = utility.GetFountainLocation();
 
     if utility.CanMove(npcBot)
     then

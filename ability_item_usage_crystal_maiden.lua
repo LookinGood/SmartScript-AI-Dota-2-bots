@@ -64,7 +64,7 @@ function AbilityUsageThink()
 
     local castCrystalNovaDesire, castCrystalNovaLocation = ConsiderCrystalNova();
     local castFrostbiteDesire, castFrostbiteTarget = ConsiderFrostbite();
-    local castCrystalCloneDesire = ConsiderCrystalClone();
+    local castCrystalCloneDesire, castCrystalCloneLocation = ConsiderCrystalClone();
     local castFreezingFieldDesire = ConsiderFreezingField();
 
     if (castCrystalNovaDesire ~= nil)
@@ -81,7 +81,7 @@ function AbilityUsageThink()
 
     if (castCrystalCloneDesire ~= nil)
     then
-        npcBot:Action_UseAbility(CrystalClone);
+        npcBot:Action_UseAbilityOnLocation(CrystalClone, castCrystalCloneLocation);
         return;
     end
 
@@ -183,7 +183,7 @@ function ConsiderFrostbite()
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую Frostbite что бы сбить заклинание или убить цель!", true);
-                    return BOT_ACTION_DESIRE_VERYHIGH, enemy;
+                    return BOT_ACTION_DESIRE_ABSOLUTE, enemy;
                 end
             end
         end
@@ -217,6 +217,92 @@ function ConsiderFrostbite()
 end
 
 function ConsiderCrystalClone()
+    local ability = CrystalClone;
+    if not utility.IsAbilityAvailable(ability) then
+        return;
+    end
+
+    local castRangeAbility = ability:GetSpecialValueInt("hop_distance");
+    local delayAbility = ability:GetSpecialValueInt("anim_delay");
+
+    -- Attack use
+    if utility.PvPMode(npcBot)
+    then
+        if utility.IsHero(botTarget) or botMode == BOT_MODE_ROSHAN
+        then
+            if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
+            then
+                if utility.CanCastSpellOnTarget(Frostbite, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+                    and not utility.IsDisabled(botTarget)
+                then
+                    return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
+                end
+            end
+        end
+        -- Cast if need retreat
+    elseif utility.RetreatMode(npcBot)
+    then
+        if npcBot:DistanceFromFountain() >= (castRangeAbility * 2)
+        then
+            return BOT_ACTION_DESIRE_HIGH, utility.GetEscapeLocation(npcBot, castRangeAbility);
+        end
+    end
+    -- Cast if get incoming spell
+    if not utility.HaveReflectSpell(npcBot)
+    then
+        local incomingSpells = npcBot:GetIncomingTrackingProjectiles();
+        if (#incomingSpells > 0)
+        then
+            for _, spell in pairs(incomingSpells)
+            do
+                if not utility.IsAlly(npcBot, spell.caster) and GetUnitToLocationDistance(npcBot, spell.location) <= 300
+                    and spell.is_attack == false and spell.is_dodgeable == true
+                then
+                    return BOT_ACTION_DESIRE_HIGH, utility.GetEscapeLocation(npcBot, castRangeAbility);
+                end
+            end
+        end
+    end
+end
+
+function ConsiderFreezingField()
+    local ability = FreezingField;
+    if not utility.IsAbilityAvailable(ability) then
+        return;
+    end
+
+    if npcBot:HasModifier("modifier_crystal_maiden_freezing_field")
+    then
+        return;
+    end
+
+    local radiusAbility = ability:GetSpecialValueInt("radius");
+    local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
+
+    -- Attack use
+    if utility.PvPMode(npcBot)
+    then
+        if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= radiusAbility
+        then
+            --npcBot:ActionImmediate_Chat("Использую FreezingField для нападения!", true);
+            return BOT_ACTION_DESIRE_HIGH;
+        end
+
+        if (#enemyAbility > 1)
+        then
+            for _, enemy in pairs(enemyAbility) do
+                if utility.CanCastSpellOnTarget(ability, enemy)
+                then
+                    --npcBot:ActionImmediate_Chat("Использую FreezingField по 2+ врагам!", true);
+                    return BOT_ACTION_DESIRE_VERYHIGH;
+                end
+            end
+        end
+    end
+end
+
+-- Old version
+--[[ local function ConsiderCrystalClone()
     local ability = CrystalClone;
     if not utility.IsAbilityAvailable(ability) then
         return;
@@ -267,40 +353,4 @@ function ConsiderCrystalClone()
             return BOT_ACTION_DESIRE_HIGH;
         end
     end
-end
-
-function ConsiderFreezingField()
-    local ability = FreezingField;
-    if not utility.IsAbilityAvailable(ability) then
-        return;
-    end
-
-    if npcBot:HasModifier("modifier_crystal_maiden_freezing_field")
-    then
-        return;
-    end
-
-    local radiusAbility = ability:GetSpecialValueInt("radius");
-    local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
-
-    -- Attack use
-    if utility.PvPMode(npcBot)
-    then
-        if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= radiusAbility
-        then
-            --npcBot:ActionImmediate_Chat("Использую FreezingField для нападения!", true);
-            return BOT_ACTION_DESIRE_HIGH;
-        end
-
-        if (#enemyAbility > 1)
-        then
-            for _, enemy in pairs(enemyAbility) do
-                if utility.CanCastSpellOnTarget(ability, enemy)
-                then
-                    --npcBot:ActionImmediate_Chat("Использую FreezingField по 2+ врагам!", true);
-                    return BOT_ACTION_DESIRE_VERYHIGH;
-                end
-            end
-        end
-    end
-end
+end ]]

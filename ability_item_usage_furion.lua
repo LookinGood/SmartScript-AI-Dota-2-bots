@@ -74,11 +74,10 @@ function AbilityUsageThink()
         if (castSproutTargetType == "combo")
         then
             npcBot:Action_ClearActions(true);
-            npcBot:Action_UseAbilityOnLocation(Sprout, castSproutTarget);
+            npcBot:ActionQueue_UseAbilityOnLocation(Sprout, castSproutTarget);
             npcBot:ActionQueue_UseAbilityOnLocation(Teleportation, utility.SafeLocation(npcBot));
             return;
-        elseif (castSproutTargetType == nil)
-        then
+        else
             npcBot:Action_UseAbilityOnLocation(Sprout, castSproutTarget);
             return;
         end

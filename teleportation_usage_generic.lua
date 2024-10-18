@@ -3,16 +3,7 @@ _G._savedEnv = getfenv()
 module("teleportation_usage_generic", package.seeall)
 require(GetScriptDirectory() .. "/utility")
 
---local utility = require(GetScriptDirectory() .. "/utility")
-
-function IsValidTower(target)
-    return target ~= nil and
-        target:CanBeSeen() and
-        target:GetHealth() > 0 and
-        not target:IsInvulnerable()
-end
-
-function ClosestSafeBuilding(unit, distance, enemyRadius, enemyCount)
+--[[ function TESTClosestSafeBuilding(unit, distance, enemyRadius, enemyCount)
     local npcBot = GetBot();
     local safeBuilding = nil;
     local ancient = GetAncient(GetTeam());
@@ -34,6 +25,50 @@ function ClosestSafeBuilding(unit, distance, enemyRadius, enemyCount)
                 then
                     safeBuilding = building;
                     return safeBuilding;
+                end
+            end
+        end
+    end
+
+    return safeBuilding;
+end
+ ]]
+--local utility = require(GetScriptDirectory() .. "/utility")
+
+function IsValidTower(target)
+    return target ~= nil and
+        target:CanBeSeen() and
+        target:GetHealth() > 0 and
+        not target:IsInvulnerable()
+end
+
+function ClosestSafeBuilding(unit, range, enemyRadius, enemyCount)
+    local npcBot = GetBot();
+    local safeBuilding = nil;
+    local distance = 100000;
+    local allyBuildings = GetUnitList(UNIT_LIST_ALLIED_BUILDINGS);
+    --local ancient = GetAncient(GetTeam());
+    local allyHeroes = utility.CountAllyHeroAroundUnit(unit, enemyRadius)
+    local enemyHeroes = utility.CountEnemyHeroAroundUnit(unit, enemyRadius);
+
+    if (enemyHeroes <= enemyCount) or (allyHeroes >= 1) or string.find(unit:GetUnitName(), "fort")
+    then
+        safeBuilding = unit;
+        return safeBuilding;
+    else
+        for _, building in pairs(allyBuildings)
+        do
+            local enemyHeroes = utility.CountEnemyHeroAroundUnit(building, enemyRadius);
+            local allyHeroes = utility.CountAllyHeroAroundUnit(building, enemyRadius)
+            if (building ~= unit) and (GetUnitToUnitDistance(npcBot, building) > range and (enemyHeroes <= enemyCount or allyHeroes >= 1))
+            then
+                local unitDistance = GetUnitToUnitDistance(unit, building);
+                if unitDistance < distance
+                then
+                    safeBuilding = building;
+                    distance = unitDistance;
+                    --npcBot:ActionImmediate_Ping(safeBuilding:GetLocation().x, safeBuilding:GetLocation().y, true);
+                    --npcBot:ActionImmediate_Chat("Телепортируюсь к безопасному месту.", true);
                 end
             end
         end
@@ -118,7 +153,7 @@ function ShouldTP()
     local modDesire = npcBot:GetActiveModeDesire();
     local enemyTower = npcBot:GetNearbyTowers(1000, true);
 
-    if utility.IsHaveMaxSpeed(npcBot) or (#enemyTower > 0) or utility.IsHaveStunEffect(npcBot) or modDesire < BOT_MODE_DESIRE_HIGH
+    if utility.IsHaveMaxSpeed(npcBot) or (#enemyTower > 0) or utility.IsHaveStunEffect(npcBot) or modDesire <= BOT_MODE_DESIRE_LOW
         or npcBot:HasModifier("modifier_fountain_fury_swipes_damage_increase")
     then
         return false, nil;

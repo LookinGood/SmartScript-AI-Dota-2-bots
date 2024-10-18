@@ -20,7 +20,14 @@ function Think()
         lane = LANE_BOT;
     end
 
-    if npcBot:WasRecentlyDamagedByTower(3.0) or npcBot:WasRecentlyDamagedByAnyHero(3.0)
+    local allyHeroes = npcBot:GetNearbyHeroes(1600, false, BOT_MODE_NONE);
+    local enemyHeroes = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
+
+    if npcBot:WasRecentlyDamagedByTower(3.0) or
+        npcBot:WasRecentlyDamagedByAnyHero(3.0) or
+        (npcBot:IsInvisible() and #allyHeroes < #enemyHeroes)
+        or npcBot:IsDisarmed()
+        or npcBot:IsAttackImmune()
     then
         npcBot:Action_ClearActions(false);
         npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -1000) + RandomVector(wanderRadius));
@@ -36,13 +43,12 @@ function Think()
             npcBot:Action_MoveToLocation(frontlocation + RandomVector(wanderRadius));
             return;
         else
-            local allyHeroes = npcBot:GetNearbyHeroes(1600, false, BOT_MODE_NONE);
-            local enemyHeroes = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
             local enemyCreeps = npcBot:GetNearbyCreeps(1600, true);
             local enemyTowers = npcBot:GetNearbyTowers(1000, true);
             local enemyBarracks = npcBot:GetNearbyBarracks(1000, true);
+            local enemyFillers = npcBot:GetNearbyFillers(1000, true);
             local enemyAncient = GetAncient(GetOpposingTeam());
-            local enemyBuildings = GetUnitList(UNIT_LIST_ENEMY_BUILDINGS);
+            --local enemyBuildings = GetUnitList(UNIT_LIST_ENEMY_BUILDINGS);
             local mainCreep = nil;
             local mainBuilding = nil;
             if (#allyHeroes <= 1 and #enemyHeroes > 1) and utility.IsEnemiesAroundStronger()
@@ -170,7 +176,33 @@ function Think()
                         npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -500) + RandomVector(wanderRadius));
                         return;
                     end
-                elseif (#enemyBuildings > 0)
+                elseif (#enemyFillers > 0)
+                then
+                    mainBuilding = utility.GetWeakest(enemyFillers);
+                    npcBot:SetTarget(mainBuilding);
+                    if utility.CanCastOnInvulnerableTarget(mainBuilding)
+                    then
+                        if utility.CountAllyCreepAroundUnit(mainBuilding, 700) > 0
+                        then
+                            --npcBot:ActionImmediate_Chat("Атакую постройку.", true);
+                            npcBot:Action_ClearActions(false);
+                            npcBot:Action_AttackUnit(mainBuilding, false);
+                            return;
+                        else
+                            --npcBot:ActionImmediate_Chat("Брожу на лайне, крипы не атакуют постройку.", true);
+                            npcBot:Action_ClearActions(false);
+                            npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -500) +
+                                RandomVector(wanderRadius));
+                            return;
+                        end
+                    else
+                        --npcBot:ActionImmediate_Chat("Брожу на лайне, постройка неуязвима.", true);
+                        npcBot:Action_ClearActions(false);
+                        npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -500) +
+                            RandomVector(wanderRadius));
+                        return;
+                    end
+                    --[[           elseif (#enemyBuildings > 0)
                 then
                     for _, enemy in pairs(enemyBuildings) do
                         if GetUnitToUnitDistance(npcBot, enemy) <= 1000 and string.find(enemy:GetUnitName(), "fillers")
@@ -201,9 +233,9 @@ function Think()
                         npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -500) +
                             RandomVector(wanderRadius));
                         return;
-                    end
+                    end ]]
                 else
-                    npcBot:Action_ClearActions(false);
+                    --npcBot:Action_ClearActions(false);
                     npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -500) + RandomVector(wanderRadius));
                     return;
                 end

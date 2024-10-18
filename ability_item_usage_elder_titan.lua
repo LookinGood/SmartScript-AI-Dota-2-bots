@@ -53,6 +53,9 @@ local ReturnAstralSpirit = npcBot:GetAbilityByName("elder_titan_return_spirit");
 local MoveAstralSpirit = npcBot:GetAbilityByName("elder_titan_move_spirit");
 local EarthSplitter = AbilitiesReal[6]
 
+local castReturnAstralSpiritTimer = 0.0;
+local castMoveAstralSpiritTimer = 0.0;
+
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
         return;
@@ -78,9 +81,8 @@ function AbilityUsageThink()
 
     if (castAstralSpiritDesire ~= nil)
     then
-        if (castAstralSpiritType) == "combo"
+        if (castAstralSpiritType == "combo")
         then
-            --npcBot:ActionImmediate_Chat("Использую AstralSpirit в комбо с EchoStomp!", true);
             npcBot:Action_ClearActions(true);
             npcBot:ActionQueue_UseAbilityOnLocation(AstralSpirit, castAstralSpiritLocation);
             npcBot:ActionQueue_UseAbility(EchoStomp);
@@ -91,15 +93,17 @@ function AbilityUsageThink()
         end
     end
 
-    if (castReturnAstralSpiritDesire ~= nil)
+    if (castReturnAstralSpiritDesire ~= nil) and (GameTime() >= castReturnAstralSpiritTimer + 2.0)
     then
         npcBot:Action_UseAbility(ReturnAstralSpirit);
+        castReturnAstralSpiritTimer = GameTime();
         return;
     end
 
-    if (castMoveAstralSpiritDesire ~= nil)
+    if (castMoveAstralSpiritDesire ~= nil) and (GameTime() >= castMoveAstralSpiritTimer + 2.0)
     then
         npcBot:Action_UseAbilityOnLocation(MoveAstralSpirit, castMoveAstralSpiritLocation);
+        castMoveAstralSpiritTimer = GameTime();
         return;
     end
 
@@ -119,6 +123,7 @@ function ConsiderEchoStomp()
     local radiusAbility = ability:GetSpecialValueInt("radius");
     local damageAbility = ability:GetSpecialValueInt("stomp_damage");
     local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
+    --local enemyHeroes = GetUnitList(UNIT_LIST_ENEMY_HEROES);
 
     -- Cast if can kill somebody/interrupt cast
     if (#enemyAbility > 0)
@@ -129,7 +134,7 @@ function ConsiderEchoStomp()
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую EchoStomp что бы убить цель или сбить каст!", true);
-                    return BOT_ACTION_DESIRE_HIGH;
+                    return BOT_ACTION_DESIRE_ABSOLUTE;
                 end
             end
         end
@@ -148,6 +153,20 @@ function ConsiderEchoStomp()
                 end
             end
         end
+        --[[         if (#enemyHeroes > 0)
+        then
+            for _, enemy in pairs(enemyHeroes)
+            do
+                local spiritCount = utility.CountUnitAroundTarget(enemy, "npc_dota_elder_titan_ancestral_spirit", false,
+                    radiusAbility);
+                if utility.CanCastSpellOnTarget(ability, enemy) and not utility.IsDisabled(enemy) and (spiritCount > 0)
+                then
+                    npcBot:ActionImmediate_Chat("Использую EchoStomp на врага рядом с духом " .. enemy:GetUnitName(),
+                        true);
+                    return BOT_ACTION_DESIRE_HIGH;
+                end
+            end
+        end ]]
     elseif utility.PvEMode(npcBot)
     then
         local enemyCreeps = npcBot:GetNearbyCreeps(radiusAbility, true);
@@ -184,7 +203,7 @@ function ConsiderAstralSpirit()
             then
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0), nil;
+                    return BOT_ACTION_DESIRE_ABSOLUTE, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0), nil;
                 end
             end
         end
@@ -197,8 +216,9 @@ function ConsiderAstralSpirit()
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
             then
-                if EchoStomp:IsCooldownReady() and (npcBot:GetMana() >= ability:GetManaCost() + EchoStomp:GetManaCost())
+                if utility.IsAbilityAvailable(EchoStomp) and (npcBot:GetMana() >= ability:GetManaCost() + EchoStomp:GetManaCost())
                 then
+                    --npcBot:ActionImmediate_Chat("Использую AstralSpirit на врага с комбо!", true);
                     return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0),
                         "combo";
                 end
@@ -212,8 +232,9 @@ function ConsiderAstralSpirit()
             for _, enemy in pairs(enemyAbility) do
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    if EchoStomp:IsCooldownReady() and (npcBot:GetMana() >= ability:GetManaCost() + EchoStomp:GetManaCost())
+                    if utility.IsAbilityAvailable(EchoStomp) and (npcBot:GetMana() >= ability:GetManaCost() + EchoStomp:GetManaCost())
                     then
+                        --npcBot:ActionImmediate_Chat("Использую AstralSpirit отходя с комбо!", true);
                         return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0),
                             "combo";
                     end
@@ -249,17 +270,8 @@ function ConsiderReturnAstralSpirit()
     -- Retreat use
     if utility.RetreatMode(npcBot) and not utility.IsAbilityAvailable(EchoStomp)
     then
-        if (npcBot.idletime == nil)
-        then
-            npcBot.idletime = GameTime()
-        else
-            if (GameTime() - npcBot.idletime >= 5)
-            then
-                npcBot.idletime = nil
-                --npcBot:ActionImmediate_Chat("Использую ReturnAstralSpirit для отхода!", true);
-                return BOT_ACTION_DESIRE_HIGH;
-            end
-        end
+        --npcBot:ActionImmediate_Chat("Использую ReturnAstralSpirit для отхода!", true);
+        return BOT_ACTION_DESIRE_HIGH;
     end
 end
 
@@ -272,46 +284,20 @@ function ConsiderMoveAstralSpirit()
     -- Cast if attack enemy
     if utility.IsValidTarget(botTarget)
     then
-        if (npcBot.idletime == nil)
-        then
-            npcBot.idletime = GameTime()
-        else
-            if (GameTime() - npcBot.idletime >= 5)
-            then
-                npcBot.idletime = nil
-                --npcBot:ActionImmediate_Chat("Использую MoveAstralSpirit!", true);
-                return BOT_ACTION_DESIRE_VERYHIGH, botTarget:GetLocation();
-            end
-        end
+        --npcBot:ActionImmediate_Chat("Использую MoveAstralSpirit!", true);
+        return BOT_ACTION_DESIRE_VERYHIGH, botTarget:GetLocation();
     else
         local enemyAbility = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
         local enemyCreeps = npcBot:GetNearbyCreeps(1600, true);
         if (#enemyAbility > 0) and utility.IsValidTarget(enemyAbility[1])
         then
-            if (npcBot.idletime == nil)
-            then
-                npcBot.idletime = GameTime()
-            else
-                if (GameTime() - npcBot.idletime >= 5)
-                then
-                    npcBot.idletime = nil
-                    --npcBot:ActionImmediate_Chat("Использую MoveAstralSpirit на героя рядом!", true);
-                    return BOT_ACTION_DESIRE_VERYHIGH, enemyAbility[1]:GetLocation();
-                end
-            end
-        elseif (#enemyCreeps > 0) and utility.IsValidTarget(enemyCreeps[1])
+            --npcBot:ActionImmediate_Chat("Использую MoveAstralSpirit на героя рядом!", true);
+            return BOT_ACTION_DESIRE_VERYHIGH, enemyAbility[1]:GetLocation();
+        end
+        if (#enemyCreeps > 0) and utility.IsValidTarget(enemyCreeps[1])
         then
-            if (npcBot.idletime == nil)
-            then
-                npcBot.idletime = GameTime()
-            else
-                if (GameTime() - npcBot.idletime >= 5)
-                then
-                    npcBot.idletime = nil
-                    --npcBot:ActionImmediate_Chat("Использую MoveAstralSpirit на крипа рядом!", true);
-                    return BOT_ACTION_DESIRE_VERYHIGH, enemyCreeps[1]:GetLocation();
-                end
-            end
+            --npcBot:ActionImmediate_Chat("Использую MoveAstralSpirit на крипа рядом!", true);
+            return BOT_ACTION_DESIRE_VERYHIGH, enemyCreeps[1]:GetLocation();
         end
     end
 end
@@ -362,3 +348,57 @@ function ConsiderEarthSplitter()
         end
     end
 end
+
+-- Old version
+--[[ local function ConsiderMoveAstralSpirit()
+    local ability = MoveAstralSpirit;
+    if not utility.IsAbilityAvailable(ability) then
+        return;
+    end
+
+    -- Cast if attack enemy
+    if utility.IsValidTarget(botTarget)
+    then
+        if (npcBot.idletime == nil)
+        then
+            npcBot.idletime = GameTime()
+        else
+            if (GameTime() - npcBot.idletime >= 5)
+            then
+                npcBot.idletime = nil
+                --npcBot:ActionImmediate_Chat("Использую MoveAstralSpirit!", true);
+                return BOT_ACTION_DESIRE_VERYHIGH, botTarget:GetLocation();
+            end
+        end
+    else
+        local enemyAbility = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
+        local enemyCreeps = npcBot:GetNearbyCreeps(1600, true);
+        if (#enemyAbility > 0) and utility.IsValidTarget(enemyAbility[1])
+        then
+            if (npcBot.idletime == nil)
+            then
+                npcBot.idletime = GameTime()
+            else
+                if (GameTime() - npcBot.idletime >= 5)
+                then
+                    npcBot.idletime = nil
+                    --npcBot:ActionImmediate_Chat("Использую MoveAstralSpirit на героя рядом!", true);
+                    return BOT_ACTION_DESIRE_VERYHIGH, enemyAbility[1]:GetLocation();
+                end
+            end
+        elseif (#enemyCreeps > 0) and utility.IsValidTarget(enemyCreeps[1])
+        then
+            if (npcBot.idletime == nil)
+            then
+                npcBot.idletime = GameTime()
+            else
+                if (GameTime() - npcBot.idletime >= 5)
+                then
+                    npcBot.idletime = nil
+                    --npcBot:ActionImmediate_Chat("Использую MoveAstralSpirit на крипа рядом!", true);
+                    return BOT_ACTION_DESIRE_VERYHIGH, enemyCreeps[1]:GetLocation();
+                end
+            end
+        end
+    end
+end ]]

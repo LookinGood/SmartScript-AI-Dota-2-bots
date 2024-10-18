@@ -220,7 +220,7 @@ function GetDesire()
             if ward:CanBeSeen() and GetUnitToUnitDistance(npcBot, ward) <= (npcBot:GetAttackRange() + 150 * 2)
             then
                 enemyWard = ward;
-                return BOT_ACTION_DESIRE_HIGH;
+                return BOT_ACTION_DESIRE_VERYHIGH;
             end
         end
     end
@@ -233,7 +233,7 @@ function GetDesire()
                 and IsLocationPassable(courier:GetLocation())
             then
                 enemyCourier = courier;
-                return BOT_ACTION_DESIRE_HIGH;
+                return BOT_ACTION_DESIRE_VERYHIGH;
             end
         end
     end
@@ -299,7 +299,7 @@ function Think()
                 return;
             elseif wardDispenser ~= nil and wardDispenser:IsFullyCastable()
             then
-                npcBot:ActionImmediate_Chat("Ставлю wardDispenser!", true);
+                --npcBot:ActionImmediate_Chat("Ставлю wardDispenser!", true);
                 npcBot:Action_UseAbilityOnLocation(wardDispenser, wardSpot + RandomVector(50));
                 return;
             end

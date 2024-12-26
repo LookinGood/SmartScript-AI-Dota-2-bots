@@ -92,9 +92,37 @@ function AbilityUsageThink()
     end
 end
 
+local function IsWolf(npcTarget)
+    return IsValidTarget(npcTarget) and string.find(npcTarget:GetUnitName(), "npc_dota_lycan_wolf") and
+        not string.find(npcTarget:GetUnitName(), "lane");
+end
+
+local function CountWolfs()
+    local count = 0;
+    local allyCreeps = GetUnitList(UNIT_LIST_ALLIED_CREEPS);
+    if (#allyCreeps > 0)
+    then
+        for _, ally in pairs(allyCreeps) do
+            if IsWolf(ally) and ally:GetPlayerID() == npcBot:GetPlayerID()
+            then
+                count = count + 1;
+            end
+        end
+    end
+
+    return count;
+end
+
 function ConsiderSummonWolves()
     local ability = SummonWolves;
     if not utility.IsAbilityAvailable(ability) then
+        return;
+    end
+
+    local maxUnits = ability:GetSpecialValueInt("wolf_count");
+
+    if CountWolfs() >= maxUnits
+    then
         return;
     end
 
@@ -112,17 +140,23 @@ function ConsiderSummonWolves()
     elseif utility.RetreatMode(npcBot)
     then
         local enemyAbility = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
-        if (#enemyAbility > 0) and (HealthPercentage < 0.7) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
+        if (#enemyAbility > 0) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
         then
-            --npcBot:ActionImmediate_Chat("Использую Summon Wolves для отступления!", true);
             return BOT_ACTION_DESIRE_HIGH;
         end
         -- Cast if push/defend/farm/roshan
     elseif utility.PvEMode(npcBot)
     then
-        if (npcBot:DistanceFromFountain() > 1000) and (ManaPercentage >= 0.4)
+        local enemyCreeps = npcBot:GetNearbyCreeps(1600, true);
+        local enemyTowers = npcBot:GetNearbyTowers(1600, true);
+        local enemyBarracks = npcBot:GetNearbyBarracks(1600, true);
+        local enemyAncient = GetAncient(GetOpposingTeam());
+        if (ManaPercentage >= 0.4) and
+            ((#enemyCreeps > 0) or
+                (#enemyTowers > 0) or
+                (#enemyBarracks > 0) or
+                npcBot:GetAttackTarget() == enemyAncient)
         then
-            --npcBot:ActionImmediate_Chat("Использую Summon Wolves против вражеских сил!", true);
             return BOT_ACTION_DESIRE_LOW;
         end
     end

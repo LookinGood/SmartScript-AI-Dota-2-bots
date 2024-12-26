@@ -173,6 +173,15 @@ function ConsiderCounterspell()
     then
         for _, spell in pairs(incomingSpells)
         do
+            --[[             if spell.is_attack == false
+            then
+                if not utility.IsAlly(npcBot, spell.caster)
+                then
+                    npcBot:ActionImmediate_Chat("Кастер враг: " .. spell.caster:GetUnitName(), true);
+                else
+                    npcBot:ActionImmediate_Chat("Кастер союзник: " .. spell.caster:GetUnitName(), true);
+                end
+            end ]]
             if not utility.IsAlly(npcBot, spell.caster) and GetUnitToLocationDistance(npcBot, spell.location) <= 300 and spell.is_attack == false
             then
                 return BOT_ACTION_DESIRE_VERYHIGH;

@@ -73,6 +73,7 @@ C["carryHeroes"] = {
     ["npc_dota_hero_morphling"] = 1,
     ["npc_dota_hero_void_spirit"] = 1,
     ["npc_dota_hero_invoker"] = 1,
+    ["npc_dota_hero_lone_druid"] = 1,
 }
 
 local S = {}
@@ -126,6 +127,7 @@ S["supportHeroes"] = {
     ["npc_dota_hero_chen"] = 1,
     ["npc_dota_hero_ringmaster"] = 1,
     ["npc_dota_hero_earth_spirit"] = 1,
+    ["npc_dota_hero_wisp"] = 1,
 }
 
 function IsHeroCarry(npcBot)

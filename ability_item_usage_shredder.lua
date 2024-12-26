@@ -263,11 +263,6 @@ function ConsiderWhirlingDeath()
                 end
             end
         end
-        -- Roshan use
-        if utility.IsRoshan(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= radiusAbility
-        then
-            return BOT_ACTION_DESIRE_HIGH;
-        end
     elseif utility.PvEMode(npcBot)
     then
         local enemyCreeps = npcBot:GetNearbyCreeps(radiusAbility, true);
@@ -280,6 +275,12 @@ function ConsiderWhirlingDeath()
                 end
             end
         end
+    end
+
+    -- Boss use
+    if utility.IsBoss(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= radiusAbility
+    then
+        return BOT_ACTION_DESIRE_HIGH;
     end
 end
 
@@ -431,9 +432,9 @@ function ConsiderFlamethrower()
     local castRangeAbility = ability:GetSpecialValueInt("length");
 
     -- Attack use
-    if utility.PvPMode(npcBot)
+    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
     then
-        if utility.IsHero(botTarget)
+        if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
         then
             if utility.CanCastSpellOnTarget(ability, botTarget)
                 and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility and npcBot:IsFacingLocation(botTarget:GetLocation(), 20)

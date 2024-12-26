@@ -163,10 +163,15 @@ function ConsiderBlinkStrike()
         end
     end
 
-    -- Attack use
-    if utility.PvPMode(npcBot)
+    if npcBot:HasModifier("modifier_riki_tricks_of_the_trade_phase")
     then
-        if utility.IsHero(botTarget) and not npcBot:HasModifier("modifier_riki_tricks_of_the_trade_phase")
+        return;
+    end
+
+    -- Attack use
+    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
+    then
+        if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
                 and GetUnitToUnitDistance(npcBot, botTarget) > attackRange
@@ -247,7 +252,8 @@ function ConsiderTricksOfTheTrade()
     then
         for _, spell in pairs(incomingSpells)
         do
-            if GetUnitToLocationDistance(npcBot, spell.location) <= 300 and spell.is_attack == false
+            if not utility.IsAlly(npcBot, spell.caster) and GetUnitToLocationDistance(npcBot, spell.location) <= 300 and spell.is_attack == false
+                and not utility.HaveReflectSpell(npcBot)
             then
                 --npcBot:ActionImmediate_Chat("Использую TricksOfTheTrade что бы уклониться от снаряда!",true);
                 return BOT_ACTION_DESIRE_VERYHIGH, npcBot:GetLocation();

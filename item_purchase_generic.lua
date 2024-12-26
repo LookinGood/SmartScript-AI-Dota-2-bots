@@ -131,6 +131,18 @@ function ItemPurchase(ItemsToBuy, realItemsToBuy)
                     end
                 end
             end
+            if sNextItem == "item_aghanims_shard"
+            then
+                if PurchaseResult ~= PURCHASE_ITEM_SUCCESS and
+                    PurchaseResult ~= PURCHASE_ITEM_OUT_OF_STOCK and
+                    PurchaseResult ~= PURCHASE_ITEM_INVALID_ITEM_NAME and
+                    PurchaseResult ~= PURCHASE_ITEM_DISALLOWED_ITEM
+                then
+                    npcBot.secretShopMode = false;
+                    npcBot.sideShopMode = false;
+                    table.remove(realItemsToBuy, 1);
+                end
+            end
             if PurchaseResult == PURCHASE_ITEM_SUCCESS
             then
                 npcBot.secretShopMode = false;
@@ -143,8 +155,8 @@ function ItemPurchase(ItemsToBuy, realItemsToBuy)
                 then
                     npcBot.secretShopMode = false;
                     npcBot.sideShopMode = false;
-                    table.insert(realItemsToBuy, 3, "item_aghanims_shard");
                     table.remove(realItemsToBuy, 1);
+                    table.insert(realItemsToBuy, 3, "item_aghanims_shard");
                 else
                     if sNextItem == "item_tango" or
                         sNextItem == "item_clarity" or
@@ -161,9 +173,17 @@ function ItemPurchase(ItemsToBuy, realItemsToBuy)
             end
             if PurchaseResult == PURCHASE_ITEM_INVALID_ITEM_NAME or PurchaseResult == PURCHASE_ITEM_DISALLOWED_ITEM
             then
-                npcBot.secretShopMode = false;
-                npcBot.sideShopMode = false;
-                table.remove(realItemsToBuy, 1);
+                if sNextItem == "item_aghanims_shard"
+                then
+                    npcBot.secretShopMode = false;
+                    npcBot.sideShopMode = false;
+                    table.remove(realItemsToBuy, 1);
+                    table.insert(realItemsToBuy, 3, "item_aghanims_shard");
+                else
+                    npcBot.secretShopMode = false;
+                    npcBot.sideShopMode = false;
+                    table.remove(realItemsToBuy, 1);
+                end
             end
             if PurchaseResult == PURCHASE_ITEM_INSUFFICIENT_GOLD
             then

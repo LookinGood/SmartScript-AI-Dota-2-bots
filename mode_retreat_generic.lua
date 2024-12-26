@@ -6,16 +6,17 @@ local npcBot = GetBot();
 function GetDesire()
     if not npcBot:IsAlive() or utility.IsClone(npcBot) or
         --npcBot:HasModifier("modifier_skeleton_king_reincarnation_scepter") or
-        npcBot:HasModifier("modifier_skeleton_king_reincarnation_scepter_active")
+        npcBot:HasModifier("modifier_skeleton_king_reincarnation_scepter_active") or
+        string.find(npcBot:GetUnitName(), "npc_dota_lone_druid_bear")
     then
         return BOT_MODE_DESIRE_NONE;
     end
 
-    local botMode = npcBot:GetActiveMode();
     --local allyHeroes = utility.CountAllyHeroAroundUnit(npcBot, 2000);
     --local enemyHeroes = utility.CountEnemyHeroAroundUnit(npcBot, 2000);
     -- string.find(npcBot:GetUnitName(), "medusa")
 
+    local botMode = npcBot:GetActiveMode();
     local healthPercent = npcBot:GetHealth() / npcBot:GetMaxHealth();
     local manaPercent = npcBot:GetMana() / npcBot:GetMaxMana();
     local allyHeroAround = npcBot:GetNearbyHeroes(1600, false, BOT_MODE_NONE);
@@ -91,6 +92,7 @@ function OnStart()
     then
         npcBot:ActionImmediate_Chat("Отступаю!", false);
     end
+    npcBot:SetTarget(nil);
 end
 
 function Think()
@@ -103,7 +105,7 @@ function Think()
 
     if utility.CanMove(npcBot)
     then
-        if GetUnitToLocationDistance(npcBot, fountainLocation) >= 200
+        if GetUnitToLocationDistance(npcBot, fountainLocation) >= 600
         then
             --npcBot:ActionImmediate_Chat("ОТСТУПАЮ!", true);
             npcBot:Action_MoveToLocation(fountainLocation);

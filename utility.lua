@@ -3,8 +3,73 @@ _G._savedEnv = getfenv()
 module("utility", package.seeall)
 require(GetScriptDirectory() .. "/hero_role_generic")
 
-function IsValidTarget(target)
-	return target:CanBeSeen() and target ~= nil and not target:IsNull() and target:IsAlive();
+-- Debugg
+function GetUnitInfo(npcTarget)
+	local timer = 0.0
+
+	if (GameTime() < timer + 10.0)
+	then
+		return;
+	end
+
+	GetBot():ActionImmediate_Chat("Вывожу в лог информацию о " .. npcTarget:GetUnitName(), true);
+
+	if npcTarget:GetTeam() == TEAM_RADIANT
+	then
+		print(npcTarget:GetUnitName() .. " - команда: Radiant")
+	end
+	if npcTarget:GetTeam() == TEAM_DIRE
+	then
+		print(npcTarget:GetUnitName() .. " - команда: Dire")
+	end
+	if npcTarget:GetTeam() == TEAM_NEUTRAL
+	then
+		print(npcTarget:GetUnitName() .. " - команда: Neutral")
+	end
+	if npcTarget:GetTeam() == TEAM_NONE
+	then
+		print(npcTarget:GetUnitName() .. " - команда: Нет команды")
+	end
+
+	if npcTarget:IsCreep()
+	then
+		print(npcTarget:GetUnitName() .. " - тип: Крип")
+	end
+	if npcTarget:IsAncientCreep()
+	then
+		print(npcTarget:GetUnitName() .. " - тип: Древний Крип")
+	end
+	if npcTarget:IsHero()
+	then
+		print(npcTarget:GetUnitName() .. " - тип: Герой")
+	end
+	if npcTarget:IsBuilding()
+	then
+		print(npcTarget:GetUnitName() .. " - тип: Здание")
+	end
+	if npcTarget:IsTower()
+	then
+		print(npcTarget:GetUnitName() .. " - тип: Башня")
+	end
+	if npcTarget:IsBarracks()
+	then
+		print(npcTarget:GetUnitName() .. " - тип: Баррак")
+	end
+	if npcTarget:IsFort()
+	then
+		print(npcTarget:GetUnitName() .. " - тип: Древний (Форт)")
+	end
+
+	timer = GameTime();
+end
+
+function NotCurrectHeroBot(npcTarget)
+	return npcTarget == nil or npcTarget:IsNull() or not npcTarget:IsHero() or IsIllusion(npcTarget)
+end
+
+function IsValidTarget(npcTarget)
+	return npcTarget:CanBeSeen() and npcTarget ~= nil and not npcTarget:IsNull() and npcTarget:IsAlive()
+		and not npcTarget:HasModifier("modifier_skeleton_king_reincarnation_scepter");
 end
 
 function IsClone(npcTarget)
@@ -14,12 +79,7 @@ end
 
 function IsNight()
 	local time = GetTimeOfDay();
-	if time < 0.5
-	then
-		return true;
-	else
-		return false;
-	end
+	return time < 0.5;
 end
 
 function IsBaseUnderAttack()
@@ -89,30 +149,6 @@ function IsNotAttackTarget(npcTarget)
 			npcTarget:HasModifier("modifier_nyx_assassin_spiked_carapace") or
 			npcTarget:HasModifier("modifier_abaddon_borrowed_time") or
 			npcTarget:HasModifier("modifier_skeleton_king_reincarnation_scepter_active"));
-end
-
-function GetFountain(npcTarget)
-	if IsValidTarget(npcTarget)
-	then
-		if npcTarget:GetTeam() == TEAM_RADIANT or npcTarget:GetTeam() == TEAM_DIRE
-		then
-			local buildings = GetUnitList(UNIT_LIST_ALLIED_BUILDINGS);
-			if (#buildings > 0)
-			then
-				for _, ally in pairs(buildings)
-				do
-					if ally ~= nil and (string.find(ally:GetUnitName(), "fountain") or ally:DistanceFromFountain() == 0 or ally:HasModifier('modifier_fountain_aura_buff'))
-					then
-						return ally;
-					end
-				end
-			end
-		else
-			return nil;
-		end
-	else
-		return nil;
-	end
 end
 
 function GetWeakest(units)
@@ -191,6 +227,60 @@ function HaveHumanInTeam(npcBot)
 	return false;
 end
 
+function GetClosestToLocationBotHero(vlocation)
+	local unit = nil;
+	local distance = 100000;
+	local allyHeroes = GetUnitList(UNIT_LIST_ALLIED_HEROES);
+
+	for _, ally in pairs(allyHeroes) do
+		if IsPlayerBot(ally:GetPlayerID()) and ally:IsAlive()
+		then
+			local botDistance = GetUnitToLocationDistance(ally, vlocation);
+			if botDistance < distance
+			then
+				unit = ally;
+				distance = botDistance;
+			end
+		end
+	end
+
+	--print(unit:GetUnitName())
+	return unit;
+end
+
+function GetRandomBotPlayer()
+	local selectedBotHero = nil;
+	local goldMin = 100000;
+	local allyHeroes = GetUnitList(UNIT_LIST_ALLIED_HEROES);
+
+	for _, ally in pairs(allyHeroes) do
+		if IsPlayerBot(ally:GetPlayerID())
+		then
+			local playerGold = ally:GetGold();
+			if playerGold < goldMin
+			then
+				goldMin = playerGold;
+				selectedBotHero = ally;
+			end
+		end
+	end
+
+	--[[     for _, i in pairs(GetTeamPlayers(GetTeam()))
+    do
+        if IsPlayerBot(i)
+        then
+            local playerGold = i:GetGold();
+            if playerGold < goldMin
+            then
+                goldMin = playerGold;
+                selectedBotPlayer = i;
+            end
+        end
+    end ]]
+
+	return selectedBotHero;
+end
+
 --[[ function GetNearbyHeroes(target, nRadius, bEnemies)
 	local unitList = {}
 	if bEnemies == false
@@ -227,18 +317,38 @@ function GetBiggerAttribute(npcTarget)
 	local targetIntellect = npcTarget:GetAttributeValue(ATTRIBUTE_INTELLECT);
 	--local biggerAttribute = (math.max(targetStrenght, targetAgility, targetIntellect));
 
-	if (targetStrenght > targetAgility) and (targetStrenght > targetIntellect)
+	--print(targetStrenght)
+	--print(targetAgility)
+	--print(targetIntellect)
+
+	local biggerAttribute = nil;
+	local value = 0;
+	local attributesTable = {
+		targetStrenght,
+		targetAgility,
+		targetIntellect
+	}
+
+	for _, attribute in pairs(attributesTable) do
+		if attribute > value
+		then
+			value = attribute;
+			biggerAttribute = attribute;
+		end
+	end
+
+	if biggerAttribute == targetStrenght
 	then
 		return ATTRIBUTE_STRENGTH;
-	elseif (targetAgility > targetStrenght) and (targetAgility > targetIntellect)
+	elseif biggerAttribute == targetAgility
 	then
 		return ATTRIBUTE_AGILITY;
-	elseif (targetIntellect > targetStrenght) and (targetIntellect > targetAgility)
+	elseif biggerAttribute == targetIntellect
 	then
 		return ATTRIBUTE_INTELLECT;
-	else
-		return ATTRIBUTE_STRENGTH;
 	end
+
+	return ATTRIBUTE_STRENGTH;
 end
 
 function GetCurrentCastDistance(castRangeAbility)
@@ -364,50 +474,79 @@ function IsItemBreaksInvisibility(sItem)
 end
 
 function IsIllusion(npcTarget)
-	return IsValidTarget(npcTarget) and
-		(npcTarget:IsIllusion() or
-			npcTarget:HasModifier("modifier_illusion") or
-			npcTarget:HasModifier("modifier_antimage_blink_illusion") or
-			npcTarget:HasModifier("modifier_bane_fiends_grip_illusion") or
-			npcTarget:HasModifier("modifier_chaos_knight_phantasm_illusion") or
-			npcTarget:HasModifier("modifier_hoodwink_decoy_illusion") or
-			npcTarget:HasModifier("modifier_darkseer_wallofreplica_illusion") or
-			npcTarget:HasModifier("modifier_terrorblade_conjureimage") or
-			npcTarget:HasModifier("modifier_phantom_lancer_juxtapose_illusion"))
-end
-
-function IsAlly(npcBot, npcTarget)
-	return (IsValidTarget(npcBot) and IsValidTarget(npcTarget)) and (npcBot:GetTeam() == npcTarget:GetTeam());
-end
-
-function IsHero(npcTarget)
-	local npcBot = GetBot();
-	if IsValidTarget(npcTarget) and npcTarget:IsHero()
+	if not IsValidTarget(npcTarget)
 	then
-		if IsAlly(npcBot, npcTarget)
+		return false;
+	end
+
+	local npcBot = GetBot();
+
+	if IsAlly(npcBot, npcTarget)
+	then
+		if npcTarget:IsIllusion()
 		then
-			if not IsIllusion(npcTarget)
-			then
-				return true;
-			end
-		else
 			return true;
 		end
 	else
-		return false;
+		local allyHeroes = GetUnitList(UNIT_LIST_ALLIED_HEROES);
+		for _, ally in pairs(allyHeroes) do
+			if not ally:IsIllusion()
+			then
+				if ally:GetUnitName() == npcTarget:GetUnitName()
+				then
+					return true;
+				end
+			end
+		end
 	end
+end
+
+--[[ 	npcTarget:HasModifier("modifier_illusion") or
+	npcTarget:HasModifier("modifier_antimage_blink_illusion") or
+	npcTarget:HasModifier("modifier_bane_fiends_grip_illusion") or
+	npcTarget:HasModifier("modifier_chaos_knight_phantasm_illusion") or
+	npcTarget:HasModifier("modifier_hoodwink_decoy_illusion") or
+	npcTarget:HasModifier("modifier_darkseer_wallofreplica_illusion") or
+	npcTarget:HasModifier("modifier_terrorblade_conjureimage") or
+	npcTarget:HasModifier("modifier_phantom_lancer_juxtapose_illusion") ]]
+
+function IsAlly(unit1, unit2)
+	return (unit1:GetTeam() == unit2:GetTeam());
+end
+
+-- (IsValidTarget(npcBot) and IsValidTarget(npcTarget)) and
+
+function IsHero(npcTarget)
+	if npcTarget:IsHero() and not IsIllusion(npcTarget)
+	then
+		return true;
+	end
+
+	return false;
 end
 
 function IsBuilding(npcTarget)
 	return IsValidTarget(npcTarget) and
-		(npcTarget:IsTower() or npcTarget:IsBarracks() or npcTarget:IsFort() or
+		(npcTarget:IsBuilding() or
+			npcTarget:IsTower() or
+			npcTarget:IsBarracks() or
+			npcTarget:IsFort() or
 			string.find(npcTarget:GetUnitName(), "rax") or
 			string.find(npcTarget:GetUnitName(), "tower") or
-			string.find(npcTarget:GetUnitName(), "fort"));
+			string.find(npcTarget:GetUnitName(), "fort")
+			and not string.find(npcTarget:GetUnitName(), "fillers"));
 end
 
 function IsRoshan(npcTarget)
 	return IsValidTarget(npcTarget) and string.find(npcTarget:GetUnitName(), "roshan");
+end
+
+function IsTormentor(npcTarget)
+	return IsValidTarget(npcTarget) and string.find(npcTarget:GetUnitName(), "npc_dota_miniboss");
+end
+
+function IsBoss(npcTarget)
+	return IsRoshan(npcTarget) or IsTormentor(npcTarget);
 end
 
 function IsDisabled(npcTarget)
@@ -773,12 +912,27 @@ function CountUnitAroundTarget(target, unitName, bEnemy, radius)
 
 	if bEnemy == true
 	then
+		local heroList = GetUnitList(UNIT_LIST_ENEMY_HEROES);
+		if #heroList > 0
+		then
+			for _, creep in pairs(heroList)
+			do
+				if IsValidTarget(creep) and (creep:GetUnitName() == unitName or string.find(creep:GetUnitName(), unitName))
+				then
+					if GetUnitToUnitDistance(creep, target) <= radius
+					then
+						count = count + 1;
+					end
+				end
+			end
+		end
+
 		local unitList = GetUnitList(UNIT_LIST_ENEMY_CREEPS);
 		if #unitList > 0
 		then
 			for _, creep in pairs(unitList)
 			do
-				if IsValidTarget(creep) and creep:GetUnitName() == unitName
+				if IsValidTarget(creep) and (creep:GetUnitName() == unitName or string.find(creep:GetUnitName(), unitName))
 				then
 					if GetUnitToUnitDistance(creep, target) <= radius
 					then
@@ -793,7 +947,7 @@ function CountUnitAroundTarget(target, unitName, bEnemy, radius)
 		then
 			for _, creep in pairs(wardList)
 			do
-				if IsValidTarget(creep) and creep:GetUnitName() == unitName
+				if IsValidTarget(creep) and (creep:GetUnitName() == unitName or string.find(creep:GetUnitName(), unitName))
 				then
 					if GetUnitToUnitDistance(creep, target) <= radius
 					then
@@ -808,7 +962,7 @@ function CountUnitAroundTarget(target, unitName, bEnemy, radius)
 		then
 			for _, creep in pairs(otherUnitList)
 			do
-				if IsValidTarget(creep) and creep:GetUnitName() == unitName
+				if IsValidTarget(creep) and (creep:GetUnitName() == unitName or string.find(creep:GetUnitName(), unitName))
 				then
 					if GetUnitToUnitDistance(creep, target) <= radius
 					then
@@ -817,14 +971,28 @@ function CountUnitAroundTarget(target, unitName, bEnemy, radius)
 				end
 			end
 		end
-	elseif bEnemy == false
-	then
+	else
+		local heroList = GetUnitList(UNIT_LIST_ALLIED_HEROES);
+		if #heroList > 0
+		then
+			for _, creep in pairs(heroList)
+			do
+				if IsValidTarget(creep) and (creep:GetUnitName() == unitName or string.find(creep:GetUnitName(), unitName))
+				then
+					if GetUnitToUnitDistance(creep, target) <= radius
+					then
+						count = count + 1;
+					end
+				end
+			end
+		end
+
 		local unitList = GetUnitList(UNIT_LIST_ALLIED_CREEPS);
 		if #unitList > 0
 		then
 			for _, creep in pairs(unitList)
 			do
-				if IsValidTarget(creep) and creep:GetUnitName() == unitName
+				if IsValidTarget(creep) and (creep:GetUnitName() == unitName or string.find(creep:GetUnitName(), unitName))
 				then
 					if GetUnitToUnitDistance(creep, target) <= radius
 					then
@@ -839,7 +1007,7 @@ function CountUnitAroundTarget(target, unitName, bEnemy, radius)
 		then
 			for _, creep in pairs(wardList)
 			do
-				if IsValidTarget(creep) and creep:GetUnitName() == unitName
+				if IsValidTarget(creep) and (creep:GetUnitName() == unitName or string.find(creep:GetUnitName(), unitName))
 				then
 					if GetUnitToUnitDistance(creep, target) <= radius
 					then
@@ -854,7 +1022,7 @@ function CountUnitAroundTarget(target, unitName, bEnemy, radius)
 		then
 			for _, creep in pairs(otherUnitList)
 			do
-				if IsValidTarget(creep) and creep:GetUnitName() == unitName
+				if IsValidTarget(creep) and (creep:GetUnitName() == unitName or string.find(creep:GetUnitName(), unitName))
 				then
 					if GetUnitToUnitDistance(creep, target) <= radius
 					then
@@ -1069,6 +1237,12 @@ function PvPMode(npcBot)
 		botMode == BOT_MODE_EVASIVE_MANEUVERS);
 end
 
+function BossMode(npcBot)
+	local botMode = npcBot:GetActiveMode();
+	return (botMode == BOT_MODE_ROSHAN or
+		botMode == BOT_MODE_SIDE_SHOP);
+end
+
 function PvEMode(npcBot)
 	local botMode = npcBot:GetActiveMode();
 	return (botMode == BOT_MODE_PUSH_TOWER_TOP or
@@ -1083,6 +1257,7 @@ function PvEMode(npcBot)
 		botMode == BOT_MODE_ITEM or
 		botMode == BOT_MODE_ASSEMBLE or
 		botMode == BOT_MODE_SHRINE or
+		botMode == BOT_MODE_OUTPOST or
 		botMode == BOT_MODE_ROSHAN);
 end
 
@@ -1100,7 +1275,8 @@ function WanderMode(npcBot)
 		botMode == BOT_MODE_ITEM or
 		botMode == BOT_MODE_ASSEMBLE or
 		botMode == BOT_MODE_SHRINE or
-		botMode == BOT_MODE_ROSHAN);
+		botMode == BOT_MODE_ROSHAN or
+		botMode == BOT_MODE_OUTPOST);
 end
 
 function RetreatMode(npcBot)
@@ -1164,13 +1340,10 @@ function GetModifierCount(npcTarget, modifier)
 		local modifier = npcTarget:GetModifierByName(modifier)
 		if (modifier ~= nil)
 		then
-			return npcTarget:GetModifierStackCount(modifier)
-		else
-			return 0;
+			return npcTarget:GetModifierStackCount(modifier);
 		end
-	else
-		return 0;
 	end
+	return 0;
 end
 
 --[[ --ITEM HAS BEEN DELETED
@@ -1400,18 +1573,47 @@ function HasAganimShard(npcBot)
 	end
 end
 
-function GetFountainLocation()
-	local npcBot = GetBot();
-	local botTeam = npcBot:GetTeam();
-	if botTeam == TEAM_RADIANT
+function GetFountain(npcTarget)
+	if IsValidTarget(npcTarget)
 	then
-		return Vector(-7232.0, -6888.0, 364.5);
-	elseif botTeam == TEAM_DIRE
-	then
-		return Vector(7168.0, 6836.4, 423.6);
+		if npcTarget:GetTeam() == TEAM_RADIANT or npcTarget:GetTeam() == TEAM_DIRE
+		then
+			local buildings = GetUnitList(UNIT_LIST_ALLIED_BUILDINGS);
+			if (#buildings > 0)
+			then
+				for _, ally in pairs(buildings)
+				do
+					if ally ~= nil and (string.find(ally:GetUnitName(), "fountain") or ally:DistanceFromFountain() == 0 or ally:HasModifier('modifier_fountain_aura_buff'))
+					then
+						return ally;
+					end
+				end
+			end
+		else
+			return nil;
+		end
 	else
-		return Vector(0, 0, 0);
+		return nil;
 	end
+end
+
+-- or ally:HasModifier('modifier_fountain_aura_buff')
+-- or ally:DistanceFromFountain() == 0
+
+function GetFountainLocation()
+	local buildings = GetUnitList(UNIT_LIST_ALLIED_BUILDINGS);
+	if (#buildings > 0)
+	then
+		for _, ally in pairs(buildings)
+		do
+			if ally ~= nil and string.find(ally:GetUnitName(), "fountain")
+			then
+				return ally:GetLocation();
+			end
+		end
+	end
+
+	return Vector(0, 0, 0);
 end
 
 function SafeLocation(npcBot)

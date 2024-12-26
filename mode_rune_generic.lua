@@ -11,6 +11,8 @@ local runeList = {
     RUNE_BOUNTY_2,
     RUNE_BOUNTY_3,
     RUNE_BOUNTY_4,
+    RUNE_WISDOM_1,
+    RUNE_WISDOM_2,
 }
 
 local bountyRuneRadiant = Vector(2183.8, -3906.2, 155.7);
@@ -19,60 +21,6 @@ local bountyRuneDire = Vector(-1559.8, 3460.0, 208.5);
 local powerfulRuneDire = Vector(-1639.8, 1103.5, 58.3);
 
 local checkRuneTimer = 0.0;
-
-function GetRandomBotPlayer()
-    local selectedBotHero = nil;
-    local goldMin = 100000;
-    local allyHeroes = GetUnitList(UNIT_LIST_ALLIED_HEROES);
-
-    for _, ally in pairs(allyHeroes) do
-        if IsPlayerBot(ally:GetPlayerID())
-        then
-            local playerGold = ally:GetGold();
-            if playerGold < goldMin
-            then
-                goldMin = playerGold;
-                selectedBotHero = ally;
-            end
-        end
-    end
-
-    --[[     for _, i in pairs(GetTeamPlayers(GetTeam()))
-    do
-        if IsPlayerBot(i)
-        then
-            local playerGold = i:GetGold();
-            if playerGold < goldMin
-            then
-                goldMin = playerGold;
-                selectedBotPlayer = i;
-            end
-        end
-    end ]]
-
-    return selectedBotHero;
-end
-
-function GetClosestToLocationBotHero(vlocation)
-    local unit = nil;
-    local distance = 100000;
-    local allyHeroes = GetUnitList(UNIT_LIST_ALLIED_HEROES);
-
-    for _, ally in pairs(allyHeroes) do
-        if IsPlayerBot(ally:GetPlayerID()) and ally:IsAlive()
-        then
-            local botDistance = GetUnitToLocationDistance(ally, vlocation);
-            if botDistance < distance
-            then
-                unit = ally;
-                distance = botDistance;
-            end
-        end
-    end
-
-    --print(unit:GetUnitName())
-    return unit;
-end
 
 function GetClosestRune()
     local closestRune = nil;
@@ -112,26 +60,28 @@ function GetDesire()
 
     runeStatus = GetRuneStatus(closestRune);
     runeLocation = GetRuneSpawnLocation(closestRune);
-    closestAlly = GetClosestToLocationBotHero(runeLocation);
+    closestAlly = utility.GetClosestToLocationBotHero(runeLocation);
 
     if runeDistance <= 3000 and npcBot == closestAlly
     then
         if runeStatus == RUNE_STATUS_AVAILABLE
         then
-            --npcBot:ActionImmediate_Chat("Иду за доступной руной!", true);
-            checkRuneTimer = DotaTime();
-            return BOT_MODE_DESIRE_HIGH;
-        elseif runeStatus == RUNE_STATUS_UNKNOWN
-        then
-            if (DotaTime() >= checkRuneTimer + 2 * 60)
+            if runeStatus == RUNE_STATUS_UNKNOWN
             then
-                --npcBot:ActionImmediate_Chat("Иду проверять руну!", true);
+                if (DotaTime() >= checkRuneTimer + 2 * 60)
+                then
+                    npcBot:ActionImmediate_Chat("Иду проверять руну!", true);
+                    return BOT_MODE_DESIRE_HIGH;
+                end
+            elseif runeStatus == RUNE_STATUS_MISSING
+            then
+                npcBot:ActionImmediate_Chat("Руна пропала!", true);
+                return BOT_MODE_DESIRE_NONE;
+            else
+                --npcBot:ActionImmediate_Chat("Иду за доступной руной!", true);
+                checkRuneTimer = DotaTime();
                 return BOT_MODE_DESIRE_HIGH;
             end
-        elseif runeStatus == RUNE_STATUS_MISSING
-        then
-            --npcBot:ActionImmediate_Chat("Руна пропала!", true);
-            return BOT_MODE_DESIRE_NONE;
         end
     end
 
@@ -148,6 +98,7 @@ end
 
 function OnEnd()
     closestAlly = nil;
+    npcBot:SetTarget(nil);
 end
 
 function Think()
@@ -163,7 +114,7 @@ function Think()
     then
         if introMessageDone == false and npcBot:HasModifier("modifier_fountain_aura_buff")
         then
-            local chattingBot = GetRandomBotPlayer();
+            local chattingBot = utility.GetRandomBotPlayer();
             if npcBot == chattingBot
             then
                 --introMessageTimer = GameTime();

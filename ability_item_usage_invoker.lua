@@ -519,9 +519,9 @@ function ConsiderColdSnap()
     end
 
     -- Attack use
-    if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
+    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
     then
-        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
+        if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
                 and not utility.IsDisabled(botTarget)
@@ -720,7 +720,7 @@ function ConsiderAlacrity()
                         end
                     end
                 end
-                if utility.IsHero(attackTarget) or utility.IsRoshan(attackTarget)
+                if utility.IsHero(attackTarget) or utility.IsBoss(attackTarget)
                 then
                     return BOT_MODE_DESIRE_HIGH, ally;
                 end
@@ -813,9 +813,9 @@ function ConsiderSunStrike()
     end
 
     -- Attack use
-    if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
+    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
     then
-        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
+        if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
         then
             if utility.CanCastSpellOnTarget(ability, botTarget)
             then
@@ -835,9 +835,9 @@ function ConsiderForgeSpirit()
     local castRangeAbility = ability:GetSpecialValueInt("spirit_attack_range") + npcBot:GetAttackRange();
 
     -- Attack use
-    if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
+    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
     then
-        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
+        if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
             then
@@ -872,9 +872,9 @@ function ConsiderIceWall()
     local radiusAbility = ability:GetSpecialValueInt("wall_element_radius");
 
     -- Attack use
-    if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
+    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
     then
-        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
+        if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
                 and npcBot:IsFacingLocation(botTarget:GetLocation(), 20)

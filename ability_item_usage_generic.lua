@@ -30,7 +30,7 @@ function CourierUsageThink()
 	local shield = courier:GetAbilityByName("courier_shield");
 	local canCastBurst = burst ~= nil and burst:IsFullyCastable();
 	local canCastShield = shield ~= nil and shield:IsFullyCastable();
-	local courierInDanger = false;
+	--local courierInDanger = false;
 	--local courierHealth = courier:GetHealth() / courier:GetMaxHealth();
 
 	if (state == COURIER_STATE_IDLE)
@@ -45,31 +45,29 @@ function CourierUsageThink()
 		if (canCastBurst) and GetUnitToUnitDistance(courier, npcBot) >= 3000
 		then
 			npcBot:ActionImmediate_Courier(courier, COURIER_ACTION_BURST);
-			return;
 		end
 	end
 
-	if ((utility.CountEnemyHeroAroundUnit(courier, 1000) > 0 or utility.CountEnemyTowerAroundUnit(courier, 1000) > 0) and not courier:IsInvulnerable())
+	--[[ 	if ((utility.CountEnemyHeroAroundUnit(courier, 1000) > 0 or utility.CountEnemyTowerAroundUnit(courier, 1000) > 0) and not courier:IsInvulnerable())
 		or (courier:GetHealth() < courier:GetMaxHealth())
 	then
 		courierInDanger = true;
 	else
 		courierInDanger = false;
-	end
+	end ]]
 
-	if courierInDanger
+	if ((utility.CountEnemyHeroAroundUnit(courier, 1000) > 0 or utility.CountEnemyTowerAroundUnit(courier, 1000) > 0) and not courier:IsInvulnerable())
+		or (courier:GetHealth() < courier:GetMaxHealth())
 	then
 		if (canCastBurst) and (state == COURIER_STATE_MOVING)
 		then
 			npcBot:ActionImmediate_Courier(courier, COURIER_ACTION_BURST);
-			return;
 		end
 		if (canCastShield)
 		then
 			--courier:Action_UseAbility(shield);
 			npcBot:ActionImmediate_Courier(courier, COURIER_ACTION_SHIELD);
 			--npcBot:ActionImmediate_Chat("Курьер юзает щит!", true);
-			return;
 		end
 		if (state ~= COURIER_STATE_RETURNING_TO_BASE)
 		then
@@ -232,7 +230,7 @@ end
 function IsItemAvailable(item_name)
 	local npcBot = GetBot();
 	local slot = npcBot:FindItemSlot(item_name);
-	if npcBot:GetItemSlotType(slot) == ITEM_SLOT_TYPE_MAIN
+	if npcBot:GetItemSlotType(slot) == ITEM_SLOT_TYPE_MAIN and npcBot:GetItemInSlot(slot):IsFullyCastable()
 	then
 		return npcBot:GetItemInSlot(slot);
 	end
@@ -316,7 +314,7 @@ local linesKillEnemyHero = {
 	"Гг изи!"
 }
 
-function BotChatMessages()
+local function BotChatMessages()
 	local npcBot = GetBot();
 	local botKills = GetHeroKills(npcBot:GetPlayerID());
 	local message = math.random(#linesKillEnemyHero);
@@ -337,7 +335,7 @@ function ItemUsageThink()
 	local npcBot = GetBot();
 
 	GlyphUsageThink()
-	BotChatMessages()
+	--BotChatMessages()
 
 	if not utility.CanUseItems(npcBot) or (npcBot:IsInvisible() and not npcBot:HasModifier("modifier_invisible"))
 	then
@@ -364,8 +362,10 @@ function ItemUsageThink()
 			do
 				if utility.IsHero(ally) and not ally:IsInvisible()
 				then
-					if (ally:GetHealth() / ally:GetMaxHealth() <= 0.8 and ally:WasRecentlyDamagedByAnyHero(2.0)) or ally:IsChanneling()
-						or ally:HasModifier("modifier_crystal_maiden_freezing_field")
+					if (ally:GetHealth() / ally:GetMaxHealth() <= 0.8 and ally:WasRecentlyDamagedByAnyHero(2.0)) or ally:IsChanneling() or
+						ally:HasModifier("modifier_crystal_maiden_freezing_field") or
+						ally:HasModifier("modifier_teleporting") or
+						ally:HasModifier("modifier_wisp_relocate_return")
 					then
 						if shadowAmulet ~= nil and not ally:HasModifier("modifier_item_shadow_amulet_fade")
 							and not ally:HasModifier("modifier_spirit_breaker_charge_of_darkness")
@@ -757,16 +757,36 @@ function ItemUsageThink()
 						npcBot:Action_UseAbility(powerTreads);
 					end
 				else
-					if powerTreads:GetPowerTreadsStat() ~= ATTRIBUTE_STRENGTH
+					--[[ 					if powerTreads:GetPowerTreadsStat() ~= ATTRIBUTE_STRENGTH
 					then
-						npcBot:Action_UseAbility(powerTreads);
-					end
-					--[[ 			local biggerAttribute = utility.GetBiggerAttribute(npcBot);
-					if powerTreads:GetPowerTreadsStat() ~= biggerAttribute
-					then
-						--npcBot:ActionImmediate_Chat("Использую PowerTreads на больший стат!", true);
 						npcBot:Action_UseAbility(powerTreads);
 					end ]]
+					local biggerAttribute = utility.GetBiggerAttribute(npcBot);
+					local botStrenght = npcBot:GetAttributeValue(ATTRIBUTE_STRENGTH);
+					local botAgility = npcBot:GetAttributeValue(ATTRIBUTE_AGILITY);
+					local botIntellect = npcBot:GetAttributeValue(ATTRIBUTE_INTELLECT);
+					if biggerAttribute == botStrenght
+					then
+						if powerTreads:GetPowerTreadsStat() ~= ATTRIBUTE_STRENGTH
+						then
+							npcBot:ActionImmediate_Chat("Использую PowerTreads на больший стат силу!", true);
+							npcBot:Action_UseAbility(powerTreads);
+						end
+					elseif biggerAttribute == botAgility
+					then
+						if powerTreads:GetPowerTreadsStat() ~= ATTRIBUTE_INTELLECT
+						then
+							npcBot:ActionImmediate_Chat("Использую PowerTreads на больший стат ловкость!", true);
+							npcBot:Action_UseAbility(powerTreads);
+						end
+					elseif biggerAttribute == botIntellect
+					then
+						if powerTreads:GetPowerTreadsStat() ~= ATTRIBUTE_AGILITY
+						then
+							npcBot:ActionImmediate_Chat("Использую PowerTreads на больший стат интеллект!", true);
+							npcBot:Action_UseAbility(powerTreads);
+						end
+					end
 				end
 			end
 		end
@@ -826,39 +846,42 @@ function ItemUsageThink()
 		then
 			for _, ally in pairs(allies)
 			do
-				if not ally:HasModifier("modifier_item_pavise_shield")
+				if not utility.IsIllusion(ally)
 				then
-					if utility.IsHero(ally) and ally:GetHealth() / ally:GetMaxHealth() <= 0.8 and
-						(ally:WasRecentlyDamagedByAnyHero(2.0) or
-							ally:WasRecentlyDamagedByTower(2.0) or
-							ally:WasRecentlyDamagedByCreep(2.0))
+					if not ally:HasModifier("modifier_item_pavise_shield")
 					then
-						if pavise ~= nil
+						if ally:GetHealth() / ally:GetMaxHealth() <= 0.8 and
+							(ally:WasRecentlyDamagedByAnyHero(2.0) or
+								ally:WasRecentlyDamagedByTower(2.0) or
+								ally:WasRecentlyDamagedByCreep(2.0))
 						then
-							--npcBot:Action_ClearActions(false);
-							npcBot:Action_UseAbilityOnEntity(pavise, ally);
-							--npcBot:ActionImmediate_Chat("Использую предмет pavise!", true);
-							break;
-						elseif solarCrest ~= nil
-						then
-							--npcBot:Action_ClearActions(false);
-							npcBot:Action_UseAbilityOnEntity(solarCrest, ally);
-							--npcBot:ActionImmediate_Chat("Использую предмет solarCrest!", true);
-							break;
+							if pavise ~= nil
+							then
+								--npcBot:Action_ClearActions(false);
+								npcBot:Action_UseAbilityOnEntity(pavise, ally);
+								--npcBot:ActionImmediate_Chat("Использую предмет pavise!", true);
+								break;
+							elseif solarCrest ~= nil
+							then
+								--npcBot:Action_ClearActions(false);
+								npcBot:Action_UseAbilityOnEntity(solarCrest, ally);
+								--npcBot:ActionImmediate_Chat("Использую предмет solarCrest!", true);
+								break;
+							end
 						end
 					end
-				end
-				if solarCrest ~= nil and not ally:HasModifier("modifier_item_solar_crest_armor_addition")
-				then
-					if utility.IsHero(botTarget) and ally ~= npcBot and utility.IsHero(ally)
+					if solarCrest ~= nil and not ally:HasModifier("modifier_item_solar_crest_armor_addition")
 					then
-						if GetUnitToUnitDistance(ally, botTarget) <= ally:GetAttackRange() * 2
-							or GetUnitToUnitDistance(ally, botTarget) > (ally:GetAttackRange() * 2)
+						if utility.IsHero(botTarget) and ally ~= npcBot
 						then
-							--npcBot:Action_ClearActions(false);
-							npcBot:Action_UseAbilityOnEntity(solarCrest, ally);
-							--npcBot:ActionImmediate_Chat("Использую предмет solarCrest на союзника для атаки!", true);
-							break;
+							if GetUnitToUnitDistance(ally, botTarget) <= ally:GetAttackRange() * 2
+								or GetUnitToUnitDistance(ally, botTarget) > (ally:GetAttackRange() * 2)
+							then
+								--npcBot:Action_ClearActions(false);
+								npcBot:Action_UseAbilityOnEntity(solarCrest, ally);
+								--npcBot:ActionImmediate_Chat("Использую предмет solarCrest на союзника для атаки!", true);
+								break;
+							end
 						end
 					end
 				end
@@ -879,20 +902,23 @@ function ItemUsageThink()
 			then
 				for _, ally in pairs(allies)
 				do
-					if drumOfEndurance ~= nil and drumOfEndurance:GetCurrentCharges() > 0 and not ally:HasModifier("modifier_item_ancient_janggo_active")
+					if not utility.IsIllusion(ally)
 					then
-						--npcBot:Action_ClearActions(false);
-						npcBot:Action_UseAbility(drumOfEndurance);
-						--npcBot:ActionImmediate_Chat("Использую drum Of Endurance для нападения!", true);
-						--return;
-						break;
-					elseif bootsOfBearing ~= nil and not ally:HasModifier("modifier_item_boots_of_bearing_active")
-					then
-						--npcBot:Action_ClearActions(false);
-						npcBot:Action_UseAbility(bootsOfBearing);
-						--npcBot:ActionImmediate_Chat("Использую boots Of Bearing для нападения!", true);
-						--return;
-						break;
+						if drumOfEndurance ~= nil and drumOfEndurance:GetCurrentCharges() > 0 and not ally:HasModifier("modifier_item_ancient_janggo_active")
+						then
+							--npcBot:Action_ClearActions(false);
+							npcBot:Action_UseAbility(drumOfEndurance);
+							--npcBot:ActionImmediate_Chat("Использую drum Of Endurance для нападения!", true);
+							--return;
+							break;
+						elseif bootsOfBearing ~= nil and not ally:HasModifier("modifier_item_boots_of_bearing_active")
+						then
+							--npcBot:Action_ClearActions(false);
+							npcBot:Action_UseAbility(bootsOfBearing);
+							--npcBot:ActionImmediate_Chat("Использую boots Of Bearing для нападения!", true);
+							--return;
+							break;
+						end
 					end
 				end
 			end
@@ -901,22 +927,25 @@ function ItemUsageThink()
 		then
 			for _, ally in pairs(allies)
 			do
-				if (ally:GetHealth() / ally:GetMaxHealth() <= 0.6) and ally:WasRecentlyDamagedByAnyHero(2.0)
+				if not utility.IsIllusion(ally)
 				then
-					if drumOfEndurance ~= nil and drumOfEndurance:GetCurrentCharges() > 0 and not ally:HasModifier("modifier_item_ancient_janggo_active")
+					if (ally:GetHealth() / ally:GetMaxHealth() <= 0.6) and ally:WasRecentlyDamagedByAnyHero(2.0)
 					then
-						--npcBot:Action_ClearActions(false);
-						npcBot:Action_UseAbility(drumOfEndurance);
-						--npcBot:ActionImmediate_Chat("Использую drum Of Endurance для отступления!",true);
-						--return;
-						break;
-					elseif bootsOfBearing ~= nil and not ally:HasModifier("modifier_item_boots_of_bearing_active")
-					then
-						--npcBot:Action_ClearActions(false);
-						npcBot:Action_UseAbility(bootsOfBearing);
-						--npcBot:ActionImmediate_Chat("Использую boots Of Bearing для отступления!", true);
-						--return;
-						break;
+						if drumOfEndurance ~= nil and drumOfEndurance:GetCurrentCharges() > 0 and not ally:HasModifier("modifier_item_ancient_janggo_active")
+						then
+							--npcBot:Action_ClearActions(false);
+							npcBot:Action_UseAbility(drumOfEndurance);
+							--npcBot:ActionImmediate_Chat("Использую drum Of Endurance для отступления!",true);
+							--return;
+							break;
+						elseif bootsOfBearing ~= nil and not ally:HasModifier("modifier_item_boots_of_bearing_active")
+						then
+							--npcBot:Action_ClearActions(false);
+							npcBot:Action_UseAbility(bootsOfBearing);
+							--npcBot:ActionImmediate_Chat("Использую boots Of Bearing для отступления!", true);
+							--return;
+							break;
+						end
 					end
 				end
 			end
@@ -933,31 +962,34 @@ function ItemUsageThink()
 		then
 			for _, ally in pairs(allies)
 			do
-				if utility.IsHero(ally) and utility.CanBeHeal(ally) and not ally:HasModifier("modifier_item_mekansm_noheal")
+				if not utility.IsIllusion(ally)
 				then
-					if (ally:GetHealth() / ally:GetMaxHealth() <= 0.5)
+					if utility.CanBeHeal(ally) and not ally:HasModifier("modifier_item_mekansm_noheal")
 					then
-						if mekansm ~= nil
+						if (ally:GetHealth() / ally:GetMaxHealth() <= 0.5)
 						then
-							--npcBot:Action_ClearActions(false);
-							npcBot:Action_UseAbility(mekansm);
-							--npcBot:ActionImmediate_Chat("Использую предмет mekansm!",true);
-							break;
-						elseif guardianGreaves ~= nil
+							if mekansm ~= nil
+							then
+								--npcBot:Action_ClearActions(false);
+								npcBot:Action_UseAbility(mekansm);
+								--npcBot:ActionImmediate_Chat("Использую предмет mekansm!",true);
+								break;
+							elseif guardianGreaves ~= nil
+							then
+								--npcBot:Action_ClearActions(false);
+								npcBot:Action_UseAbility(guardianGreaves);
+								--npcBot:ActionImmediate_Chat("Использую предмет Guardian greaves!",true);
+								break;
+							end
+						elseif (ally:GetMana() / ally:GetMaxMana() <= 0.3)
 						then
-							--npcBot:Action_ClearActions(false);
-							npcBot:Action_UseAbility(guardianGreaves);
-							--npcBot:ActionImmediate_Chat("Использую предмет Guardian greaves!",true);
-							break;
-						end
-					elseif (ally:GetMana() / ally:GetMaxMana() <= 0.3)
-					then
-						if guardianGreaves ~= nil
-						then
-							--npcBot:Action_ClearActions(false);
-							npcBot:Action_UseAbility(guardianGreaves);
-							--npcBot:ActionImmediate_Chat("Использую предмет Guardian greaves!",true);
-							break;
+							if guardianGreaves ~= nil
+							then
+								--npcBot:Action_ClearActions(false);
+								npcBot:Action_UseAbility(guardianGreaves);
+								--npcBot:ActionImmediate_Chat("Использую предмет Guardian greaves!",true);
+								break;
+							end
 						end
 					end
 				end
@@ -974,7 +1006,7 @@ function ItemUsageThink()
 		then
 			for _, ally in pairs(allies)
 			do
-				if utility.IsHero(ally) and (ally:GetHealth() / ally:GetMaxHealth() <= 0.8) and ally:WasRecentlyDamagedByAnyHero(2.0)
+				if not utility.IsIllusion(ally) and (ally:GetHealth() / ally:GetMaxHealth() <= 0.8) and ally:WasRecentlyDamagedByAnyHero(2.0)
 					and not ally:HasModifier("modifier_item_crimson_guard_nostack")
 				then
 					--npcBot:Action_ClearActions(false);
@@ -1032,7 +1064,7 @@ function ItemUsageThink()
 			then
 				for _, ally in pairs(allies)
 				do
-					if utility.IsHero(ally) and (ally:GetHealth() / ally:GetMaxHealth() <= 0.8) and ally:WasRecentlyDamagedByAnyHero(2.0)
+					if not utility.IsIllusion(ally) and (ally:GetHealth() / ally:GetMaxHealth() <= 0.8) and ally:WasRecentlyDamagedByAnyHero(2.0)
 						and not ally:HasModifier("modifier_item_pipe_barrier")
 					then
 						--npcBot:Action_ClearActions(false);
@@ -1075,7 +1107,7 @@ function ItemUsageThink()
 			then
 				for _, ally in pairs(allies)
 				do
-					if (ally:GetHealth() / ally:GetMaxHealth() <= 0.7) and utility.IsHero(ally) and ally:WasRecentlyDamagedByAnyHero(2.0)
+					if not utility.IsIllusion(ally) and (ally:GetHealth() / ally:GetMaxHealth() <= 0.7) and utility.IsHero(ally) and ally:WasRecentlyDamagedByAnyHero(2.0)
 						and ally:IsFacingLocation(GetAncient(GetTeam()):GetLocation(), 40) and utility.CanMove(ally)
 					then
 						--npcBot:Action_ClearActions(false);
@@ -1297,7 +1329,7 @@ function ItemUsageThink()
 			do
 				local incomingSpells = ally:GetIncomingTrackingProjectiles();
 				if (ally:GetHealth() / ally:GetMaxHealth() <= 0.7) and ally:WasRecentlyDamagedByAnyHero(1.0) and (#botIncomingSpells <= 0)
-					and not utility.HaveReflectSpell(ally)
+					and not utility.HaveReflectSpell(ally) and not utility.IsIllusion(ally)
 				then
 					if sphere ~= nil
 					then
@@ -1406,7 +1438,7 @@ function ItemUsageThink()
 				end
 			elseif utility.RetreatMode(npcBot)
 			then
-				if (npcBot:GetHealth() / npcBot:GetMaxHealth() <= 0.8) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
+				if (healthPercent <= 0.8) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
 				then
 					--npcBot:Action_ClearActions(false);
 					npcBot:Action_UseAbility(blackKingBar);
@@ -1415,14 +1447,14 @@ function ItemUsageThink()
 			end
 			if (#incomingSpells > 0)
 			then
-				for _, eSpell in pairs(incomingSpells)
+				for _, spell in pairs(incomingSpells)
 				do
-					if GetUnitToLocationDistance(npcBot, eSpell.location) <= 500 and eSpell.is_attack == false
+					if not utility.IsAlly(npcBot, spell.caster) and GetUnitToLocationDistance(npcBot, spell.location) <= 300 and spell.is_attack == false
 						and not utility.HaveReflectSpell(npcBot)
 					then
 						--npcBot:Action_ClearActions(false);
 						npcBot:Action_UseAbility(blackKingBar);
-						--npcBot:ActionImmediate_Chat("Использую предмет black King Bar для блока заклинания!",true);
+						--npcBot:ActionImmediate_Chat("Использую предмет black king bar для блока заклинания!",true);
 						break;
 					end
 				end
@@ -1438,13 +1470,13 @@ function ItemUsageThink()
 		then
 			if utility.IsHero(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= (attackRange * 2)
 			then
-				npcBot:Action_ClearActions(false);
+				--npcBot:Action_ClearActions(false);
 				npcBot:Action_UseAbility(manta);
 				--npcBot:ActionImmediate_Chat("Использую предмет manta style для нападения!",true);
 			end
 		elseif utility.RetreatMode(npcBot)
 		then
-			if (npcBot:GetHealth() / npcBot:GetMaxHealth() <= 0.8) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
+			if (healthPercent <= 0.8) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
 			then
 				--npcBot:Action_ClearActions(false);
 				npcBot:Action_UseAbility(manta);
@@ -1453,9 +1485,9 @@ function ItemUsageThink()
 		end
 		if (#incomingSpells > 0)
 		then
-			for _, eSpell in pairs(incomingSpells)
+			for _, spell in pairs(incomingSpells)
 			do
-				if GetUnitToLocationDistance(npcBot, eSpell.location) <= 100 and eSpell.is_attack == false
+				if not utility.IsAlly(npcBot, spell.caster) and GetUnitToLocationDistance(npcBot, spell.location) <= 300 and spell.is_attack == false
 					and not utility.HaveReflectSpell(npcBot)
 				then
 					--npcBot:Action_ClearActions(false);
@@ -2207,9 +2239,9 @@ function ItemUsageThink()
 	local maskOfMadness = IsItemAvailable("item_mask_of_madness");
 	if maskOfMadness ~= nil and maskOfMadness:IsFullyCastable()
 	then
-		if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
+		if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
 		then
-			if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
+			if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
 			then
 				if utility.CanCastOnInvulnerableTarget(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= attackRange + 200
 				then
@@ -2411,7 +2443,7 @@ function ItemUsageThink()
 		local itemCharges = bottle:GetCurrentCharges();
 		if (itemCharges > 0) and (npcBot:TimeSinceDamagedByAnyHero() >= 5.0 and npcBot:TimeSinceDamagedByCreep() >= 5.0)
 		then
-			if npcBot:GetHealth() / npcBot:GetMaxHealth() <= 0.6 and utility.CanBeHeal(npcBot) and not HaveHealthRegenBuff(npcBot)
+			if healthPercent <= 0.6 and utility.CanBeHeal(npcBot) and not HaveHealthRegenBuff(npcBot)
 			then
 				--npcBot:Action_ClearActions(false);
 				npcBot:Action_UseAbility(bottle);
@@ -2444,9 +2476,9 @@ function ItemUsageThink()
 	local armlet = IsItemAvailable("item_armlet");
 	if armlet ~= nil and armlet:IsFullyCastable()
 	then
-		if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
+		if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
 		then
-			if (utility.IsHero(botTarget) or utility.IsRoshan(botTarget)) and npcBot:GetAttackTarget() == botTarget
+			if (utility.IsHero(botTarget) or utility.IsBoss(botTarget)) and npcBot:GetAttackTarget() == botTarget
 			then
 				if armlet:GetToggleState() == false
 				then
@@ -2468,6 +2500,47 @@ function ItemUsageThink()
 			end
 		end
 	end
+
+
+	-- item_nullifier
+	local nullifier = IsItemAvailable("item_nullifier");
+	if nullifier ~= nil and nullifier:IsFullyCastable()
+	then
+		local itemRange = 900;
+		local enemys = npcBot:GetNearbyHeroes(itemRange, true, BOT_MODE_NONE);
+		if (#enemys > 0)
+		then
+			for _, enemy in pairs(enemys) do
+				if utility.CanCastOnMagicImmuneTarget(enemy) and enemy:IsAttackImmune()
+				then
+					npcBot:Action_UseAbilityOnEntity(nullifier, enemy);
+					break;
+				end
+			end
+		end
+		if utility.PvPMode(npcBot)
+		then
+			if utility.IsHero(botTarget) and utility.CanCastOnMagicImmuneTarget(botTarget) and not utility.IsDisabled(botTarget)
+				and GetUnitToUnitDistance(npcBot, botTarget) <= (itemRange)
+			then
+				npcBot:Action_UseAbilityOnEntity(nullifier, botTarget);
+			end
+		elseif utility.RetreatMode(npcBot)
+		then
+			if (#enemys > 0)
+			then
+				for _, enemy in pairs(enemys)
+				do
+					if utility.CanCastOnMagicImmuneTarget(enemy) and not utility.IsDisabled(enemy)
+					then
+						npcBot:Action_UseAbilityOnEntity(nullifier, enemy);
+						break;
+					end
+				end
+			end
+		end
+	end
+
 	------------
 end
 

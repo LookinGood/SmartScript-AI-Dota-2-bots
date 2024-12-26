@@ -354,7 +354,7 @@ function ConsiderWalrusPunch()
         end
     end
 
-    if (utility.IsHero(botTarget) or utility.IsRoshan(botTarget)) and utility.CanCastSpellOnTarget(ability, botTarget)
+    if (utility.IsHero(botTarget) or utility.IsBoss(botTarget)) and utility.CanCastSpellOnTarget(ability, botTarget)
     then
         if not ability:GetAutoCastState()
         then

@@ -145,9 +145,9 @@ function ConsiderStarbreaker()
     end
 
     -- Cast if attack enemy
-    if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
+    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
     then
-        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
+        if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) < castRangeAbility
             then
@@ -197,9 +197,9 @@ function ConsiderCelestialHammer()
     end
 
     -- Cast if attack enemy
-    if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
+    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
     then
-        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
+        if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
                 and GetUnitToUnitDistance(npcBot, botTarget) > attackRange

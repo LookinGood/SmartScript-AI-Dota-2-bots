@@ -86,7 +86,7 @@ function ConsiderArcaneOrb()
 
     local attackTarget = npcBot:GetAttackTarget();
 
-    if (utility.IsHero(attackTarget) or utility.IsRoshan(attackTarget)) and utility.CanCastSpellOnTarget(ability, attackTarget)
+    if (utility.IsHero(attackTarget) or utility.IsBoss(attackTarget)) and utility.CanCastSpellOnTarget(ability, attackTarget)
     then
         if not ability:GetAutoCastState() then
             ability:ToggleAutoCast()
@@ -135,7 +135,7 @@ function ConsiderAstralImprisonment()
                 then
                     for _, spell in pairs(incomingSpells)
                     do
-                        if GetUnitToLocationDistance(ally, spell.location) <= 400 and spell.is_attack == false
+                        if not utility.IsAlly(npcBot, spell.caster) and GetUnitToLocationDistance(ally, spell.location) <= 400 and spell.is_attack == false
                         then
                             --npcBot:ActionImmediate_Chat("Использую AstralImprisonment что бы уклониться от заклинания!",true);
                             return BOT_ACTION_DESIRE_VERYHIGH, ally;

@@ -27,7 +27,7 @@ local ItemsToBuy =
 
 	"item_aghanims_shard",
 
-	"item_monkey_king_bar",
+	"item_nullifier",
 
 	"item_ultimate_scepter",
 	"item_ultimate_scepter_2",
@@ -45,6 +45,8 @@ local realItemsToBuy = {}
 function ItemPurchaseThink()
 	purchase.ItemPurchase(ItemsToBuy, realItemsToBuy)
 end
+
+-- "item_monkey_king_bar",
 
 -- Old version
 --[[ local ItemsToBuy =

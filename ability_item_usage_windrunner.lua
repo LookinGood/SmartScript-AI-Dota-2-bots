@@ -190,9 +190,9 @@ function ConsiderPowershot()
     end
 
     -- Cast if attack enemy
-    if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
+    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
     then
-        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
+        if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
             then
@@ -352,22 +352,24 @@ function ConsiderFocusFire()
     local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
 
     -- Attack use
-    if utility.PvPMode(npcBot)
+    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
     then
-        if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget)
-            and GetUnitToUnitDistance(npcBot, botTarget) <= attackRange
+        if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
         then
-            return BOT_MODE_DESIRE_HIGH, botTarget;
-        end
-        -- Retreat or help ally use
-    elseif utility.RetreatMode(npcBot)
-    then
-        if (#enemyAbility > 0)
+            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= attackRange
+            then
+                return BOT_MODE_DESIRE_HIGH, botTarget;
+            end
+            -- Retreat or help ally use
+        elseif utility.RetreatMode(npcBot)
         then
-            for _, enemy in pairs(enemyAbility) do
-                if utility.CanCastSpellOnTarget(ability, enemy)
-                then
-                    return BOT_ACTION_DESIRE_HIGH, enemy;
+            if (#enemyAbility > 0)
+            then
+                for _, enemy in pairs(enemyAbility) do
+                    if utility.CanCastSpellOnTarget(ability, enemy)
+                    then
+                        return BOT_ACTION_DESIRE_HIGH, enemy;
+                    end
                 end
             end
         end

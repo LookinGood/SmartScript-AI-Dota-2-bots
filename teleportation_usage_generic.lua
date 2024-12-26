@@ -153,8 +153,11 @@ function ShouldTP()
     local modDesire = npcBot:GetActiveModeDesire();
     local enemyTower = npcBot:GetNearbyTowers(1000, true);
 
-    if utility.IsHaveMaxSpeed(npcBot) or (#enemyTower > 0) or utility.IsHaveStunEffect(npcBot) or modDesire <= BOT_MODE_DESIRE_LOW
-        or npcBot:HasModifier("modifier_fountain_fury_swipes_damage_increase")
+    if utility.IsHaveMaxSpeed(npcBot) or (#enemyTower > 0) or utility.IsHaveStunEffect(npcBot) or modDesire <= BOT_MODE_DESIRE_LOW or
+        npcBot:HasModifier("modifier_fountain_fury_swipes_damage_increase") or
+        npcBot:HasModifier("modifier_skeleton_king_reincarnation_scepter_active") or
+        npcBot:HasModifier("modifier_teleporting") or
+        npcBot:HasModifier("modifier_wisp_relocate_return")
     then
         return false, nil;
     end
@@ -172,7 +175,7 @@ function ShouldTP()
     local tpDistance = 4000;
     local minTpDistance = 6000;
     local ancient = GetAncient(GetTeam());
-    --local enemyAncient = GetAncient(GetOpposingTeam());
+    local enemyAncient = GetAncient(GetOpposingTeam());
     local topTower1 = GetTower(GetTeam(), TOWER_TOP_1);
     local topTower2 = GetTower(GetTeam(), TOWER_TOP_2);
     local topTower3 = GetTower(GetTeam(), TOWER_TOP_3);
@@ -406,17 +409,19 @@ function ShouldTP()
     end
 
     -- Push desire
-    if botMode == BOT_MODE_PUSH_TOWER_TOP
+    if GetUnitToUnitDistance(npcBot, ancient) < GetUnitToUnitDistance(npcBot, enemyAncient)
     then
-        local frontlocation = GetLaneFrontLocation(botTeam, LANE_TOP, 0);
-        local tpTarget = ClosestPositionForPush(frontlocation, minTpDistance, 1000, 1);
-        if tpTarget ~= nil
+        if botMode == BOT_MODE_PUSH_TOWER_TOP
         then
-            --npcBot:ActionImmediate_Chat("Использую tpscroll пуша топа!", true);
-            return true, tpTarget:GetLocation() + RandomVector(300);
-        end
+            local frontlocation = GetLaneFrontLocation(botTeam, LANE_TOP, 0);
+            local tpTarget = ClosestPositionForPush(frontlocation, minTpDistance, 1000, 1);
+            if tpTarget ~= nil
+            then
+                --npcBot:ActionImmediate_Chat("Использую tpscroll пуша топа!", true);
+                return true, tpTarget:GetLocation() + RandomVector(300);
+            end
 
-        --[[         local enemytopTower1 = GetTower(GetOpposingTeam(), TOWER_TOP_1);
+            --[[         local enemytopTower1 = GetTower(GetOpposingTeam(), TOWER_TOP_1);
         local enemytopTower2 = GetTower(GetOpposingTeam(), TOWER_TOP_2);
         local enemytopTower3 = GetTower(GetOpposingTeam(), TOWER_TOP_3);
         if towerPush == nil
@@ -449,17 +454,17 @@ function ShouldTP()
                 end
             end
         end ]]
-    elseif botMode == BOT_MODE_PUSH_TOWER_MID
-    then
-        local frontlocation = GetLaneFrontLocation(botTeam, LANE_MID, 0);
-        local tpTarget = ClosestPositionForPush(frontlocation, minTpDistance, 1000, 1);
-        if tpTarget ~= nil
+        elseif botMode == BOT_MODE_PUSH_TOWER_MID
         then
-            --npcBot:ActionImmediate_Chat("Использую tpscroll пуша мида!", true);
-            return true, tpTarget:GetLocation() + RandomVector(300);
-        end
+            local frontlocation = GetLaneFrontLocation(botTeam, LANE_MID, 0);
+            local tpTarget = ClosestPositionForPush(frontlocation, minTpDistance, 1000, 1);
+            if tpTarget ~= nil
+            then
+                --npcBot:ActionImmediate_Chat("Использую tpscroll пуша мида!", true);
+                return true, tpTarget:GetLocation() + RandomVector(300);
+            end
 
-        --[[         local enemymidTower1 = GetTower(GetOpposingTeam(), TOWER_MID_1);
+            --[[         local enemymidTower1 = GetTower(GetOpposingTeam(), TOWER_MID_1);
         local enemymidTower2 = GetTower(GetOpposingTeam(), TOWER_MID_2);
         local enemymidTower3 = GetTower(GetOpposingTeam(), TOWER_MID_3);
         if towerPush == nil
@@ -492,16 +497,16 @@ function ShouldTP()
                 end
             end
         end ]]
-    elseif botMode == BOT_MODE_PUSH_TOWER_BOT
-    then
-        local frontlocation = GetLaneFrontLocation(botTeam, LANE_BOT, 0);
-        local tpTarget = ClosestPositionForPush(frontlocation, minTpDistance, 1000, 1);
-        if tpTarget ~= nil
+        elseif botMode == BOT_MODE_PUSH_TOWER_BOT
         then
-            --npcBot:ActionImmediate_Chat("Использую tpscroll пуша Бота!", true);
-            return true, tpTarget:GetLocation() + RandomVector(300);
-        end
-        --[[
+            local frontlocation = GetLaneFrontLocation(botTeam, LANE_BOT, 0);
+            local tpTarget = ClosestPositionForPush(frontlocation, minTpDistance, 1000, 1);
+            if tpTarget ~= nil
+            then
+                --npcBot:ActionImmediate_Chat("Использую tpscroll пуша Бота!", true);
+                return true, tpTarget:GetLocation() + RandomVector(300);
+            end
+            --[[
         local enemybotTower1 = GetTower(GetOpposingTeam(), TOWER_BOT_1);
         local enemybotTower2 = GetTower(GetOpposingTeam(), TOWER_BOT_2);
         local enemybotTower3 = GetTower(GetOpposingTeam(), TOWER_BOT_3);
@@ -535,6 +540,7 @@ function ShouldTP()
                 end
             end
         end ]]
+        end
     end
 
     return false, nil;

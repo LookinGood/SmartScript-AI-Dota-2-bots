@@ -173,12 +173,14 @@ function ConsiderConjureImage()
     end
 
     -- Attack use
-    if utility.PvPMode(npcBot)
+    if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
     then
-        if utility.CanCastOnInvulnerableTarget(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= 2000
+        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
         then
-            --npcBot:ActionImmediate_Chat("Использую ConjureImage для нападения!", true);
-            return BOT_ACTION_DESIRE_HIGH;
+            if utility.CanCastOnInvulnerableTarget(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= 2000
+            then
+                return BOT_ACTION_DESIRE_HIGH;
+            end
         end
         -- Retreat use
     elseif utility.RetreatMode(npcBot)
@@ -186,7 +188,6 @@ function ConsiderConjureImage()
         local enemyAbility = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
         if (#enemyAbility > 0) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
         then
-            --npcBot:ActionImmediate_Chat("Использую ConjureImage для отступления!", true);
             return BOT_ACTION_DESIRE_HIGH;
         end
         -- Cast if push/defend/farm/roshan
@@ -196,10 +197,12 @@ function ConsiderConjureImage()
         local enemyTowers = npcBot:GetNearbyTowers(1600, true);
         local enemyBarracks = npcBot:GetNearbyBarracks(1600, true);
         local enemyAncient = GetAncient(GetOpposingTeam());
-        local attackTarget = npcBot:GetAttackTarget();
-        if (ManaPercentage >= 0.4) and ((#enemyCreeps > 0) or (#enemyTowers > 0) or (#enemyBarracks > 0) or attackTarget == enemyAncient)
+        if (ManaPercentage >= 0.4) and
+            ((#enemyCreeps > 0) or
+                (#enemyTowers > 0) or
+                (#enemyBarracks > 0) or
+                npcBot:GetAttackTarget() == enemyAncient)
         then
-            --npcBot:ActionImmediate_Chat("Использую ConjureImage против вражеских сил!", true);
             return BOT_ACTION_DESIRE_LOW;
         end
     end
@@ -243,21 +246,24 @@ function ConsiderDemonZeal()
     local attackRange = npcBot:GetAttackRange();
 
     -- Attack use
-    if utility.PvPMode(npcBot)
+    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
     then
-        if utility.CanCastOnInvulnerableTarget(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= (attackRange * 2)
+        if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
         then
-            --npcBot:ActionImmediate_Chat("Использую DemonZeal для нападения!", true);
-            return BOT_ACTION_DESIRE_HIGH;
-        end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
-    then
-        local enemyAbility = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
-        if (#enemyAbility > 0) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
+            if utility.CanCastOnInvulnerableTarget(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= (attackRange * 2)
+            then
+                --npcBot:ActionImmediate_Chat("Использую DemonZeal для нападения!", true);
+                return BOT_ACTION_DESIRE_HIGH;
+            end
+            -- Retreat use
+        elseif utility.RetreatMode(npcBot)
         then
-            --npcBot:ActionImmediate_Chat("Использую DemonZeal для отступления!", true);
-            return BOT_ACTION_DESIRE_HIGH;
+            local enemyAbility = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
+            if (#enemyAbility > 0) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
+            then
+                --npcBot:ActionImmediate_Chat("Использую DemonZeal для отступления!", true);
+                return BOT_ACTION_DESIRE_HIGH;
+            end
         end
     end
 end

@@ -123,6 +123,8 @@ require(GetScriptDirectory() .. "/hero_role_generic")
 	"npc_dota_hero_earth_spirit",
 	"npc_dota_hero_void_spirit",
 	"npc_dota_hero_invoker",
+	"npc_dota_hero_lone_druid",  -- not work currect
+	"npc_dota_hero_wisp",
 ]]
 --#endregion
 
@@ -245,6 +247,8 @@ local hero_pool_my =
 	"npc_dota_hero_earth_spirit",
 	"npc_dota_hero_void_spirit",
 	"npc_dota_hero_invoker",
+	--"npc_dota_hero_lone_druid",
+	"npc_dota_hero_wisp",
 }
 
 local heroesCarry =
@@ -318,6 +322,7 @@ local heroesCarry =
 	"npc_dota_hero_morphling",
 	"npc_dota_hero_void_spirit",
 	"npc_dota_hero_invoker",
+	--"npc_dota_hero_lone_druid",
 }
 
 local heroesSupport =
@@ -370,6 +375,7 @@ local heroesSupport =
 	"npc_dota_hero_chen",
 	"npc_dota_hero_ringmaster",
 	"npc_dota_hero_earth_spirit",
+	"npc_dota_hero_wisp",
 }
 
 local testTeam =
@@ -489,7 +495,7 @@ end
 
 -- Insert here hero hame and set "testmode = true" if you want the bot to choose a specific hero (Work only in Radiant team)
 local testmode = false;
-local testHero = "npc_dota_hero_zuus"
+local testHero = "npc_dota_hero_kez"
 
 local botPlayers = {};
 local testPlayer = nil;

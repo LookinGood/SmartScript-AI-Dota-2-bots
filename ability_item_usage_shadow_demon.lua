@@ -144,7 +144,7 @@ function ConsiderDisruption()
                 then
                     for _, spell in pairs(incomingSpells)
                     do
-                        if GetUnitToLocationDistance(ally, spell.location) <= 400 and spell.is_attack == false
+                        if not utility.IsAlly(npcBot, spell.caster) and GetUnitToLocationDistance(ally, spell.location) <= 400 and spell.is_attack == false
                         then
                             --npcBot:ActionImmediate_Chat("Использую Disruption что бы уклониться от заклинания!",true);
                             return BOT_ACTION_DESIRE_VERYHIGH, ally;

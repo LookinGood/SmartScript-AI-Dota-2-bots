@@ -111,7 +111,7 @@ function ConsiderBladeFury()
     then
         for _, spell in pairs(incomingSpells)
         do
-            if GetUnitToLocationDistance(npcBot, spell.location) <= 300 and spell.is_attack == false
+            if not utility.IsAlly(npcBot, spell.caster) and GetUnitToLocationDistance(npcBot, spell.location) <= 300 and spell.is_attack == false
             then
                 return BOT_ACTION_DESIRE_VERYHIGH;
             end
@@ -119,9 +119,9 @@ function ConsiderBladeFury()
     end
 
     -- Attack use
-    if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
+    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
     then
-        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
+        if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= radiusAbility
             then

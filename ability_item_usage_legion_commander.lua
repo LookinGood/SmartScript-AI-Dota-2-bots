@@ -132,8 +132,8 @@ function ConsiderOverwhelmingOdds()
                 end
             end
         end
-        -- Roshan use
-        if utility.IsRoshan(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= radiusAbility
+        -- Boss use
+        if utility.IsBoss(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= radiusAbility
         then
             --npcBot:ActionImmediate_Chat("Использую OverwhelmingOdds против Рошана!", true);
             return BOT_ACTION_DESIRE_HIGH;

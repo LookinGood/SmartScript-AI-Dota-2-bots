@@ -125,7 +125,7 @@ function ConsiderSearingChains()
     end
 
     -- General use
-    if utility.PvPMode(npcBot) or botMode == BOT_MODE_RETREAT
+    if utility.PvPMode(npcBot) or utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then

@@ -118,9 +118,9 @@ function ConsiderStrafe()
     local attackRange = npcBot:GetAttackRange() + ability:GetSpecialValueInt("attack_range_bonus");
 
     -- Attack use
-    if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
+    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
     then
-        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
+        if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
         then
             if utility.CanCastOnInvulnerableTarget(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= attackRange
             then
@@ -153,9 +153,9 @@ function ConsiderTarBomb()
     if not npcBot:IsInvisible()
     then
         -- Attack use
-        if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
+        if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
         then
-            if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
+            if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
             then
                 if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
                 then

@@ -111,10 +111,11 @@ end
 
 function GetDesire()
     local healthPercent = npcBot:GetHealth() / npcBot:GetMaxHealth();
-    --local botMode = npcBot:GetActiveMode();
+    local botMode = npcBot:GetActiveMode();
     local botLevel = npcBot:GetLevel();
 
-    if not utility.IsHero(npcBot) or not npcBot:IsAlive() or healthPercent <= 0.3 or botLevel <= 3
+    if not utility.IsHero(npcBot) or not npcBot:IsAlive() or healthPercent <= 0.3 or botLevel <= 3 or
+        botMode == BOT_MODE_DEFEND_TOWER_TOP or botMode == BOT_MODE_DEFEND_TOWER_BOT
     then
         return BOT_ACTION_DESIRE_NONE;
     end
@@ -137,6 +138,7 @@ function OnEnd()
         npcBot:ActionImmediate_Chat("Прекращаю защищать " .. mainBuilding:GetUnitName(), false);
     end
     mainBuilding = nil;
+    npcBot:SetTarget(nil);
 end
 
 function Think()
@@ -158,6 +160,8 @@ function Think()
     local enemyHeroes = npcBot:GetNearbyHeroes(500, true, BOT_MODE_NONE);
     local mainCreep = nil;
 
+    npcBot:SetTarget(mainBuilding);
+
     if (healthPercent <= 0.4) and (npcBot:WasRecentlyDamagedByAnyHero(2.0) or npcBot:WasRecentlyDamagedByCreep(3.0))
     then
         npcBot:Action_MoveToLocation(defendZone);
@@ -177,9 +181,22 @@ function Think()
                 else
                     if (#enemyCreeps > 0)
                     then
-                        mainCreep = enemyCreeps[1];
+                        for _, enemy in pairs(enemyCreeps) do
+                            if not utility.IsNotAttackTarget(enemy)
+                            then
+                                if string.find(enemy:GetUnitName(), "siege") or enemy:GetAttackTarget() == ancient
+                                then
+                                    mainCreep = enemy;
+                                    break;
+                                else
+                                    mainCreep = enemy;
+                                    break;
+                                end
+                            end
+                        end
                         if mainCreep ~= nil
                         then
+                            npcBot:SetTarget(mainCreep);
                             npcBot:Action_AttackUnit(mainCreep, false);
                             return;
                         end
@@ -212,9 +229,22 @@ function Think()
                     local allyHeroes = npcBot:GetNearbyHeroes(1600, false, BOT_MODE_NONE);
                     if (#enemyCreeps > 0)
                     then
-                        mainCreep = enemyCreeps[1];
+                        for _, enemy in pairs(enemyCreeps) do
+                            if not utility.IsNotAttackTarget(enemy)
+                            then
+                                if string.find(enemy:GetUnitName(), "siege") or enemy:GetAttackTarget() == mainBuilding
+                                then
+                                    mainCreep = enemy;
+                                    break;
+                                else
+                                    mainCreep = enemy;
+                                    break;
+                                end
+                            end
+                        end
                         if mainCreep ~= nil
                         then
+                            npcBot:SetTarget(mainCreep);
                             if (#enemyHeroes >= #allyHeroes)
                             then
                                 npcBot:Action_AttackUnit(mainCreep, true);

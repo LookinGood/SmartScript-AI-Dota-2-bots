@@ -129,9 +129,9 @@ function ConsiderWildAxes()
     end
 
     -- Cast if attack enemy
-    if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
+    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
     then
-        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
+        if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
             then
@@ -171,9 +171,8 @@ function ConsiderSummonBoar()
     then
         if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
         then
-            if utility.CanCastSpellOnTarget(ability, botTarget)
+            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= 2000
             then
-                --npcBot:ActionImmediate_Chat("Использую Summon Boar для нападения!", true);
                 return BOT_ACTION_DESIRE_HIGH;
             end
         end
@@ -181,17 +180,23 @@ function ConsiderSummonBoar()
     elseif utility.RetreatMode(npcBot)
     then
         local enemyAbility = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
-        if (#enemyAbility > 0) and (HealthPercentage <= 0.6) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
+        if (#enemyAbility > 0) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
         then
-            --npcBot:ActionImmediate_Chat("Использую Summon Boar для отступления!", true);
             return BOT_ACTION_DESIRE_HIGH;
         end
-        -- Cast if push/defend/farm
+        -- Cast if push/defend/farm/roshan
     elseif utility.PvEMode(npcBot)
     then
-        if npcBot:DistanceFromFountain() > 1000
+        local enemyCreeps = npcBot:GetNearbyCreeps(1600, true);
+        local enemyTowers = npcBot:GetNearbyTowers(1600, true);
+        local enemyBarracks = npcBot:GetNearbyBarracks(1600, true);
+        local enemyAncient = GetAncient(GetOpposingTeam());
+        if (ManaPercentage >= 0.4) and
+            ((#enemyCreeps > 0) or
+                (#enemyTowers > 0) or
+                (#enemyBarracks > 0) or
+                npcBot:GetAttackTarget() == enemyAncient)
         then
-            --npcBot:ActionImmediate_Chat("Использую Summon Boar против вражеских сил!", true);
             return BOT_ACTION_DESIRE_LOW;
         end
     end

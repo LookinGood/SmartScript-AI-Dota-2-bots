@@ -137,21 +137,23 @@ function ConsiderStickyBomb()
             then
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility);
+                    return BOT_ACTION_DESIRE_VERYHIGH,
+                        utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility);
                 end
             end
         end
     end
 
     -- Attack use
-    if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
+    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
     then
-        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
+        if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
             then
                 --npcBot:ActionImmediate_Chat("Использую StickyBomb для нападения!", true);
-                return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, speedAbility);
+                return BOT_ACTION_DESIRE_VERYHIGH,
+                    utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, speedAbility);
             end
         end
         -- Retreat use
@@ -163,7 +165,8 @@ function ConsiderStickyBomb()
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую StickyBomb для отступления!", true);
-                    return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility);
+                    return BOT_ACTION_DESIRE_VERYHIGH,
+                        utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility);
                 end
             end
         end
@@ -267,7 +270,7 @@ function ConsiderDetonateTazer()
             if (#enemyHeroes > 0)
             then
                 for _, enemy in pairs(enemyHeroes) do
-                    if utility.CanCastSpellOnTarget(InkSwell, enemy) and not utility.IsDisabled(enemy)
+                    if utility.CanCastSpellOnTarget(ReactiveTazer, enemy) and not utility.IsDisabled(enemy)
                     then
                         return BOT_ACTION_DESIRE_HIGH;
                     end
@@ -378,7 +381,7 @@ function ConsiderMinefieldSign()
     end
 end
 
-function MineInRadius(radius, location)
+local function MineInRadius(radius, location)
     local unit = GetUnitList(UNIT_LIST_ALLIED_OTHER);
     for _, creep in pairs(unit)
     do
@@ -399,17 +402,21 @@ function ConsiderProximityMines()
         return;
     end
 
+    local attackRange = npcBot:GetAttackRange();
     local castRangeAbility = ability:GetCastRange();
     local placementRadius = ability:GetSpecialValueInt("placement_radius");
 
     -- Attack use
-    if utility.PvPMode(npcBot)
+    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
     then
-        if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= (castRangeAbility + 200)
-            and not MineInRadius(placementRadius, botTarget:GetLocation())
+        if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
         then
-            --npcBot:ActionImmediate_Chat("Использую Proximity Mines для атаки по врагу!", true);
-            return BOT_MODE_DESIRE_LOW, botTarget:GetLocation();
+            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= (attackRange + castRangeAbility)
+                and not MineInRadius(placementRadius, botTarget:GetLocation())
+            then
+                --npcBot:ActionImmediate_Chat("Использую Proximity Mines для атаки по врагу!", true);
+                return BOT_MODE_DESIRE_HIGH, botTarget:GetLocation();
+            end
         end
         -- Retreat use
     elseif utility.RetreatMode(npcBot)
@@ -431,6 +438,6 @@ function ConsiderProximityMines()
     if npcBot:DistanceFromFountain() > 1000 and not MineInRadius(placementRadius, npcBot:GetLocation())
     then
         --npcBot:ActionImmediate_Chat("Использую Proximity Mines для минирования!", true);
-        return BOT_MODE_DESIRE_LOW, npcBot:GetLocation() + RandomVector(placementRadius);
+        return BOT_MODE_DESIRE_LOW, npcBot:GetLocation() + RandomVector(castRangeAbility);
     end
 end

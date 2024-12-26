@@ -11,12 +11,17 @@ local RADIANT_TOPSPOT2 = Vector(-4104.0, 1566.7, 117.2);
 local RADIANT_TOPSPOT3 = Vector(-7938.8, 1834.6, 215.4);
 local RADIANT_TOPSPOTNOTOWER = Vector(-6610.1, -3063.9, 209.1);
 
+local RADIANT_TOPTORMENTOR = Vector(-8122.8, -1084.8, 1306.3); -- Late game
+
 local RADIANT_MIDSPOT1 = Vector(108.0, -1221.3, 108.7);
 local RADIANT_MIDSPOTNOTOWER = Vector(-4343.4, -3883.9, 175.1);
 
 local RADIANT_BOTSPOT1 = Vector(763.7, -4569.0, 210.1);
 local RADIANT_BOTSPOT2 = Vector(2553.6, -7157.3, 137.1); -- Late game
 local RADIANT_BOTSPOT3 = Vector(3843.6, -4593.7, 131.0);
+
+local RADIANT_BOTSPOT4 = Vector(5203.4, -5099.5, 1167.9);
+
 local RADIANT_BOTSPOTPORTAL = Vector(5914.4, -7468.1, 90.7);
 local RADIANT_BOTSPOTPOND = Vector(8269.3, -5017.6, 178.8);
 local RADIANT_BOTSPOTNOTOWER = Vector(-3603.6, -6108.9, 208.0);
@@ -26,9 +31,14 @@ local RADIANT_BOTSPOTNOTOWER = Vector(-3603.6, -6108.9, 208.0);
 local DIRE_TOPSPOT1 = Vector(1030.2, 3338.1, 130.3);
 local DIRE_TOPSPOT2 = Vector(-1551.3, 6919.4, 140.2); -- Late game
 local DIRE_TOPSPOT3 = Vector(-775.1, 3594.4, 195.4);
+
+local DIRE_TOPSPOT4 = Vector(-4790.6, 4853.2, 122.7);
+
 local DIRE_TOPSPOTPORTAL = Vector(-6126.5, 7167.6, 112.4);
 local DIRE_TOPSPOTPOND = Vector(-8462.6, 4525.2, 154.3);
 local DIRE_TOPSPOTNOTOWER = Vector(3098.2, 5769.3, 219.4);
+
+local DIRE_TOPTORMENTOR = Vector(8242.0, 719.7, 286.2); -- Late game
 
 local DIRE_MIDSPOT1 = Vector(-658.8, 891.4, 80.2);
 local DIRE_MIDSPOTNOTOWER = Vector(4012.5, 3470.9, 203.9);
@@ -45,10 +55,12 @@ function GetWardSpot()
         RADIANT_TOPSPOT3,
         RADIANT_MIDSPOT1,
         RADIANT_BOTSPOT3,
+        RADIANT_BOTSPOT4,
         RADIANT_BOTSPOTPORTAL,
         RADIANT_BOTSPOTPOND,
 
         DIRE_TOPSPOT3,
+        DIRE_TOPSPOT4,
         DIRE_TOPSPOTPORTAL,
         DIRE_TOPSPOTPOND,
         DIRE_MIDSPOT1,
@@ -57,6 +69,7 @@ function GetWardSpot()
 
     local DireWardSpotEarlyGame = {
         DIRE_TOPSPOT3,
+        DIRE_TOPSPOT4,
         DIRE_TOPSPOTPORTAL,
         DIRE_TOPSPOTPOND,
         DIRE_MIDSPOT1,
@@ -66,6 +79,7 @@ function GetWardSpot()
         RADIANT_TOPSPOT2,
         RADIANT_MIDSPOT1,
         RADIANT_BOTSPOT3,
+        RADIANT_BOTSPOT4,
         RADIANT_BOTSPOTPORTAL,
         RADIANT_BOTSPOTPOND,
     }
@@ -75,6 +89,7 @@ function GetWardSpot()
         RADIANT_TOPSPOT2,
         RADIANT_TOPSPOT3,
         RADIANT_TOPSPOTNOTOWER,
+        RADIANT_TOPTORMENTOR,
         RADIANT_MIDSPOT1,
         RADIANT_MIDSPOTNOTOWER,
         RADIANT_BOTSPOT1,
@@ -85,6 +100,7 @@ function GetWardSpot()
         DIRE_TOPSPOT2,
         DIRE_TOPSPOT3,
         DIRE_TOPSPOTNOTOWER,
+        DIRE_TOPTORMENTOR,
         DIRE_MIDSPOT1,
         DIRE_MIDSPOTNOTOWER,
         DIRE_BOTSPOT1,
@@ -249,7 +265,7 @@ function OnStart()
 end
 
 function OnEnd()
-    --
+    npcBot:SetTarget(nil);
 end
 
 function Think()
@@ -260,7 +276,10 @@ function Think()
 
     if enemyWard ~= nil
     then
-        if GetUnitToUnitDistance(npcBot, enemyWard) > (npcBot:GetAttackRange() + 150)
+        npcBot:SetTarget(enemyWard);
+        npcBot:Action_AttackUnit(enemyWard, false);
+        return;
+        --[[   if GetUnitToUnitDistance(npcBot, enemyWard) > (npcBot:GetAttackRange() + 150)
         then
             npcBot:Action_MoveToLocation(enemyWard:GetLocation());
             return;
@@ -268,10 +287,14 @@ function Think()
             --npcBot:ActionImmediate_Chat("Ломаю вражеский вард!", true);
             npcBot:Action_AttackUnit(enemyWard, false);
             return;
-        end
+        end ]]
     elseif enemyCourier ~= nil
     then
-        if GetUnitToUnitDistance(npcBot, enemyCourier) > (npcBot:GetAttackRange() + 200)
+        npcBot:SetTarget(enemyCourier);
+        npcBot:Action_AttackUnit(enemyCourier, false);
+        return;
+
+        --[[         if GetUnitToUnitDistance(npcBot, enemyCourier) > (npcBot:GetAttackRange() + 200)
         then
             npcBot:Action_MoveToLocation(enemyCourier:GetLocation());
             return;
@@ -279,7 +302,7 @@ function Think()
             npcBot:ActionImmediate_Chat("Атакую вражеского курьера!", true);
             npcBot:Action_AttackUnit(enemyCourier, false);
             return;
-        end
+        end ]]
     elseif wardSpot ~= nil
     then
         if GetUnitToLocationDistance(npcBot, wardSpot) > 500

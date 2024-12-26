@@ -39,6 +39,9 @@ local ItemsToBuy =
 
 	"item_devastator",
 
+	"item_ultimate_scepter",
+	"item_ultimate_scepter_2",
+
 	"item_soul_booster",
 	"item_octarine_core",
 

@@ -161,9 +161,9 @@ function ConsiderTameTheBeasts()
     end
 
     -- Cast if attack enemy
-    if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
+    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
     then
-        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
+        if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
             then
@@ -264,9 +264,7 @@ function ConsiderEscapeAct()
                 local incomingSpells = ally:GetIncomingTrackingProjectiles();
                 if (#incomingSpells > 0)
                 then
-                    if not ally:HasModifier("modifier_antimage_counterspell") and
-                        not ally:HasModifier("modifier_item_sphere_target") and
-                        not ally:HasModifier("modifier_item_lotus_orb_active")
+                    if not utility.HaveReflectSpell(ally) and not ally:IsInvulnerable()
                     then
                         for _, spell in pairs(incomingSpells)
                         do
@@ -324,9 +322,9 @@ function ConsiderImpalementArts()
     end
 
     -- Attack use
-    if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
+    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
     then
-        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
+        if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
                 and not utility.IsDisabled(botTarget)
@@ -442,7 +440,7 @@ function ConsiderWheelOfWonder()
                 elseif GetUnitToUnitDistance(npcBot, botTarget) > minCastRangeAbility
                 then
                     --npcBot:ActionImmediate_Chat("Использую WheelOfWonder на врага на расстоянии!", true);
-                    return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
+                    return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, speedAbility);
                 end
             end
         end

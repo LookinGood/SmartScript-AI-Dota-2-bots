@@ -50,6 +50,7 @@ end
 local MirrorImage = AbilitiesReal[1]
 local Ensnare = AbilitiesReal[2]
 local Deluge = npcBot:GetAbilityByName("naga_siren_deluge");
+local ReelIn = AbilitiesReal[4]
 local SongOfTheSiren = AbilitiesReal[6]
 
 function AbilityUsageThink()
@@ -65,6 +66,7 @@ function AbilityUsageThink()
     local castMirrorImageDesire = ConsiderMirrorImage();
     local castEnsnareDesire, castEnsnareTarget = ConsiderEnsnare();
     local castDelugeDesire = ConsiderDeluge();
+    local castReelInDesire = ConsiderReelIn();
     local castSongOfTheSirenDesire = ConsiderSongOfTheSiren();
 
     if (castMirrorImageDesire ~= nil)
@@ -82,6 +84,12 @@ function AbilityUsageThink()
     if (castDelugeDesire ~= nil)
     then
         npcBot:Action_UseAbility(Deluge);
+        return;
+    end
+
+    if (castReelInDesire ~= nil)
+    then
+        npcBot:Action_UseAbility(ReelIn);
         return;
     end
 
@@ -134,7 +142,14 @@ function ConsiderMirrorImage()
     elseif utility.PvEMode(npcBot)
     then
         local enemyCreeps = npcBot:GetNearbyCreeps(1600, true);
-        if (#enemyCreeps > 0) and (ManaPercentage >= 0.4)
+        local enemyTowers = npcBot:GetNearbyTowers(1600, true);
+        local enemyBarracks = npcBot:GetNearbyBarracks(1600, true);
+        local enemyAncient = GetAncient(GetOpposingTeam());
+        if (ManaPercentage >= 0.4) and
+            ((#enemyCreeps > 0) or
+                (#enemyTowers > 0) or
+                (#enemyBarracks > 0) or
+                npcBot:GetAttackTarget() == enemyAncient)
         then
             return BOT_ACTION_DESIRE_LOW;
         end
@@ -242,6 +257,29 @@ function ConsiderDeluge()
                     return BOT_ACTION_DESIRE_HIGH;
                 end
             end
+        end
+    end
+end
+
+function ConsiderReelIn()
+    local ability = ReelIn;
+    if not utility.IsAbilityAvailable(ability) then
+        return;
+    end
+
+    local attackRange = npcBot:GetAttackRange();
+    local minCastRange = ability:GetSpecialValueInt("min_pull_distance");
+    local maxCastRange = ability:GetSpecialValueInt("radius");
+
+    -- Attack use
+    if utility.PvPMode(npcBot)
+    then
+        if botTarget:HasModifier("modifier_naga_siren_ensnare") and
+            GetUnitToUnitDistance(npcBot, botTarget) > attackRange and
+            GetUnitToUnitDistance(npcBot, botTarget) > minCastRange and
+            GetUnitToUnitDistance(npcBot, botTarget) <= maxCastRange
+        then
+            return BOT_ACTION_DESIRE_MODERATE;
         end
     end
 end

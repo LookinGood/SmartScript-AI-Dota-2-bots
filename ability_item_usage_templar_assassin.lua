@@ -115,11 +115,25 @@ function ConsiderRefraction()
     end
 
     local attackRange = npcBot:GetAttackRange();
+    local incomingSpells = npcBot:GetIncomingTrackingProjectiles();
+
+    -- Cast if get incoming spell
+    if (#incomingSpells > 0)
+    then
+        for _, spell in pairs(incomingSpells)
+        do
+            if not utility.IsAlly(npcBot, spell.caster) and GetUnitToLocationDistance(npcBot, spell.location) <= 300 and spell.is_attack == false
+                and not utility.HaveReflectSpell(npcBot)
+            then
+                return BOT_ACTION_DESIRE_VERYHIGH;
+            end
+        end
+    end
 
     -- Attack use
-    if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
+    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
     then
-        if (utility.IsHero(botTarget) or utility.IsRoshan(botTarget)) and GetUnitToUnitDistance(npcBot, botTarget) <= attackRange * 2
+        if utility.IsHero(botTarget) or utility.IsBoss(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= (attackRange * 2)
         then
             return BOT_ACTION_DESIRE_HIGH;
         end
@@ -148,9 +162,9 @@ function ConsiderMeld()
     local attackTarget = npcBot:GetAttackTarget();
 
     -- Attack use
-    if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
+    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
     then
-        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
+        if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
         then
             if utility.CanCastOnInvulnerableTarget(botTarget) and attackTarget == botTarget
             then

@@ -259,7 +259,7 @@ function ConsiderHammerOfPurity()
 
     if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_AUTOCAST)
     then
-        if (utility.IsHero(attackTarget) or utility.IsRoshan(attackTarget) or npcBot:GetAttackTarget():IsAncientCreep()) and utility.CanCastSpellOnTarget(ability, attackTarget)
+        if (utility.IsHero(attackTarget) or utility.IsBoss(attackTarget) or npcBot:GetAttackTarget():IsAncientCreep()) and utility.CanCastSpellOnTarget(ability, attackTarget)
         then
             if not ability:GetAutoCastState()
             then

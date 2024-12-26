@@ -114,20 +114,21 @@ function ConsiderArcticBurn()
     end
 
     -- Attack use
-    if utility.PvPMode(npcBot)
+    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
     then
-        if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget)
-        and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+        if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
         then
-            if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_NO_TARGET)
+            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
             then
-                --npcBot:ActionImmediate_Chat("Использую ArcticBurn для нападения без аганима!",true);
-                return BOT_ACTION_DESIRE_HIGH;
-            elseif utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_TOGGLE)
-            then
-                if ability:GetToggleState() == false and (ManaPercentage >= 0.2)
+                if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_TOGGLE)
                 then
-                    --npcBot:ActionImmediate_Chat("Использую ArcticBurn для нападения С АГАНИМОМ!",true);
+                    if ability:GetToggleState() == false and (ManaPercentage >= 0.2)
+                    then
+                        --npcBot:ActionImmediate_Chat("Использую ArcticBurn для нападения С АГАНИМОМ!",true);
+                        return BOT_ACTION_DESIRE_HIGH;
+                    end
+                else
+                    --npcBot:ActionImmediate_Chat("Использую ArcticBurn для нападения без аганима!",true);
                     return BOT_ACTION_DESIRE_HIGH;
                 end
             end
@@ -137,17 +138,16 @@ function ConsiderArcticBurn()
     then
         if (HealthPercentage <= 0.7) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
         then
-            if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_NO_TARGET)
-            then
-                --npcBot:ActionImmediate_Chat("Использую ArcticBurn для ОТСТУПЛЕНИЯ без аганима!",true);
-                return BOT_ACTION_DESIRE_HIGH;
-            elseif utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_TOGGLE)
+            if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_TOGGLE)
             then
                 if ability:GetToggleState() == false
                 then
                     --npcBot:ActionImmediate_Chat("Использую ArcticBurn для ОТСТУПЛЕНИЯ С АГАНИМОМ!",true);
                     return BOT_ACTION_DESIRE_HIGH;
                 end
+            else
+                --npcBot:ActionImmediate_Chat("Использую ArcticBurn для ОТСТУПЛЕНИЯ без аганима!",true);
+                return BOT_ACTION_DESIRE_HIGH;
             end
         end
     end
@@ -289,7 +289,7 @@ function ConsiderColdEmbrace()
             then
                 if utility.IsDisabled(ally) and (ally:GetHealth() / ally:GetMaxHealth() <= 0.7) and ally:WasRecentlyDamagedByAnyHero(2.0)
                 then
-                   --npcBot:ActionImmediate_Chat("Использую ColdEmbrace на союзника в стане!", true);
+                    --npcBot:ActionImmediate_Chat("Использую ColdEmbrace на союзника в стане!", true);
                     return BOT_ACTION_DESIRE_HIGH, ally;
                 elseif (ally:GetHealth() / ally:GetMaxHealth() <= 0.4)
                 then

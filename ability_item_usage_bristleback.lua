@@ -26,7 +26,7 @@ local AbilityToLevelUp =
     Abilities[2],
     Abilities[1],
     Abilities[1],
-    Talents[2],
+    Talents[1],
     Abilities[1],
     Abilities[6],
     Abilities[3],
@@ -36,7 +36,7 @@ local AbilityToLevelUp =
     Abilities[6],
     Talents[5],
     Talents[7],
-    Talents[1],
+    Talents[2],
     Talents[4],
     Talents[6],
     Talents[8],
@@ -51,6 +51,8 @@ local ViscousNasalGoo = AbilitiesReal[1]
 local QuillSpray = AbilitiesReal[2]
 local Bristleback = AbilitiesReal[3]
 local Hairball = AbilitiesReal[4]
+
+--npcBot:GetAbilityByName("bristleback_hairball");
 
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
@@ -190,16 +192,17 @@ function ConsiderBristleback()
 
     if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_POINT)
     then
-        local castRangeAbility = QuillSpray:GetAOERadius();
-        local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
+        local castRangeAbility = npcBot:GetAttackRange() * 2;
+        local delayAbility = ability:GetSpecialValueInt("activation_delay");
 
         -- Cast if attack enemy
         if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
         then
             if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
             then
-                if utility.CanCastSpellOnTarget(QuillSpray, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+                if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
                 then
+                    --npcBot:ActionImmediate_Chat("Использую Bristleback на " .. botTarget:GetUnitName(), true);
                     return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
                 end
             end
@@ -210,8 +213,9 @@ function ConsiderBristleback()
             if (#enemyAbility > 0)
             then
                 for _, enemy in pairs(enemyAbility) do
-                    if utility.CanCastSpellOnTarget(QuillSpray, enemy) and not utility.IsDisabled(enemy)
+                    if utility.CanCastSpellOnTarget(ability, enemy) and not utility.IsDisabled(enemy)
                     then
+                        --npcBot:ActionImmediate_Chat("Использую Bristleback при отходе на " .. enemy:GetUnitName(), true);
                         return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
                     end
                 end
@@ -230,7 +234,7 @@ function ConsiderHairball()
     local radiusAbility = ability:GetSpecialValueInt("radius");
     local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
     local speedAbility = ability:GetSpecialValueInt("projectile_speed");
-    local enemyAbility = npcBot:GetNearbyHeroes(utility.GetCurretCastDistance(castRangeAbility + radiusAbility), true,
+    local enemyAbility = npcBot:GetNearbyHeroes(utility.GetCurrentCastDistance(castRangeAbility + radiusAbility), true,
         BOT_MODE_NONE);
 
     -- Attack use
@@ -243,10 +247,12 @@ function ConsiderHairball()
             then
                 if GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
                 then
+                    --npcBot:ActionImmediate_Chat("Использую Hairball при малой дистанции на " .. botTarget:GetUnitName(),true);
                     return BOT_ACTION_DESIRE_HIGH,
                         utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, speedAbility);
                 elseif GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility + radiusAbility
                 then
+                    --npcBot:ActionImmediate_Chat("Использую Hairball при большей дистанции на " .. botTarget:GetUnitName(), true);
                     return BOT_ACTION_DESIRE_HIGH, utility.GetMaxRangeCastLocation(npcBot, botTarget, castRangeAbility);
                 end
             end
@@ -261,10 +267,12 @@ function ConsiderHairball()
                 then
                     if GetUnitToUnitDistance(npcBot, enemy) <= castRangeAbility
                     then
+                        --npcBot:ActionImmediate_Chat("Использую Hairball для отхода при малой дистанции на " .. enemy:GetUnitName(), true);
                         return BOT_ACTION_DESIRE_HIGH,
                             utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility);
                     elseif GetUnitToUnitDistance(npcBot, enemy) <= castRangeAbility + radiusAbility
                     then
+                        --npcBot:ActionImmediate_Chat("Использую Hairball для отхода при большей дистанции на " .. enemy:GetUnitName(), true);
                         return BOT_ACTION_DESIRE_HIGH, utility.GetMaxRangeCastLocation(npcBot, enemy, castRangeAbility);
                     end
                 end
@@ -277,6 +285,7 @@ function ConsiderHairball()
             0, 0);
         if locationAoE ~= nil and (ManaPercentage >= 0.5) and (locationAoE.count > 3)
         then
+            --npcBot:ActionImmediate_Chat("Использую Hairball против крипов.", true);
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
         end
     end

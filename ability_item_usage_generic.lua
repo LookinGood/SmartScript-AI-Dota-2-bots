@@ -438,7 +438,7 @@ function ItemUsageThink()
 			then
 				local trees = npcBot:GetNearbyTrees(itemRange * 2);
 				if npcBot:GetHealth() < npcBot:GetMaxHealth() - 200 and trees[1] ~= nil
-					and (IsLocationVisible(GetTreeLocation(trees[1])) or IsLocationPassable(GetTreeLocation(trees[1])))
+					and (IsLocationVisible(GetTreeLocation(trees[1])) and IsLocationPassable(GetTreeLocation(trees[1])))
 				then
 					--npcBot:Action_ClearActions(false);
 					npcBot:Action_UseAbilityOnTree(tango, trees[1]);
@@ -449,7 +449,7 @@ function ItemUsageThink()
 			then
 				local trees = npcBot:GetNearbyTrees(itemRange * 3);
 				if npcBot:GetHealth() < npcBot:GetMaxHealth() and trees[1] ~= nil
-					and (IsLocationVisible(GetTreeLocation(trees[1])) or IsLocationPassable(GetTreeLocation(trees[1])))
+					and (IsLocationVisible(GetTreeLocation(trees[1])) and IsLocationPassable(GetTreeLocation(trees[1])))
 				then
 					--npcBot:Action_ClearActions(false);
 					npcBot:Action_UseAbilityOnTree(tangoSingle, trees[1]);

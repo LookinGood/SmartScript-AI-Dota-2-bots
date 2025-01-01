@@ -295,11 +295,14 @@ function ConsiderTimberChain()
         return;
     end
 
-    local castRangeAbility = ability:GetSpecialValueInt("range");
+    local castRangeAbility = ability:GetCastRange();
     local radiusAbility = ability:GetSpecialValueInt("radius");
     local chainRadius = ability:GetSpecialValueInt("chain_radius");
     local damageAbility = ability:GetSpecialValueInt("damage");
     local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
+
+    --print(castRangeAbility)
+    --print(math.floor(castRangeAbility / 2))
 
     -- Cast if can kill somebody
     if (#enemyAbility > 0) and not utility.RetreatMode(npcBot)
@@ -319,8 +322,6 @@ function ConsiderTimberChain()
             end
         end
     end
-
-    -- and not utility.IsTreeBetweenMeAndTarget(npcBot, enemy, enemy:GetLocation(), chainRadius)
 
     -- Attack use
     if utility.PvPMode(npcBot)
@@ -355,26 +356,28 @@ function ConsiderTimberChain()
     then
         local trees = npcBot:GetNearbyTrees(castRangeAbility);
         local closestTrees = npcBot:GetNearbyTrees(chainRadius);
-        --local allyBuildings = GetUnitList(UNIT_LIST_ALLIED_BUILDINGS);
-        --local ancient = GetAncient(GetTeam());
         local fountain = utility.GetFountain(npcBot);
-        --local enemyAncient = GetAncient(GetOpposingTeam());
-        if (#trees > 0) and (#closestTrees == 0)
+        if (#trees > 0) and (#closestTrees == 0) and npcBot:DistanceFromFountain() > castRangeAbility
         then
             for _, tree in pairs(trees)
             do
-                if GetUnitToLocationDistance(npcBot, GetTreeLocation(tree) >= math.floor(castRangeAbility / 2))
+                if GetUnitToLocationDistance(npcBot, GetTreeLocation(tree)) > (castRangeAbility / 2 + 100) and
+                    GetUnitToLocationDistance(fountain, GetTreeLocation(tree)) < GetUnitToUnitDistance(fountain, npcBot)
                 then
-                    if GetUnitToLocationDistance(fountain, GetTreeLocation(tree)) < GetUnitToUnitDistance(fountain, npcBot)
-                    then
-                        npcBot:ActionImmediate_Chat("Использую TimberChain отступая!", true);
-                        return BOT_ACTION_DESIRE_HIGH, GetTreeLocation(tree);
-                    end
+                    --npcBot:ActionImmediate_Chat("Использую TimberChain отступая!", true);
+                    return BOT_ACTION_DESIRE_HIGH, GetTreeLocation(tree);
                 end
             end
         end
     end
 end
+
+--local ancient = GetAncient(GetTeam());
+--local allyBuildings = GetUnitList(UNIT_LIST_ALLIED_BUILDINGS);
+--local fountain = utility.GetFountain(npcBot);
+--local enemyAncient = GetAncient(GetOpposingTeam());
+-- math.floor(castRangeAbility / 2))
+-- and not utility.IsTreeBetweenMeAndTarget(npcBot, enemy, enemy:GetLocation(), chainRadius)
 
 function ConsiderReactiveArmor()
     local ability = ReactiveArmor;
@@ -396,9 +399,9 @@ function ConsiderReactiveArmor()
     --local maxStacks = ability:GetSpecialValueInt("stack_limit");
 
     -- Attack use
-    if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
+    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
     then
-        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
+        if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= radiusAbility
             then
@@ -457,7 +460,7 @@ function ConsiderFlamethrower()
     end
 
     -- Use when attack building
-    if utility.IsBuilding(attackTarget) and utility.CanCastSpellOnTarget(ability, attackTarget)
+    if utility.IsBuilding(attackTarget) and utility.CanCastSpellOnTarget(ability, attackTarget) and botMode ~= BOT_MODE_OUTPOST
     then
         if (attackTarget:GetHealth() / attackTarget:GetMaxHealth() >= 0.3) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
             and ManaPercentage >= 0.4

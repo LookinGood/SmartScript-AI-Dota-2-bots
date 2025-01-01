@@ -116,7 +116,7 @@ function AbilityUsageThink()
     if npcBot:HasModifier("modifier_leshrac_pulse_nova")
     then
         local attackTarget = npcBot:GetAttackTarget();
-        if utility.IsValidTarget(attackTarget) and utility.IsHero(attackTarget)
+        if utility.IsHero(attackTarget)
         then
             if GetUnitToUnitDistance(npcBot, attackTarget) > (PulseNova:GetSpecialValueInt("radius") - 100)
             then
@@ -206,19 +206,16 @@ function ConsiderDiabolicEdict()
     end
 
     -- Use when attack
-    if utility.IsValidTarget(attackTarget) and utility.CanCastSpellOnTarget(ability, attackTarget)
+    if utility.IsBuilding(attackTarget) and utility.CanCastSpellOnTarget(ability, attackTarget) and botMode ~= BOT_MODE_OUTPOST
     then
-        if utility.IsBuilding(attackTarget)
+        if (attackTarget:GetHealth() / attackTarget:GetMaxHealth() >= 0.2) and (ManaPercentage >= 0.4)
         then
-            if (attackTarget:GetHealth() / attackTarget:GetMaxHealth() >= 0.2) and (ManaPercentage >= 0.4)
-            then
-                --npcBot:ActionImmediate_Chat("Использую DiabolicEdict против зданий!", true);
-                return BOT_ACTION_DESIRE_HIGH;
-            end
-        elseif utility.IsHero(attackTarget)
-        then
+            --npcBot:ActionImmediate_Chat("Использую DiabolicEdict против зданий!", true);
             return BOT_ACTION_DESIRE_HIGH;
         end
+    elseif utility.IsHero(attackTarget)
+    then
+        return BOT_ACTION_DESIRE_HIGH;
     end
 end
 

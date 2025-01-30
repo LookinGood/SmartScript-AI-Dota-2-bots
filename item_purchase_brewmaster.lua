@@ -20,13 +20,15 @@ local ItemsToBuy =
 
     "item_black_king_bar",
 
-    "item_overwhelming_blink",
+    "item_blink",
 
     "item_buckler",
     "item_assault",
 
     "item_ultimate_scepter",
     "item_ultimate_scepter_2",
+
+    "item_overwhelming_blink",
 
     "item_moon_shard",
 

@@ -7,7 +7,7 @@ local ItemsToBuy =
 
 	"item_flask",
 
-	"item_faerie_fire",
+	"item_quelling_blade",
 
 	"item_magic_wand",
 
@@ -15,15 +15,16 @@ local ItemsToBuy =
 
 	"item_power_treads",
 
-	"item_orb_of_corrosion",
+	"item_vanguard",
 
 	"item_bfury",
 
 	"item_black_king_bar",
 
-	"item_vanguard",
 	"item_basher",
 	"item_abyssal_blade",
+
+	"item_lifesteal",
 
 	"item_aghanims_shard",
 

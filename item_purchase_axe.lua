@@ -21,9 +21,9 @@ local ItemsToBuy =
 
     "item_blade_mail",
 
-    "item_crimson_guard",
+    "item_blink",
 
-    "item_overwhelming_blink",
+    "item_crimson_guard",
 
     "item_aghanims_shard",
 
@@ -31,6 +31,8 @@ local ItemsToBuy =
     "item_ultimate_scepter_2",
 
     "item_heart",
+
+    "item_overwhelming_blink",
 
     "item_soul_booster",
     "item_bloodstone",

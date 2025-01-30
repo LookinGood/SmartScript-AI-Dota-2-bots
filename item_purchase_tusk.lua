@@ -21,7 +21,7 @@ local ItemsToBuy =
 
 	"item_ultimate_scepter",
 
-	"item_overwhelming_blink",
+	"item_blink",
 
 	"item_aghanims_shard",
 
@@ -30,6 +30,8 @@ local ItemsToBuy =
 	"item_heart",
 
 	"item_ultimate_scepter_2",
+
+	"item_overwhelming_blink",
 
 	"item_moon_shard",
 

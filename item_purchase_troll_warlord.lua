@@ -22,6 +22,8 @@ local ItemsToBuy =
 
     "item_black_king_bar",
 
+    "item_blink",
+
     "item_aghanims_shard",
 
     "item_lesser_crit",

@@ -149,6 +149,7 @@ function ConsiderStiflingDagger()
         then
             for _, enemy in pairs(enemyCreeps) do
                 if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and utility.CanCastSpellOnTarget(ability, enemy)
+                    and npcBot:GetAttackTarget() ~= enemy
                 then
                     --npcBot:ActionImmediate_Chat("Использую StiflingDagger что бы добить крипа!", true);
                     return BOT_ACTION_DESIRE_LOW, enemy;

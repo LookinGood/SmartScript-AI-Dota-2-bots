@@ -23,7 +23,7 @@ local ItemsToBuy =
 
     "item_desolator",
 
-    "item_overwhelming_blink",
+    "item_blink",
 
     "item_black_king_bar",
 
@@ -31,6 +31,8 @@ local ItemsToBuy =
 
     "item_ultimate_scepter",
     "item_ultimate_scepter_2",
+
+    "item_overwhelming_blink",
 
     "item_moon_shard",
 

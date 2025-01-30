@@ -21,15 +21,17 @@ local ItemsToBuy =
 
 	"item_black_king_bar",
 
+	"item_blink",
+
 	"item_lesser_crit",
     "item_greater_crit",
-
-	"item_overwhelming_blink",
 
 	"item_aghanims_shard",
 
 	"item_ultimate_scepter",
     "item_ultimate_scepter_2",
+
+	"item_overwhelming_blink",
 
     "item_moon_shard",
 

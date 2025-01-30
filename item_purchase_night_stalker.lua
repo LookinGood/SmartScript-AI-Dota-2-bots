@@ -26,9 +26,11 @@ local ItemsToBuy =
 
     "item_aghanims_shard",
 
-    "item_overwhelming_blink",
+    "item_blink",
 
     "item_harpoon",
+
+    "item_overwhelming_blink",
 
     "item_moon_shard",
 

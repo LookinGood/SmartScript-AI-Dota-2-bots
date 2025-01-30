@@ -20,7 +20,7 @@ local ItemsToBuy =
 
     "item_veil_of_discord",
 
-    "item_overwhelming_blink",
+    "item_blink",
 
     "item_shivas_guard",
 
@@ -38,6 +38,8 @@ local ItemsToBuy =
 
     "item_ultimate_scepter",
     "item_ultimate_scepter_2",
+
+    "item_overwhelming_blink",
 
     "item_soul_booster",
     "item_octarine_core",

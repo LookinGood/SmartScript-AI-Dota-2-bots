@@ -22,12 +22,14 @@ local ItemsToBuy =
     "item_veil_of_discord",
     "item_shivas_guard",
 
-    "item_overwhelming_blink",
+    "item_blink",
 
     "item_black_king_bar",
 
     "item_ultimate_scepter",
     "item_ultimate_scepter_2",
+
+    "item_overwhelming_blink",
 
     "item_heart",
 

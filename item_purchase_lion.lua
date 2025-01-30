@@ -26,7 +26,7 @@ local ItemsToBuy =
 
 	"item_dagon",
 
-	"item_arcane_blink",
+	"item_blink",
 
 	"item_ethereal_blade",
 
@@ -37,6 +37,8 @@ local ItemsToBuy =
 
 	"item_ultimate_scepter",
 	"item_ultimate_scepter_2",
+
+	"item_arcane_blink",
 
 	"item_soul_booster",
 	"item_octarine_core",

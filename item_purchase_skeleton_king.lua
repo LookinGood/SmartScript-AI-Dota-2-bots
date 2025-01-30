@@ -11,36 +11,38 @@ local ItemsToBuy =
 
 	"item_magic_wand",
 
-    "item_bracer",
+	"item_bracer",
 
 	"item_soul_ring",
 
-    "item_phase_boots",
+	"item_phase_boots",
 
 	"item_armlet",
 
 	"item_sange",
-    "item_heavens_halberd",
+	"item_heavens_halberd",
 
-    "item_black_king_bar",
+	"item_black_king_bar",
+
+	"item_blink",
 
 	"item_aghanims_shard",
 
-    "item_vanguard",
+	"item_vanguard",
 	"item_basher",
 	"item_abyssal_blade",
 
-	"item_overwhelming_blink",
-
 	"item_ultimate_scepter",
 	"item_ultimate_scepter_2",
+
+	"item_overwhelming_blink",
 
 	"item_moon_shard",
 
 	"item_radiance",
 
-    "item_travel_boots",
-    "item_travel_boots_2",
+	"item_travel_boots",
+	"item_travel_boots_2",
 }
 
 local realItemsToBuy = {}

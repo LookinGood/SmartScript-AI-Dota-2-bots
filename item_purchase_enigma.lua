@@ -22,7 +22,7 @@ local ItemsToBuy =
 
 	"item_glimmer_cape",
 
-	"item_arcane_blink",
+	"item_blink",
 
 	"item_pers",
 	"item_sphere",
@@ -32,6 +32,8 @@ local ItemsToBuy =
 
 	"item_ultimate_scepter",
 	"item_ultimate_scepter_2",
+
+	"item_arcane_blink",
 
 	"item_refresher",
 

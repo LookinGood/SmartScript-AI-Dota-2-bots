@@ -31,12 +31,14 @@ local ItemsToBuy =
 
 	"item_ultimate_scepter",
 
-	"item_arcane_blink",
+	"item_blink",
 
 	"item_ultimate_scepter_2",
 
 	"item_maelstrom",
 	"item_gungir",
+
+	"item_arcane_blink",
 
 	"item_soul_booster",
 	"item_octarine_core",

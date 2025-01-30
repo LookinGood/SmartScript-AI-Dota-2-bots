@@ -7,7 +7,7 @@ local ItemsToBuy =
 
 	"item_flask",
 
-	"item_faerie_fire",
+	"item_quelling_blade",
 
 	"item_magic_wand",
 

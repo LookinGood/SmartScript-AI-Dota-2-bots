@@ -1323,7 +1323,7 @@ end
 
 function GetItemCount(npc, item_name)
 	local count = 0;
-	for i = 0, 8
+	for i = 0, 16
 	do
 		local item = npc:GetItemInSlot(i)
 		if item ~= nil and item:GetName() == item_name

@@ -19,7 +19,7 @@ local ItemsToBuy =
 
 	"item_echo_sabre",
 
-	"item_overwhelming_blink",
+	"item_blink",
 
 	"item_aghanims_shard",
 
@@ -34,6 +34,8 @@ local ItemsToBuy =
 	"item_harpoon",
 
 	"item_moon_shard",
+
+	"item_overwhelming_blink",
 
 	"item_lesser_crit",
 	"item_greater_crit",

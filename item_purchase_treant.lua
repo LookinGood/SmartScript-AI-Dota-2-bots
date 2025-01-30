@@ -26,7 +26,7 @@ local ItemsToBuy =
 	"item_kaya",
 	"item_meteor_hammer",
 
-	"item_overwhelming_blink",
+	"item_blink",
 
 	"item_aghanims_shard",
 
@@ -35,6 +35,8 @@ local ItemsToBuy =
 
 	"item_ultimate_scepter",
 	"item_ultimate_scepter_2",
+
+	"item_overwhelming_blink",
 
 	"item_soul_booster",
 	"item_octarine_core",

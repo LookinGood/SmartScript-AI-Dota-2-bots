@@ -17,26 +17,28 @@ local ItemsToBuy =
 
     "item_diffusal_blade",
 
-    "item_basher",
-
     "item_black_king_bar",
 
-    "item_swift_blink",
+    "item_blink",
 
-    "item_aghanims_shard",
+    "item_lifesteal",
 
+    "item_basher",
     "item_vanguard",
     "item_abyssal_blade",
+
+    "item_aghanims_shard",
 
     "item_ultimate_scepter",
     "item_ultimate_scepter_2",
 
     "item_disperser",
 
+    "item_swift_blink",
+
     "item_moon_shard",
 
-    "item_yasha",
-    "item_sange",
+    "item_satanic",
 
     "item_travel_boots",
     "item_travel_boots_2",

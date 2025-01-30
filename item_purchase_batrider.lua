@@ -21,7 +21,7 @@ local ItemsToBuy =
 	"item_ancient_janggo",
 	"item_boots_of_bearing",
 
-	"item_arcane_blink",
+	"item_blink",
 
 	"item_aghanims_shard",
 
@@ -35,6 +35,8 @@ local ItemsToBuy =
 
 	"item_ultimate_scepter",
 	"item_ultimate_scepter_2",
+
+	"item_arcane_blink",
 
 	"item_moon_shard",
 

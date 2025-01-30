@@ -17,22 +17,25 @@ local ItemsToBuy =
 
 	"item_invis_sword",
 
+	"item_lesser_crit",
+
 	"item_silver_edge",
 
 	"item_black_king_bar",
 
 	"item_ultimate_scepter",
 
-	"item_lesser_crit",
 	"item_greater_crit",
 
 	"item_ultimate_scepter_2",
 
-	"item_swift_blink",
+	"item_blink",
 
 	"item_aghanims_shard",
 
 	"item_moon_shard",
+
+	"item_swift_blink",
 
 	"item_butterfly",
 

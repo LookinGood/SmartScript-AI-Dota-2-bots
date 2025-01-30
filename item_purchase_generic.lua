@@ -69,6 +69,21 @@ function ItemPurchase(ItemsToBuy, realItemsToBuy)
 
     if sNextItem ~= nil
     then
+        -- Удаление предметов не нуждающихся в дублировании
+        if sNextItem == "item_blink" or
+            sNextItem == "item_quelling_blade" or
+            sNextItem == "item_orb_of_venom" or
+            sNextItem == "item_lifesteal"
+        then
+            if utility.GetItemCount(npcBot, sNextItem) > 0
+            then
+                --npcBot:ActionImmediate_Chat("Удаляю предмет из списка т.к он уже есть.", true);
+                npcBot.secretShopMode = false;
+                npcBot.sideShopMode = false;
+                table.remove(realItemsToBuy, 1);
+            end
+        end
+
         if npcBot:GetGold() < GetItemCost(sNextItem)
         then
             npcBot.secretShopMode = false;

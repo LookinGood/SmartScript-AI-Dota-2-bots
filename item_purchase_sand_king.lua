@@ -11,7 +11,7 @@ local ItemsToBuy =
 
     "item_magic_wand",
 
-	"item_bracer",
+    "item_bracer",
 
     "item_soul_ring",
 
@@ -19,12 +19,12 @@ local ItemsToBuy =
     "item_arcane_boots",
 
     "item_headdress",
-	"item_mekansm",
+    "item_mekansm",
 
-    "item_overwhelming_blink",
+    "item_blink",
 
     "item_buckler",
-	"item_guardian_greaves",
+    "item_guardian_greaves",
 
     "item_soul_booster",
     "item_bloodstone",
@@ -41,13 +41,15 @@ local ItemsToBuy =
 
     "item_ultimate_scepter_2",
 
+    "item_overwhelming_blink",
+
     "item_radiance",
 }
 
 local realItemsToBuy = {}
 
 function ItemPurchaseThink()
-	purchase.ItemPurchase(ItemsToBuy, realItemsToBuy)
+    purchase.ItemPurchase(ItemsToBuy, realItemsToBuy)
 end
 
 -- Old version

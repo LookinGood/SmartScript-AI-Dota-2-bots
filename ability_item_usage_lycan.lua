@@ -237,13 +237,15 @@ function ConsiderShapeshift()
     end
 
     -- Attack use
-    if utility.PvPMode(npcBot)
+    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
     then
-        if utility.IsHero(botTarget) and utility.CanCastOnInvulnerableTarget(botTarget)
-            and GetUnitToUnitDistance(npcBot, botTarget) <= 3000
+        if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
         then
-            --npcBot:ActionImmediate_Chat("Использую Shapeshift для нападения!", true);
-            return BOT_ACTION_DESIRE_HIGH;
+            if utility.CanCastOnInvulnerableTarget(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= 3000
+            then
+                --npcBot:ActionImmediate_Chat("Использую Shapeshift для нападения!", true);
+                return BOT_ACTION_DESIRE_HIGH;
+            end
         end
         -- Retreat use
     elseif utility.RetreatMode(npcBot)

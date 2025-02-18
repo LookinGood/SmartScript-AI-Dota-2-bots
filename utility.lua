@@ -1162,6 +1162,11 @@ function CanCastOnMagicImmuneAndInvulnerableTarget(npcTarget)
 end
 
 function CanCastSpellOnTarget(spell, npcTarget)
+	if spell == nil or npcTarget == nil
+	then
+		return false;
+	end
+
 	local npcBot = GetBot();
 	local damageType = spell:GetDamageType();
 
@@ -1304,7 +1309,7 @@ function GetItemByName(target, itemName, bBackpack, bStash)
 	end
 end
 
-function HaveItem(npc, itemName)
+--[[ function HaveItem(npc, itemName)
 	for i = 0, 8 do
 		local item = npc:GetItemInSlot(i)
 		if item ~= nil
@@ -1319,18 +1324,43 @@ function HaveItem(npc, itemName)
 			return false;
 		end
 	end
+end ]]
+
+function IsBotHaveItem(itemName)
+	local npcBot = GetBot();
+	local courier = GetBotCourier(npcBot);
+
+	for i = 0, 16 do
+		local item = npcBot:GetItemInSlot(i)
+		if item ~= nil and item:GetName() == itemName
+		then
+			return true;
+		end
+	end
+
+	for i = 0, 8 do
+		local item = courier:GetItemInSlot(i);
+		if item ~= nil and item:GetName() == itemName
+		then
+			return true;
+		end
+	end
+
+	return false;
 end
 
-function GetItemCount(npc, item_name)
+function GetItemCount(npc, itemName)
 	local count = 0;
+
 	for i = 0, 16
 	do
 		local item = npc:GetItemInSlot(i)
-		if item ~= nil and item:GetName() == item_name
+		if item ~= nil and item:GetName() == itemName
 		then
 			count = count + 1;
 		end
 	end
+
 	return count;
 end
 

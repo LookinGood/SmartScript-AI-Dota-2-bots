@@ -2,6 +2,7 @@
 _G._savedEnv = getfenv()
 module("purchase", package.seeall)
 require(GetScriptDirectory() .. "/utility")
+require(GetScriptDirectory() .. "/hero_role_generic")
 
 function ItemPurchase(ItemsToBuy, realItemsToBuy)
     if GetGameState() ~= GAME_STATE_GAME_IN_PROGRESS and GetGameState() ~= GAME_STATE_PRE_GAME
@@ -73,9 +74,11 @@ function ItemPurchase(ItemsToBuy, realItemsToBuy)
         if sNextItem == "item_blink" or
             sNextItem == "item_quelling_blade" or
             sNextItem == "item_orb_of_venom" or
-            sNextItem == "item_lifesteal"
+            sNextItem == "item_lifesteal" or
+            sNextItem == "item_boots" or
+            sNextItem == "item_wind_lace"
         then
-            if utility.GetItemCount(npcBot, sNextItem) > 0
+            if utility.IsBotHaveItem(sNextItem)
             then
                 --npcBot:ActionImmediate_Chat("Удаляю предмет из списка т.к он уже есть.", true);
                 npcBot.secretShopMode = false;
@@ -292,7 +295,10 @@ function SellExtraItem()
         end
         if (DotaTime() > 10 * 60)
         then
-            SellSpecifiedItem("item_magic_wand")
+            if not hero_role_generic.IsHeroBuyHolyLocket(npcBot)
+            then
+                SellSpecifiedItem("item_magic_wand")
+            end
             if npcBot:GetLevel() > 10
             then
                 SellSpecifiedItem("item_infused_raindrop")

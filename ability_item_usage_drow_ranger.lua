@@ -96,7 +96,8 @@ function ConsiderFrostArrows()
 
     local attackTarget = npcBot:GetAttackTarget();
 
-    if (utility.IsHero(attackTarget) or utility.IsBoss(attackTarget)) and utility.CanCastSpellOnTarget(ability, attackTarget)
+    if utility.CanCastSpellOnTarget(ability, attackTarget) and
+        (utility.IsHero(attackTarget) or utility.IsBoss(attackTarget))
     then
         if not ability:GetAutoCastState() then
             ability:ToggleAutoCast()
@@ -128,7 +129,8 @@ function ConsiderGust()
                 if enemy:IsChanneling() or enemy:IsInvisible()
                 then
                     --npcBot:ActionImmediate_Chat("Использую Gust что бы сбить заклинание цели/Или по невидимому врагу!", true);
-                    return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility);
+                    return BOT_ACTION_DESIRE_VERYHIGH,
+                        utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility);
                 end
             end
         end
@@ -141,7 +143,8 @@ function ConsiderGust()
             and not botTarget:IsSilenced() and not utility.IsDisabled(botTarget)
         then
             --npcBot:ActionImmediate_Chat("Использую Gust для нападения!", true);
-            return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, speedAbility);
+            return BOT_ACTION_DESIRE_VERYHIGH,
+                utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, speedAbility);
         end
         -- Retreat use
     elseif utility.RetreatMode(npcBot)
@@ -178,7 +181,8 @@ function ConsiderMultishot()
             and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
         then
             --npcBot:ActionImmediate_Chat("Использую Multishot для нападения!", true);
-            return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, speedAbility);
+            return BOT_ACTION_DESIRE_VERYHIGH,
+                utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, speedAbility);
         end
         -- Cast if push/defend/farm
     elseif utility.PvEMode(npcBot)

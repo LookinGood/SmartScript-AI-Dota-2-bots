@@ -7,7 +7,7 @@ local ItemsToBuy =
 
 	"item_flask",
 
-	"item_enchanted_mango",
+	"item_wind_lace",
 
 	"item_magic_wand",
 

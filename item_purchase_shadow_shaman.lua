@@ -9,6 +9,8 @@ local ItemsToBuy =
 
 	"item_clarity",
 
+	"item_wind_lace",
+
 	"item_magic_wand",
 
 	"item_null_talisman",

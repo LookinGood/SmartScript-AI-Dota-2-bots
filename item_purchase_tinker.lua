@@ -17,7 +17,7 @@ local ItemsToBuy =
 
 	"item_soul_ring",
 
-	"item_travel_boots",
+	"item_boots",
 
 	"item_aether_lens",
 
@@ -34,6 +34,8 @@ local ItemsToBuy =
 
 	"item_pers",
 	"item_sphere",
+
+	"item_travel_boots",
 
 	"item_aghanims_shard",
 

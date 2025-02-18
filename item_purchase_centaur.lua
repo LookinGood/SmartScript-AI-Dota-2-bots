@@ -17,9 +17,9 @@ local ItemsToBuy =
 
     "item_vanguard",
 
-    "item_blade_mail",
-
     "item_blink",
+
+    "item_blade_mail",
 
     "item_crimson_guard",
 

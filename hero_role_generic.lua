@@ -130,22 +130,22 @@ S["supportHeroes"] = {
     ["npc_dota_hero_wisp"] = 1,
 }
 
-function IsHeroCarry(npcBot)
-    if C["carryHeroes"][npcBot:GetUnitName()] == 1
-    then
-        return true;
-    end
+local H = {}
+H["holyLocketHeroes"] = {
+    ["npc_dota_hero_oracle"] = 1,
+    ["npc_dota_hero_wisp"] = 1,
+}
 
-    return false;
+function IsHeroCarry(npcBot)
+    return C["carryHeroes"][npcBot:GetUnitName()] == 1;
 end
 
 function IsHeroSupport(npcBot)
-    if S["supportHeroes"][npcBot:GetUnitName()] == 1
-    then
-        return true;
-    end
+    return S["supportHeroes"][npcBot:GetUnitName()] == 1;
+end
 
-    return false;
+function IsHeroBuyHolyLocket(npcBot)
+    return H["holyLocketHeroes"][npcBot:GetUnitName()] == 1;
 end
 
 function HaveSupportInTeam(npcBot)

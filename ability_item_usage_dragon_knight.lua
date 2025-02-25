@@ -131,8 +131,10 @@ function ConsiderBreatheFire()
                     utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, speedAbility);
             end
         end
-        -- Retreat or help ally use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat or help ally use
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -145,8 +147,10 @@ function ConsiderBreatheFire()
                 end
             end
         end
-        -- Cast if push/defend/farm
-    elseif utility.PvEMode(npcBot)
+    end
+
+    -- Cast if push/defend/farm
+    if utility.PvEMode(npcBot)
     then
         local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility,
             radiusAbility,
@@ -156,8 +160,10 @@ function ConsiderBreatheFire()
             --npcBot:ActionImmediate_Chat("Использую BreatheFire по вражеским крипам!", true);
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc, "location";
         end
-        -- Cast when laning
-    elseif botMode == BOT_MODE_LANING
+    end
+
+    -- Cast when laning
+    if botMode == BOT_MODE_LANING
     then
         local enemy = utility.GetWeakest(enemyAbility);
         if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)
@@ -204,8 +210,10 @@ function ConsiderDragonTail()
                 return BOT_MODE_DESIRE_HIGH, botTarget;
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -247,8 +255,10 @@ function ConsiderFireball()
                 return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -260,8 +270,10 @@ function ConsiderFireball()
                 end
             end
         end
-        -- Cast if push/defend/farm
-    elseif utility.PvEMode(npcBot)
+    end
+
+    -- Cast if push/defend/farm
+    if utility.PvEMode(npcBot)
     then
         local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility,
             radiusAbility,
@@ -271,8 +283,10 @@ function ConsiderFireball()
             --npcBot:ActionImmediate_Chat("Использую Fireball по вражеским крипам!", true);
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc, "location";
         end
-        -- Cast when laning
-    elseif botMode == BOT_MODE_LANING
+    end
+
+    -- Cast when laning
+    if botMode == BOT_MODE_LANING
     then
         local enemy = utility.GetWeakest(enemyAbility);
         if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)
@@ -307,8 +321,10 @@ function ConsiderElderDragonForm()
                 return BOT_ACTION_DESIRE_HIGH;
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (HealthPercentage <= 0.6) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
         then

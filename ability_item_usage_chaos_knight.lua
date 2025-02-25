@@ -104,7 +104,7 @@ function ConsiderChaosBolt()
             then
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                   --npcBot:ActionImmediate_Chat("Использую ChaosBolt что бы сбить заклинание или убить цель!", true);
+                    --npcBot:ActionImmediate_Chat("Использую ChaosBolt что бы сбить заклинание или убить цель!", true);
                     return BOT_ACTION_DESIRE_ABSOLUTE, enemy;
                 end
             end
@@ -122,8 +122,10 @@ function ConsiderChaosBolt()
                 return BOT_MODE_DESIRE_HIGH, botTarget;
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -188,8 +190,10 @@ function ConsiderPhantasm()
         then
             return BOT_ACTION_DESIRE_HIGH;
         end
+    end
+
         -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    if utility.RetreatMode(npcBot)
     then
         local enemyAbility = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
         if (#enemyAbility > 0) and (HealthPercentage <= 0.6)

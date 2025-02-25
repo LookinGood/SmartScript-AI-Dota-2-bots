@@ -167,8 +167,10 @@ function ConsiderScorchedEarth()
                 return BOT_ACTION_DESIRE_HIGH;
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility * 2, true, BOT_MODE_NONE);
         if (HealthPercentage <= 0.9) and (#enemyAbility > 0)
@@ -176,7 +178,9 @@ function ConsiderScorchedEarth()
             --npcBot:ActionImmediate_Chat("Использую ScorchedEarth для отступления!", true);
             return BOT_ACTION_DESIRE_HIGH;
         end
-    elseif utility.PvEMode(npcBot)
+    end
+
+    if utility.PvEMode(npcBot)
     then
         local enemyCreeps = npcBot:GetNearbyCreeps(radiusAbility, true);
         if (#enemyCreeps > 2) and (ManaPercentage >= 0.6)
@@ -283,10 +287,12 @@ function ConsiderDoom()
                 return BOT_MODE_DESIRE_HIGH, botTarget;
             end
         end
-        -- Retreat or help ally use
-    elseif botMode == BOT_MODE_RETREAT or botMode == BOT_MODE_DEFEND_ALLY
+    end
+
+    -- Retreat or help ally use
+    if utility.RetreatMode(npcBot) or botMode == BOT_MODE_DEFEND_ALLY
     then
-        if (#enemyAbility > 0) and HealthPercentage <= 0.5
+        if (#enemyAbility > 0) and (HealthPercentage <= 0.5)
         then
             for _, enemy in pairs(enemyAbility) do
                 if utility.CanCastSpellOnTarget(ability, enemy) and not enemy:IsSilenced()

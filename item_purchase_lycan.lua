@@ -19,16 +19,18 @@ local ItemsToBuy =
 
 	"item_echo_sabre",
 
-	"item_vanguard",
-
 	"item_black_king_bar",
 
 	"item_helm_of_the_overlord",
 
-	"item_aghanims_shard",
+	"item_sange",
+	"item_basher",
+	"item_abyssal_blade",
 
 	"item_yasha",
 	"item_manta",
+
+	"item_aghanims_shard",
 
 	"item_ultimate_scepter",
 	"item_ultimate_scepter_2",
@@ -36,9 +38,6 @@ local ItemsToBuy =
 	"item_harpoon",
 
 	"item_moon_shard",
-
-	"item_basher",
-	"item_abyssal_blade",
 
 	"item_travel_boots",
 	"item_travel_boots_2",

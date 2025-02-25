@@ -160,11 +160,11 @@ function ConsiderDisruption()
         end
     end
 
-
     -- Cast if enemy hero too far away
     if utility.PvPMode(npcBot)
     then
         if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget) and not utility.IsDisabled(botTarget)
+            and not utility.IsUnitNeedToHide(botTarget)
         then
             if GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility and GetUnitToUnitDistance(npcBot, botTarget) > npcBot:GetAttackRange()
             then
@@ -172,13 +172,15 @@ function ConsiderDisruption()
                 return BOT_ACTION_DESIRE_HIGH, botTarget;
             end
         end
-        -- Use if need retreat
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Use if need retreat
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
             for _, enemy in pairs(enemyAbility) do
-                if utility.CanCastSpellOnTarget(ability, enemy) and not utility.IsDisabled(enemy)
+                if utility.CanCastSpellOnTarget(ability, enemy) and not utility.IsDisabled(enemy) and not utility.IsUnitNeedToHide(enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую Disruption что бы оторваться от врага!", true);
                     return BOT_ACTION_DESIRE_HIGH, enemy;
@@ -262,8 +264,10 @@ function ConsiderShadowPoison()
             return BOT_ACTION_DESIRE_VERYHIGH,
                 utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, speedAbility);
         end
-        -- Cast if push/defend/farm
-    elseif utility.PvEMode(npcBot)
+    end
+
+    -- Cast if push/defend/farm
+    if utility.PvEMode(npcBot)
     then
         local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility,
             radiusAbility, 0, 0);
@@ -272,8 +276,10 @@ function ConsiderShadowPoison()
             --npcBot:ActionImmediate_Chat("Использую Shadow Poison по крипам врага на линии!", true);
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
         end
-        -- Cast when laning
-    elseif botMode == BOT_MODE_LANING
+    end
+
+    -- Cast when laning
+    if botMode == BOT_MODE_LANING
     then
         local enemyAbility = npcBot:GetNearbyHeroes(utility.GetCurretCastDistance(castRangeAbility), true, BOT_MODE_NONE);
         if (#enemyAbility > 0) and (ManaPercentage >= 0.6)

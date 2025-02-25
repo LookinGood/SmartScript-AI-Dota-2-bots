@@ -144,7 +144,9 @@ function ConsiderDeathPulse()
                 end
             end
         end
-    elseif utility.PvEMode(npcBot)
+    end
+
+    if utility.PvEMode(npcBot)
     then
         local enemyCreeps = npcBot:GetNearbyCreeps(radiusAbility, true);
         if (#enemyCreeps > 2) and (ManaPercentage >= 0.6)
@@ -183,8 +185,10 @@ function ConsiderGhostShroud()
                 end
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (npcBot:GetHealth() / npcBot:GetMaxHealth() <= 0.8) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
         then
@@ -236,9 +240,9 @@ function ConsiderDeathSeeker()
     if utility.PvPMode(npcBot)
     then
         -- Attack use
-        if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
+        if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
         then
-            if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
+            if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
             then
                 if utility.CanCastSpellOnTarget(ability, botTarget)
                 then
@@ -246,8 +250,10 @@ function ConsiderDeathSeeker()
                 end
             end
         end
-        -- Use if need retreat
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Use if need retreat
+    if utility.RetreatMode(npcBot)
     then
         if (HealthPercentage <= 0.8) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
         then

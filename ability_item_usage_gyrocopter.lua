@@ -152,8 +152,10 @@ function ConsiderHomingMissile()
                 return BOT_MODE_DESIRE_HIGH, botTarget;
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then

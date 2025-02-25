@@ -119,15 +119,19 @@ function ConsiderSwashbuckle()
                     utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, speedAbility);
             end
         end
-        -- Cast if need retreat
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Cast if need retreat
+    if utility.RetreatMode(npcBot)
     then
         if npcBot:DistanceFromFountain() >= castRangeAbility
         then
             return BOT_ACTION_DESIRE_HIGH, utility.GetEscapeLocation(npcBot, castRangeAbility);
         end
-        -- Cast if push/defend/farm
-    elseif utility.PvEMode(npcBot)
+    end
+
+    -- Cast if push/defend/farm
+    if utility.PvEMode(npcBot)
     then
         local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility, radiusAbility,
             0, 0);
@@ -175,8 +179,10 @@ function ConsiderShieldCrash()
             --npcBot:ActionImmediate_Chat("Использую ShieldCrash по врагу в радиусе действия!",true);
             return BOT_ACTION_DESIRE_HIGH;
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (HealthPercentage <= 0.8) and npcBot:WasRecentlyDamagedByAnyHero(2.0) and npcBot:IsFacingLocation(utility.SafeLocation(npcBot), 40)
             and npcBot:DistanceFromFountain() >= castRangeAbility
@@ -246,8 +252,10 @@ function ConsiderRollingThunder()
             --npcBot:ActionImmediate_Chat("Использую RollingThunder для нападения!", true);
             return BOT_ACTION_DESIRE_HIGH;
         end
-        --Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    --Retreat use
+    if utility.RetreatMode(npcBot)
     then
         local enemyAbility = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
         if (#enemyAbility > 0) and (HealthPercentage <= 0.6)

@@ -152,8 +152,10 @@ function ConsiderTorrent()
                 return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
             end
         end
-        -- Cast if push/defend/farm
-    elseif utility.PvEMode(npcBot)
+    end
+
+    -- Cast if push/defend/farm
+    if utility.PvEMode(npcBot)
     then
         local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility, radiusAbility,
             0, 0);
@@ -161,8 +163,10 @@ function ConsiderTorrent()
         then
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -240,8 +244,10 @@ function ConsiderXMarksTheSpot()
         then
             return BOT_ACTION_DESIRE_HIGH, botTarget;
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -303,8 +309,10 @@ function ConsiderTorrentStorm()
                 return BOT_ACTION_DESIRE_VERYHIGH, utility.GetMaxRangeCastLocation(npcBot, botTarget, castRangeAbility);
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
         if (#enemyAbility > 0)
@@ -407,14 +415,17 @@ function ConsiderGhostship()
         end
 
         -- Cast if enemy >=2
-        local locationAoE = npcBot:FindAoELocation(true, true, npcBot:GetLocation(), castRangeAbility,radiusAbility, 0, 0);
+        local locationAoE = npcBot:FindAoELocation(true, true, npcBot:GetLocation(), castRangeAbility, radiusAbility, 0,
+            0);
         if locationAoE ~= nil and (locationAoE.count >= 2)
         then
             --npcBot:ActionImmediate_Chat("Использую Ghostship по 2+ врагам!", true);
             return BOT_ACTION_DESIRE_HIGH, locationAoE.targetloc;
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0) and (HealthPercentage <= 0.6)
         then

@@ -143,8 +143,10 @@ function ConsiderSpectralDagger()
                 return BOT_MODE_DESIRE_HIGH, botTarget, "target";
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (HealthPercentage < 0.7) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
         then
@@ -157,12 +159,11 @@ function ConsiderSpectralDagger()
                         return BOT_ACTION_DESIRE_VERYHIGH, enemy, "target";
                     end
                 end
-
-                if npcBot:DistanceFromFountain() > castRangeAbility
-                then
-                    --npcBot:ActionImmediate_Chat("Использую SpectralDagger для отхода!", true);
-                    return BOT_ACTION_DESIRE_HIGH, utility.GetEscapeLocation(npcBot, castRangeAbility), "location";
-                end
+            end
+            if npcBot:DistanceFromFountain() > castRangeAbility
+            then
+                --npcBot:ActionImmediate_Chat("Использую SpectralDagger для отхода!", true);
+                return BOT_ACTION_DESIRE_HIGH, utility.GetEscapeLocation(npcBot, castRangeAbility), "location";
             end
         end
     end
@@ -270,8 +271,10 @@ function ConsiderShadowStep()
             --npcBot:ActionImmediate_Chat("Использую ShadowStep по врагу в радиусе действия!",true);
             return BOT_MODE_DESIRE_HIGH, botTarget;
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         local closeEnemyAbility = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
         if (#closeEnemyAbility > 0)

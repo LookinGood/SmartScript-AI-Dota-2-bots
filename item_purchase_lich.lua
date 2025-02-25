@@ -31,7 +31,6 @@ local ItemsToBuy =
 
 	"item_refresher",
 
-	"item_maelstrom",
 	"item_gungir",
 
 	"item_ethereal_blade",

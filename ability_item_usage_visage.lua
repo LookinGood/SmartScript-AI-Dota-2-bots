@@ -147,8 +147,10 @@ function ConsiderGraveChill()
                 return BOT_MODE_DESIRE_HIGH, botTarget;
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -291,8 +293,10 @@ function ConsiderSilentAsTheGrave()
         then
             return BOT_ACTION_DESIRE_HIGH;
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         local enemyAbility = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
         if (#enemyAbility > 0) and (HealthPercentage <= 0.7)
@@ -324,25 +328,29 @@ function ConsiderSummonFamiliars()
     local attackRange = npcBot:GetAttackRange();
 
     -- Attack use
-    if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
+    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
     then
-        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
+        if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= (attackRange * 2)
             then
                 return BOT_ACTION_DESIRE_HIGH;
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         local enemyAbility = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
         if (#enemyAbility > 0) and (HealthPercentage < 0.7) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
         then
             return BOT_ACTION_DESIRE_HIGH;
         end
-        -- Cast if push/defend/farm/roshan
-    elseif utility.PvEMode(npcBot)
+    end
+
+    -- Cast if push/defend/farm/roshan
+    if utility.PvEMode(npcBot)
     then
         if (npcBot:DistanceFromFountain() >= 1000) and (ManaPercentage >= 0.3)
         then

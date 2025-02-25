@@ -128,8 +128,10 @@ function ConsiderStiflingDagger()
                 return BOT_MODE_DESIRE_HIGH, botTarget;
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -141,8 +143,10 @@ function ConsiderStiflingDagger()
                 end
             end
         end
-        -- Last hit
-    elseif not utility.PvPMode(npcBot) and not utility.RetreatMode(npcBot) and (ManaPercentage >= 0.4)
+    end
+
+    -- Last hit
+    if not utility.PvPMode(npcBot) and not utility.RetreatMode(npcBot) and (ManaPercentage >= 0.4)
     then
         local enemyCreeps = npcBot:GetNearbyCreeps(castRangeAbility, true);
         if (#enemyCreeps > 0)
@@ -180,8 +184,10 @@ function ConsiderPhantomStrike()
                 return BOT_ACTION_DESIRE_HIGH, botTarget;
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (HealthPercentage <= 0.8) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
         then
@@ -302,13 +308,9 @@ function ConsiderFanOfKnives()
                 end
             end
         end
-        -- Roshan use
-        if utility.IsRoshan(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= radiusAbility
-        then
-            --npcBot:ActionImmediate_Chat("Использую FanOfKnives против Рошана!", true);
-            return BOT_ACTION_DESIRE_HIGH;
-        end
-    elseif utility.PvEMode(npcBot)
+    end
+
+    if utility.PvEMode(npcBot)
     then
         local enemyCreeps = npcBot:GetNearbyCreeps(radiusAbility, true);
         if (#enemyCreeps > 2) and (ManaPercentage >= 0.6)
@@ -321,5 +323,12 @@ function ConsiderFanOfKnives()
                 end
             end
         end
+    end
+
+    -- Boss use
+    if utility.IsBoss(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= radiusAbility
+    then
+        --npcBot:ActionImmediate_Chat("Использую FanOfKnives против Рошана!", true);
+        return BOT_ACTION_DESIRE_HIGH;
     end
 end

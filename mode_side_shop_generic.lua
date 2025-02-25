@@ -7,8 +7,8 @@ local npcBot = GetBot();
 local minAllyHeroes = 3;
 local checkRadius = 4000;
 
-local radiantWisdomRuneLocation = Vector(-8136.8, -913.7, 1341.7);
-local direWisdomRuneLocation = Vector(8320.9, -339.3, 1318.9);
+--local radiantWisdomRuneLocation = Vector(-8136.8, -913.7, 1341.7);
+--local direWisdomRuneLocation = Vector(8320.9, -339.3, 1318.9);
 
 local radiantTormentorLocation = Vector(-8147.1, -1185.7, 273.6);
 local direTormentorLocation = Vector(8125.5, 1022.9, 293.3);
@@ -140,6 +140,9 @@ function Think()
 				return;
 			else
 				--npcBot:ActionImmediate_Chat("Жду союзников!", true);
+				npcBot:Action_MoveToLocation(tormentorLocation + RandomVector(200));
+				return;
+				--[[
 				if GetUnitToLocationDistance(npcBot, radiantWisdomRuneLocation) < GetUnitToLocationDistance(npcBot, direWisdomRuneLocation)
 				then
 					npcBot:Action_MoveDirectly(radiantWisdomRuneLocation + RandomVector(20));
@@ -147,7 +150,7 @@ function Think()
 				else
 					npcBot:Action_MoveDirectly(direWisdomRuneLocation + RandomVector(20));
 					return;
-				end
+				end ]]
 			end
 		end
 	end

@@ -185,8 +185,10 @@ function ConsiderWhirlingAxesMissle()
                     utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, speedAbility);
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -198,8 +200,10 @@ function ConsiderWhirlingAxesMissle()
                 end
             end
         end
-        -- Cast if push/defend/farm
-    elseif utility.PvEMode(npcBot)
+    end
+
+    -- Cast if push/defend/farm
+    if utility.PvEMode(npcBot)
     then
         local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility, radiusAbility,
             0, 0);
@@ -207,8 +211,10 @@ function ConsiderWhirlingAxesMissle()
         then
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
         end
-        -- Cast when laning
-    elseif botMode == BOT_MODE_LANING
+    end
+
+    -- Cast when laning
+    if botMode == BOT_MODE_LANING
     then
         local enemy = utility.GetWeakest(enemyAbility);
         if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)
@@ -255,7 +261,9 @@ function ConsiderWhirlingAxesMelee()
                 end
             end
         end
-    elseif utility.PvEMode(npcBot)
+    end
+
+    if utility.PvEMode(npcBot)
     then
         local enemyCreeps = npcBot:GetNearbyCreeps(radiusAbility, true);
         if (#enemyCreeps > 2) and (ManaPercentage >= 0.6)
@@ -297,8 +305,10 @@ function ConsiderBattleTrance()
                 end
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0) and (HealthPercentage <= 0.8) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
         then

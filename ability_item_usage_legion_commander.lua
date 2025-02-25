@@ -138,7 +138,9 @@ function ConsiderOverwhelmingOdds()
             --npcBot:ActionImmediate_Chat("Использую OverwhelmingOdds против Рошана!", true);
             return BOT_ACTION_DESIRE_HIGH;
         end
-    elseif utility.PvEMode(npcBot)
+    end
+
+    if utility.PvEMode(npcBot)
     then
         local enemyCreeps = npcBot:GetNearbyCreeps(radiusAbility, true);
         if (#enemyCreeps > 2) and (ManaPercentage >= 0.6)

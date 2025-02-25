@@ -17,12 +17,10 @@ local ItemsToBuy =
 
     "item_echo_sabre",
 
-    "item_phylactery",
-
     "item_black_king_bar",
 
     "item_lesser_crit",
-    "item_angels_demise",
+    "item_greater_crit",
 
     "item_aghanims_shard",
 

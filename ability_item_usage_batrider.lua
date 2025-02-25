@@ -173,8 +173,10 @@ function ConsiderStickyNapalm()
                 end
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -191,8 +193,10 @@ function ConsiderStickyNapalm()
                 end
             end
         end
-        -- Cast if push/defend/farm
-    elseif utility.PvEMode(npcBot)
+    end
+
+    -- Cast if push/defend/farm
+    if utility.PvEMode(npcBot)
     then
         local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility, radiusAbility,
             0, 0);
@@ -200,8 +204,10 @@ function ConsiderStickyNapalm()
         then
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
         end
-        -- Cast when laning
-    elseif botMode == BOT_MODE_LANING and (ManaPercentage >= 0.7)
+    end
+
+    -- Cast when laning
+    if botMode == BOT_MODE_LANING and (ManaPercentage >= 0.7)
     then
         local enemy = utility.GetWeakest(enemyAbility);
         if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)
@@ -250,9 +256,9 @@ function ConsiderFlamebreak()
     end
 
     -- Attack use
-    if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
+    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
     then
-        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
+        if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= (castRangeAbility + radiusAbility)
                 and not utility.IsDisabled(botTarget)
@@ -267,8 +273,10 @@ function ConsiderFlamebreak()
                 end
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -286,8 +294,10 @@ function ConsiderFlamebreak()
                 end
             end
         end
-        -- Cast if push/defend/farm
-    elseif utility.PvEMode(npcBot)
+    end
+
+    -- Cast if push/defend/farm
+    if utility.PvEMode(npcBot)
     then
         local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility, radiusAbility,
             0, 0);
@@ -333,8 +343,10 @@ function ConsiderFirefly()
                 end
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (HealthPercentage <= 0.8) and (#enemyAbility > 0)
         then
@@ -380,8 +392,10 @@ function ConsiderFlamingLasso()
                 return BOT_MODE_DESIRE_HIGH, botTarget;
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then

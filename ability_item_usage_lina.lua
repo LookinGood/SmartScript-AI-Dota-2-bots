@@ -101,7 +101,7 @@ function ConsiderDragonSlave()
     local castRangeAbility = ability:GetCastRange();
     local radiusAbility = ability:GetSpecialValueInt("dragon_slave_width_end");
     local damageAbility = ability:GetSpecialValueInt("dragon_slave_damage") +
-    (ability:GetSpecialValueInt("dragon_slave_burn") * ability:GetSpecialValueInt("dragon_slave_burn_duration"));
+        (ability:GetSpecialValueInt("dragon_slave_burn") * ability:GetSpecialValueInt("dragon_slave_burn_duration"));
     local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
     local speedAbility = ability:GetSpecialValueInt("dragon_slave_speed");
     local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility + 200, true, BOT_MODE_NONE);
@@ -132,8 +132,10 @@ function ConsiderDragonSlave()
                     utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, speedAbility);
             end
         end
-        -- Cast if push/defend/farm
-    elseif utility.PvEMode(npcBot)
+    end
+
+    -- Cast if push/defend/farm
+    if utility.PvEMode(npcBot)
     then
         local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility, radiusAbility,
             0, 0);
@@ -142,8 +144,10 @@ function ConsiderDragonSlave()
             --npcBot:ActionImmediate_Chat("Использую DragonSlave по вражеским крипам!", true);
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
         end
-        -- Cast when laning
-    elseif botMode == BOT_MODE_LANING
+    end
+
+    -- Cast when laning
+    if botMode == BOT_MODE_LANING
     then
         local enemy = utility.GetWeakest(enemyAbility);
         if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)
@@ -191,8 +195,10 @@ function ConsiderLightStrikeArray()
                 return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -215,9 +221,9 @@ function ConsiderFlameCloak()
     local attackRange = npcBot:GetAttackRange();
 
     -- Attack use
-    if utility.PvPMode(npcBot) or npcBot:GetActiveMode() == BOT_MODE_ROSHAN
+    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
     then
-        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
+        if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
         then
             if GetUnitToUnitDistance(npcBot, botTarget) <= (attackRange * 2)
             then
@@ -225,8 +231,10 @@ function ConsiderFlameCloak()
                 return BOT_ACTION_DESIRE_HIGH;
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         --npcBot:ActionImmediate_Chat("Использую FlameCloak для отступления!", true);
         return BOT_ACTION_DESIRE_HIGH;

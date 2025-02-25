@@ -117,8 +117,10 @@ function ConsiderFatalBonds()
                 return BOT_ACTION_DESIRE_HIGH, botTarget;
             end
         end
-        -- Cast if push/defend/farm
-    elseif utility.PvEMode(npcBot)
+    end
+
+    -- Cast if push/defend/farm
+    if utility.PvEMode(npcBot)
     then
         local enemyCreeps = npcBot:GetNearbyCreeps(castRangeAbility, true);
         if (#enemyCreeps > 0) and (ManaPercentage >= 0.7)
@@ -135,8 +137,10 @@ function ConsiderFatalBonds()
                 end
             end
         end
-        -- Cast when laning
-    elseif botMode == BOT_MODE_LANING
+    end
+
+    -- Cast when laning
+    if botMode == BOT_MODE_LANING
     then
         if (ManaPercentage >= 0.5)
         then
@@ -204,8 +208,10 @@ function ConsiderShadowWord()
             --npcBot:ActionImmediate_Chat("Использую ShadowWord по врагу в радиусе действия!", true);
             return BOT_ACTION_DESIRE_HIGH, botTarget;
         end
-        -- Cast when laning
-    elseif botMode == BOT_MODE_LANING
+    end
+
+    -- Cast when laning
+    if botMode == BOT_MODE_LANING
     then
         local enemy = utility.GetWeakest(enemyAbility);
         if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)
@@ -282,8 +288,10 @@ function ConsiderChaoticOffering()
             --npcBot:ActionImmediate_Chat("Использую ChaoticOffering по 2+ врагам!", true);
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
         if (#enemyAbility > 0)

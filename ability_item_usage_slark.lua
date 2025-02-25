@@ -109,34 +109,36 @@ function ConsiderDarkPact()
     local radiusAbility = ability:GetAOERadius();
 
     -- Attack use
-    if not utility.CanAbilityKillTarget(npcBot, selfDamageAbility, ability:GetDamageType())
+    if utility.PvPMode(npcBot)
     then
-        if utility.PvPMode(npcBot)
+        if utility.CanCastSpellOnTarget(ability, botTarget) and utility.IsHero(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= radiusAbility
         then
-            if utility.CanCastSpellOnTarget(ability, botTarget) and utility.IsHero(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= radiusAbility
-            then
-                --npcBot:ActionImmediate_Chat("Использую DarkPact для атаки!", true);
-                return BOT_ACTION_DESIRE_HIGH;
-            end
-            -- Retreat use
-        elseif utility.RetreatMode(npcBot)
+            --npcBot:ActionImmediate_Chat("Использую DarkPact для атаки!", true);
+            return BOT_ACTION_DESIRE_HIGH;
+        end
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
+    then
+        if (HealthPercentage <= 0.8) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
         then
-            if (HealthPercentage <= 0.8) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
-            then
-                --npcBot:ActionImmediate_Chat("Использую DarkPact для отхода!", true);
-                return BOT_ACTION_DESIRE_HIGH;
-            end
-        elseif utility.PvEMode(npcBot)
+            --npcBot:ActionImmediate_Chat("Использую DarkPact для отхода!", true);
+            return BOT_ACTION_DESIRE_HIGH;
+        end
+    end
+
+    -- Cast if push/defend/farm
+    if utility.PvEMode(npcBot)
+    then
+        local enemyCreeps = npcBot:GetNearbyCreeps(radiusAbility, true);
+        if (#enemyCreeps > 2) and (ManaPercentage >= 0.6)
         then
-            local enemyCreeps = npcBot:GetNearbyCreeps(radiusAbility, true);
-            if (#enemyCreeps > 2) and (ManaPercentage >= 0.6)
-            then
-                for _, enemy in pairs(enemyCreeps) do
-                    if utility.CanCastSpellOnTarget(ability, enemy) and npcBot:GetAttackTarget() == enemy
-                    then
-                        --npcBot:ActionImmediate_Chat("Использую DarkPact против крипов", true);
-                        return BOT_ACTION_DESIRE_HIGH;
-                    end
+            for _, enemy in pairs(enemyCreeps) do
+                if utility.CanCastSpellOnTarget(ability, enemy) and npcBot:GetAttackTarget() == enemy
+                then
+                    --npcBot:ActionImmediate_Chat("Использую DarkPact против крипов", true);
+                    return BOT_ACTION_DESIRE_HIGH;
                 end
             end
         end
@@ -162,8 +164,10 @@ function ConsiderPounce()
             --npcBot:ActionImmediate_Chat("Использую Pounce по врагу в радиусе действия!",true);
             return BOT_ACTION_DESIRE_HIGH;
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (HealthPercentage <= 0.8) and npcBot:WasRecentlyDamagedByAnyHero(2.0) and npcBot:IsFacingLocation(utility.SafeLocation(npcBot), 40)
         then
@@ -215,14 +219,15 @@ function ConsiderShadowDance()
     -- Attack use
     if utility.PvPMode(npcBot)
     then
-        if utility.IsValidTarget(botTarget) and utility.IsHero(botTarget) and
-            GetUnitToUnitDistance(npcBot, botTarget) <= (attackRange * 2)
+        if utility.IsHero(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= (attackRange * 2)
         then
             --npcBot:ActionImmediate_Chat("Использую ShadowDance для нападения!", true);
             return BOT_ACTION_DESIRE_HIGH;
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (HealthPercentage <= 0.7) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
         then

@@ -149,8 +149,8 @@ function ConsiderDoubleEdge()
 
     local castRangeAbility = ability:GetCastRange() * 2;
     local damageAbility = ability:GetSpecialValueInt("edge_damage") +
-    (npcBot:GetAttributeValue(ATTRIBUTE_STRENGTH) / 100 *
-        ability:GetSpecialValueInt("strength_damage"));
+        (npcBot:GetAttributeValue(ATTRIBUTE_STRENGTH) / 100 *
+            ability:GetSpecialValueInt("strength_damage"));
     local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
 
     -- Cast if can kill somebody
@@ -202,8 +202,10 @@ function ConsiderWorkHorse()
             --npcBot:ActionImmediate_Chat("Использую WorkHorse для нападения!", true);
             return BOT_ACTION_DESIRE_HIGH;
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         local enemyAbility = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
         if (#enemyAbility > 0) and (HealthPercentage <= 0.6)

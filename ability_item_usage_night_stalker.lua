@@ -171,8 +171,10 @@ function ConsiderVoid()
                 end
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (enemyAbility > 0)
         then
@@ -190,8 +192,10 @@ function ConsiderVoid()
                 end
             end
         end
-        -- Cast if push/defend/farm
-    elseif utility.PvEMode(npcBot)
+    end
+
+    -- Cast if push/defend/farm
+    if utility.PvEMode(npcBot)
     then
         if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_POINT)
         then
@@ -335,8 +339,10 @@ function ConsiderDarkAscension()
         then
             return BOT_ACTION_DESIRE_HIGH;
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         local enemyAbility = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
         if (#enemyAbility > 0) and (HealthPercentage <= 0.6)

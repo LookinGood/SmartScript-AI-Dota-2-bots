@@ -144,8 +144,10 @@ function ConsiderVacuum()
                 end
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -156,8 +158,10 @@ function ConsiderVacuum()
                 end
             end
         end
-        -- Cast if push/defend/farm
-    elseif utility.PvEMode(npcBot)
+    end
+
+    -- Cast if push/defend/farm
+    if utility.PvEMode(npcBot)
     then
         local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility, radiusAbility,
             0, 0);
@@ -165,8 +169,10 @@ function ConsiderVacuum()
         then
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
         end
-        -- Cast when laning
-    elseif botMode == BOT_MODE_LANING
+    end
+
+    -- Cast when laning
+    if botMode == BOT_MODE_LANING
     then
         local enemy = utility.GetWeakest(enemyAbility);
         if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)
@@ -217,8 +223,10 @@ function ConsiderIonShell()
                 end
             end
         end
-        -- Cast if push/defend/farm
-    elseif utility.PvEMode(npcBot)
+    end
+
+    -- Cast if push/defend/farm
+    if utility.PvEMode(npcBot)
     then
         local enemyCreeps = npcBot:GetNearbyCreeps(radiusAbility, true);
         if (#enemyCreeps > 0) and (ManaPercentage >= 0.5)
@@ -243,8 +251,10 @@ function ConsiderIonShell()
                 end
             end
         end
-        -- Cast when laning
-    elseif botMode == BOT_MODE_LANING
+    end
+
+    -- Cast when laning
+    if botMode == BOT_MODE_LANING
     then
         local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility + 200, true, BOT_MODE_NONE);
         if (#enemyAbility > 0) and (ManaPercentage >= 0.7)
@@ -318,8 +328,10 @@ function ConsiderSurge()
                 end
             end
         end
-        -- Cast if need retreat
-    elseif utility.RetreatMode(npcBot) or botMode == BOT_MODE_WARD or botMode == BOT_MODE_RUNE
+    end
+
+    -- Cast if need retreat/Ward/Rune
+    if utility.RetreatMode(npcBot) or botMode == BOT_MODE_WARD or botMode == BOT_MODE_RUNE
     then
         if not utility.IsHaveMaxSpeed(npcBot) and npcBot:DistanceFromFountain() > (npcBot:GetAttackRange() * 2)
         then

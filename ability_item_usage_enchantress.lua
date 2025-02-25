@@ -173,8 +173,10 @@ function ConsiderEnchant()
                 end
             end
         end
-        -- Retreat or help ally use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat or help ally use
+    if utility.RetreatMode(npcBot)
     then
         local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility + 200, true, BOT_MODE_NONE);
         if (#enemyAbility > 0)
@@ -187,8 +189,10 @@ function ConsiderEnchant()
                 end
             end
         end
-        -- Cast if push/defend/farm/roshan
-    elseif utility.PvEMode(npcBot)
+    end
+
+    -- Cast if push/defend/farm/roshan
+    if utility.PvEMode(npcBot)
     then
         if (#enemyCreeps > 0) and (ManaPercentage >= 0.6)
         then
@@ -281,8 +285,10 @@ function ConsiderLittleFriends()
                 return BOT_ACTION_DESIRE_HIGH, botTarget;
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
         if (#enemyAbility > 0)

@@ -140,8 +140,10 @@ function ConsiderAvalanche()
                 end
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -152,8 +154,10 @@ function ConsiderAvalanche()
                 end
             end
         end
-        -- Cast if push/defend/farm
-    elseif utility.PvEMode(npcBot)
+    end
+
+    -- Cast if push/defend/farm
+    if utility.PvEMode(npcBot)
     then
         local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility, radiusAbility,
             0, 0);
@@ -212,8 +216,10 @@ function ConsiderToss()
                 return BOT_ACTION_DESIRE_HIGH, botTarget;
             end
         end
-        -- Cast if push/defend/farm
-    elseif utility.PvEMode(npcBot)
+    end
+
+    -- Cast if push/defend/farm
+    if utility.PvEMode(npcBot)
     then
         if (#enemyCreeps > 0) and (ManaPercentage >= 0.7)
         then
@@ -225,8 +231,10 @@ function ConsiderToss()
                 end
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (#grabEnemyHeroes > 0) and (#grabAllyHeroes <= 1)
         then
@@ -251,8 +259,10 @@ function ConsiderToss()
                 end
             end
         end
-        -- Cast when laning
-    elseif botMode == BOT_MODE_LANING and (ManaPercentage >= 0.7)
+    end
+
+    -- Cast when laning
+    if botMode == BOT_MODE_LANING and (ManaPercentage >= 0.7)
     then
         if #grabAllyHeroes <= 1 and #grabEnemyHeroes > 0 or #grabAllyCreeps > 0 or #grabEnemyCreeps > 0
         then
@@ -328,8 +338,10 @@ function ConsiderTreeThrow()
                 return BOT_ACTION_DESIRE_HIGH, botTarget;
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -340,15 +352,6 @@ function ConsiderTreeThrow()
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy;
                 end
             end
-        end
-        -- Cast when laning
-    elseif botMode == BOT_MODE_LANING and (ManaPercentage >= 0.7)
-    then
-        local enemy = utility.GetWeakest(enemyAbility);
-        if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)
-        then
-            --npcBot:ActionImmediate_Chat("Использую TreeThrow на лайне!", true);
-            return BOT_ACTION_DESIRE_VERYHIGH, enemy;
         end
     end
 end

@@ -37,6 +37,7 @@ local ItemsToBuy =
 
 	"item_moon_shard",
 
+	"item_lesser_crit",
 	"item_revenants_brooch",
 
 	"item_travel_boots",

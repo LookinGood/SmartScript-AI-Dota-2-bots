@@ -95,13 +95,13 @@ function AbilityUsageThink()
 
     if (castInfestDesire ~= nil)
     then
-       --infestTarget = castInfestTarget;
+        --infestTarget = castInfestTarget;
         npcBot:Action_UseAbilityOnEntity(Infest, castInfestTarget);
         return;
     end
 
     if npcBot:HasModifier("modifier_life_stealer_infest") and utility.RetreatMode(npcBot)
-        --and infestTarget:IsCreep()
+    --and infestTarget:IsCreep()
     then
         --npcBot:ActionImmediate_Chat("Отступаю в крипе!", true);
         npcBot:ActionPush_MoveToLocation(utility.SafeLocation(npcBot));
@@ -138,9 +138,9 @@ function ConsiderRage()
     end
 
     -- Attack use
-    if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
+    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
     then
-        if (utility.IsHero(botTarget) or utility.IsRoshan(botTarget)) and (GetUnitToUnitDistance(npcBot, botTarget) <= npcBot:GetAttackRange() * 4)
+        if (utility.IsHero(botTarget) or utility.IsBoss(botTarget)) and (GetUnitToUnitDistance(npcBot, botTarget) <= npcBot:GetAttackRange() * 4)
         then
             return BOT_ACTION_DESIRE_HIGH;
         end
@@ -183,9 +183,9 @@ function ConsiderUnfettered()
     end
 
     -- Attack use
-    if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
+    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
     then
-        if (utility.IsHero(botTarget) or utility.IsRoshan(botTarget)) and (GetUnitToUnitDistance(npcBot, botTarget) <= npcBot:GetAttackRange() * 4)
+        if (utility.IsHero(botTarget) or utility.IsBoss(botTarget)) and (GetUnitToUnitDistance(npcBot, botTarget) <= npcBot:GetAttackRange() * 4)
         then
             return BOT_ACTION_DESIRE_HIGH;
         end
@@ -208,9 +208,9 @@ function ConsiderOpenWounds()
     local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility + 200, true, BOT_MODE_NONE);
 
     -- Attack use
-    if utility.PvPMode(npcBot) or npcBot:GetActiveMode() == BOT_MODE_ROSHAN
+    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
     then
-        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
+        if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
                 and not utility.IsDisabled(botTarget)
@@ -218,8 +218,10 @@ function ConsiderOpenWounds()
                 return BOT_MODE_DESIRE_HIGH, botTarget;
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -400,8 +402,10 @@ function ConsiderInfest()
                 end
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyCreepsAbility > 0)
         then

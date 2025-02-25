@@ -120,7 +120,7 @@ end
 
 function IsCogNeedsToBeBroken()
     local mainCog = nil;
-    local cogs = GetUnitList(UNIT_LIST_ALLIED_OTHER);
+    local cogs = GetUnitList(UNIT_LIST_ALLIED_CREEPS);
     local fountainLocation = utility.SafeLocation(npcBot);
     if (#cogs > 0)
     then
@@ -189,7 +189,9 @@ function ConsiderBatteryAssault()
                 end
             end
         end
-    elseif utility.PvEMode(npcBot)
+    end
+
+    if utility.PvEMode(npcBot)
     then
         local enemyCreeps = npcBot:GetNearbyCreeps(radiusAbility, true);
         if (#enemyCreeps > 2) and (ManaPercentage >= 0.6)
@@ -230,8 +232,10 @@ function ConsiderPowerCogs()
                 return BOT_MODE_DESIRE_HIGH;
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility + triggerRadius, true, BOT_MODE_NONE);
         if (#enemyAbility > 0)
@@ -287,8 +291,10 @@ function ConsiderRocketFlare()
                     utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, speedAbility);
             end
         end
-        -- Cast if push/defend/farm
-    elseif utility.PvEMode(npcBot)
+    end
+
+    -- Cast if push/defend/farm
+    if utility.PvEMode(npcBot)
     then
         local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), 1600,
             radiusAbility, 0, 0);
@@ -296,8 +302,10 @@ function ConsiderRocketFlare()
         then
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc, "location";
         end
-        -- Cast when laning
-    elseif botMode == BOT_MODE_LANING
+    end
+
+    -- Cast when laning
+    if botMode == BOT_MODE_LANING
     then
         local enemyAbility = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
         local enemy = utility.GetWeakest(enemyAbility);
@@ -333,8 +341,10 @@ function ConsiderOverclocking()
                 return BOT_ACTION_DESIRE_ABSOLUTE;
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (utility.IsAbilityAvailable(Jetpack) and npcBot:GetMana() >= ability:GetManaCost() + Jetpack:GetManaCost())
         then
@@ -371,8 +381,10 @@ function ConsiderJetpack()
                 return BOT_MODE_DESIRE_VERYHIGH;
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         local enemyAbility = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
         if (#enemyAbility > 0) and (HealthPercentage <= 0.7)
@@ -444,8 +456,10 @@ function ConsiderHookshot()
                 end
             end
         end
+    end
+
         -- Use if need retreat
-    elseif utility.RetreatMode(npcBot)
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0) and (HealthPercentage <= 0.7) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
         then

@@ -117,7 +117,7 @@ function AbilityUsageThink()
                         then
                             npcBot:Action_ClearActions(false);
                             npcBot:Action_MoveToLocation(ally:GetLocation() +
-                            RandomVector(VoodooRestoration:GetSpecialValueInt("radius")));
+                                RandomVector(VoodooRestoration:GetSpecialValueInt("radius")));
                         end
                     end
                 end
@@ -163,8 +163,10 @@ function ConsiderParalyzingCask()
                 return BOT_MODE_DESIRE_HIGH, botTarget;
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -175,8 +177,10 @@ function ConsiderParalyzingCask()
                 end
             end
         end
-        --  Pushing/defending/Farm
-    elseif utility.PvEMode(npcBot)
+    end
+
+    --  Pushing/defending/Farm
+    if utility.PvEMode(npcBot)
     then
         local enemyCreeps = npcBot:GetNearbyCreeps(radiusAbility, true);
         if (#enemyCreeps > 2) and (ManaPercentage >= 0.5)
@@ -285,8 +289,10 @@ function ConsiderMaledict()
                 return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
             end
         end
-        -- Cast when laning
-    elseif botMode == BOT_MODE_LANING
+    end
+
+    -- Cast when laning
+    if botMode == BOT_MODE_LANING
     then
         local enemy = utility.GetWeakest(enemyAbility);
         if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7) and not enemy:HasModifier("modifier_maledict")

@@ -35,7 +35,17 @@ end
 function AbilityLevelUpThink(AbilityToLevelUp)
     local npcBot = GetBot();
 
-    if npcBot:GetAbilityPoints() < 1 or #AbilityToLevelUp == 0
+    if npcBot:GetAbilityPoints() > 0 and #AbilityToLevelUp == 0
+    then
+        for i = 0, 23, 1 do
+            local ability = npcBot:GetAbilityInSlot(i)
+            if ability ~= nil and ability:CanAbilityBeUpgraded() and not ability:IsHidden()
+            then
+                npcBot:ActionImmediate_Chat("Улучшаю дополнительную способность: " .. ability:GetName(), true);
+                npcBot:ActionImmediate_LevelAbility(ability:GetName());
+            end
+        end
+    elseif npcBot:GetAbilityPoints() < 1 or #AbilityToLevelUp == 0
     then
         return;
     end

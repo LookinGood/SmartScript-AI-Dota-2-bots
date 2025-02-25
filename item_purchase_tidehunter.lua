@@ -19,11 +19,11 @@ local ItemsToBuy =
 
     "item_phase_boots",
 
-    "item_echo_sabre",
-
     "item_desolator",
 
     "item_blink",
+
+    "item_echo_sabre",
 
     "item_black_king_bar",
 

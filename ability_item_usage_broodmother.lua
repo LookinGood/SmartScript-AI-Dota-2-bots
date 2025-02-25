@@ -121,9 +121,9 @@ function ConsiderInsatiableHunger()
     local attackTarget = npcBot:GetAttackTarget();
 
     -- Attack use
-    if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
+    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
     then
-        if utility.IsHero(attackTarget) or utility.IsRoshan(attackTarget)
+        if utility.IsHero(attackTarget) or utility.IsBoss(attackTarget)
         then
             if utility.CanCastSpellOnTarget(ability, attackTarget)
             then
@@ -149,16 +149,19 @@ function ConsiderSpinWeb()
     local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
 
     -- Attack use
-    if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
+    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
     then
-        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
+        if utility.IsHero(botTarget) or utility.IsBoss(attackTarget)
         then
             if GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
             then
                 return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, npcBot, delayAbility, 0);
             end
         end
-    elseif botMode == BOT_MODE_LANING
+    end
+
+    -- Cast when laning
+    if botMode == BOT_MODE_LANING
     then
         local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
         if (#enemyAbility > 0)
@@ -226,8 +229,10 @@ function ConsiderSilkenBola()
                 end
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (enemyAbility > 0)
         then
@@ -296,8 +301,10 @@ function ConsiderSpawnSpiderlings()
                 return BOT_MODE_DESIRE_HIGH, botTarget;
             end
         end
-        -- Last hit
-    elseif not utility.PvPMode(npcBot) and (ManaPercentage >= 0.6)
+    end
+
+    -- Last hit
+    if not utility.PvPMode(npcBot) and (ManaPercentage >= 0.6)
     then
         local enemyCreeps = npcBot:GetNearbyCreeps(castRangeAbility, true);
         if (#enemyCreeps > 0)

@@ -7,7 +7,7 @@ local ItemsToBuy =
 
 	"item_flask",
 
-	"item_orb_of_venom",
+	"item_orb_of_frost",
 
 	"item_magic_wand",
 
@@ -17,13 +17,12 @@ local ItemsToBuy =
 
 	"item_orb_of_corrosion",
 
-	"item_vanguard",
-
 	"item_desolator",
 
 	"item_sange",
 	"item_yasha",
 
+	"item_sange",
 	"item_basher",
 	"item_abyssal_blade",
 

@@ -121,8 +121,10 @@ function ConsiderWraithfireBlast()
                 return BOT_MODE_DESIRE_HIGH, botTarget;
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -146,56 +148,63 @@ function ConsiderVampiricSpirit()
     end
 
     local abilityCount = ability:GetSpecialValueInt("max_skeleton_charges");
+
+    if utility.GetModifierCount(npcBot, "modifier_skeleton_king_bone_guard") < abilityCount / 2
+    then
+        return;
+    end
+
     local enemyAbility = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
 
-    if utility.GetModifierCount(npcBot, "modifier_skeleton_king_bone_guard") >= abilityCount / 2
+    -- Attack use
+    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
     then
-        -- Attack use
-        if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
+        if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
         then
-            if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
+            if utility.CanCastOnInvulnerableTarget(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= npcBot:GetAttackRange() * 2
             then
-                if utility.CanCastOnInvulnerableTarget(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= npcBot:GetAttackRange() * 2
+                --npcBot:ActionImmediate_Chat("Использую VampiricSpirit для атаки врага!", true);
+                return BOT_MODE_DESIRE_HIGH;
+            end
+        end
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
+    then
+        if (#enemyAbility > 0)
+        then
+            for _, enemy in pairs(enemyAbility) do
+                if utility.CanCastOnInvulnerableTarget(enemy)
                 then
-                    --npcBot:ActionImmediate_Chat("Использую VampiricSpirit для атаки врага!", true);
-                    return BOT_MODE_DESIRE_HIGH;
+                    -- npcBot:ActionImmediate_Chat("Использую VampiricSpirit что бы оторваться от врага", true);
+                    return BOT_ACTION_DESIRE_VERYHIGH;
                 end
             end
-            -- Retreat use
-        elseif utility.RetreatMode(npcBot)
+        end
+    end
+
+    -- Cast if push/defend/farm
+    if utility.PvEMode(npcBot)
+    then
+        if npcBot:GetMana() > VampiricSpirit:GetManaCost() + Reincarnation:GetManaCost()
         then
-            if (#enemyAbility > 0)
+            local enemyCreeps = npcBot:GetNearbyLaneCreeps(1600, true);
+            local enemyBuilding = GetUnitList(UNIT_LIST_ENEMY_BUILDINGS);
+            if #enemyCreeps >= 5
             then
-                for _, enemy in pairs(enemyAbility) do
-                    if utility.CanCastOnInvulnerableTarget(enemy)
+                --npcBot:ActionImmediate_Chat("Использую VampiricSpirit против КРИПОВ!", true);
+                return BOT_ACTION_DESIRE_MODERATE;
+            end
+            if #enemyBuilding > 0
+            then
+                for _, enemy in pairs(enemyBuilding) do
+                    if not enemy:IsInvulnerable() and GetUnitToUnitDistance(npcBot, enemy) <= 2000
                     then
-                        -- npcBot:ActionImmediate_Chat("Использую VampiricSpirit что бы оторваться от врага", true);
-                        return BOT_ACTION_DESIRE_VERYHIGH;
-                    end
-                end
-            end
-            -- Cast if push/defend/farm
-        elseif utility.PvEMode(npcBot)
-        then
-            if npcBot:GetMana() > VampiricSpirit:GetManaCost() + Reincarnation:GetManaCost()
-            then
-                local enemyCreeps = npcBot:GetNearbyLaneCreeps(1600, true);
-                local enemyBuilding = GetUnitList(UNIT_LIST_ENEMY_BUILDINGS);
-                if #enemyCreeps >= 5
-                then
-                    --npcBot:ActionImmediate_Chat("Использую VampiricSpirit против КРИПОВ!", true);
-                    return BOT_ACTION_DESIRE_MODERATE;
-                end
-                if #enemyBuilding > 0
-                then
-                    for _, enemy in pairs(enemyBuilding) do
-                        if not enemy:IsInvulnerable() and GetUnitToUnitDistance(npcBot, enemy) <= 2000
+                        if enemy:IsTower() or enemy:IsBarracks() or enemy:IsAncient()
                         then
-                            if enemy:IsTower() or enemy:IsBarracks() or enemy:IsAncient()
-                            then
-                                --npcBot:ActionImmediate_Chat("Использую VampiricSpirit против зданий!", true);
-                                return BOT_ACTION_DESIRE_MODERATE;
-                            end
+                            --npcBot:ActionImmediate_Chat("Использую VampiricSpirit против зданий!", true);
+                            return BOT_ACTION_DESIRE_MODERATE;
                         end
                     end
                 end

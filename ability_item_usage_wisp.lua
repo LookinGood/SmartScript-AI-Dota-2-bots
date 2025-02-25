@@ -195,8 +195,10 @@ function ConsiderTether()
                 end
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (HealthPercentage <= 0.8) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
         then
@@ -222,8 +224,10 @@ function ConsiderTether()
                 end
             end
         end
-        -- Cast if push/defend/farm
-    elseif utility.PvEMode(npcBot)
+    end
+
+    -- Cast if push/defend/farm
+    if utility.PvEMode(npcBot)
     then
         if (#allyAbility > 1)
         then
@@ -236,7 +240,10 @@ function ConsiderTether()
                 end
             end
         end
-    elseif botMode == BOT_MODE_LANING
+    end
+
+    -- Cast when laning
+    if botMode == BOT_MODE_LANING
     then
         local laningLocation = GetLaneFrontLocation(npcBot:GetTeam(), npcBot:GetAssignedLane(), 0);
         if GetUnitToLocationDistance(npcBot, laningLocation) <= castRangeAbility
@@ -294,17 +301,19 @@ function ConsiderSpirits()
     local maxRangeAbility = ability:GetSpecialValueInt("max_range");
 
     -- Attack use
-    if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
+    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
     then
-        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
+        if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= maxRangeAbility
             then
                 return BOT_ACTION_DESIRE_HIGH;
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         local enemyAbility = npcBot:GetNearbyHeroes(maxRangeAbility, true, BOT_MODE_NONE);
         if (#enemyAbility > 0)
@@ -316,8 +325,10 @@ function ConsiderSpirits()
                 end
             end
         end
-        -- Cast if push/defend/farm
-    elseif utility.PvEMode(npcBot)
+    end
+
+    -- Cast if push/defend/farm
+    if utility.PvEMode(npcBot)
     then
         local enemyCreeps = npcBot:GetNearbyCreeps(maxRangeAbility, true);
         if (#enemyCreeps > 3) and (ManaPercentage >= 0.5)

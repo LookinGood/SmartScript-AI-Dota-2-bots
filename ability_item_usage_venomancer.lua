@@ -132,8 +132,10 @@ function ConsiderVenomousGale()
                     utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, speedAbility);
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -146,8 +148,10 @@ function ConsiderVenomousGale()
                 end
             end
         end
-        -- Cast if push/defend/farm
-    elseif utility.PvEMode(npcBot)
+    end
+
+    -- Cast if push/defend/farm
+    if utility.PvEMode(npcBot)
     then
         local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility,
             radiusAbility, 0, 0);
@@ -156,8 +160,10 @@ function ConsiderVenomousGale()
             --npcBot:ActionImmediate_Chat("Использую VenomousGale по вражеским крипам!", true);
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc, "location";
         end
-        -- Cast when laning
-    elseif botMode == BOT_MODE_LANING
+    end
+
+    -- Cast when laning
+    if botMode == BOT_MODE_LANING
     then
         local enemy = utility.GetWeakest(enemyAbility);
         if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)
@@ -195,8 +201,10 @@ function ConsiderPlagueWard()
                 end
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
         if (#enemyAbility > 0)
@@ -208,8 +216,10 @@ function ConsiderPlagueWard()
                 end
             end
         end
-        --  Pushing/defending/Farm
-    elseif utility.PvEMode(npcBot) and (ManaPercentage >= 0.5)
+    end
+
+    --  Pushing/defending/Farm
+    if utility.PvEMode(npcBot) and (ManaPercentage >= 0.5)
     then
         local enemyCreeps = npcBot:GetNearbyCreeps(castRangeAbility, true);
         local enemyTower = npcBot:GetNearbyTowers(castRangeAbility, true);
@@ -303,9 +313,9 @@ function ConsiderLatentToxicity()
     end
 
     -- Attack use
-    if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
+    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
     then
-        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
+        if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
                 and not botTarget:HasModifier("modifier_venomancer_latent_poison")
@@ -313,8 +323,10 @@ function ConsiderLatentToxicity()
                 return BOT_MODE_DESIRE_HIGH, botTarget;
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -367,8 +379,10 @@ function ConsiderNoxiousPlague()
                 return BOT_MODE_DESIRE_HIGH, botTarget;
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0) and (HealthPercentage <= 0.7)
         then

@@ -151,8 +151,10 @@ function ConsiderDecay()
                 end
             end
         end
-        -- Use if need retreat
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Use if need retreat
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -170,8 +172,10 @@ function ConsiderDecay()
                 end
             end
         end
-        -- Cast if push/defend/farm
-    elseif utility.PvEMode(npcBot)
+    end
+
+    -- Cast if push/defend/farm
+    if utility.PvEMode(npcBot)
     then
         local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility, radiusAbility,
             0, 0);
@@ -180,8 +184,10 @@ function ConsiderDecay()
             --npcBot:ActionImmediate_Chat("Использую Decay по вражеским крипам!", true);
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
         end
-        -- Cast when laning
-    elseif botMode == BOT_MODE_LANING
+    end
+
+    -- Cast when laning
+    if botMode == BOT_MODE_LANING
     then
         local enemy = utility.GetWeakest(enemyAbility);
         if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.5)
@@ -281,8 +287,10 @@ function ConsiderTombstone()
                 return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0),
                     "location";
             end
-            -- Use if need retreat
-        elseif utility.RetreatMode(npcBot)
+        end
+
+        -- Use if need retreat
+        if utility.RetreatMode(npcBot)
         then
             local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
             if (#enemyAbility > 0) and (HealthPercentage <= 0.7)
@@ -340,8 +348,10 @@ function ConsiderFleshGolem()
             --npcBot:ActionImmediate_Chat("Использую Flesh Golem для нападения!", true);
             return BOT_ACTION_DESIRE_HIGH;
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (HealthPercentage <= 0.6) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
         then

@@ -7,7 +7,7 @@ local ItemsToBuy =
 
 	"item_flask",
 
-	"item_orb_of_venom",
+	"item_orb_of_frost",
 
 	"item_magic_wand",
 
@@ -17,12 +17,11 @@ local ItemsToBuy =
 
 	"item_orb_of_corrosion",
 
-	"item_vanguard",
-
 	"item_echo_sabre",
 
 	"item_black_king_bar",
 
+	"item_sange",
 	"item_basher",
 	"item_abyssal_blade",
 
@@ -30,8 +29,6 @@ local ItemsToBuy =
 	"item_greater_crit",
 
 	"item_harpoon",
-
-	"item_aghanims_shard",
 
 	"item_ultimate_scepter",
 	"item_ultimate_scepter_2",
@@ -42,6 +39,8 @@ local ItemsToBuy =
 
 	"item_travel_boots",
 	"item_travel_boots_2",
+
+	"item_aghanims_shard",
 }
 
 local realItemsToBuy = {}

@@ -137,7 +137,10 @@ function ConsiderStaticRemnant()
                 end
             end
         end
-    elseif utility.PvEMode(npcBot)
+    end
+
+    -- Cast if push/defend/farm
+    if utility.PvEMode(npcBot)
     then
         local enemyCreeps = npcBot:GetNearbyCreeps(radiusAbility, true);
         if (#enemyCreeps > 2) and (ManaPercentage >= 0.6)
@@ -202,8 +205,10 @@ function ConsiderElectricVortex()
                 end
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -240,9 +245,9 @@ function ConsiderOverload()
     if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_NO_TARGET)
     then
         -- Attack use
-        if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
+        if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
         then
-            if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
+            if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
             then
                 if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= attackRange
                 then
@@ -303,8 +308,10 @@ function ConsiderBallLightning()
                 return BOT_ACTION_DESIRE_HIGH, botTarget:GetLocation() + RandomVector(radiusAbility);
             end
         end
-        -- Cast if need retreat
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Cast if need retreat
+    if utility.RetreatMode(npcBot)
     then
         local enemyAbility = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
         if (#enemyAbility > 0) and npcBot:DistanceFromFountain() >= escapeRadius

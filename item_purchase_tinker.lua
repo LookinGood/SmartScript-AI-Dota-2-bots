@@ -27,7 +27,6 @@ local ItemsToBuy =
 
 	"item_dagon",
 
-	"item_lesser_crit",
 	"item_angels_demise",
 
 	"item_ethereal_blade",

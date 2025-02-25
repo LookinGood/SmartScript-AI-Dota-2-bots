@@ -26,7 +26,7 @@ local ItemsToBuy =
 	"item_veil_of_discord",
 	"item_shivas_guard",
 
-	"item_sange",
+	"item_vanguard",
 	"item_heavens_halberd",
 
 	"item_heart",

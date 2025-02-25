@@ -121,15 +121,19 @@ function ConsiderEarthshock()
                 return BOT_ACTION_DESIRE_HIGH;
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (HealthPercentage <= 0.8) and npcBot:WasRecentlyDamagedByAnyHero(2.0) and npcBot:IsFacingLocation(utility.SafeLocation(npcBot), 40)
             and npcBot:DistanceFromFountain() > radiusAbility
         then
             return BOT_ACTION_DESIRE_HIGH;
         end
-    elseif utility.PvEMode(npcBot)
+    end
+
+    if utility.PvEMode(npcBot)
     then
         local enemyCreeps = npcBot:GetNearbyCreeps(radiusAbility, true);
         if (#enemyCreeps > 2) and (ManaPercentage >= 0.6)
@@ -156,7 +160,6 @@ function ConsiderOverpower()
         return;
     end
 
-    local attackRange = npcBot:GetAttackRange();
     local attackTarget = npcBot:GetAttackTarget();
 
     -- Attack use
@@ -164,20 +167,24 @@ function ConsiderOverpower()
     then
         if utility.IsHero(attackTarget) or utility.IsBoss(attackTarget)
         then
-            if utility.CanCastSpellOnTarget(ability, attackTarget) and GetUnitToUnitDistance(npcBot, attackTarget) <= attackRange
+            if utility.CanCastSpellOnTarget(ability, attackTarget)
             then
                 return BOT_ACTION_DESIRE_HIGH;
             end
         end
-    elseif utility.PvEMode(npcBot)
+    end
+
+    if utility.PvEMode(npcBot)
     then
         if (ManaPercentage >= 0.5) and attackTarget:IsAncientCreep() and utility.CanCastSpellOnTarget(ability, attackTarget)
-            and GetUnitToUnitDistance(npcBot, attackTarget) <= attackRange and attackTarget:GetHealth() / attackTarget:GetMaxHealth() >= 0.4
+            and attackTarget:GetHealth() / attackTarget:GetMaxHealth() >= 0.4
         then
             return BOT_ACTION_DESIRE_HIGH;
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (HealthPercentage <= 0.8) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
         then

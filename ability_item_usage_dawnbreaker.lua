@@ -154,8 +154,10 @@ function ConsiderStarbreaker()
                 return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
             end
         end
-        -- Cast if push/defend/farm
-    elseif utility.PvEMode(npcBot)
+    end
+
+    -- Cast if push/defend/farm
+    if utility.PvEMode(npcBot)
     then
         local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility, radiusAbility,
             0, 0);
@@ -208,8 +210,10 @@ function ConsiderCelestialHammer()
                     utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, speedAbility);
             end
         end
-        -- Cast if push/defend/farm
-    elseif utility.PvEMode(npcBot)
+    end
+
+    -- Cast if push/defend/farm
+    if utility.PvEMode(npcBot)
     then
         local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility, radiusAbility,
             0, 0);
@@ -218,16 +222,20 @@ function ConsiderCelestialHammer()
             --npcBot:ActionImmediate_Chat("Использую CelestialHammer по вражеским крипам!", true);
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (HealthPercentage <= 0.8) and npcBot:WasRecentlyDamagedByAnyHero(2.0) and npcBot:DistanceFromFountain() > castRangeAbility
         then
             --npcBot:ActionImmediate_Chat("Использую CelestialHammer для отхода!", true);
             return BOT_ACTION_DESIRE_HIGH, utility.GetEscapeLocation(npcBot, castRangeAbility);
         end
-        -- Cast when laning
-    elseif botMode == BOT_MODE_LANING
+    end
+
+    -- Cast when laning
+    if botMode == BOT_MODE_LANING
     then
         local enemy = utility.GetWeakest(enemyAbility);
         if enemy ~= nil and utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)
@@ -249,9 +257,9 @@ function ConsiderConverge()
     local projectiles = GetLinearProjectiles();
 
     -- Cast if attack enemy
-    if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
+    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
     then
-        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
+        if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
         then
             if (#projectiles > 0)
             then
@@ -268,10 +276,12 @@ function ConsiderConverge()
                 end
             end
         end
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    if utility.RetreatMode(npcBot)
     then
         return BOT_ACTION_DESIRE_HIGH;
---[[         local fountain = utility.GetFountain(npcBot);
+        --[[         local fountain = utility.GetFountain(npcBot);
         if fountain ~= nil and (#projectiles > 0)
         then
             for _, project in pairs(projectiles)
@@ -337,8 +347,10 @@ function ConsiderSolarGuardian()
                 end
             end ]]
         end
-        -- Use if need retreat
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Use if need retreat
+    if utility.RetreatMode(npcBot)
     then
         if (HealthPercentage <= 0.7) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
         then

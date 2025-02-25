@@ -48,6 +48,7 @@ end
 
 -- Abilities
 local Gush = AbilitiesReal[1]
+local KrakenShell = AbilitiesReal[2]
 local AnchorSmash = AbilitiesReal[3]
 local DeadInIheWater = AbilitiesReal[4]
 local Ravage = AbilitiesReal[6]
@@ -63,6 +64,7 @@ function AbilityUsageThink()
     ManaPercentage = npcBot:GetMana() / npcBot:GetMaxMana();
 
     local castGushDesire, castGushTarget, castGushTargetType = ConsiderGush();
+    local castKrakenShellDesire = ConsiderKrakenShell();
     local castAnchorSmashDesire = ConsiderAnchorSmash();
     local castDeadInIheWaterDesire, castDeadInIheWaterTarget = ConsiderDeadInIheWater();
     local castRavageDesire = ConsiderRavage();
@@ -78,6 +80,12 @@ function AbilityUsageThink()
             npcBot:Action_UseAbilityOnLocation(Gush, castGushTarget);
             return;
         end
+    end
+
+    if (castKrakenShellDesire ~= nil)
+    then
+        npcBot:Action_UseAbility(KrakenShell);
+        return;
     end
 
     if (castAnchorSmashDesire ~= nil)
@@ -152,8 +160,10 @@ function ConsiderGush()
                 end
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0) and (HealthPercentage < 0.7)
         then
@@ -173,8 +183,10 @@ function ConsiderGush()
                 end
             end
         end
-        -- Cast if push/defend/farm
-    elseif utility.PvEMode(npcBot)
+    end
+
+    -- Cast if push/defend/farm
+    if utility.PvEMode(npcBot)
     then
         local enemyCreeps = npcBot:GetNearbyCreeps(castRangeAbility, true);
         if (#enemyCreeps > 0) and (ManaPercentage >= 0.7)
@@ -200,8 +212,10 @@ function ConsiderGush()
                 end
             end
         end
-        -- Cast when laning
-    elseif botMode == BOT_MODE_LANING and (ManaPercentage >= 0.7)
+    end
+
+    -- Cast when laning
+    if botMode == BOT_MODE_LANING and (ManaPercentage >= 0.7)
     then
         local enemy = utility.GetWeakest(enemyAbility);
         if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)
@@ -216,6 +230,41 @@ function ConsiderGush()
                 return BOT_ACTION_DESIRE_VERYHIGH,
                     utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility), "location";
             end
+        end
+    end
+end
+
+function ConsiderKrakenShell()
+    local ability = KrakenShell;
+    if not utility.IsAbilityAvailable(ability) then
+        return;
+    end
+
+    if npcBot:HasModifier("modifier_tidehunter_kraken_shell")
+    then
+        return;
+    end
+
+    local enemyAbility = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
+
+    if (#enemyAbility > 0)
+    then
+        for _, enemy in pairs(enemyAbility) do
+            if utility.IsValidTarget(enemy) and enemy:GetAttackTarget() == npcBot and (HealthPercentage <= 0.8)
+            then
+                --npcBot:ActionImmediate_Chat("Использую KrakenShell против атак героев!", true);
+                return BOT_ACTION_DESIRE_HIGH;
+            end
+        end
+    end
+
+    -- Boss use
+    if utility.BossMode(npcBot)
+    then
+        if utility.IsBoss(botTarget) and botTarget:GetAttackTarget() == npcBot
+        then
+            --npcBot:ActionImmediate_Chat("Использую KrakenShell против атак босса!", true);
+            return BOT_ACTION_DESIRE_HIGH;
         end
     end
 end
@@ -257,7 +306,9 @@ function ConsiderAnchorSmash()
                 end
             end
         end
-    elseif utility.PvEMode(npcBot)
+    end
+
+    if utility.PvEMode(npcBot)
     then
         local enemyCreeps = npcBot:GetNearbyCreeps(radiusAbility, true);
         if (#enemyCreeps > 2) and (ManaPercentage >= 0.6)
@@ -297,9 +348,9 @@ function ConsiderDeadInIheWater()
     end
 
     -- Attack use
-    if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
+    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
     then
-        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
+        if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
                 and not utility.IsDisabled(botTarget)
@@ -307,8 +358,10 @@ function ConsiderDeadInIheWater()
                 return BOT_MODE_DESIRE_HIGH, botTarget;
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -360,8 +413,10 @@ function ConsiderRavage()
                 end
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0) and (HealthPercentage <= 0.6)
         then

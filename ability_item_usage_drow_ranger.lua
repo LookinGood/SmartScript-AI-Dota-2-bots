@@ -146,8 +146,10 @@ function ConsiderGust()
             return BOT_ACTION_DESIRE_VERYHIGH,
                 utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, speedAbility);
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -184,8 +186,10 @@ function ConsiderMultishot()
             return BOT_ACTION_DESIRE_VERYHIGH,
                 utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, speedAbility);
         end
-        -- Cast if push/defend/farm
-    elseif utility.PvEMode(npcBot)
+    end
+
+    -- Cast if push/defend/farm
+    if utility.PvEMode(npcBot)
     then
         local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility,
             radiusAbility,
@@ -195,8 +199,10 @@ function ConsiderMultishot()
             --npcBot:ActionImmediate_Chat("Использую Multishot по вражеским крипам!", true);
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc, "location";
         end
-        -- Cast when laning
-    elseif npcBot:GetActiveMode() == BOT_MODE_LANING
+    end
+
+    -- Cast when laning
+    if botMode == BOT_MODE_LANING
     then
         local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
         if (#enemyAbility > 0) and (ManaPercentage >= 0.7)

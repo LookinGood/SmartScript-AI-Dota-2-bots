@@ -24,8 +24,8 @@ local ItemsToBuy =
 	"item_yasha",
 	"item_manta",
 
-	"item_vanguard",
 	"item_basher",
+	"item_sange",
 	"item_abyssal_blade",
 
 	"item_ultimate_scepter",

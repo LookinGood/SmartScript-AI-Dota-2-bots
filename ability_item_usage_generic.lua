@@ -215,19 +215,19 @@ end
 --#endregion
 
 --#region ITEM USAGE THINK
-function HaveHealthRegenBuff(target)
-	return target:HasModifier('modifier_fountain_aura_buff')
-		or target:HasModifier('modifier_bottle_regeneration')
-		or target:HasModifier('modifier_flask_healing');
+local function HaveHealthRegenBuff(npcTarget)
+	return npcTarget:HasModifier('modifier_fountain_aura_buff') or
+		npcTarget:HasModifier('modifier_bottle_regeneration') or
+		target:HasModifier('modifier_flask_healing');
 end
 
-function HaveManaRegenBuff(target)
-	return target:HasModifier('modifier_fountain_aura_buff')
-		or target:HasModifier('modifier_bottle_regeneration')
-		or target:HasModifier('modifier_clarity_potion');
+local function HaveManaRegenBuff(npcTarget)
+	return npcTarget:HasModifier('modifier_fountain_aura_buff') or
+		npcTarget:HasModifier('modifier_bottle_regeneration') or
+		npcTarget:HasModifier('modifier_clarity_potion');
 end
 
-function IsItemAvailable(item_name)
+local function IsItemAvailable(item_name)
 	local npcBot = GetBot();
 	local slot = npcBot:FindItemSlot(item_name);
 	if npcBot:GetItemSlotType(slot) == ITEM_SLOT_TYPE_MAIN and npcBot:GetItemInSlot(slot):IsFullyCastable()
@@ -237,7 +237,7 @@ function IsItemAvailable(item_name)
 	return nil;
 end
 
-function Contains(set, key) -- Содержит ли таблица указанный коюч
+local function Contains(set, key) -- Содержит ли таблица указанный коюч
 	for index, value in ipairs(set) do
 		if tostring(value) == tostring(key)
 		then
@@ -306,12 +306,7 @@ local _tableOfUltimatesAbility =
 	"zuus_thundergods_wrath",
 }
 
-local linesKillEnemyHero = {
-	"Ха! Получай!",
-	"Победа за мной!",
-	"Никакой удачи, чистое мастерство!",
-	"Было не так уж и трудно.",
-	"Гг изи!"
+--[[ local linesKillEnemyHero = {
 }
 
 local function BotChatMessages()
@@ -326,7 +321,7 @@ local function BotChatMessages()
 		npcBot:ActionImmediate_Chat(message, true);
 		return;
 	end
-end
+end ]]
 
 --local message = nil;
 --local message = linesKillEnemyHero[math.random(#linesKillEnemyHero)];

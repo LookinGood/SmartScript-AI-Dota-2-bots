@@ -138,8 +138,10 @@ function ConsiderTheSwarm()
                     utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, speedAbility);
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -151,8 +153,10 @@ function ConsiderTheSwarm()
                 end
             end
         end
-        -- Cast if push/defend/farm
-    elseif utility.PvEMode(npcBot)
+    end
+
+    -- Cast if push/defend/farm
+    if utility.PvEMode(npcBot)
     then
         local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility, radiusAbility,
             0, 0);
@@ -205,10 +209,16 @@ function ConsiderShukuchi()
                 return BOT_MODE_DESIRE_VERYHIGH;
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
-        return BOT_MODE_DESIRE_VERYHIGH;
+        local enemyAbility = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
+        if (#enemyAbility > 0)
+        then
+            return BOT_MODE_DESIRE_VERYHIGH;
+        end
     end
 end
 

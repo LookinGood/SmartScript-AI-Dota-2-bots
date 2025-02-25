@@ -7,44 +7,40 @@ local npcBot = GetBot();
 
 ---RADIANT WARDING SPOT
 local RADIANT_TOPSPOT1 = Vector(-4362.3, -1027.3, 229.5); -- Late game
-local RADIANT_TOPSPOT2 = Vector(-4104.0, 1566.7, 117.2);
+local RADIANT_TOPSPOT2 = Vector(-4442.6, 2027.7, 86.1);
 local RADIANT_TOPSPOT3 = Vector(-7938.8, 1834.6, 215.4);
 local RADIANT_TOPSPOTNOTOWER = Vector(-6610.1, -3063.9, 209.1);
 
-local RADIANT_TOPTORMENTOR = Vector(-8122.8, -1084.8, 1306.3); -- Late game
+local RADIANT_TOPTORMENTOR = Vector(7254.8, -7080.2, 264.4); -- Late game
 
-local RADIANT_MIDSPOT1 = Vector(108.0, -1221.3, 108.7);
+local RADIANT_MIDSPOT1 = Vector(499.2, -1761.3, 102.5);
 local RADIANT_MIDSPOTNOTOWER = Vector(-4343.4, -3883.9, 175.1);
 
-local RADIANT_BOTSPOT1 = Vector(763.7, -4569.0, 210.1);
-local RADIANT_BOTSPOT2 = Vector(2553.6, -7157.3, 137.1); -- Late game
-local RADIANT_BOTSPOT3 = Vector(3843.6, -4593.7, 131.0);
+local RADIANT_BOTSPOT1 = Vector(-1305.4, -4340.0, 133.1);  -- Pillar in the forest
+local RADIANT_BOTSPOT2 = Vector(-1293.7, -4948.0, 1174.7); -- Late game
+local RADIANT_BOTSPOT3 = Vector(5079.9, -4689.8, 127.6);   -- Near T1
+local RADIANT_BOTSPOT4 = Vector(963.1, -8698.7, 1211.5);   -- Near waterfall
 
-local RADIANT_BOTSPOT4 = Vector(5203.4, -5099.5, 1167.9);
-
-local RADIANT_BOTSPOTPORTAL = Vector(5914.4, -7468.1, 90.7);
 local RADIANT_BOTSPOTPOND = Vector(8269.3, -5017.6, 178.8);
 local RADIANT_BOTSPOTNOTOWER = Vector(-3603.6, -6108.9, 208.0);
 
 
 ---DIRE WARDING SPOT
-local DIRE_TOPSPOT1 = Vector(1030.2, 3338.1, 130.3);
-local DIRE_TOPSPOT2 = Vector(-1551.3, 6919.4, 140.2); -- Late game
-local DIRE_TOPSPOT3 = Vector(-775.1, 3594.4, 195.4);
+local DIRE_TOPSPOT1 = Vector(-1914.8, 3854.4, 1229.0);
+local DIRE_TOPSPOT2 = Vector(-884.8, 7634.8, 113.6); -- Late game
+local DIRE_TOPSPOT3 = Vector(1023.3, 3573.9, 135.6); -- Forest on the pillar
+local DIRE_TOPSPOT4 = Vector(-4211.4, 4805.2, 119.6);
 
-local DIRE_TOPSPOT4 = Vector(-4790.6, 4853.2, 122.7);
-
-local DIRE_TOPSPOTPORTAL = Vector(-6126.5, 7167.6, 112.4);
-local DIRE_TOPSPOTPOND = Vector(-8462.6, 4525.2, 154.3);
+local DIRE_TOPSPOTPOND = Vector(-7713.2, 4267.1, 119.0);
 local DIRE_TOPSPOTNOTOWER = Vector(3098.2, 5769.3, 219.4);
 
-local DIRE_TOPTORMENTOR = Vector(8242.0, 719.7, 286.2); -- Late game
+local DIRE_TOPTORMENTOR = Vector(-7266.9, 7349.9, 239.6); -- Late game
 
-local DIRE_MIDSPOT1 = Vector(-658.8, 891.4, 80.2);
+local DIRE_MIDSPOT1 = Vector(-935.3, 1265.0, 100.4);
 local DIRE_MIDSPOTNOTOWER = Vector(4012.5, 3470.9, 203.9);
 
 local DIRE_BOTSPOT1 = Vector(4605.3, 776.1, 195.1); -- Late game
-local DIRE_BOTSPOT2 = Vector(2047.3, -761.8, 108.9);
+local DIRE_BOTSPOT2 = Vector(2660.3, -1363.4, 91.1);
 local DIRE_BOTSPOT3 = Vector(7681.0, -1523.6, 240.7);
 local DIRE_BOTSPOTNOTOWER = Vector(6321.9, 2595.6, 201.8);
 
@@ -56,12 +52,10 @@ function GetWardSpot()
         RADIANT_MIDSPOT1,
         RADIANT_BOTSPOT3,
         RADIANT_BOTSPOT4,
-        RADIANT_BOTSPOTPORTAL,
         RADIANT_BOTSPOTPOND,
 
         DIRE_TOPSPOT3,
         DIRE_TOPSPOT4,
-        DIRE_TOPSPOTPORTAL,
         DIRE_TOPSPOTPOND,
         DIRE_MIDSPOT1,
         DIRE_BOTSPOT2,
@@ -70,7 +64,6 @@ function GetWardSpot()
     local DireWardSpotEarlyGame = {
         DIRE_TOPSPOT3,
         DIRE_TOPSPOT4,
-        DIRE_TOPSPOTPORTAL,
         DIRE_TOPSPOTPOND,
         DIRE_MIDSPOT1,
         DIRE_BOTSPOT2,
@@ -80,7 +73,6 @@ function GetWardSpot()
         RADIANT_MIDSPOT1,
         RADIANT_BOTSPOT3,
         RADIANT_BOTSPOT4,
-        RADIANT_BOTSPOTPORTAL,
         RADIANT_BOTSPOTPOND,
     }
 
@@ -107,8 +99,6 @@ function GetWardSpot()
         DIRE_BOTSPOT2,
         DIRE_BOTSPOT3,
         DIRE_BOTSPOTNOTOWER,
-        RADIANT_BOTSPOTPORTAL,
-        DIRE_TOPSPOTPORTAL,
     }
 
     if DotaTime() < 15 * 60

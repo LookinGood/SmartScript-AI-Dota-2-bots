@@ -101,7 +101,7 @@ function ConsiderArcticBurn()
     local castRangeAbility = npcBot:GetAttackRange() + ability:GetSpecialValueInt("attack_range_bonus");
 
     -- Off ability
-    if not utility.PvPMode(npcBot) and npcBot:TimeSinceDamagedByAnyHero() >= 5.0
+    if not utility.PvPMode(npcBot) and not utility.BossMode(npcBot) and npcBot:TimeSinceDamagedByAnyHero() >= 5.0
     then
         if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_TOGGLE)
         then
@@ -133,8 +133,10 @@ function ConsiderArcticBurn()
                 end
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (HealthPercentage <= 0.7) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
         then
@@ -224,8 +226,10 @@ function ConsiderSplinterBlast()
                 end
             end
         end
-        --  Pushing/defending/Farm
-    elseif utility.PvEMode(npcBot)
+    end
+
+    --  Pushing/defending/Farm
+    if utility.PvEMode(npcBot)
     then
         local enemyCreeps = npcBot:GetNearbyCreeps(radiusAbility, true);
         if (#enemyCreeps > 2) and (ManaPercentage >= 0.5)
@@ -238,8 +242,10 @@ function ConsiderSplinterBlast()
                 end
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -322,8 +328,10 @@ function ConsiderWintersCurse()
                 return BOT_ACTION_DESIRE_HIGH, botTarget;
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (HealthPercentage <= 0.6) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
         then

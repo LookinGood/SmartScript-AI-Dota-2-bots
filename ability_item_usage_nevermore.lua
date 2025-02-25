@@ -148,7 +148,9 @@ function ConsiderShadowraze1()
                 return BOT_MODE_DESIRE_HIGH;
             end
         end
-    elseif utility.PvEMode(npcBot)
+    end
+
+    if utility.PvEMode(npcBot)
     then
         local enemyCreeps = npcBot:GetNearbyCreeps(castRangeAbility, true);
         if (#enemyCreeps > 2) and (ManaPercentage >= 0.6)
@@ -163,8 +165,10 @@ function ConsiderShadowraze1()
                 end
             end
         end
-        -- Cast when laning
-    elseif botMode == BOT_MODE_LANING
+    end
+
+    -- Cast when laning
+    if botMode == BOT_MODE_LANING
     then
         local enemy = utility.GetWeakest(enemyAbility);
         if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.5) and npcBot:IsFacingLocation(enemy:GetLocation(), 10)
@@ -217,7 +221,9 @@ function ConsiderShadowraze2()
                 return BOT_MODE_DESIRE_HIGH;
             end
         end
-    elseif utility.PvEMode(npcBot)
+    end
+
+    if utility.PvEMode(npcBot)
     then
         local enemyCreeps = npcBot:GetNearbyCreeps(castRangeAbility, true);
         if (#enemyCreeps > 2) and (ManaPercentage >= 0.6)
@@ -232,8 +238,10 @@ function ConsiderShadowraze2()
                 end
             end
         end
-        -- Cast when laning
-    elseif botMode == BOT_MODE_LANING
+    end
+
+    -- Cast when laning
+    if botMode == BOT_MODE_LANING
     then
         local enemy = utility.GetWeakest(enemyAbility);
         if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.5) and npcBot:IsFacingLocation(enemy:GetLocation(), 10)
@@ -286,7 +294,9 @@ function ConsiderShadowraze3()
                 return BOT_MODE_DESIRE_HIGH;
             end
         end
-    elseif utility.PvEMode(npcBot)
+    end
+
+    if utility.PvEMode(npcBot)
     then
         local enemyCreeps = npcBot:GetNearbyCreeps(castRangeAbility, true);
         if (#enemyCreeps > 2) and (ManaPercentage >= 0.6)
@@ -301,8 +311,10 @@ function ConsiderShadowraze3()
                 end
             end
         end
-        -- Cast when laning
-    elseif botMode == BOT_MODE_LANING
+    end
+
+    -- Cast when laning
+    if botMode == BOT_MODE_LANING
     then
         local enemy = utility.GetWeakest(enemyAbility);
         if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.5) and npcBot:IsFacingLocation(enemy:GetLocation(), 10)
@@ -422,8 +434,10 @@ function ConsiderRequiemOfSouls()
                 end
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (HealthPercentage <= 0.7) and (#enemyAbility > 0) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
         then

@@ -15,17 +15,16 @@ local ItemsToBuy =
 
 	"item_phase_boots",
 
-	"item_vanguard",
-
 	"item_diffusal_blade",
 
 	"item_yasha",
 	"item_manta",
 
-	"item_aghanims_shard",
-
 	"item_basher",
+	"item_sange",
 	"item_abyssal_blade",
+
+	"item_aghanims_shard",
 
 	"item_ultimate_scepter",
 

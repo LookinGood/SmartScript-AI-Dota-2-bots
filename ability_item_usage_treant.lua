@@ -120,37 +120,43 @@ function ConsiderNaturesGrasp()
             then
                 return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
             end
-            -- Retreat use
-        elseif utility.RetreatMode(npcBot)
+        end
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
+    then
+        local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
+        if (#enemyAbility > 0)
         then
-            local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
-            if (#enemyAbility > 0)
-            then
-                for _, enemy in pairs(enemyAbility) do
-                    if utility.CanCastSpellOnTarget(ability, enemy) and not enemy:HasModifier("modifier_treant_natures_grasp_damage")
-                    then
-                        return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
-                    end
+            for _, enemy in pairs(enemyAbility) do
+                if utility.CanCastSpellOnTarget(ability, enemy) and not enemy:HasModifier("modifier_treant_natures_grasp_damage")
+                then
+                    return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
                 end
             end
-            -- Cast if push/defend/farm
-        elseif utility.PvEMode(npcBot)
+        end
+    end
+
+    -- Cast if push/defend/farm
+    if utility.PvEMode(npcBot)
+    then
+        local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility,
+            radiusAbility,
+            0, 0);
+        if locationAoE ~= nil and (locationAoE.count >= 3) and (ManaPercentage >= 0.6)
         then
-            local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility,
-                radiusAbility,
-                0, 0);
-            if locationAoE ~= nil and (locationAoE.count >= 3) and (ManaPercentage >= 0.6)
-            then
-                return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc, "location";
-            end
-            -- Cast when laning
-        elseif botMode == BOT_MODE_LANING and (ManaPercentage >= 0.7)
+            return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc, "location";
+        end
+    end
+
+    -- Cast when laning
+    if botMode == BOT_MODE_LANING and (ManaPercentage >= 0.7)
+    then
+        local enemy = utility.GetWeakest(enemyAbility);
+        if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7) and not enemy:HasModifier("modifier_treant_natures_grasp_damage")
         then
-            local enemy = utility.GetWeakest(enemyAbility);
-            if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7) and not enemy:HasModifier("modifier_treant_natures_grasp_damage")
-            then
-                return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
-            end
+            return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
         end
     end
 end
@@ -191,8 +197,10 @@ function ConsiderLeechSeed()
                 return BOT_MODE_DESIRE_HIGH, botTarget;
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -203,8 +211,10 @@ function ConsiderLeechSeed()
                 end
             end
         end
-        -- Cast if push/defend/farm
-    elseif utility.PvEMode(npcBot)
+    end
+
+    -- Cast if push/defend/farm
+    if utility.PvEMode(npcBot)
     then
         local enemyCreeps = npcBot:GetNearbyCreeps(castRangeAbility, true);
         if (#enemyCreeps > 3) and (ManaPercentage >= 0.7)
@@ -216,8 +226,10 @@ function ConsiderLeechSeed()
                 end
             end
         end
-        -- Cast when laning
-    elseif botMode == BOT_MODE_LANING
+    end
+
+    -- Cast when laning
+    if botMode == BOT_MODE_LANING
     then
         if (ManaPercentage >= 0.7)
         then

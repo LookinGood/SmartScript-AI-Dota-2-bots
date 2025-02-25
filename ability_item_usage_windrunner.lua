@@ -142,8 +142,10 @@ function ConsiderShackleshot()
                 end
             end
         end
-        -- Retreat or help ally use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -200,8 +202,10 @@ function ConsiderPowershot()
                     utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, speedAbility);
             end
         end
-        -- Cast if push/defend/farm
-    elseif utility.PvEMode(npcBot)
+    end
+
+    -- Cast if push/defend/farm
+    if utility.PvEMode(npcBot)
     then
         local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility, radiusAbility,
             0, 0);
@@ -209,8 +213,10 @@ function ConsiderPowershot()
         then
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
         end
-        -- Cast when laning
-    elseif botMode == BOT_MODE_LANING
+    end
+
+    -- Cast when laning
+    if botMode == BOT_MODE_LANING
     then
         local enemyAbility = npcBot:GetNearbyHeroes(utility.GetCurrentCastDistance(castRangeAbility), true, BOT_MODE_NONE);
         local enemy = utility.GetWeakest(enemyAbility);
@@ -235,17 +241,19 @@ function ConsiderWindrun()
     end
 
     -- Attack use
-    if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
+    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
     then
-        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
+        if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
         then
             if GetUnitToUnitDistance(npcBot, botTarget) <= npcBot:GetAttackRange() * 2 and GetUnitToUnitDistance(npcBot, botTarget) > npcBot:GetAttackRange()
             then
                 return BOT_ACTION_DESIRE_HIGH;
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (HealthPercentage <= 0.8) and ((npcBot:WasRecentlyDamagedByAnyHero(2.0) or npcBot:WasRecentlyDamagedByTower(2.0)))
         then
@@ -317,8 +325,10 @@ function ConsiderGaleForce()
         then
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -360,16 +370,18 @@ function ConsiderFocusFire()
             then
                 return BOT_MODE_DESIRE_HIGH, botTarget;
             end
-            -- Retreat or help ally use
-        elseif utility.RetreatMode(npcBot)
+        end
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
+    then
+        if (#enemyAbility > 0)
         then
-            if (#enemyAbility > 0)
-            then
-                for _, enemy in pairs(enemyAbility) do
-                    if utility.CanCastSpellOnTarget(ability, enemy)
-                    then
-                        return BOT_ACTION_DESIRE_HIGH, enemy;
-                    end
+            for _, enemy in pairs(enemyAbility) do
+                if utility.CanCastSpellOnTarget(ability, enemy) and not utility.IsDisabled(enemy)
+                then
+                    return BOT_ACTION_DESIRE_HIGH, enemy;
                 end
             end
         end

@@ -133,7 +133,9 @@ function ConsiderMistCoil()
                 return BOT_MODE_DESIRE_HIGH, botTarget;
             end
         end
-    elseif utility.PvEMode(npcBot)
+    end
+
+    if utility.PvEMode(npcBot)
     then
         local enemyCreeps = npcBot:GetNearbyCreeps(radiusAbility, true);
         if (#enemyCreeps > 2) and (ManaPercentage >= 0.6) and (radiusAbility > 0)

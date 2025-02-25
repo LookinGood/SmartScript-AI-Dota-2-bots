@@ -133,15 +133,19 @@ function ConsiderBurrowstrike()
                     utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, speedAbility);
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if npcBot:DistanceFromFountain() >= castRangeAbility
         then
             return BOT_ACTION_DESIRE_HIGH, utility.GetEscapeLocation(npcBot, castRangeAbility);
         end
-        -- Cast if push/defend/farm
-    elseif utility.PvEMode(npcBot) and (#enemyAbility <= 0)
+    end
+
+    -- Cast if push/defend/farm
+    if utility.PvEMode(npcBot) and (#enemyAbility <= 0)
     then
         local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility, radiusAbility,
             0, 0);
@@ -167,9 +171,9 @@ function ConsiderSandStorm()
     local radiusAbility = ability:GetAOERadius();
 
     -- Attack use
-    if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
+    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
     then
-        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
+        if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and (GetUnitToUnitDistance(npcBot, botTarget) <= (attackRange * 2)
                     and GetUnitToUnitDistance(npcBot, botTarget) < radiusAbility)
@@ -177,15 +181,19 @@ function ConsiderSandStorm()
                 return BOT_ACTION_DESIRE_HIGH;
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot) and not npcBot:IsInvisible()
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot) and not npcBot:IsInvisible()
     then
         local enemyAbility = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
         if (HealthPercentage <= 0.8) and (#enemyAbility > 0)
         then
             return BOT_ACTION_DESIRE_HIGH;
         end
-    elseif utility.PvEMode(npcBot)
+    end
+
+    if utility.PvEMode(npcBot)
     then
         local enemyCreeps = npcBot:GetNearbyCreeps(radiusAbility, true);
         if (#enemyCreeps > 2) and (ManaPercentage >= 0.6)
@@ -251,8 +259,10 @@ function ConsiderStinger()
                 end
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -269,8 +279,10 @@ function ConsiderStinger()
                 end
             end
         end
-        -- Cast if push/defend/farm
-    elseif utility.PvEMode(npcBot)
+    end
+
+    -- Cast if push/defend/farm
+    if utility.PvEMode(npcBot)
     then
         local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility, radiusAbility,
             0, 0);
@@ -278,8 +290,10 @@ function ConsiderStinger()
         then
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
         end
-        -- Cast when laning
-    elseif botMode == BOT_MODE_LANING
+    end
+
+    -- Cast when laning
+    if botMode == BOT_MODE_LANING
     then
         local enemy = utility.GetWeakest(enemyAbility);
         if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)

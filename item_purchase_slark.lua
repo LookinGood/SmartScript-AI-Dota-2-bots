@@ -7,7 +7,7 @@ local ItemsToBuy =
 
 	"item_flask",
 
-	"item_orb_of_venom",
+	"item_orb_of_frost",
 
 	"item_magic_wand",
 
@@ -19,16 +19,16 @@ local ItemsToBuy =
 
 	"item_echo_sabre",
 
-	"item_vanguard",
+	"item_lesser_crit",
 
 	"item_pers",
 	"item_sphere",
 
-	"item_lesser_crit",
 	"item_greater_crit",
 
 	"item_aghanims_shard",
 
+	"item_sange",
 	"item_basher",
 	"item_abyssal_blade",
 

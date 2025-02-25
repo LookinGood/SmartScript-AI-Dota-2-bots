@@ -19,9 +19,9 @@ local ItemsToBuy =
 
     "item_phase_boots",
 
-    "item_vanguard",
-
     "item_echo_sabre",
+
+    "item_basher",
 
     "item_aghanims_shard",
 
@@ -29,7 +29,7 @@ local ItemsToBuy =
 
     "item_heart",
 
-    "item_basher",
+    "item_sange",
     "item_abyssal_blade",
 
     "item_veil_of_discord",

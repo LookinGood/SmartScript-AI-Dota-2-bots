@@ -129,8 +129,10 @@ function ConsiderCrystalNova()
                 return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -142,8 +144,10 @@ function ConsiderCrystalNova()
                 end
             end
         end
-        -- Cast if push/defend/farm
-    elseif utility.PvEMode(npcBot)
+    end
+
+    -- Cast if push/defend/farm
+    if utility.PvEMode(npcBot)
     then
         local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility, radiusAbility,
             0, 0);
@@ -152,8 +156,10 @@ function ConsiderCrystalNova()
             --npcBot:ActionImmediate_Chat("Использую CrystalNova по вражеским крипам!", true);
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
         end
-        -- Cast when laning
-    elseif botMode == BOT_MODE_LANING
+    end
+
+    -- Cast when laning
+    if botMode == BOT_MODE_LANING
     then
         local enemy = utility.GetWeakest(enemyAbility);
         if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)
@@ -200,8 +206,10 @@ function ConsiderFrostbite()
                 return BOT_MODE_DESIRE_HIGH, botTarget;
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -228,9 +236,9 @@ function ConsiderCrystalClone()
     -- Attack use
     if utility.PvPMode(npcBot)
     then
-        if utility.IsHero(botTarget) or botMode == BOT_MODE_ROSHAN
+        if utility.IsHero(botTarget) or utility.BossMode(npcBot)
         then
-            if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
+            if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
             then
                 if utility.CanCastSpellOnTarget(Frostbite, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
                     and not utility.IsDisabled(botTarget)
@@ -239,14 +247,17 @@ function ConsiderCrystalClone()
                 end
             end
         end
-        -- Cast if need retreat
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Cast if need retreat
+    if utility.RetreatMode(npcBot)
     then
         if npcBot:DistanceFromFountain() >= (castRangeAbility * 2)
         then
             return BOT_ACTION_DESIRE_HIGH, utility.GetEscapeLocation(npcBot, castRangeAbility);
         end
     end
+
     -- Cast if get incoming spell
     if not utility.HaveReflectSpell(npcBot)
     then
@@ -282,7 +293,7 @@ function ConsiderFreezingField()
     -- Attack use
     if utility.PvPMode(npcBot)
     then
-        if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= radiusAbility
+        if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= (radiusAbility - 100)
         then
             --npcBot:ActionImmediate_Chat("Использую FreezingField для нападения!", true);
             return BOT_ACTION_DESIRE_HIGH;

@@ -74,7 +74,8 @@ end
 
 function IsClone(npcTarget)
 	return IsValidTarget(npcTarget) and
-		npcTarget:HasModifier("modifier_arc_warden_tempest_double")
+		(npcTarget:HasModifier("modifier_arc_warden_tempest_double") or
+			npcTarget:HasModifier("modifier_dazzle_nothl_projection_soul_clone"))
 end
 
 function IsNight()
@@ -307,7 +308,7 @@ end
 end ]]
 
 function GetBiggerAttribute(npcTarget)
-	if not utility.IsHero(npcTarget)
+	if not IsHero(npcTarget)
 	then
 		return nil;
 	end
@@ -517,12 +518,7 @@ end
 -- (IsValidTarget(npcBot) and IsValidTarget(npcTarget)) and
 
 function IsHero(npcTarget)
-	if npcTarget:IsHero() and not IsIllusion(npcTarget)
-	then
-		return true;
-	end
-
-	return false;
+	return npcTarget:IsHero() and not IsIllusion(npcTarget) and not IsClone(npcTarget);
 end
 
 function IsBuilding(npcTarget)
@@ -591,6 +587,12 @@ end
 function IsHaveStunEffect(npcTarget)
 	return IsValidTarget(npcTarget) and
 		npcTarget:HasModifier("modifier_enigma_malefice");
+end
+
+function HaveRemovedRegenBuff(npcTarget)
+	return npcTarget:HasModifier('modifier_bottle_regeneration') or
+		npcTarget:HasModifier('modifier_flask_healing') or
+		npcTarget:HasModifier('modifier_clarity_potion');
 end
 
 function IsAllyHeroesBetweenMeAndTarget(hSource, hTarget, vLoc, nRadius)
@@ -1329,6 +1331,30 @@ end ]]
 function IsBotHaveItem(itemName)
 	local npcBot = GetBot();
 	local courier = GetBotCourier(npcBot);
+
+	--[[ 	local itemSlot = npcBot:FindItemSlot(itemName);
+	local itemSlotType = GetItemSlotType(itemSlot);
+
+	print(itemSlot)
+	print(itemSlotType)
+
+	if itemSlotType == ITEM_SLOT_TYPE_MAIN or
+		itemSlotType == ITEM_SLOT_TYPE_BACKPACK or
+		itemSlotType == ITEM_SLOT_TYPE_STASH
+	then
+		if itemSlotType == ITEM_SLOT_TYPE_MAIN
+		then
+			npcBot:ActionImmediate_Chat("Предмет уже есть в ИНВЕНТАРЕ!", true);
+		elseif itemSlotType == ITEM_SLOT_TYPE_BACKPACK
+		then
+			npcBot:ActionImmediate_Chat("Предмет уже есть в РЮКЗАКЕ!", true);
+		elseif itemSlotType == ITEM_SLOT_TYPE_STASH
+		then
+			npcBot:ActionImmediate_Chat("Предмет уже есть в ХРАНИЛИЩЕ!", true);
+		end
+		
+		return true;
+	end ]]
 
 	for i = 0, 16 do
 		local item = npcBot:GetItemInSlot(i)

@@ -263,7 +263,9 @@ function ConsiderWhirlingDeath()
                 end
             end
         end
-    elseif utility.PvEMode(npcBot)
+    end
+
+    if utility.PvEMode(npcBot)
     then
         local enemyCreeps = npcBot:GetNearbyCreeps(radiusAbility, true);
         if (#enemyCreeps > 1) and (ManaPercentage >= 0.6)
@@ -351,8 +353,10 @@ function ConsiderTimberChain()
                 end
             end
         end
-        -- Cast if need retreat
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Cast if need retreat
+    if utility.RetreatMode(npcBot)
     then
         local trees = npcBot:GetNearbyTrees(castRangeAbility);
         local closestTrees = npcBot:GetNearbyTrees(chainRadius);
@@ -409,8 +413,10 @@ function ConsiderReactiveArmor()
                 return BOT_ACTION_DESIRE_HIGH;
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (HealthPercentage <= 0.7) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
         then
@@ -445,7 +451,9 @@ function ConsiderFlamethrower()
                 return BOT_ACTION_DESIRE_HIGH;
             end
         end
-    elseif utility.PvEMode(npcBot)
+    end
+
+    if utility.PvEMode(npcBot)
     then
         local enemyCreeps = npcBot:GetNearbyCreeps(castRangeAbility, true);
         if (#enemyCreeps > 2) and (ManaPercentage >= 0.6)
@@ -530,8 +538,10 @@ function ConsiderChakram()
                 end
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -551,8 +561,10 @@ function ConsiderChakram()
                 end
             end
         end
-        -- Cast if push/defend/farm
-    elseif utility.PvEMode(npcBot)
+    end
+
+    -- Cast if push/defend/farm
+    if utility.PvEMode(npcBot)
     then
         local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility,
             radiusAbility, 0, 0);
@@ -673,8 +685,10 @@ function ConsiderSecondChakram()
                 end
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -694,8 +708,10 @@ function ConsiderSecondChakram()
                 end
             end
         end
-        -- Cast if push/defend/farm
-    elseif utility.PvEMode(npcBot)
+    end
+
+    -- Cast if push/defend/farm
+    if utility.PvEMode(npcBot)
     then
         local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility,
             radiusAbility, 0, 0);

@@ -165,8 +165,10 @@ function ConsiderSplitEarth()
                 return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -255,8 +257,10 @@ function ConsiderLightningStorm()
                 return BOT_MODE_DESIRE_HIGH, botTarget;
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -268,8 +272,10 @@ function ConsiderLightningStorm()
                 end
             end
         end
-        --  Pushing/defending/Farm
-    elseif utility.PvEMode(npcBot)
+    end
+
+    --  Pushing/defending/Farm
+    if utility.PvEMode(npcBot)
     then
         local enemyCreeps = npcBot:GetNearbyCreeps(castRangeAbility, true);
         if (#enemyCreeps >= 3) and (ManaPercentage >= 0.7)
@@ -281,8 +287,10 @@ function ConsiderLightningStorm()
                 return BOT_ACTION_DESIRE_HIGH, enemy;
             end
         end
-        -- Cast when laning
-    elseif botMode == BOT_MODE_LANING
+    end
+
+    -- Cast when laning
+    if botMode == BOT_MODE_LANING
     then
         local enemy = utility.GetWeakest(enemyAbility);
         if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)
@@ -310,8 +318,10 @@ function ConsiderNihilism()
             --npcBot:ActionImmediate_Chat("Использую Nihilism против врага!", true);
             return BOT_ACTION_DESIRE_HIGH;
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (HealthPercentage <= 0.8) and npcBot:WasRecentlyDamagedByAnyHero(5.0) or npcBot:WasRecentlyDamagedByTower(2.0)
         then

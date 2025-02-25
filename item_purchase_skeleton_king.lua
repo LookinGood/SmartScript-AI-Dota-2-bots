@@ -19,7 +19,7 @@ local ItemsToBuy =
 
 	"item_armlet",
 
-	"item_sange",
+	"item_vanguard",
 	"item_heavens_halberd",
 
 	"item_black_king_bar",
@@ -28,7 +28,7 @@ local ItemsToBuy =
 
 	"item_aghanims_shard",
 
-	"item_vanguard",
+	"item_sange",
 	"item_basher",
 	"item_abyssal_blade",
 

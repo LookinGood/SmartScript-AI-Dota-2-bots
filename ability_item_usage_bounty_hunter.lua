@@ -168,8 +168,10 @@ function ConsiderShurikenToss()
                 return BOT_MODE_DESIRE_HIGH, botTarget;
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -181,8 +183,10 @@ function ConsiderShurikenToss()
                 end
             end
         end
-        -- Cast when laning
-    elseif botMode == BOT_MODE_LANING
+    end
+
+    -- Cast when laning
+    if botMode == BOT_MODE_LANING
     then
         local enemy = utility.GetWeakest(enemyAbility);
         if enemy ~= nil and utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)
@@ -199,7 +203,7 @@ function ConsiderJinada()
         return;
     end
 
-    if (utility.IsHero(botTarget) or utility.IsRoshan(botTarget)) and utility.CanCastSpellOnTarget(ability, botTarget)
+    if (utility.IsHero(botTarget) or utility.IsBoss(botTarget)) and utility.CanCastSpellOnTarget(ability, botTarget)
     then
         if not ability:GetAutoCastState() then
             ability:ToggleAutoCast()
@@ -270,13 +274,17 @@ function ConsiderShadowWalk()
             --npcBot:ActionImmediate_Chat("Использую ShadowWalk для нападения!", true);
             return BOT_ACTION_DESIRE_VERYHIGH;
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         --npcBot:ActionImmediate_Chat("Использую ShadowWalk для отхода!", true);
         return BOT_MODE_DESIRE_VERYHIGH;
-        -- General use
-    elseif utility.WanderMode(npcBot)
+    end
+
+    -- General use
+    if utility.WanderMode(npcBot)
     then
         local enemyTowers = npcBot:GetNearbyTowers(1000, true);
         if (#enemyTowers == 0) and npcBot:GetCurrentActionType() ~= BOT_ACTION_TYPE_ATTACK

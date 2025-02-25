@@ -50,6 +50,7 @@ end
 local WildAxes = AbilitiesReal[1]
 local SummonBoar = AbilitiesReal[2]
 local SummonHawk = AbilitiesReal[3]
+local InnerBeast = AbilitiesReal[4]
 local DrumsOfSlom = AbilitiesReal[5]
 local PrimalRoar = AbilitiesReal[6]
 --SummonBoar = npcBot:GetAbilityByName("beastmaster_call_of_the_wild_boar");
@@ -68,6 +69,7 @@ function AbilityUsageThink()
     local castWildAxesDesire, castWildAxesLocation = ConsiderWildAxes();
     local castSummonBoarDesire = ConsiderSummonBoar();
     local castSummonHawkDesire = ConsiderSummonHawk();
+    local castInnerBeastDesire = ConsiderInnerBeast();
     local castDrumsOfSlomDesire = ConsiderDrumsOfSlom();
     local castPrimalRoarDesire, castPrimalRoarTarget = ConsiderPrimalRoar();
 
@@ -86,6 +88,12 @@ function AbilityUsageThink()
     if (castSummonHawkDesire ~= nil)
     then
         npcBot:Action_UseAbility(SummonHawk);
+        return;
+    end
+
+    if (castInnerBeastDesire ~= nil)
+    then
+        npcBot:Action_UseAbility(InnerBeast);
         return;
     end
 
@@ -138,8 +146,10 @@ function ConsiderWildAxes()
                 return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
             end
         end
-        -- Cast if push/defend/farm
-    elseif utility.PvEMode(npcBot)
+    end
+
+    -- Cast if push/defend/farm
+    if utility.PvEMode(npcBot)
     then
         local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility, radiusAbility,
             0, 0);
@@ -148,8 +158,10 @@ function ConsiderWildAxes()
             --npcBot:ActionImmediate_Chat("Использую WildAxes по вражеским крипам!", true);
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
         end
-        -- Cast when laning
-    elseif botMode == BOT_MODE_LANING
+    end
+
+    -- Cast when laning
+    if botMode == BOT_MODE_LANING
     then
         local enemy = utility.GetWeakest(enemyAbility);
         if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)
@@ -167,25 +179,29 @@ function ConsiderSummonBoar()
     end
 
     -- Attack use
-    if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
+    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
     then
-        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
+        if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= 2000
             then
                 return BOT_ACTION_DESIRE_HIGH;
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         local enemyAbility = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
         if (#enemyAbility > 0) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
         then
             return BOT_ACTION_DESIRE_HIGH;
         end
-        -- Cast if push/defend/farm/roshan
-    elseif utility.PvEMode(npcBot)
+    end
+
+    -- Cast if push/defend/farm/roshan
+    if utility.PvEMode(npcBot)
     then
         local enemyCreeps = npcBot:GetNearbyCreeps(1600, true);
         local enemyTowers = npcBot:GetNearbyTowers(1600, true);
@@ -242,6 +258,43 @@ function ConsiderSummonHawk()
     end
 end
 
+function ConsiderInnerBeast()
+    local ability = InnerBeast;
+    if not utility.IsAbilityAvailable(ability) then
+        return;
+    end
+
+    if npcBot:HasModifier("modifier_beastmaster_inner_beast")
+    then
+        return;
+    end
+
+    local attackTarget = npcBot:GetAttackTarget();
+
+    -- Attack use
+    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
+    then
+        if utility.IsHero(attackTarget) or utility.IsBoss(attackTarget)
+        then
+            if utility.CanCastSpellOnTarget(ability, attackTarget)
+            then
+                --npcBot:ActionImmediate_Chat("Использую InnerBeast на врага!", true);
+                return BOT_ACTION_DESIRE_HIGH;
+            end
+        end
+    end
+
+    if utility.PvEMode(npcBot)
+    then
+        if (ManaPercentage >= 0.5) and attackTarget:IsAncientCreep() and utility.CanCastSpellOnTarget(ability, attackTarget)
+            and (attackTarget:GetHealth() / attackTarget:GetMaxHealth() >= 0.4)
+        then
+            --npcBot:ActionImmediate_Chat("Использую InnerBeast на крипа!", true);
+            return BOT_ACTION_DESIRE_HIGH;
+        end
+    end
+end
+
 function ConsiderDrumsOfSlom()
     local ability = DrumsOfSlom;
     if not utility.IsAbilityAvailable(ability) then
@@ -259,8 +312,7 @@ function ConsiderDrumsOfSlom()
             for _, enemy in pairs(enemyAbility) do
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    npcBot:ActionImmediate_Chat("Использую Drums Of Slom по врагу в радиусе действия!",
-                        true);
+                    --npcBot:ActionImmediate_Chat("Использую Drums Of Slom по врагу в радиусе действия!", true);
                     return BOT_ACTION_DESIRE_HIGH;
                 end
             end
@@ -303,8 +355,10 @@ function ConsiderPrimalRoar()
                 return BOT_MODE_DESIRE_HIGH, botTarget;
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0) and (HealthPercentage <= 0.8)
         then

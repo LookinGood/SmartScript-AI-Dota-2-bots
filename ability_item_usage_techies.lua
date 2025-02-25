@@ -156,8 +156,10 @@ function ConsiderStickyBomb()
                     utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, speedAbility);
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -170,8 +172,10 @@ function ConsiderStickyBomb()
                 end
             end
         end
-        -- Cast if push/defend/farm
-    elseif utility.PvEMode(npcBot)
+    end
+
+    -- Cast if push/defend/farm
+    if utility.PvEMode(npcBot)
     then
         local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility, radiusAbility, 0,
             0);
@@ -180,8 +184,10 @@ function ConsiderStickyBomb()
             --npcBot:ActionImmediate_Chat("Использую StickyBomb по вражеским крипам!", true);
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
         end
-        -- Cast when laning
-    elseif botMode == BOT_MODE_LANING
+    end
+
+    -- Cast when laning
+    if botMode == BOT_MODE_LANING
     then
         local enemy = utility.GetWeakest(enemyAbility);
         if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.8)
@@ -317,8 +323,10 @@ function ConsiderBlastOff()
             --npcBot:ActionImmediate_Chat("Использую Blast Off для нападения!", true);
             return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
         end
-        -- Cast if need retreat
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Cast if need retreat
+    if utility.RetreatMode(npcBot)
     then
         if npcBot:DistanceFromFountain() >= castRangeAbility and (HealthPercentage <= 0.7) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
         then
@@ -363,6 +371,7 @@ function ConsiderMinefieldSign()
                 return BOT_ACTION_DESIRE_HIGH, botTarget:GetLocation();
             end
         end
+
         -- Retreat use
         if utility.RetreatMode(npcBot)
         then
@@ -418,8 +427,10 @@ function ConsiderProximityMines()
                 return BOT_MODE_DESIRE_HIGH, botTarget:GetLocation();
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
         if (#enemyAbility > 0)

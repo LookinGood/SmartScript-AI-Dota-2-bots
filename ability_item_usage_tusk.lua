@@ -137,9 +137,9 @@ function ConsiderIceShards()
     end
 
     -- Cast if attack enemy
-    if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
+    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
     then
-        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
+        if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
             then
@@ -147,8 +147,10 @@ function ConsiderIceShards()
                     utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, speedAbility);
             end
         end
-        -- Cast if push/defend/farm
-    elseif utility.PvEMode(npcBot)
+    end
+
+    -- Cast if push/defend/farm
+    if utility.PvEMode(npcBot)
     then
         local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility, radiusAbility,
             0, 0);
@@ -157,8 +159,10 @@ function ConsiderIceShards()
             --npcBot:ActionImmediate_Chat("Использую IceShards по вражеским крипам!", true);
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
         end
-        -- Cast when laning
-    elseif botMode == BOT_MODE_LANING
+    end
+
+    -- Cast when laning
+    if botMode == BOT_MODE_LANING
     then
         local enemy = utility.GetWeakest(enemyAbility);
         if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)
@@ -196,9 +200,9 @@ function ConsiderSnowball()
     end
 
     -- Cast if attack enemy
-    if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
+    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
     then
-        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
+        if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
                 and not utility.IsDisabled(botTarget)
@@ -206,8 +210,10 @@ function ConsiderSnowball()
                 return BOT_MODE_DESIRE_HIGH, botTarget;
             end
         end
-        -- Use if need retreat
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Use if need retreat
+    if utility.RetreatMode(npcBot)
     then
         if (HealthPercentage <= 0.7) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
         then
@@ -257,9 +263,9 @@ function ConsiderTagTeam()
     local radiusAbility = ability:GetSpecialValueInt("radius");
 
     -- Attack use
-    if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
+    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
     then
-        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
+        if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= radiusAbility
             then
@@ -267,8 +273,10 @@ function ConsiderTagTeam()
                 return BOT_ACTION_DESIRE_HIGH;
             end
         end
-        -- Retreat use
-        --[[     elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    --[[     if utility.RetreatMode(npcBot)
     then
         local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
         if (HealthPercentage <= 0.8) and (#enemyAbility > 0)
@@ -276,7 +284,6 @@ function ConsiderTagTeam()
             --npcBot:ActionImmediate_Chat("Использую TagTeam для отступления!", true);
             return BOT_ACTION_DESIRE_HIGH;
         end ]]
-    end
 end
 
 function ConsiderWalrusKick()
@@ -313,8 +320,10 @@ function ConsiderWalrusKick()
             --npcBot:ActionImmediate_Chat("Использую WalrusKick по врагу в радиусе действия!", true);
             return BOT_MODE_DESIRE_HIGH, botTarget;
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then

@@ -123,14 +123,17 @@ function ConsiderBlink()
                 return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
             end
         end
-        -- Cast if need retreat
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Cast if need retreat
+    if utility.RetreatMode(npcBot)
     then
         if npcBot:DistanceFromFountain() >= castRangeAbility
         then
             return BOT_ACTION_DESIRE_HIGH, utility.GetEscapeLocation(npcBot, castRangeAbility);
         end
     end
+
     -- Cast if get incoming spell
     if not utility.IsAbilityAvailable(Counterspell) and not utility.HaveReflectSpell(npcBot)
     then

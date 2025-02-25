@@ -145,8 +145,10 @@ function ConsiderBoundlessStrike()
                 return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -158,8 +160,10 @@ function ConsiderBoundlessStrike()
                 end
             end
         end
-        -- Cast if push/defend/farm
-    elseif utility.PvEMode(npcBot)
+    end
+
+    -- Cast if push/defend/farm
+    if utility.PvEMode(npcBot)
     then
         local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility,
             radiusAbility, 0, 0);
@@ -168,8 +172,10 @@ function ConsiderBoundlessStrike()
             --npcBot:ActionImmediate_Chat("Использую BoundlessStrike по вражеским крипам!", true);
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc, "location";
         end
-        -- Cast when laning
-    elseif botMode == BOT_MODE_LANING
+    end
+
+    -- Cast when laning
+    if botMode == BOT_MODE_LANING
     then
         local enemy = utility.GetWeakest(enemyAbility);
         if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)
@@ -189,8 +195,8 @@ function ConsiderTreeDance()
     local castRangeAbility = ability:GetCastRange();
     --local castRangePrimalSpring = PrimalSpring:GetCastRange();
     local trees = npcBot:GetNearbyTrees(castRangeAbility);
-    local ancient = GetAncient(GetTeam());
-    local mainTree = nil;
+    --local ancient = GetAncient(GetTeam());
+    --local mainTree = nil;
 
     if (#trees == 0)
     then
@@ -198,42 +204,59 @@ function ConsiderTreeDance()
     end
 
     -- Attack use
-    if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
+    if utility.PvPMode(npcBot)
     then
-        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
+        if utility.IsHero(botTarget)
         then
             if PrimalSpring:IsFullyCastable()
             then
                 for _, tree in pairs(trees)
                 do
-                    if GetUnitToLocationDistance(botTarget, GetTreeLocation(tree)) <= castRangeAbility
+                    if GetUnitToLocationDistance(botTarget, GetTreeLocation(tree)) < castRangeAbility
                     then
-                        mainTree = tree;
+                        --npcBot:ActionImmediate_Chat("Использую TreeDance для атаки!", true);
+                        return BOT_ACTION_DESIRE_VERYHIGH, tree;
                     end
                 end
-                if mainTree ~= nil
-                then
-                    --npcBot:ActionImmediate_Chat("Использую TreeDance для атаки!", true);
-                    return BOT_ACTION_DESIRE_VERYHIGH, mainTree;
-                end
-            end
-            -- Retreat use
-        elseif utility.RetreatMode(npcBot)
-        then
-            for _, tree in pairs(trees)
-            do
-                if GetUnitToLocationDistance(ancient, GetTreeLocation(tree)) < GetUnitToUnitDistance(ancient, npcBot)
-                then
-                    mainTree = tree;
-                end
-            end
-            if mainTree ~= nil
-            then
-                --npcBot:ActionImmediate_Chat("Использую TreeDance для отхода!", true);
-                return BOT_ACTION_DESIRE_VERYHIGH, mainTree;
             end
         end
     end
+
+    -- Cast if need retreat
+    if utility.RetreatMode(npcBot)
+    then
+        local fountain = utility.GetFountain(npcBot);
+        if npcBot:DistanceFromFountain() > castRangeAbility
+        then
+            for _, tree in pairs(trees)
+            do
+                if GetUnitToLocationDistance(npcBot, GetTreeLocation(tree)) > npcBot:GetAttackRange() and
+                    GetUnitToLocationDistance(npcBot, GetTreeLocation(tree)) < castRangeAbility and
+                    GetUnitToLocationDistance(fountain, GetTreeLocation(tree)) < GetUnitToUnitDistance(fountain, npcBot)
+                then
+                    npcBot:ActionImmediate_Chat("Использую TreeDance для отхода!", true);
+                    return BOT_ACTION_DESIRE_HIGH, tree;
+                end
+            end
+        end
+    end
+
+    -- Retreat use
+    --[[     if utility.RetreatMode(npcBot)
+    then
+        for _, tree in pairs(trees)
+        do
+            if GetUnitToLocationDistance(ancient, GetTreeLocation(tree)) < GetUnitToUnitDistance(ancient, npcBot)
+            then
+                mainTree = tree;
+            end
+        end
+        if mainTree ~= nil
+        then
+            npcBot:ActionImmediate_Chat("Использую TreeDance для отхода!", true);
+            return BOT_ACTION_DESIRE_VERYHIGH, mainTree;
+        end
+    end ]]
 end
 
 function ConsiderPrimalSpring()
@@ -346,9 +369,9 @@ function ConsiderMischief()
     end
 
     -- Attack use
-    if utility.PvPMode(npcBot) or npcBot:GetActiveMode() == BOT_MODE_ROSHAN
+    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
     then
-        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
+        if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) > attackRange
             then
@@ -356,8 +379,10 @@ function ConsiderMischief()
                 return BOT_ACTION_DESIRE_HIGH;
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         --npcBot:ActionImmediate_Chat("Использую Mischief для отступления!", true);
         return BOT_ACTION_DESIRE_HIGH;

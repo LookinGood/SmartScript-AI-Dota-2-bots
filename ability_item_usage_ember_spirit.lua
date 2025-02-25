@@ -183,7 +183,8 @@ function ConsiderSleightOfFist()
                         if utility.CanCastSpellOnTarget(ability, enemy)
                         then
                             --npcBot:ActionImmediate_Chat("Использую SleightOfFist что бы уклониться от снаряда по героям!", true);
-                            return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
+                            return BOT_ACTION_DESIRE_VERYHIGH,
+                                utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
                         end
                     end
                 end
@@ -193,7 +194,8 @@ function ConsiderSleightOfFist()
                         if utility.CanCastSpellOnTarget(ability, enemy)
                         then
                             --npcBot:ActionImmediate_Chat("Использую SleightOfFist что бы уклониться от снаряда по крипам!", true);
-                            return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
+                            return BOT_ACTION_DESIRE_VERYHIGH,
+                                utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
                         end
                     end
                 end
@@ -208,8 +210,10 @@ function ConsiderSleightOfFist()
         then
             return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
         end
-        -- Cast if push/defend/farm
-    elseif utility.PvEMode(npcBot)
+    end
+
+    -- Cast if push/defend/farm
+    if utility.PvEMode(npcBot)
     then
         local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility, radiusAbility, 0,
             0);
@@ -218,8 +222,10 @@ function ConsiderSleightOfFist()
             --npcBot:ActionImmediate_Chat("Использую SleightOfFist по вражеским крипам!", true);
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
         end
-        -- Cast when laning
-    elseif botMode == BOT_MODE_LANING
+    end
+
+    -- Cast when laning
+    if botMode == BOT_MODE_LANING
     then
         local enemy = utility.GetWeakest(enemyAbility);
         if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)
@@ -257,8 +263,10 @@ function ConsiderFlameGuard()
                 end
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (HealthPercentage <= 0.9) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
         then
@@ -294,8 +302,10 @@ function ConsiderActivateFireRemnant()
                 end
             end
         end
-        -- Use if need retreat
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Use if need retreat
+    if utility.RetreatMode(npcBot)
     then
         if #allyUnits > 0
         then
@@ -336,13 +346,18 @@ function ConsiderFireRemnant()
             if GetUnitToUnitDistance(npcBot, botTarget) > attackRange
             then
                 --npcBot:ActionImmediate_Chat("Использую FireRemnant для атаки!", true);
-                return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, speedAbility);
+                return BOT_ACTION_DESIRE_VERYHIGH,
+                    utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, speedAbility);
             else
-                return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, speedAbility) + RandomVector(radiusAbility);
+                return BOT_ACTION_DESIRE_VERYHIGH,
+                    utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, speedAbility) +
+                    RandomVector(radiusAbility);
             end
         end
-        -- Use if need retreat
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Use if need retreat
+    if utility.RetreatMode(npcBot)
     then
         if not npcBot:HasModifier("modifier_ember_spirit_fire_remnant_timer") and (HealthPercentage <= 0.9)
             and npcBot:WasRecentlyDamagedByAnyHero(2.0) and npcBot:DistanceFromFountain() > castRangeAbility / 2

@@ -157,7 +157,9 @@ function ShouldTP()
         npcBot:HasModifier("modifier_fountain_fury_swipes_damage_increase") or
         npcBot:HasModifier("modifier_skeleton_king_reincarnation_scepter_active") or
         npcBot:HasModifier("modifier_teleporting") or
-        npcBot:HasModifier("modifier_wisp_relocate_return")
+        npcBot:HasModifier("modifier_wisp_relocate_return") or
+        npcBot:HasModifier("modifier_dazzle_nothl_projection_soul_clone") or
+        npcBot:HasModifier("modifier_alchemist_unstable_concoction")
     then
         return false, nil;
     end

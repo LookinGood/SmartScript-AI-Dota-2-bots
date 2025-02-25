@@ -157,8 +157,10 @@ function ConsiderFortunesEnd()
                 return BOT_MODE_DESIRE_HIGH, botTarget;
             end
         end
-        --  Pushing/defending/Farm
-    elseif utility.PvEMode(npcBot)
+    end
+
+    --  Pushing/defending/Farm
+    if utility.PvEMode(npcBot)
     then
         local enemyCreeps = npcBot:GetNearbyCreeps(radiusAbility, true);
         if (#enemyCreeps > 1) and (ManaPercentage >= 0.5)
@@ -171,8 +173,10 @@ function ConsiderFortunesEnd()
                 end
             end
         end
-        -- Cast when laning
-    elseif botMode == BOT_MODE_LANING
+    end
+
+    -- Cast when laning
+    if botMode == BOT_MODE_LANING
     then
         local enemy = utility.GetWeakest(enemyAbility);
         if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)
@@ -261,12 +265,13 @@ function ConsiderPurifyingFlames()
         end
     end
 
-    -- Cast to buff allies
+    -- Cast to heal allies
     if (#allyAbility > 0)
     then
         for _, ally in pairs(allyAbility)
         do
             if utility.IsHero(ally) and utility.CanBeHeal(ally) and (ally:GetHealth() <= ally:GetMaxHealth() - healAbility)
+                and not utility.HaveRemovedRegenBuff(ally)
             then
                 local magicResist = ally:GetMagicResist();
                 if utility.TargetCantDie(ally) or magicResist >= 0.5

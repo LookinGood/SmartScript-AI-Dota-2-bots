@@ -17,16 +17,17 @@ local ItemsToBuy =
 
 	"item_hand_of_midas",
 
-	"item_vanguard",
-
 	"item_black_king_bar",
 
+	"item_blink",
+
+	"item_sange",
 	"item_basher",
 	"item_abyssal_blade",
 
-	"item_overwhelming_blink",
-
 	"item_radiance",
+
+	"item_overwhelming_blink",
 
 	"item_moon_shard",
 

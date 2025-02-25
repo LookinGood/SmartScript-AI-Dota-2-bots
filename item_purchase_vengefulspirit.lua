@@ -26,7 +26,6 @@ local ItemsToBuy =
 
     "item_aghanims_shard",
 
-    "item_lesser_crit",
 	"item_angels_demise",
 
     "item_yasha",

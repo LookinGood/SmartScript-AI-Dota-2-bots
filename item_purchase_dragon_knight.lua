@@ -17,19 +17,19 @@ local ItemsToBuy =
 
     "item_power_treads",
 
-    "item_sange",
+    "item_vanguard",
     "item_heavens_halberd",
 
     "item_black_king_bar",
 
-    "item_aghanims_shard",
+    "item_blink",
 
     "item_lesser_crit",
     "item_greater_crit",
 
-    "item_ultimate_scepter",
+    "item_aghanims_shard",
 
-    "item_blink",
+    "item_ultimate_scepter",
 
     "item_ultimate_scepter_2",
 

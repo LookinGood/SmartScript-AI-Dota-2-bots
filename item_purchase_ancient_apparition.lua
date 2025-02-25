@@ -32,7 +32,6 @@ local ItemsToBuy =
 
 	"item_wind_waker",
 
-	"item_maelstrom",
 	"item_gungir",
 
 	"item_soul_booster",

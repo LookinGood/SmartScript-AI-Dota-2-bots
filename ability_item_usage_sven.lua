@@ -121,8 +121,10 @@ function ConsiderStormHammer()
                 return BOT_MODE_DESIRE_HIGH, botTarget;
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -136,7 +138,7 @@ function ConsiderStormHammer()
         end
     end
 
---[[     if npcBot:HasScepter()
+    --[[     if npcBot:HasScepter()
     then
         if utility.PvPMode(npcBot)
         then
@@ -186,9 +188,9 @@ function ConsiderWarcry()
     end
 
     -- Attack use
-    if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
+    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
     then
-        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= npcBot:GetAttackRange() * 4
+        if utility.IsHero(botTarget) or utility.IsBoss(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= npcBot:GetAttackRange() * 4
         then
             --npcBot:ActionImmediate_Chat("Использую Warcry для нападения!", true);
             return BOT_ACTION_DESIRE_HIGH;

@@ -155,6 +155,7 @@ function ConsiderAstralImprisonment()
     if utility.PvPMode(npcBot)
     then
         if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget) and not utility.IsDisabled(botTarget)
+            and not utility.IsUnitNeedToHide(botTarget)
         then
             if GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility and GetUnitToUnitDistance(npcBot, botTarget) > npcBot:GetAttackRange()
             then
@@ -162,13 +163,15 @@ function ConsiderAstralImprisonment()
                 return BOT_ACTION_DESIRE_HIGH, botTarget;
             end
         end
-        -- Use if need retreat
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Use if need retreat
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
             for _, enemy in pairs(enemyAbility) do
-                if utility.CanCastSpellOnTarget(ability, enemy) and not utility.IsDisabled(enemy)
+                if utility.CanCastSpellOnTarget(ability, enemy) and not utility.IsDisabled(enemy) and not utility.IsUnitNeedToHide(enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую AstralImprisonment что бы оторваться от врага!", true);
                     return BOT_ACTION_DESIRE_HIGH, enemy;

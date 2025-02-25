@@ -30,7 +30,6 @@ local ItemsToBuy =
 
 	"item_devastator",
 
-	"item_lesser_crit",
 	"item_angels_demise",
 
 	"item_kaya",

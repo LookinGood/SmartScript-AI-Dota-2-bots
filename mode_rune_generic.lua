@@ -15,9 +15,10 @@ local runeList = {
     RUNE_WISDOM_2,
 }
 
-local bountyRuneRadiant = Vector(2183.8, -3906.2, 155.7);
+local bountyRuneRadiant = Vector(570.6, -4698.1, 170.3);
 local powerfulRuneRadiant = Vector(1155.8, -1230.5, 84.7);
-local bountyRuneDire = Vector(-1559.8, 3460.0, 208.5);
+
+local bountyRuneDire = Vector(-1158.2, 4435.0, 188.6);
 local powerfulRuneDire = Vector(-1639.8, 1103.5, 58.3);
 
 local checkRuneTimer = 0.0;

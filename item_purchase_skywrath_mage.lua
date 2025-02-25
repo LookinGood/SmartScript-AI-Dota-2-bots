@@ -35,7 +35,6 @@ local ItemsToBuy =
 
 	"item_ultimate_scepter_2",
 
-	"item_maelstrom",
 	"item_gungir",
 
 	"item_arcane_blink",

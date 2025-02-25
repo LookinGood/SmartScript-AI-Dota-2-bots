@@ -155,8 +155,10 @@ function ConsiderShadowStrike()
                 end
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (enemyAbility > 0)
         then
@@ -177,8 +179,10 @@ function ConsiderShadowStrike()
                 end
             end
         end
-        -- Cast if push/defend/farm
-    elseif utility.PvEMode(npcBot)
+    end
+
+    -- Cast if push/defend/farm
+    if utility.PvEMode(npcBot)
     then
         if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_POINT)
         then
@@ -191,8 +195,10 @@ function ConsiderShadowStrike()
                 return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc, "location";
             end
         end
-        -- Cast when laning
-    elseif botMode == BOT_MODE_LANING
+    end
+
+    -- Cast when laning
+    if botMode == BOT_MODE_LANING
     then
         local enemy = utility.GetWeakest(enemyAbility);
         if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)
@@ -250,8 +256,10 @@ function ConsiderBlink()
                 return BOT_ACTION_DESIRE_HIGH, botTarget:GetLocation() + RandomVector(radiusAbility);
             end
         end
-        -- Cast if need retreat
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Cast if need retreat
+    if utility.RetreatMode(npcBot)
     then
         if npcBot:DistanceFromFountain() >= castRangeAbility
         then
@@ -298,7 +306,9 @@ function ConsiderScreamOfPain()
                 end
             end
         end
-    elseif utility.PvEMode(npcBot)
+    end
+
+    if utility.PvEMode(npcBot)
     then
         local enemyCreeps = npcBot:GetNearbyCreeps(radiusAbility, true);
         if (#enemyCreeps > 2) and (ManaPercentage >= 0.6)
@@ -367,8 +377,10 @@ function ConsiderSonicWave()
             --npcBot:ActionImmediate_Chat("Использую SonicWave по врагам!", true);
             return BOT_ACTION_DESIRE_HIGH, locationAoE.targetloc;
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0) and (HealthPercentage <= 0.6) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
         then

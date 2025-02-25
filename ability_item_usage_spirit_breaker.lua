@@ -144,9 +144,9 @@ function ConsiderChargeOfDarkness()
     end
 
     -- Attack use
-    if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
+    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
     then
-        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
+        if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and not utility.IsDisabled(botTarget)
                 and not botTarget:HasModifier('modifier_fountain_aura_buff')
@@ -167,8 +167,10 @@ function ConsiderChargeOfDarkness()
                 end
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         local enemyHeroes = GetUnitList(UNIT_LIST_ENEMY_HEROES);
         local enemyCreeps = GetUnitList(UNIT_LIST_ENEMY_CREEPS);
@@ -212,9 +214,9 @@ function ConsiderBulldoze()
     local attackRange = npcBot:GetAttackRange();
 
     -- Attack use
-    if utility.PvPMode(npcBot) or npcBot:GetActiveMode() == BOT_MODE_ROSHAN
+    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
     then
-        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
+        if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
         then
             if GetUnitToUnitDistance(npcBot, botTarget) <= (attackRange * 4)
             then
@@ -222,8 +224,10 @@ function ConsiderBulldoze()
                 return BOT_ACTION_DESIRE_HIGH;
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (HealthPercentage <= 0.8) and npcBot:DistanceFromFountain() >= 1000
         then
@@ -307,9 +311,9 @@ function ConsiderNetherStrike()
     end
 
     -- Attack use
-    if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
+    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
     then
-        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
+        if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
                 and not utility.IsDisabled(botTarget)

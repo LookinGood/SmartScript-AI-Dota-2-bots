@@ -27,8 +27,7 @@ local ItemsToBuy =
 	"item_aghanims_shard",
 
 	"item_lesser_crit",
-	"item_phylactery",
-	"item_angels_demise",
+	"item_greater_crit",
 
 	"item_ultimate_scepter",
 	"item_ultimate_scepter_2",

@@ -135,7 +135,9 @@ function ConsiderStarstorm()
                 end
             end
         end
-    elseif utility.PvEMode(npcBot)
+    end
+
+    if utility.PvEMode(npcBot)
     then
         local enemyCreeps = npcBot:GetNearbyCreeps(radiusAbility, true);
         if (#enemyCreeps > 2) and (ManaPercentage >= 0.6)
@@ -212,8 +214,10 @@ function ConsiderSacredArrow()
                 end
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -260,8 +264,10 @@ function ConsiderLeap()
                 --npcBot:ActionImmediate_Chat("Использую Leap обычный, для атаки!", true);
                 return BOT_ACTION_DESIRE_HIGH, nil, nil;
             end
-            -- Retreat use
-        elseif utility.RetreatMode(npcBot)
+        end
+
+        -- Retreat use
+        if utility.RetreatMode(npcBot)
         then
             if (#enemyAbility > 0) and npcBot:IsFacingLocation(utility.SafeLocation(npcBot), 40)
             then
@@ -285,8 +291,10 @@ function ConsiderLeap()
                 npcBot:ActionImmediate_Chat("Использую Leap шардовый, для атаки!", true);
                 return BOT_ACTION_DESIRE_HIGH, botTarget:GetLocation(), "location";
             end
-            -- Retreat use
-        elseif utility.RetreatMode(npcBot)
+        end
+
+        -- Retreat use
+        if utility.RetreatMode(npcBot)
         then
             if (#enemyAbility > 0)
             then

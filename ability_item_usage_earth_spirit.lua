@@ -211,8 +211,10 @@ function ConsiderBoulderSmash()
                 end
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyHeroesNearby > 0)
         then
@@ -225,8 +227,10 @@ function ConsiderBoulderSmash()
                 end
             end
         end
-        -- Cast if push/defend/farm
-    elseif utility.PvEMode(npcBot)
+    end
+
+    -- Cast if push/defend/farm
+    if utility.PvEMode(npcBot)
     then
         local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility, radiusAbility,
             0, 0);
@@ -302,8 +306,10 @@ function ConsiderRollingBoulder()
                 end
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if npcBot:DistanceFromFountain() >= minCastRange
         then
@@ -322,8 +328,10 @@ function ConsiderRollingBoulder()
                 return BOT_ACTION_DESIRE_HIGH, utility.GetEscapeLocation(npcBot, minCastRange), false, nil;
             end
         end
-        -- Cast if push/defend/farm
-    elseif utility.PvEMode(npcBot) and (#enemyAbility <= 0)
+    end
+
+    -- Cast if push/defend/farm
+    if utility.PvEMode(npcBot) and (#enemyAbility <= 0)
     then
         local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), minCastRange, radiusAbility,
             0, 0);
@@ -508,8 +516,10 @@ function ConsiderEnchantRemnant()
                 end
             end
         end
-        -- Use if need retreat
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Use if need retreat
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then

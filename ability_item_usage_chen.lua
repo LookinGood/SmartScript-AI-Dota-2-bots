@@ -135,8 +135,10 @@ function ConsiderPenitence()
                 return BOT_MODE_DESIRE_HIGH, botTarget;
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -147,8 +149,10 @@ function ConsiderPenitence()
                 end
             end
         end
-        --  Pushing/defending/Farm
-    elseif utility.PvEMode(npcBot)
+    end
+
+    --  Pushing/defending/Farm
+    if utility.PvEMode(npcBot)
     then
         local enemyCreeps = npcBot:GetNearbyCreeps(castRangeAbility, true)
         if (ManaPercentage >= 0.5)

@@ -132,8 +132,10 @@ function ConsiderAetherRemnant()
                     utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, speedAbility);
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -145,8 +147,10 @@ function ConsiderAetherRemnant()
                 end
             end
         end
-        -- Cast if push/defend/farm
-    elseif utility.PvEMode(npcBot)
+    end
+
+    -- Cast if push/defend/farm
+    if utility.PvEMode(npcBot)
     then
         local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility,
             radiusAbility, 0, 0);
@@ -207,7 +211,10 @@ function ConsiderDissimilate()
                 end
             end
         end
-    elseif utility.PvEMode(npcBot)
+    end
+
+    -- Cast if push/defend/farm
+    if utility.PvEMode(npcBot)
     then
         local enemyCreeps = npcBot:GetNearbyCreeps(radiusAbility, true);
         if (#enemyCreeps > 2) and (ManaPercentage >= 0.6)
@@ -259,12 +266,16 @@ function ConsiderResonantPulse()
                 end
             end
         end
-        -- Roshan use
-        if utility.IsRoshan(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= radiusAbility
-        then
-            return BOT_ACTION_DESIRE_HIGH;
-        end
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Boss use
+    if utility.IsBoss(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= radiusAbility
+    then
+        return BOT_ACTION_DESIRE_HIGH;
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (not npcBot:HasModifier("modifier_void_spirit_resonant_pulse_physical_buff")) and
             (npcBot:WasRecentlyDamagedByAnyHero(2.0) or
@@ -273,7 +284,10 @@ function ConsiderResonantPulse()
         then
             return BOT_ACTION_DESIRE_HIGH;
         end
-    elseif utility.PvEMode(npcBot)
+    end
+
+    -- Cast if push/defend/farm
+    if utility.PvEMode(npcBot)
     then
         local enemyCreeps = npcBot:GetNearbyCreeps(radiusAbility, true);
         if (#enemyCreeps > 2) and (ManaPercentage >= 0.6) and not npcBot:HasModifier("modifier_void_spirit_resonant_pulse_physical_buff")
@@ -329,8 +343,10 @@ function ConsiderAstralStep()
                     utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (HealthPercentage <= 0.6) and npcBot:DistanceFromFountain() >= maxCastRange
         then
@@ -341,8 +357,10 @@ function ConsiderAstralStep()
                 return BOT_ACTION_DESIRE_HIGH, utility.GetEscapeLocation(npcBot, maxCastRange);
             end
         end
-        -- Cast if push/defend/farm
-    elseif utility.PvEMode(npcBot) and (#enemyAbility <= 0)
+    end
+
+    -- Cast if push/defend/farm
+    if utility.PvEMode(npcBot) and (#enemyAbility <= 0)
     then
         local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), maxCastRange, radiusAbility,
             0, 0);

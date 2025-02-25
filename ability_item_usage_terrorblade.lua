@@ -143,8 +143,10 @@ function ConsiderReflection()
         then
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         local enemyAbility = npcBot:GetNearbyHeroes(utility.GetCurrentCastDistance(castRangeAbility + radiusAbility),
             true, BOT_MODE_NONE);
@@ -173,25 +175,29 @@ function ConsiderConjureImage()
     end
 
     -- Attack use
-    if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
+    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
     then
-        if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
+        if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
         then
             if utility.CanCastOnInvulnerableTarget(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= 2000
             then
                 return BOT_ACTION_DESIRE_HIGH;
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         local enemyAbility = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
         if (#enemyAbility > 0) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
         then
             return BOT_ACTION_DESIRE_HIGH;
         end
-        -- Cast if push/defend/farm/roshan
-    elseif utility.PvEMode(npcBot)
+    end
+
+    -- Cast if push/defend/farm/roshan
+    if utility.PvEMode(npcBot)
     then
         local enemyCreeps = npcBot:GetNearbyCreeps(1600, true);
         local enemyTowers = npcBot:GetNearbyTowers(1600, true);
@@ -255,15 +261,17 @@ function ConsiderDemonZeal()
                 --npcBot:ActionImmediate_Chat("Использую DemonZeal для нападения!", true);
                 return BOT_ACTION_DESIRE_HIGH;
             end
-            -- Retreat use
-        elseif utility.RetreatMode(npcBot)
+        end
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
+    then
+        local enemyAbility = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
+        if (#enemyAbility > 0) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
         then
-            local enemyAbility = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
-            if (#enemyAbility > 0) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
-            then
-                --npcBot:ActionImmediate_Chat("Использую DemonZeal для отступления!", true);
-                return BOT_ACTION_DESIRE_HIGH;
-            end
+            --npcBot:ActionImmediate_Chat("Использую DemonZeal для отступления!", true);
+            return BOT_ACTION_DESIRE_HIGH;
         end
     end
 end
@@ -298,8 +306,10 @@ function ConsiderTerrorWave()
             --npcBot:ActionImmediate_Chat("Использую TerrorWave для нападения!", true);
             return BOT_ACTION_DESIRE_HIGH;
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
         then

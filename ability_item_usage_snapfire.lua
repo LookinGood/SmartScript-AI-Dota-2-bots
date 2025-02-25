@@ -194,8 +194,10 @@ function ConsiderScatterblast()
                     utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, speedAbility);
             end
         end
-        -- Retreat mode
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat mode
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -208,8 +210,10 @@ function ConsiderScatterblast()
                 end
             end
         end
-        -- Cast if push/defend/farm
-    elseif utility.PvEMode(npcBot)
+    end
+
+    -- Cast if push/defend/farm
+    if utility.PvEMode(npcBot)
     then
         local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility, radiusAbility,
             0, 0);
@@ -218,8 +222,10 @@ function ConsiderScatterblast()
             --npcBot:ActionImmediate_Chat("Использую Scatterblast по вражеским крипам!", true);
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
         end
-        -- Cast when laning
-    elseif botMode == BOT_MODE_LANING
+    end
+
+    -- Cast when laning
+    if botMode == BOT_MODE_LANING
     then
         local enemy = utility.GetWeakest(enemyAbility);
         if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)
@@ -277,6 +283,7 @@ function ConsiderFiresnapCookie()
             end
         end
     end
+    
     -- Retreat use
     if (#allyHeroAbility > 0)
     then

@@ -24,7 +24,7 @@ local ItemsToBuy =
 
     "item_spirit_vessel",
 
-    "item_sange",
+    "item_vanguard",
     "item_heavens_halberd",
 
     "item_ultimate_scepter",

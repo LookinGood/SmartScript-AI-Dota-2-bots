@@ -79,9 +79,9 @@ function AbilityUsageThink()
 
     if (castFiendsGateDesire ~= nil)
     then
-        -- npcBot:Action_ClearActions(false);
-        npcBot:Action_Delay(5.0);
-        npcBot:Action_UseAbilityOnLocation(FiendsGate, castFiendsGateLocation);
+        npcBot:Action_ClearActions(false);
+        npcBot:ActionQueue_Delay(5.0);
+        npcBot:ActionQueue_UseAbilityOnLocation(FiendsGate, castFiendsGateLocation);
         return;
     end
 end
@@ -107,8 +107,10 @@ function ConsiderFirestorm()
                 return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
             end
         end
-        -- Cast if push/defend/farm
-    elseif utility.PvEMode(npcBot)
+    end
+
+    -- Cast if push/defend/farm
+    if utility.PvEMode(npcBot)
     then
         local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility, radiusAbility,
             0, 0);
@@ -117,8 +119,10 @@ function ConsiderFirestorm()
             --npcBot:ActionImmediate_Chat("Использую Firestorm по вражеским крипам!", true);
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
         end
-        -- Cast when laning
-    elseif botMode == BOT_MODE_LANING
+    end
+
+    -- Cast when laning
+    if botMode == BOT_MODE_LANING
     then
         local enemy = utility.GetWeakest(enemyAbility);
         if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)
@@ -165,8 +169,10 @@ function ConsiderPitOfMalice()
                 return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -209,7 +215,10 @@ function ConsiderFiendsGate()
                 end
             end
         end
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (HealthPercentage <= 0.6) and npcBot:WasRecentlyDamagedByAnyHero(2.0) and npcBot:DistanceFromFountain() > minDistance
         then

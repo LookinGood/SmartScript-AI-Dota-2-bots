@@ -50,7 +50,7 @@ end
 local PoisonTouch = AbilitiesReal[1]
 local ShallowGrave = AbilitiesReal[2]
 local ShadowWave = AbilitiesReal[3]
-local BadJuju = AbilitiesReal[6]
+local NothlProjection = AbilitiesReal[6]
 
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
@@ -65,7 +65,7 @@ function AbilityUsageThink()
     local castPoisonTouchDesire, castPoisonTouchTarget = ConsiderPoisonTouch();
     local castShallowGraveDesire, castShallowGraveTarget = ConsiderShallowGrave();
     local castShadowWaveDesire, castShadowWaveTarget = ConsiderShadowWave();
-    local castBadJujuDesire = ConsiderBadJuju();
+    local castNothlProjectionDesire, castNothlProjectionLocation = ConsiderNothlProjection();
 
     if (castPoisonTouchDesire ~= nil)
     then
@@ -85,9 +85,9 @@ function AbilityUsageThink()
         return;
     end
 
-    if (castBadJujuDesire ~= nil)
+    if (castNothlProjectionDesire ~= nil)
     then
-        npcBot:Action_UseAbility(BadJuju);
+        npcBot:Action_UseAbilityOnLocation(NothlProjection, castNothlProjectionLocation);
         return;
     end
 end
@@ -106,7 +106,8 @@ function ConsiderPoisonTouch()
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) or enemy:IsChanneling()
+            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) or
+                (enemy:IsChanneling() and npcBot:HasModifier("modifier_dazzle_nothl_projection_soul_clone"))
             then
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
@@ -122,14 +123,16 @@ function ConsiderPoisonTouch()
     then
         if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
         then
-            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility + 200
             then
                 --npcBot:ActionImmediate_Chat("Использую PoisonTouch по врагу в радиусе действия!",true);
                 return BOT_MODE_DESIRE_HIGH, botTarget;
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -141,8 +144,10 @@ function ConsiderPoisonTouch()
                 end
             end
         end
-        --  Pushing/defending/Farm
-    elseif utility.PvEMode(npcBot)
+    end
+
+    --  Pushing/defending/Farm
+    if utility.PvEMode(npcBot)
     then
         local enemyCreeps = npcBot:GetNearbyCreeps(castRangeAbility, true)
         if (#enemyCreeps > 2) and (ManaPercentage >= 0.5)
@@ -154,8 +159,10 @@ function ConsiderPoisonTouch()
                 end
             end
         end
-        -- Cast when laning
-    elseif botMode == BOT_MODE_LANING
+    end
+
+    -- Cast when laning
+    if botMode == BOT_MODE_LANING
     then
         if (#enemyAbility > 0) and (ManaPercentage >= 0.7)
         then
@@ -275,7 +282,7 @@ function ConsiderShadowWave()
     end
 
     -- Attack use
-    if npcBot:HasScepter()
+    if utility.CheckFlag(ability:GetTargetTeam(), ABILITY_TARGET_TEAM_ENEMY)
     then
         if utility.PvPMode(npcBot)
         then
@@ -289,21 +296,30 @@ function ConsiderShadowWave()
     end
 end
 
-function ConsiderBadJuju()
-    local ability = BadJuju;
+function ConsiderNothlProjection()
+    local ability = NothlProjection;
     if not utility.IsAbilityAvailable(ability) then
         return;
     end
 
-    -- General use
+    local castRangeAbility = ability:GetCastRange() + 200;
+    local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
+
+    -- Attack use
     if utility.PvPMode(npcBot)
     then
-        if (not PoisonTouch:IsCooldownReady() and
-                not ShallowGrave:IsCooldownReady() and
-                not ShadowWave:IsCooldownReady())
+        if utility.IsHero(botTarget)
         then
-            --npcBot:ActionImmediate_Chat("Использую BadJuju пока другая способность на кулдауне!",true);
-            return BOT_ACTION_DESIRE_LOW;
+            if utility.CanCastOnInvulnerableTarget(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+            then
+                if (PoisonTouch:IsCooldownReady() or
+                        ShallowGrave:IsCooldownReady() or
+                        ShadowWave:IsCooldownReady())
+                then
+                    --npcBot:ActionImmediate_Chat("Использую NothlProjection на врага!", true);
+                    return BOT_ACTION_DESIRE_ABSOLUTE, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
+                end
+            end
         end
     end
 end
@@ -336,6 +352,33 @@ function ConsiderGoodJuju()
                 --npcBot:ActionImmediate_Chat("Использую GoodJuju на союзного героя!",true);
                 return BOT_ACTION_DESIRE_HIGH, eGoodJuju;
             end
+        end
+    end
+end ]]
+
+--local BadJuju = AbilitiesReal[6]
+--local castBadJujuDesire = ConsiderBadJuju();
+--[[     if (castBadJujuDesire ~= nil)
+    then
+        npcBot:Action_UseAbility(BadJuju);
+        return;
+    end ]]
+
+--[[ function ConsiderBadJuju()
+    local ability = BadJuju;
+    if not utility.IsAbilityAvailable(ability) then
+        return;
+    end
+
+    -- General use
+    if utility.PvPMode(npcBot)
+    then
+        if (not PoisonTouch:IsCooldownReady() and
+                not ShallowGrave:IsCooldownReady() and
+                not ShadowWave:IsCooldownReady())
+        then
+            --npcBot:ActionImmediate_Chat("Использую BadJuju пока другая способность на кулдауне!",true);
+            return BOT_ACTION_DESIRE_LOW;
         end
     end
 end ]]

@@ -159,8 +159,10 @@ function ConsiderNetherBlast()
                     botTarget;
             end
         end
-        -- Cast if push/defend/farm
-    elseif utility.PvEMode(npcBot)
+    end
+
+    -- Cast if push/defend/farm
+    if utility.PvEMode(npcBot)
     then
         if (ManaPercentage >= 0.5)
         then
@@ -200,8 +202,10 @@ function ConsiderNetherBlast()
                 return BOT_ACTION_DESIRE_HIGH, enemyAncient:GetLocation(), nil;
             end
         end
-        -- Cast when laning
-    elseif botMode == BOT_MODE_LANING
+    end
+
+    -- Cast when laning
+    if botMode == BOT_MODE_LANING
     then
         local enemy = utility.GetWeakest(enemyAbility);
         if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)
@@ -233,8 +237,10 @@ function ConsiderDecrepify()
                 return BOT_ACTION_DESIRE_HIGH, botTarget;
             end
         end ]]
-        -- Use if need retreat
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Use if need retreat
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility == 1)
         then
@@ -322,8 +328,10 @@ function ConsiderLifeDrain()
                 return BOT_ACTION_DESIRE_HIGH, botTarget;
             end
         end
-        -- Use if need retreat
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Use if need retreat
+    if utility.RetreatMode(npcBot)
     then
         if (HealthPercentage <= 0.6)
         then

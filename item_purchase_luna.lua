@@ -17,17 +17,15 @@ local ItemsToBuy =
 
 	"item_mask_of_madness",
 
-	"item_phylactery",
-
 	"item_dragon_lance",
-
-	"item_black_king_bar",
 
 	"item_yasha",
 	"item_manta",
 
+	"item_black_king_bar",
+
 	"item_lesser_crit",
-	"item_angels_demise",
+	"item_greater_crit",
 
 	"item_ultimate_scepter",
 	"item_ultimate_scepter_2",

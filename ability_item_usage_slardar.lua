@@ -105,8 +105,10 @@ function ConsiderGuardianSprint()
                 return BOT_ACTION_DESIRE_HIGH;
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         local enemyAbility = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
         if (#enemyAbility > 0) or npcBot:WasRecentlyDamagedByAnyHero(2.0) or npcBot:WasRecentlyDamagedByTower(2.0)
@@ -189,8 +191,10 @@ function ConsiderCorrosiveHaze()
                 end
             end
         end
-        -- Cast if push/defend/farm
-    elseif utility.PvEMode(npcBot)
+    end
+
+    -- Cast if push/defend/farm
+    if utility.PvEMode(npcBot)
     then
         local enemyCreeps = npcBot:GetNearbyCreeps(castRangeAbility, true);
         if (#enemyCreeps > 0) and (ManaPercentage >= 0.2)
@@ -203,8 +207,10 @@ function ConsiderCorrosiveHaze()
                 end
             end
         end
-        -- General use
-    elseif botMode ~= BOT_MODE_LANING
+    end
+
+    -- General use
+    if botMode ~= BOT_MODE_LANING
     then
         if (#enemyAbility > 0) and (ManaPercentage >= 0.3)
         then

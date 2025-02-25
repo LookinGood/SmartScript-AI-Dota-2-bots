@@ -7,7 +7,7 @@ local ItemsToBuy =
 
 	"item_flask",
 
-	"item_faerie_fire",
+	"item_quelling_blade",
 
 	"item_magic_wand",
 
@@ -15,21 +15,18 @@ local ItemsToBuy =
 
 	"item_phase_boots",
 
-	"item_maelstrom",
-
-	"item_vanguard",
+	"item_bfury",
 
 	"item_yasha",
 	"item_manta",
 
 	"item_aghanims_shard",
 
+	"item_sange",
 	"item_basher",
 	"item_abyssal_blade",
 
 	"item_ultimate_scepter",
-
-	"item_mjollnir",
 
 	"item_butterfly",
 

@@ -157,8 +157,10 @@ function ConsiderFissure()
                 return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
             end
         end
+    end
+
         -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -169,8 +171,10 @@ function ConsiderFissure()
                 end
             end
         end
+    end
+
         -- Cast if push/defend/farm
-    elseif utility.PvEMode(npcBot)
+    if utility.PvEMode(npcBot)
     then
         local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility,
             radiusAbility, 0, 0);

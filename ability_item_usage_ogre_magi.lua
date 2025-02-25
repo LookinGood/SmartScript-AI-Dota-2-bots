@@ -145,8 +145,10 @@ function ConsiderFireblast()
                 return BOT_MODE_DESIRE_HIGH, botTarget;
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -197,8 +199,10 @@ function ConsiderIgnite()
                 return BOT_MODE_DESIRE_HIGH, botTarget;
             end
         end
+    end
+
         -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -210,8 +214,10 @@ function ConsiderIgnite()
                 end
             end
         end
+    end
+
         -- Cast if push/defend/farm
-    elseif utility.PvEMode(npcBot)
+    if utility.PvEMode(npcBot)
     then
         local enemyCreeps = npcBot:GetNearbyCreeps(castRangeAbility, true);
         if (#enemyCreeps > 3) and (ManaPercentage >= 0.7)
@@ -224,8 +230,10 @@ function ConsiderIgnite()
                 end
             end
         end
+    end
+
         -- Cast when laning
-    elseif botMode == BOT_MODE_LANING
+    if botMode == BOT_MODE_LANING
     then
         local enemy = utility.GetWeakest(enemyAbility);
         if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)
@@ -357,8 +365,10 @@ function ConsiderUnrefinedFireblast()
                 return BOT_MODE_DESIRE_HIGH, botTarget;
             end
         end
+    end
+
         -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then

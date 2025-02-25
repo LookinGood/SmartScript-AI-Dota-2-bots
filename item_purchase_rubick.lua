@@ -24,15 +24,14 @@ local ItemsToBuy =
 
 	"item_cyclone",
 
+	"item_angels_demise",
+
 	"item_pers",
 	"item_sphere",
 
 	"item_sange",
 
 	"item_wind_waker",
-
-	"item_lesser_crit",
-	"item_angels_demise",
 
 	"item_ultimate_scepter",
 	"item_ultimate_scepter_2",

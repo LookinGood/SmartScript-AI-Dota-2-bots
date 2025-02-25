@@ -25,6 +25,8 @@ local ItemsToBuy =
     "item_lesser_crit",
     "item_greater_crit",
 
+    "item_aghanims_shard",
+
     "item_ultimate_scepter",
 
     "item_satanic",
@@ -37,8 +39,6 @@ local ItemsToBuy =
 
     "item_travel_boots",
     "item_travel_boots_2",
-
-    "item_aghanims_shard",
 }
 
 local realItemsToBuy = {}

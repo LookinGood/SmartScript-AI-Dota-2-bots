@@ -101,10 +101,13 @@ function ConsiderTimeWalk()
         if utility.IsHero(botTarget) and utility.CanCastOnInvulnerableTarget(botTarget) and
             GetUnitToUnitDistance(npcBot, botTarget) > (attackRange * 2)
         then
-            return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, speedAbility);
+            return BOT_ACTION_DESIRE_VERYHIGH,
+                utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, speedAbility);
         end
-        -- Cast if need retreat
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Cast if need retreat
+    if utility.RetreatMode(npcBot)
     then
         if npcBot:DistanceFromFountain() >= castRangeAbility
         then
@@ -156,24 +159,34 @@ function ConsiderTimeLock()
         if utility.IsHero(botTarget) and utility.CanCastOnInvulnerableTarget(botTarget) and
             GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility and not utility.IsDisabled(botTarget)
         then
-            local allyHeroes = botTarget:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
-            if (#allyHeroes == 0)
+            if ability:GetName() == "faceless_void_chronosphere"
             then
-                --npcBot:ActionImmediate_Chat("Использую TimeLock по цели рядом с которой нет союзников!", true);
-                return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
-            elseif (#allyHeroes == 1)
-            then
-                for _, ally in pairs(allyHeroes) do
-                    if ally == npcBot
-                    then
-                        --npcBot:ActionImmediate_Chat("Использую TimeLock по цели рядом с которой только я!", true);
-                        return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
+                local allyHeroes = botTarget:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
+                if (#allyHeroes == 0)
+                then
+                    --npcBot:ActionImmediate_Chat("Использую TimeLock по цели рядом с которой нет союзников!", true);
+                    return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
+                elseif (#allyHeroes == 1)
+                then
+                    for _, ally in pairs(allyHeroes) do
+                        if ally == npcBot
+                        then
+                            --npcBot:ActionImmediate_Chat("Использую TimeLock по цели рядом с которой только я!", true);
+                            return BOT_ACTION_DESIRE_VERYHIGH,
+                                utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
+                        end
                     end
                 end
+            elseif ability:GetName() == "faceless_void_time_zone"
+            then
+                --npcBot:ActionImmediate_Chat("Использую Time Zone по цели!", true);
+                return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (HealthPercentage <= 0.6) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
         then
@@ -183,20 +196,30 @@ function ConsiderTimeLock()
                 for _, enemy in pairs(enemyAbility) do
                     if not utility.IsDisabled(enemy)
                     then
-                        local allyHeroes = enemy:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
-                        if (#allyHeroes == 0)
+                        if ability:GetName() == "faceless_void_chronosphere"
                         then
-                            --npcBot:ActionImmediate_Chat("Использую TimeLock отступая по одному врагу!", true);
-                            return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
-                        elseif (#allyHeroes == 1)
-                        then
-                            for _, ally in pairs(allyHeroes) do
-                                if ally == npcBot
-                                then
-                                    --npcBot:ActionImmediate_Chat("Использую TimeLock отступая по врагу рядом с которым только я!", true);
-                                    return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
+                            local allyHeroes = enemy:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
+                            if (#allyHeroes == 0)
+                            then
+                                --npcBot:ActionImmediate_Chat("Использую TimeLock отступая по одному врагу!", true);
+                                return BOT_ACTION_DESIRE_VERYHIGH,
+                                    utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
+                            elseif (#allyHeroes == 1)
+                            then
+                                for _, ally in pairs(allyHeroes) do
+                                    if ally == npcBot
+                                    then
+                                        --npcBot:ActionImmediate_Chat("Использую TimeLock отступая по врагу рядом с которым только я!", true);
+                                        return BOT_ACTION_DESIRE_VERYHIGH,
+                                            utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
+                                    end
                                 end
                             end
+                        elseif ability:GetName() == "faceless_void_time_zone"
+                        then
+                            --npcBot:ActionImmediate_Chat("Использую Time Zone для отступления!", true);
+                            return BOT_ACTION_DESIRE_VERYHIGH,
+                            utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
                         end
                     end
                 end

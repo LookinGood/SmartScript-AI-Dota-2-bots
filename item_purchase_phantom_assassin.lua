@@ -15,16 +15,15 @@ local ItemsToBuy =
 
 	"item_power_treads",
 
-	"item_vanguard",
+	"item_lifesteal",
 
 	"item_bfury",
 
 	"item_black_king_bar",
 
+	"item_sange",
 	"item_basher",
 	"item_abyssal_blade",
-
-	"item_lifesteal",
 
 	"item_aghanims_shard",
 

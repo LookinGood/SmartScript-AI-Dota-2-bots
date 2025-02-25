@@ -117,6 +117,7 @@ function ConsiderStrafe()
     local attackTarget = npcBot:GetAttackTarget();
     local attackRange = npcBot:GetAttackRange() + ability:GetSpecialValueInt("attack_range_bonus");
 
+
     -- Attack use
     if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
     then
@@ -147,56 +148,77 @@ function ConsiderTarBomb()
         return;
     end
 
+    if npcBot:IsInvisible()
+    then
+        return;
+    end
+
     local castRangeAbility = ability:GetCastRange();
+    local attackTarget = npcBot:GetAttackTarget();
     local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility + 200, true, BOT_MODE_NONE);
 
-    if not npcBot:IsInvisible()
+    if utility.CanCastSpellOnTarget(ability, attackTarget) and
+        (utility.IsHero(attackTarget) or utility.IsBoss(attackTarget))
     then
-        -- Attack use
-        if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
+        if not ability:GetAutoCastState() then
+            ability:ToggleAutoCast()
+        end
+    else
+        if ability:GetAutoCastState() then
+            ability:ToggleAutoCast()
+        end
+    end
+
+    -- Attack use
+    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
+    then
+        if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
         then
-            if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
+            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
             then
-                if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+                return BOT_MODE_DESIRE_HIGH, botTarget;
+            end
+        end
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
+    then
+        if (#enemyAbility > 0)
+        then
+            for _, enemy in pairs(enemyAbility) do
+                if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    return BOT_MODE_DESIRE_HIGH, botTarget;
+                    --npcBot:ActionImmediate_Chat("Использую TarBomb что бы оторваться от врага",true);
+                    return BOT_ACTION_DESIRE_VERYHIGH, enemy;
                 end
             end
-            -- Retreat use
-        elseif utility.RetreatMode(npcBot)
+        end
+    end
+
+    -- Cast if push/defend/farm
+    if utility.PvEMode(npcBot)
+    then
+        local enemyCreeps = npcBot:GetNearbyCreeps(castRangeAbility, true)
+        if (#enemyCreeps > 0) and (ManaPercentage >= 0.6)
         then
-            if (#enemyAbility > 0)
-            then
-                for _, enemy in pairs(enemyAbility) do
-                    if utility.CanCastSpellOnTarget(ability, enemy)
-                    then
-                        --npcBot:ActionImmediate_Chat("Использую TarBomb что бы оторваться от врага",true);
-                        return BOT_ACTION_DESIRE_VERYHIGH, enemy;
-                    end
+            for _, enemy in pairs(enemyCreeps) do
+                if utility.CanCastSpellOnTarget(ability, enemy)
+                then
+                    return BOT_MODE_DESIRE_VERYLOW, enemy;
                 end
             end
-            -- Cast if push/defend/farm
-        elseif utility.PvEMode(npcBot)
+        end
+    end
+
+    -- Cast when laning
+    if botMode == BOT_MODE_LANING
+    then
+        local enemy = utility.GetWeakest(enemyAbility);
+        if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)
         then
-            local enemyCreeps = npcBot:GetNearbyCreeps(castRangeAbility, true)
-            if (#enemyCreeps > 0) and (ManaPercentage >= 0.6)
-            then
-                for _, enemy in pairs(enemyCreeps) do
-                    if utility.CanCastSpellOnTarget(ability, enemy)
-                    then
-                        return BOT_MODE_DESIRE_VERYLOW, enemy;
-                    end
-                end
-            end
-            -- Cast when laning
-        elseif botMode == BOT_MODE_LANING
-        then
-            local enemy = utility.GetWeakest(enemyAbility);
-            if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)
-            then
-                --npcBot:ActionImmediate_Chat("Использую TarBomb по цели на ЛАЙНЕ!", true);
-                return BOT_ACTION_DESIRE_VERYHIGH, enemy;
-            end
+            --npcBot:ActionImmediate_Chat("Использую TarBomb по цели на ЛАЙНЕ!", true);
+            return BOT_ACTION_DESIRE_VERYHIGH, enemy;
         end
     end
 end
@@ -233,36 +255,40 @@ function ConsiderBurningArmy()
         return;
     end
 
+    if npcBot:IsInvisible()
+    then
+        return;
+    end
+
     local castRangeAbility = ability:GetCastRange();
 
-    if not npcBot:IsInvisible()
+    -- Attack use
+    if utility.PvPMode(npcBot)
     then
-        -- Attack use
-        if utility.PvPMode(npcBot)
+        if utility.IsHero(botTarget)
         then
-            if utility.IsHero(botTarget)
+            if utility.CanCastOnInvulnerableTarget(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
             then
-                if utility.CanCastOnInvulnerableTarget(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+                if npcBot:IsFacingLocation(botTarget:GetLocation(), 20)
                 then
-                    if npcBot:IsFacingLocation(botTarget:GetLocation(), 20)
-                    then
-                        --npcBot:ActionImmediate_Chat("Использую BurningArmy под себя!", true);
-                        return BOT_ACTION_DESIRE_HIGH, npcBot:GetLocation();
-                    else
-                        --npcBot:ActionImmediate_Chat("Использую BurningArmy под врага!", true);
-                        return BOT_ACTION_DESIRE_HIGH, botTarget:GetLocation();
-                    end
+                    --npcBot:ActionImmediate_Chat("Использую BurningArmy под себя!", true);
+                    return BOT_ACTION_DESIRE_HIGH, npcBot:GetLocation();
+                else
+                    --npcBot:ActionImmediate_Chat("Использую BurningArmy под врага!", true);
+                    return BOT_ACTION_DESIRE_HIGH, botTarget:GetLocation();
                 end
             end
-            -- Retreat use
-        elseif utility.RetreatMode(npcBot)
+        end
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
+    then
+        local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
+        if (enemyAbility > 0) and (HealthPercentage <= 0.7)
         then
-            local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
-            if (enemyAbility > 0) and (HealthPercentage <= 0.7)
-            then
-                --npcBot:ActionImmediate_Chat("Использую BurningArmy для отхода!", true);
-                return BOT_ACTION_DESIRE_HIGH, npcBot:GetLocation();
-            end
+            --npcBot:ActionImmediate_Chat("Использую BurningArmy для отхода!", true);
+            return BOT_ACTION_DESIRE_HIGH, npcBot:GetLocation();
         end
     end
 end
@@ -273,21 +299,23 @@ function ConsiderBurningBarrage()
         return;
     end
 
+    if npcBot:IsInvisible()
+    then
+        return;
+    end
+
     local castRangeAbility = ability:GetSpecialValueInt("range");
     local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
 
-    if not npcBot:IsInvisible()
+    -- Attack use
+    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
     then
-        -- Attack use
-        if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
+        if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
         then
-            if utility.IsHero(botTarget) or utility.IsRoshan(botTarget)
+            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
             then
-                if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
-                then
-                    --npcBot:ActionImmediate_Chat("Использую BurningBarrage!", true);
-                    return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
-                end
+                --npcBot:ActionImmediate_Chat("Использую BurningBarrage!", true);
+                return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
             end
         end
     end
@@ -317,13 +345,17 @@ function ConsiderSkeletonWalk()
                 return BOT_MODE_DESIRE_VERYHIGH;
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         --npcBot:ActionImmediate_Chat("Использую SkeletonWalk для отхода!", true);
         return BOT_MODE_DESIRE_VERYHIGH;
-        -- General use
-    elseif utility.WanderMode(npcBot)
+    end
+
+    -- General use
+    if utility.WanderMode(npcBot)
     then
         local enemyTowers = npcBot:GetNearbyTowers(1000, true);
         if (#enemyTowers == 0) and npcBot:GetCurrentActionType() ~= BOT_ACTION_TYPE_ATTACK

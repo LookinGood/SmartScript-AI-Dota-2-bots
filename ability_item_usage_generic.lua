@@ -218,7 +218,7 @@ end
 local function HaveHealthRegenBuff(npcTarget)
 	return npcTarget:HasModifier('modifier_fountain_aura_buff') or
 		npcTarget:HasModifier('modifier_bottle_regeneration') or
-		target:HasModifier('modifier_flask_healing');
+		npcTarget:HasModifier('modifier_flask_healing');
 end
 
 local function HaveManaRegenBuff(npcTarget)

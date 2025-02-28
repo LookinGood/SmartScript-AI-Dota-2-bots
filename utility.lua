@@ -1331,46 +1331,45 @@ end ]]
 function IsBotHaveItem(itemName)
 	local npcBot = GetBot();
 	local courier = GetBotCourier(npcBot);
-
-	--[[ 	local itemSlot = npcBot:FindItemSlot(itemName);
-	local itemSlotType = GetItemSlotType(itemSlot);
-
-	print(itemSlot)
-	print(itemSlotType)
-
-	if itemSlotType == ITEM_SLOT_TYPE_MAIN or
-		itemSlotType == ITEM_SLOT_TYPE_BACKPACK or
-		itemSlotType == ITEM_SLOT_TYPE_STASH
-	then
-		if itemSlotType == ITEM_SLOT_TYPE_MAIN
-		then
-			npcBot:ActionImmediate_Chat("Предмет уже есть в ИНВЕНТАРЕ!", true);
-		elseif itemSlotType == ITEM_SLOT_TYPE_BACKPACK
-		then
-			npcBot:ActionImmediate_Chat("Предмет уже есть в РЮКЗАКЕ!", true);
-		elseif itemSlotType == ITEM_SLOT_TYPE_STASH
-		then
-			npcBot:ActionImmediate_Chat("Предмет уже есть в ХРАНИЛИЩЕ!", true);
-		end
-		
-		return true;
-	end ]]
-
-	for i = 0, 16 do
-		local item = npcBot:GetItemInSlot(i)
-		if item ~= nil and item:GetName() == itemName
-		then
-			return true;
-		end
-	end
+	local slot = npcBot:FindItemSlot(itemName);
 
 	for i = 0, 8 do
 		local item = courier:GetItemInSlot(i);
 		if item ~= nil and item:GetName() == itemName
 		then
+			--npcBot:ActionImmediate_Chat("Предмет у курьера.", true);
 			return true;
 		end
 	end
+
+	if npcBot:GetItemSlotType(slot) == ITEM_SLOT_TYPE_MAIN or
+		npcBot:GetItemSlotType(slot) == ITEM_SLOT_TYPE_BACKPACK or
+		npcBot:GetItemSlotType(slot) == ITEM_SLOT_TYPE_STASH
+	then
+		--[[ 		if npcBot:GetItemSlotType(slot) == ITEM_SLOT_TYPE_MAIN
+		then
+			npcBot:ActionImmediate_Chat("Предмет в главной сумке.", true);
+		elseif npcBot:GetItemSlotType(slot) == ITEM_SLOT_TYPE_BACKPACK
+		then
+			npcBot:ActionImmediate_Chat("Предмет в рюкзаке.", true);
+		elseif npcBot:GetItemSlotType(slot) == ITEM_SLOT_TYPE_STASH
+		then
+			npcBot:ActionImmediate_Chat("Предмет в тайнике.", true);
+		end ]]
+		return true;
+	elseif npcBot:GetItemSlotType(slot) == ITEM_SLOT_TYPE_INVALID
+	then
+		--npcBot:ActionImmediate_Chat("Слот предмета неопределён.", true);
+		return false;
+	end
+
+	--[[ 	for i = 0, 16 do
+		local item = npcBot:GetItemInSlot(i)
+		if item ~= nil and item:GetName() == itemName
+		then
+			return true;
+		end
+	end ]]
 
 	return false;
 end

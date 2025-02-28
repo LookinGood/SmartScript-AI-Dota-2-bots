@@ -31,6 +31,9 @@ local ItemsToBuy =
 	"item_harpoon",
 
 	"item_ultimate_scepter",
+
+	"item_aghanims_shard",
+
 	"item_ultimate_scepter_2",
 
 	"item_moon_shard",
@@ -39,8 +42,6 @@ local ItemsToBuy =
 
 	"item_travel_boots",
 	"item_travel_boots_2",
-
-	"item_aghanims_shard",
 }
 
 local realItemsToBuy = {}

@@ -23,7 +23,6 @@ local ItemsToBuy =
 
     "item_black_king_bar",
 
-    "item_maelstrom",
     "item_gungir",
 
     "item_overwhelming_blink",

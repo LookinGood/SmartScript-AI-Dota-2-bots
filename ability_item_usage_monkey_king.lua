@@ -193,10 +193,7 @@ function ConsiderTreeDance()
     end
 
     local castRangeAbility = ability:GetCastRange();
-    --local castRangePrimalSpring = PrimalSpring:GetCastRange();
     local trees = npcBot:GetNearbyTrees(castRangeAbility);
-    --local ancient = GetAncient(GetTeam());
-    --local mainTree = nil;
 
     if (#trees == 0)
     then
@@ -223,7 +220,7 @@ function ConsiderTreeDance()
     end
 
     -- Cast if need retreat
-    if utility.RetreatMode(npcBot)
+    --[[     if utility.RetreatMode(npcBot)
     then
         local fountain = utility.GetFountain(npcBot);
         if npcBot:DistanceFromFountain() > castRangeAbility
@@ -231,30 +228,14 @@ function ConsiderTreeDance()
             for _, tree in pairs(trees)
             do
                 if GetUnitToLocationDistance(npcBot, GetTreeLocation(tree)) > npcBot:GetAttackRange() and
-                    GetUnitToLocationDistance(npcBot, GetTreeLocation(tree)) < castRangeAbility and
+                    GetUnitToLocationDistance(npcBot, GetTreeLocation(tree)) < (castRangeAbility - 200) and
                     GetUnitToLocationDistance(fountain, GetTreeLocation(tree)) < GetUnitToUnitDistance(fountain, npcBot)
                 then
-                    npcBot:ActionImmediate_Chat("Использую TreeDance для отхода!", true);
+                    --npcBot:ActionImmediate_Chat("Использую TreeDance для отхода!", true);
+                    npcBot:ActionImmediate_Ping(GetTreeLocation(tree).x, GetTreeLocation(tree).y, true);
                     return BOT_ACTION_DESIRE_HIGH, tree;
                 end
             end
-        end
-    end
-
-    -- Retreat use
-    --[[     if utility.RetreatMode(npcBot)
-    then
-        for _, tree in pairs(trees)
-        do
-            if GetUnitToLocationDistance(ancient, GetTreeLocation(tree)) < GetUnitToUnitDistance(ancient, npcBot)
-            then
-                mainTree = tree;
-            end
-        end
-        if mainTree ~= nil
-        then
-            npcBot:ActionImmediate_Chat("Использую TreeDance для отхода!", true);
-            return BOT_ACTION_DESIRE_VERYHIGH, mainTree;
         end
     end ]]
 end
@@ -308,8 +289,9 @@ function ConsiderPrimalSpring()
     -- Retreat use
     if utility.RetreatMode(npcBot)
     then
-        if npcBot:DistanceFromFountain() >= castRangeAbility
+        if npcBot:DistanceFromFountain() >= castRangeAbility and (#enemyAbility > 0)
         then
+            --npcBot:ActionImmediate_Chat("Использую PrimalSpring для отхода!", true);
             return BOT_ACTION_DESIRE_HIGH, utility.GetEscapeLocation(npcBot, castRangeAbility);
         end
     end

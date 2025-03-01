@@ -50,7 +50,8 @@ end
 local IceShards = AbilitiesReal[1]
 local Snowball = AbilitiesReal[2]
 local LaunchSnowball = npcBot:GetAbilityByName("tusk_launch_snowball");
-local TagTeam = AbilitiesReal[3]
+local TagTeam = npcBot:GetAbilityByName("tusk_tag_team");
+local DrinkingBuddies = npcBot:GetAbilityByName("tusk_drinking_buddies");
 local WalrusKick = AbilitiesReal[4]
 local WalrusPunch = AbilitiesReal[6]
 
@@ -74,6 +75,7 @@ function AbilityUsageThink()
     local castIceShardsDesire, castIceShardsLocation = ConsiderIceShards();
     local castSnowballDesire, castSnowballTarget = ConsiderSnowball();
     local castTagTeamDesire = ConsiderTagTeam();
+    local castDrinkingBuddiesDesire, castDrinkingBuddiesTarget = ConsiderDrinkingBuddies();
     local castWalrusKickDesire, castWalrusKickTarget = ConsiderWalrusKick();
     local castWalrusPunchDesire, castWalrusPunchTarget = ConsiderWalrusPunch();
 
@@ -92,6 +94,12 @@ function AbilityUsageThink()
     if (castTagTeamDesire ~= nil)
     then
         npcBot:Action_UseAbility(TagTeam);
+        return;
+    end
+
+    if (castDrinkingBuddiesDesire ~= nil)
+    then
+        npcBot:Action_UseAbilityOnEntity(DrinkingBuddies, castDrinkingBuddiesTarget);
         return;
     end
 
@@ -284,6 +292,73 @@ function ConsiderTagTeam()
             --npcBot:ActionImmediate_Chat("Использую TagTeam для отступления!", true);
             return BOT_ACTION_DESIRE_HIGH;
         end ]]
+end
+
+function ConsiderDrinkingBuddies()
+    local ability = DrinkingBuddies;
+    if not utility.IsAbilityAvailable(ability) then
+        return;
+    end
+
+    local castRangeAbility = ability:GetCastRange();
+    local minDistance = ability:GetSpecialValueInt("min_distance");
+
+    -- Attack use
+    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
+    then
+        if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
+        then
+            if utility.CanCastSpellOnTarget(ability, botTarget)
+            then
+                local allyAbility = npcBot:GetNearbyHeroes(castRangeAbility, false, BOT_MODE_NONE);
+                if (#allyAbility > 1)
+                then
+                    for _, ally in pairs(allyAbility)
+                    do
+                        if utility.IsHero(ally) and ally ~= npcBot and GetUnitToUnitDistance(ally, botTarget) <= (minDistance * 2)
+                            and not npcBot:HasModifier("modifier_tusk_drinking_buddies_buff")
+                        then
+                            --npcBot:ActionImmediate_Chat("Использую DrinkingBuddies на союзного героя при атаке!",true);
+                            return BOT_ACTION_DESIRE_HIGH, ally;
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
+    then
+        if (HealthPercentage <= 0.8) and npcBot:WasRecentlyDamagedByAnyHero(2.0) and not npcBot:HasModifier("modifier_tusk_drinking_buddies_buff")
+        then
+            local allyAbility = npcBot:GetNearbyHeroes(castRangeAbility, false, BOT_MODE_NONE);
+            local allyCreeps = npcBot:GetNearbyCreeps(castRangeAbility, false);
+            local fountainLocation = utility.SafeLocation(npcBot);
+            if (#allyAbility > 1)
+            then
+                for _, ally in pairs(allyAbility) do
+                    if ally ~= npcBot and GetUnitToLocationDistance(ally, fountainLocation) < GetUnitToLocationDistance(npcBot, fountainLocation) and
+                        (GetUnitToUnitDistance(ally, npcBot) >= minDistance)
+                    then
+                        --npcBot:ActionImmediate_Chat("Использую DrinkingBuddies для побега на союзного героя!", true);
+                        return BOT_ACTION_DESIRE_HIGH, ally;
+                    end
+                end
+            end
+            if (#allyCreeps > 0)
+            then
+                for _, ally in pairs(allyCreeps) do
+                    if GetUnitToLocationDistance(ally, fountainLocation) < GetUnitToLocationDistance(npcBot, fountainLocation) and
+                        (GetUnitToUnitDistance(ally, npcBot) >= minDistance)
+                    then
+                        --npcBot:ActionImmediate_Chat("Использую DrinkingBuddies для побега на союзного крипа!", true);
+                        return BOT_ACTION_DESIRE_HIGH, ally;
+                    end
+                end
+            end
+        end
+    end
 end
 
 function ConsiderWalrusKick()

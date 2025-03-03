@@ -89,13 +89,13 @@ function GetDesire()
     return BOT_MODE_DESIRE_NONE;
 end
 
-function OnStart()
+--[[ function OnStart()
     --npcBot:ActionImmediate_Ping(runeLocation.x, runeLocation.y, true);
     if RollPercentage(15) and GetGameState() ~= GAME_STATE_PRE_GAME
     then
         npcBot:ActionImmediate_Chat("Иду за руной.", false);
     end
-end
+end ]]
 
 function OnEnd()
     closestAlly = nil;

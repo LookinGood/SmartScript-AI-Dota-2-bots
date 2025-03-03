@@ -137,7 +137,7 @@ function GetDesire()
 		end
 	end
 
---[[ 	if lotusPoolDistance <= 4000
+	--[[ 	if lotusPoolDistance <= 4000
 	then
 		npcBot:ActionImmediate_Chat("Рядом есть доступный бассейн с лотусами!", true);
 		return BOT_MODE_DESIRE_VERYHIGH;
@@ -155,7 +155,7 @@ end
 function OnStart()
 	if RollPercentage(5)
 	then
-		npcBot:ActionImmediate_Chat("Иду захватывать аванпост.", false);
+		--npcBot:ActionImmediate_Chat("Иду захватывать аванпост.", false);
 		npcBot:ActionImmediate_Ping(closestOutpost:GetLocation().x, closestOutpost:GetLocation().y, true);
 	end
 end
@@ -175,7 +175,7 @@ function Think()
 
 	local captureRange = 300
 
---[[ 	if closestWatcher ~= nil
+	--[[ 	if closestWatcher ~= nil
 	then
 		if GetUnitToUnitDistance(npcBot, closestWatcher) > captureRange
 		then
@@ -190,7 +190,7 @@ function Think()
 		end
 	end ]]
 
---[[ 	if closestLotusPull ~= nil
+	--[[ 	if closestLotusPull ~= nil
 	then
 		if GetUnitToUnitDistance(npcBot, closestLotusPull) > 600
 		then

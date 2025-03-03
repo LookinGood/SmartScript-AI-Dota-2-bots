@@ -14,10 +14,12 @@ local ItemsToBuy =
     "item_bracer",
 
     "item_tranquil_boots",
+
+    "item_helm_of_the_dominator",
+
     "item_ancient_janggo",
     "item_boots_of_bearing",
 
-    "item_helm_of_the_dominator",
     "item_helm_of_the_overlord",
 
     "item_ultimate_scepter",

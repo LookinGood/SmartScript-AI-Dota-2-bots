@@ -247,12 +247,13 @@ function GetDesire()
     return BOT_ACTION_DESIRE_NONE;
 end
 
-function OnStart()
+--[[ function OnStart()
     if RollPercentage(5)
     then
         npcBot:ActionImmediate_Chat("Иду ставить вард.", false);
     end
 end
+ ]]
 
 function OnEnd()
     npcBot:SetTarget(nil);

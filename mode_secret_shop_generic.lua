@@ -26,15 +26,15 @@ function GetDesire()
 	return BOT_ACTION_DESIRE_NONE;
 end
 
-function OnStart()
+--[[ function OnStart()
 	if RollPercentage(5)
 	then
 		npcBot:ActionImmediate_Chat("Иду в секретную лавку.", false);
 	end
-end
+end ]]
 
 function OnEnd()
-	--
+	npcBot:SetTarget(nil);
 end
 
 function Think()

@@ -56,6 +56,9 @@ local WheelOfWonder = AbilitiesReal[6]
 local FunhouseMirror = npcBot:GetAbilityByName("ringmaster_funhouse_mirror");
 local WhoopeeCushion = npcBot:GetAbilityByName("ringmaster_whoopee_cushion");
 local StrongmanTonic = npcBot:GetAbilityByName("ringmaster_strongman_tonic");
+local SummonUnicycle = npcBot:GetAbilityByName("ringmaster_summon_unicycle");
+local WeightedPie = npcBot:GetAbilityByName("ringmaster_weighted_pie");
+local CrystalBall = npcBot:GetAbilityByName("ringmaster_crystal_ball");
 
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
@@ -76,6 +79,9 @@ function AbilityUsageThink()
     local castFunhouseMirrorDesire = ConsiderFunhouseMirror();
     local castWhoopeeCushionDesire = ConsiderWhoopeeCushion();
     local castStrongmanTonicDesire, castStrongmanTonicTarget = ConsiderStrongmanTonic();
+    local castSummonUnicycleDesire = ConsiderSummonUnicycle();
+    local castWeightedPieDesire, castWeightedPieTarget = ConsiderWeightedPie();
+    local castCrystalBallDesire, castCrystalBallLocation = ConsiderCrystalBall();
 
     if (castTameTheBeastsDesire ~= nil)
     then
@@ -128,6 +134,24 @@ function AbilityUsageThink()
     if (castStrongmanTonicDesire ~= nil)
     then
         npcBot:Action_UseAbilityOnEntity(StrongmanTonic, castStrongmanTonicTarget);
+        return;
+    end
+
+    if (castSummonUnicycleDesire ~= nil)
+    then
+        npcBot:Action_UseAbility(SummonUnicycle);
+        return;
+    end
+
+    if (castWeightedPieDesire ~= nil)
+    then
+        npcBot:Action_UseAbilityOnEntity(WeightedPie, castWeightedPieTarget);
+        return;
+    end
+
+    if (castCrystalBallDesire ~= nil)
+    then
+        npcBot:Action_UseAbilityOnLocation(CrystalBall, castCrystalBallLocation);
         return;
     end
 end
@@ -590,6 +614,118 @@ function ConsiderStrongmanTonic()
                         --npcBot:ActionImmediate_Chat("Использую StrongmanTonic на атакующего союзника!", true);
                         return BOT_MODE_DESIRE_HIGH, ally;
                     end
+                end
+            end
+        end
+    end
+end
+
+function ConsiderSummonUnicycle()
+    local ability = SummonUnicycle;
+    if not utility.IsAbilityAvailable(ability) then
+        return;
+    end
+
+    if utility.IsHaveMaxSpeed(npcBot) or npcBot:HasModifier("modifier_ringmaster_unicycle_movement")
+    then
+        return;
+    end
+
+    local attackRange = npcBot:GetAttackRange();
+
+    -- Attack use
+    if utility.PvPMode(npcBot) and utility.IsHero(botTarget)
+    then
+        if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) >= (attackRange * 2)
+            and npcBot:IsFacingLocation(botTarget:GetLocation(), 20)
+        then
+            --npcBot:ActionImmediate_Chat("Использую SummonUnicycle для атаки!", true);
+            return BOT_ACTION_DESIRE_HIGH;
+        end
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
+    then
+        if (HealthPercentage <= 0.8) and npcBot:WasRecentlyDamagedByAnyHero(2.0) and npcBot:IsFacingLocation(utility.SafeLocation(npcBot), 40)
+        then
+            --npcBot:ActionImmediate_Chat("Использую SummonUnicycle для отхода!", true);
+            return BOT_ACTION_DESIRE_HIGH;
+        end
+    end
+end
+
+function ConsiderWeightedPie()
+    local ability = WeightedPie;
+    if not utility.IsAbilityAvailable(ability) then
+        return;
+    end
+
+    local castRangeAbility = ability:GetCastRange();
+    local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
+
+    -- Attack use
+    if utility.PvPMode(npcBot)
+    then
+        if (#enemyAbility > 1)
+        then
+            for _, enemy in pairs(enemyAbility)
+            do
+                if enemy ~= botTarget and utility.CanCastSpellOnTarget(ability, enemy) and not utility.IsDisabled(enemy)
+                then
+                    --npcBot:ActionImmediate_Chat("Использую WeightedPie против 2 по счёту врага рядом!", true);
+                    return BOT_MODE_DESIRE_VERYHIGH, enemy;
+                end
+            end
+        end
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
+    then
+        if (#enemyAbility > 0)
+        then
+            for _, enemy in pairs(enemyAbility)
+            do
+                if utility.CanCastSpellOnTarget(ability, enemy) and not utility.IsDisabled(enemy)
+                then
+                    --npcBot:ActionImmediate_Chat("Использую WeightedPie для отхода!", true);
+                    return BOT_MODE_DESIRE_VERYHIGH, enemy;
+                end
+            end
+        end
+    end
+end
+
+function ConsiderCrystalBall()
+    local ability = CrystalBall;
+    if not utility.IsAbilityAvailable(ability) then
+        return;
+    end
+
+    local attackRange = npcBot:GetAttackRange();
+    local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
+
+    -- Attack use
+    if utility.PvPMode(npcBot)
+    then
+        if utility.IsHero(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= (attackRange * 2)
+        then
+            return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
+        end
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
+    then
+        local enemyAbility = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
+        if (#enemyAbility > 0)
+        then
+            for _, enemy in pairs(enemyAbility) do
+                if enemy:IsInvisible()
+                then
+                    --npcBot:ActionImmediate_Chat("Использую CrystalBall не невидимого врага!", true);
+                    return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
                 end
             end
         end

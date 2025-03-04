@@ -52,6 +52,8 @@ local Glimpse = AbilitiesReal[2]
 local KineticField = AbilitiesReal[3]
 local StaticStorm = AbilitiesReal[6]
 
+local castKineticFieldTimer = 0.0;
+
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
         return
@@ -79,9 +81,10 @@ function AbilityUsageThink()
         return;
     end
 
-    if (castKineticFieldDesire ~= nil)
+    if (castKineticFieldDesire ~= nil) and (GameTime() >= castKineticFieldTimer + 2.0)
     then
         npcBot:Action_UseAbilityOnLocation(KineticField, castKineticFieldLocation);
+        castKineticFieldTimer = GameTime();
         return;
     end
 

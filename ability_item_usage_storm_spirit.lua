@@ -62,15 +62,22 @@ function AbilityUsageThink()
     HealthPercentage = npcBot:GetHealth() / npcBot:GetMaxHealth();
     ManaPercentage = npcBot:GetMana() / npcBot:GetMaxMana();
 
-    local castStaticRemnantDesire = ConsiderStaticRemnant();
+    local castStaticRemnantDesire, castStaticRemnantLocation, castStaticRemnantTargetType = ConsiderStaticRemnant();
     local castElectricVortexDesire, castElectricVortexTarget, castElectricVortexTargetType = ConsiderElectricVortex();
     local castOverloadDesire = ConsiderOverload();
     local castBallLightningDesire, castBallLightningLocation = ConsiderBallLightning();
 
     if (castStaticRemnantDesire ~= nil)
     then
-        npcBot:Action_UseAbility(StaticRemnant);
-        return;
+        if (castStaticRemnantTargetType == "location")
+        then
+            npcBot:Action_UseAbilityOnLocation(StaticRemnant, castStaticRemnantLocation);
+            return;
+        elseif (castStaticRemnantTargetType == nil)
+        then
+            npcBot:Action_UseAbility(StaticRemnant);
+            return;
+        end
     end
 
     if (castElectricVortexDesire ~= nil)
@@ -105,9 +112,12 @@ function ConsiderStaticRemnant()
         return;
     end
 
+    local castRangeAbility = ability:GetSpecialValueInt("AbilityCastRange");
     local radiusAbility = ability:GetSpecialValueInt("static_remnant_radius");
     local damageAbility = ability:GetSpecialValueInt("static_remnant_damage");
-    local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
+    local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
+    local speedAbility = ability:GetSpecialValueInt("static_remnant_travel_speed");
+    local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
 
     -- Cast if can kill somebody
     if (#enemyAbility > 0)
@@ -117,23 +127,73 @@ function ConsiderStaticRemnant()
             then
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    --npcBot:ActionImmediate_Chat("Использую StaticRemnant что бы добить " .. enemy:GetUnitName(), true);
-                    return BOT_ACTION_DESIRE_ABSOLUTE;
+                    if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_POINT)
+                    then
+                        --npcBot:ActionImmediate_Chat("Использую StaticRemnant по точке добивая " .. enemy:GetUnitName(),true);
+                        return BOT_ACTION_DESIRE_ABSOLUTE,
+                            utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility),
+                            "location";
+                    elseif utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_NO_TARGET)
+                    then
+                        if GetUnitToUnitDistance(npcBot, enemy) <= radiusAbility
+                        then
+                            --npcBot:ActionImmediate_Chat("Использую StaticRemnant ненаправленно добивая " .. enemy:GetUnitName(), true);
+                            return BOT_ACTION_DESIRE_ABSOLUTE, nil, nil;
+                        end
+                    end
                 end
             end
         end
     end
 
-    -- General use
-    if utility.PvPMode(npcBot) or utility.RetreatMode(npcBot)
+
+    -- Attack use
+    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
+    then
+        if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
+        then
+            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+            then
+                if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_POINT)
+                then
+                    --npcBot:ActionImmediate_Chat("Использую StaticRemnant по точке атакуя " .. botTarget:GetUnitName(),true);
+                    return BOT_ACTION_DESIRE_ABSOLUTE,
+                        utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, speedAbility),
+                        "location";
+                elseif utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_NO_TARGET)
+                then
+                    if GetUnitToUnitDistance(npcBot, botTarget) <= radiusAbility
+                    then
+                        --npcBot:ActionImmediate_Chat("Использую StaticRemnant ненаправленно атакуя " .. botTarget:GetUnitName(), true);
+                        return BOT_ACTION_DESIRE_ABSOLUTE, nil, nil;
+                    end
+                end
+            end
+        end
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
-            for _, enemy in pairs(enemyAbility)
-            do
+            for _, enemy in pairs(enemyAbility) do
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    return BOT_ACTION_DESIRE_HIGH;
+                    if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_POINT)
+                    then
+                        --npcBot:ActionImmediate_Chat("Использую StaticRemnant по точке отступая от " .. enemy:GetUnitName(),true);
+                        return BOT_ACTION_DESIRE_ABSOLUTE,
+                            utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility),
+                            "location";
+                    elseif utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_NO_TARGET)
+                    then
+                        if GetUnitToUnitDistance(npcBot, enemy) <= radiusAbility
+                        then
+                            --npcBot:ActionImmediate_Chat("Использую StaticRemnant ненаправленно отступая от " .. enemy:GetUnitName(), true);
+                            return BOT_ACTION_DESIRE_ABSOLUTE, nil, nil;
+                        end
+                    end
                 end
             end
         end
@@ -142,13 +202,25 @@ function ConsiderStaticRemnant()
     -- Cast if push/defend/farm
     if utility.PvEMode(npcBot)
     then
-        local enemyCreeps = npcBot:GetNearbyCreeps(radiusAbility, true);
-        if (#enemyCreeps > 2) and (ManaPercentage >= 0.6)
+        if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_POINT)
         then
-            for _, enemy in pairs(enemyCreeps) do
-                if utility.CanCastSpellOnTarget(ability, enemy)
-                then
-                    return BOT_ACTION_DESIRE_LOW;
+            local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility, radiusAbility,
+                0, 0);
+            if locationAoE ~= nil and (ManaPercentage >= 0.6) and (locationAoE.count > 2)
+            then
+                --npcBot:ActionImmediate_Chat("Использую StaticRemnant по точке против крипов", true);
+                return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc, "location";
+            end
+        elseif utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_NO_TARGET)
+        then
+            local enemyCreeps = npcBot:GetNearbyCreeps(radiusAbility, true);
+            if (#enemyCreeps > 2) and (ManaPercentage >= 0.6)
+            then
+                for _, enemy in pairs(enemyCreeps) do
+                    if utility.CanCastSpellOnTarget(ability, enemy)
+                    then
+                        return BOT_ACTION_DESIRE_LOW, nil, nil;
+                    end
                 end
             end
         end

@@ -50,7 +50,7 @@ end
 -- Abilities
 local Waveform = npcBot:GetAbilityByName("morphling_waveform");
 local AdaptiveStrikeAgility = npcBot:GetAbilityByName("morphling_adaptive_strike_agi");
-local AdaptiveStrikeStrength = npcBot:GetAbilityByName("morphling_adaptive_strike_str");
+--local AdaptiveStrikeStrength = npcBot:GetAbilityByName("morphling_adaptive_strike_str");
 local AttributeShiftAgility = npcBot:GetAbilityByName("morphling_morph_agi");
 local AttributeShiftStrength = npcBot:GetAbilityByName("morphling_morph_str");
 local Morph = npcBot:GetAbilityByName("morphling_replicate");
@@ -72,7 +72,7 @@ function AbilityUsageThink()
 
     local castWaveformDesire, castWaveformLocation = ConsiderWaveform();
     local castAdaptiveStrikeAgilityDesire, castAdaptiveStrikeAgilityTarget = ConsiderAdaptiveStrikeAgility();
-    local castAdaptiveStrikeStrengthDesire, castAdaptiveStrikeStrengthTarget = ConsiderAdaptiveStrikeStrength();
+    --local castAdaptiveStrikeStrengthDesire, castAdaptiveStrikeStrengthTarget = ConsiderAdaptiveStrikeStrength();
     local castAttributeShiftAgilityDesire = ConsiderAttributeShiftAgility();
     local castAttributeShiftStrengthDesire = ConsiderAttributeShiftStrength();
     --local castMorphDesire, castMorphTarget = ConsiderMorph();
@@ -89,11 +89,11 @@ function AbilityUsageThink()
         return;
     end
 
-    if (castAdaptiveStrikeStrengthDesire ~= nil)
+    --[[     if (castAdaptiveStrikeStrengthDesire ~= nil)
     then
         npcBot:Action_UseAbilityOnEntity(AdaptiveStrikeStrength, castAdaptiveStrikeStrengthTarget);
         return;
-    end
+    end ]]
 
     if (castAttributeShiftAgilityDesire ~= nil)
     then
@@ -123,13 +123,19 @@ function AbilityUsageThink()
         local ability5 = npcBot:GetAbilityInSlot(4);
         local ability6 = npcBot:GetAbilityInSlot(5);
 
-        if ability1:GetName() ~= "morphling_waveform" then spell_usage_generic.CastCustomSpell(ability1) end;
-        if ability2:GetName() ~= "morphling_adaptive_strike_agi" then spell_usage_generic.CastCustomSpell(ability2) end;
-        if ability3:GetName() ~= "morphling_adaptive_strike_str" then spell_usage_generic.CastCustomSpell(ability3) end;
-        if ability4:GetName() ~= "morphling_morph_agi" then spell_usage_generic.CastCustomSpell(ability4) end;
-        if ability5:GetName() ~= "morphling_morph_str" then spell_usage_generic.CastCustomSpell(ability5) end;
-        if ability6:GetName() ~= "morphling_morph_str" then spell_usage_generic.CastCustomSpell(ability6) end;
-        return;
+        spell_usage_generic.CastCustomSpell(ability1)
+        spell_usage_generic.CastCustomSpell(ability2)
+        spell_usage_generic.CastCustomSpell(ability3)
+        spell_usage_generic.CastCustomSpell(ability4)
+        spell_usage_generic.CastCustomSpell(ability5)
+        spell_usage_generic.CastCustomSpell(ability6)
+
+        --if ability1:GetName() ~= "morphling_waveform" then spell_usage_generic.CastCustomSpell(ability1) end;
+        --if ability2:GetName() ~= "morphling_adaptive_strike_agi" then spell_usage_generic.CastCustomSpell(ability2) end;
+        --if ability3:GetName() ~= "morphling_adaptive_strike_str" then spell_usage_generic.CastCustomSpell(ability3) end;
+        --if ability4:GetName() ~= "morphling_morph_agi" then spell_usage_generic.CastCustomSpell(ability4) end;
+        --if ability5:GetName() ~= "morphling_morph_str" then spell_usage_generic.CastCustomSpell(ability5) end;
+        --if ability6:GetName() ~= "morphling_morph_str" then spell_usage_generic.CastCustomSpell(ability6) end;
     end ]]
 
     --npcBot:HasModifier("modifier_morphling_replicate_manager")
@@ -221,7 +227,7 @@ function ConsiderAdaptiveStrikeAgility()
             then
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    --npcBot:ActionImmediate_Chat("Использую AdaptiveStrikeAgility что бы убить " .. enemy:GetUnitName(),true);
+                    --npcBot:ActionImmediate_Chat("Использую AdaptiveStrikeAgility что бы убить " .. enemy:GetUnitName(), true);
                     return BOT_ACTION_DESIRE_ABSOLUTE, enemy;
                 end
             end
@@ -233,15 +239,30 @@ function ConsiderAdaptiveStrikeAgility()
     then
         if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
         then
-            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= (castRangeAbility + 200)
             then
+                --npcBot:ActionImmediate_Chat("Использую AdaptiveStrikeAgility на " .. enemy:GetUnitName(), true);
                 return BOT_MODE_DESIRE_HIGH, botTarget;
+            end
+        end
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
+    then
+        if (#enemyAbility > 0)
+        then
+            for _, enemy in pairs(enemyAbility) do
+                if utility.CanCastSpellOnTarget(ability, enemy) and not utility.IsDisabled(enemy)
+                then
+                    return BOT_ACTION_DESIRE_VERYHIGH, enemy;
+                end
             end
         end
     end
 end
 
-function ConsiderAdaptiveStrikeStrength()
+--[[ function ConsiderAdaptiveStrikeStrength()
     local ability = AdaptiveStrikeStrength;
     if not utility.IsAbilityAvailable(ability) then
         return;
@@ -291,7 +312,7 @@ function ConsiderAdaptiveStrikeStrength()
             end
         end
     end
-end
+end ]]
 
 function ConsiderAttributeShiftAgility()
     local ability = AttributeShiftAgility;
@@ -402,15 +423,15 @@ function ConsiderMorph()
     -- Attack use
     if utility.PvPMode(npcBot)
     then
-        local botOffensivePower = npcBot:GetOffensivePower();
         if (#enemyAbility > 0)
         then
             for _, enemy in pairs(enemyAbility) do
+                local botOffensivePower = npcBot:GetOffensivePower();
                 local enemyOffensivePower = enemy:GetRawOffensivePower();
                 --print("Враг " .. enemyOffensivePower)
                 if enemyOffensivePower > botOffensivePower
                 then
-                    --npcBot:ActionImmediate_Chat("Использую Morph на " .. enemy:GetUnitName(), true);
+                    npcBot:ActionImmediate_Chat("Использую Morph на " .. enemy:GetUnitName(), true);
                     return BOT_ACTION_DESIRE_MODERATE, enemy;
                 end
             end

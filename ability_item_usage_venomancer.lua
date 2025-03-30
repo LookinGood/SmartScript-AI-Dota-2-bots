@@ -140,7 +140,7 @@ function ConsiderVenomousGale()
         if (#enemyAbility > 0)
         then
             for _, enemy in pairs(enemyAbility) do
-                if utility.CanCastSpellOnTarget(ability, enemy)
+                if utility.CanCastSpellOnTarget(ability, enemy) and not utility.IsDisabled(enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую VenomousGale для отступления!", true);
                     return BOT_ACTION_DESIRE_VERYHIGH,

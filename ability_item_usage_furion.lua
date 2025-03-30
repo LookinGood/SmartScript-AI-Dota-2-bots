@@ -65,7 +65,7 @@ function AbilityUsageThink()
 
     local castSproutDesire, castSproutTarget, castSproutTargetType = ConsiderSprout();
     local castTeleportationDesire, castTeleportationLocation = ConsiderTeleportation();
-    local castNaturesCallDesire, castNaturesCallLocation = ConsiderNaturesCall();
+    local castNaturesCallDesire, castNaturesCallLocation, castNaturesCallTargetType = ConsiderNaturesCall();
     local castCurseOfTheOldgrowthDesire = ConsiderCurseOfTheOldgrowth();
     local castWrathOfNatureDesire, castWrathOfNatureTarget = ConsiderWrathOfNature();
 
@@ -91,8 +91,14 @@ function AbilityUsageThink()
 
     if (castNaturesCallDesire ~= nil)
     then
-        npcBot:Action_UseAbilityOnLocation(NaturesCall, castNaturesCallLocation);
-        return;
+        if (castNaturesCallTargetType == "location")
+        then
+            npcBot:Action_UseAbilityOnLocation(NaturesCall, castNaturesCallLocation);
+            return;
+        else
+            npcBot:Action_UseAbilityOnTree(NaturesCall, castNaturesCallLocation);
+            return;
+        end
     end
 
     if (castCurseOfTheOldgrowthDesire ~= nil)
@@ -222,10 +228,19 @@ function ConsiderNaturesCall()
         then
             if utility.CanCastOnInvulnerableTarget(botTarget)
             then
-                if #trees >= (maxUnits - maxUnits % 1)
+                if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_POINT)
                 then
-                    --npcBot:ActionImmediate_Chat("Использую NaturesCall для атаки!", true);
-                    return BOT_ACTION_DESIRE_HIGH, GetTreeLocation(trees[2]);
+                    if #trees >= (maxUnits - maxUnits % 1)
+                    then
+                        --npcBot:ActionImmediate_Chat("Использую NaturesCall для атаки по точке!", true);
+                        return BOT_ACTION_DESIRE_HIGH, GetTreeLocation(trees[2]), "location";
+                    end
+                else
+                    if (#trees > 0)
+                    then
+                        --npcBot:ActionImmediate_Chat("Использую NaturesCall для атаки по дереву!", true);
+                        return BOT_ACTION_DESIRE_HIGH, trees[1], nil;
+                    end
                 end
             end
         end
@@ -238,10 +253,19 @@ function ConsiderNaturesCall()
         local enemyTower = npcBot:GetNearbyTowers(1600, true);
         if (#enemyCreeps > 1 or #enemyTower > 0)
         then
-            if #trees >= (maxUnits - maxUnits % 1)
+            if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_POINT)
             then
-                --npcBot:ActionImmediate_Chat("Использую NaturesCall для пуша дефа!", true);
-                return BOT_ACTION_DESIRE_HIGH, GetTreeLocation(trees[2]);
+                if #trees >= (maxUnits - maxUnits % 1)
+                then
+                    --npcBot:ActionImmediate_Chat("Использую NaturesCall в pve по точке!", true);
+                    return BOT_ACTION_DESIRE_HIGH, GetTreeLocation(trees[2]), "location";
+                end
+            else
+                if (#trees > 0)
+                then
+                    --npcBot:ActionImmediate_Chat("Использую NaturesCall в pve по дереву!", true);
+                    return BOT_ACTION_DESIRE_HIGH, trees[1], nil;
+                end
             end
         end
     end

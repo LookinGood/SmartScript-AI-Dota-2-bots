@@ -17,8 +17,6 @@ local ItemsToBuy =
 
 	"item_diffusal_blade",
 
-	"item_maelstrom",
-
 	"item_rod_of_atos",
 	"item_gungir",
 
@@ -31,6 +29,8 @@ local ItemsToBuy =
 	"item_ultimate_scepter_2",
 
 	"item_disperser",
+
+	"item_aghanims_shard",
 
 	"item_moon_shard",
 

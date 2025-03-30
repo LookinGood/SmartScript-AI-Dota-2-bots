@@ -9,7 +9,7 @@ local ItemsToBuy =
 
 	"item_clarity",
 
-	"item_clarity",
+	"item_wind_lace",
 
 	"item_magic_wand",
 
@@ -19,10 +19,9 @@ local ItemsToBuy =
 
 	"item_tranquil_boots",
 
-	"item_ancient_janggo",
-
 	"item_kaya",
 
+	"item_ancient_janggo",
 	"item_boots_of_bearing",
 
 	"item_sange",
@@ -37,7 +36,7 @@ local ItemsToBuy =
 	"item_sheepstick",
 
 	"item_soul_booster",
-    "item_octarine_core",
+	"item_octarine_core",
 }
 
 local realItemsToBuy = {}

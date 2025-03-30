@@ -19,14 +19,14 @@ local ItemsToBuy =
 
 	"item_aether_lens",
 
+	"item_blink",
+
 	"item_ancient_janggo",
 	"item_boots_of_bearing",
 
 	"item_aghanims_shard",
 
 	"item_dagon",
-
-	"item_blink",
 
 	"item_ethereal_blade",
 

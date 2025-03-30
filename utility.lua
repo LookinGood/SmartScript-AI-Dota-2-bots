@@ -518,7 +518,7 @@ end
 -- (IsValidTarget(npcBot) and IsValidTarget(npcTarget)) and
 
 function IsHero(npcTarget)
-	return npcTarget:IsHero() and not IsIllusion(npcTarget) and not IsClone(npcTarget);
+	return npcTarget ~= nil and npcTarget:IsHero() and not IsIllusion(npcTarget) and not IsClone(npcTarget);
 end
 
 function IsBuilding(npcTarget)
@@ -1399,6 +1399,24 @@ function GetModifierCount(npcTarget, modifier)
 		end
 	end
 	return 0;
+end
+
+function BotWasRecentlyDamagedByEnemyHero(fInterval)
+	local npcBot = GetBot();
+	local enemyHeroes = GetUnitList(UNIT_LIST_ENEMY_HEROES);
+
+	if (#enemyHeroes > 0)
+	then
+		for _, enemy in pairs(enemyHeroes) do
+			if npcBot:WasRecentlyDamagedByHero(enemy, fInterval)
+			then
+				--npcBot:ActionImmediate_Chat("Получаю урон от " .. enemy:GetUnitName(), true);
+				return true;
+			end
+		end
+	end
+
+	return false;
 end
 
 --[[ --ITEM HAS BEEN DELETED

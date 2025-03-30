@@ -63,7 +63,7 @@ function AbilityUsageThink()
     HealthPercentage = npcBot:GetHealth() / npcBot:GetMaxHealth();
     ManaPercentage = npcBot:GetMana() / npcBot:GetMaxMana();
 
-    local castColdFeetDesire, castColdFeetTarget = ConsiderColdFeet();
+    local castColdFeetDesire, castColdFeetTarget, castColdFeetTargetType = ConsiderColdFeet();
     local castIceVortexDesire, castIceVortexLocation = ConsiderIceVortex();
     ConsiderChillingTouch();
     local castReleaseDesire = ConsiderRelease();
@@ -71,8 +71,15 @@ function AbilityUsageThink()
 
     if (castColdFeetDesire ~= nil)
     then
-        npcBot:Action_UseAbilityOnEntity(ColdFeet, castColdFeetTarget);
-        return;
+        if (castColdFeetTargetType == "target")
+        then
+            npcBot:Action_UseAbilityOnEntity(ColdFeet, castColdFeetTarget);
+            return;
+        elseif (castColdFeetTargetType == "location")
+        then
+            npcBot:Action_UseAbilityOnLocation(ColdFeet, castColdFeetTarget);
+            return;
+        end
     end
 
     if (castIceVortexDesire ~= nil)
@@ -103,6 +110,7 @@ function ConsiderColdFeet()
 
     local castRangeAbility = ability:GetCastRange();
     local damageAbility = ability:GetSpecialValueInt("damage") * ability:GetDuration();
+    local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
     local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility + 200, true, BOT_MODE_NONE);
 
     -- Cast if can kill somebody/interrupt cast
@@ -113,8 +121,16 @@ function ConsiderColdFeet()
             then
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    --npcBot:ActionImmediate_Chat("Использую ColdFeet что бы убить цель!", true);
-                    return BOT_ACTION_DESIRE_VERYHIGH, enemy;
+                    if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_UNIT_TARGET)
+                    then
+                        --npcBot:ActionImmediate_Chat("Использую ColdFeet для убийства по цели!", true);
+                        return BOT_ACTION_DESIRE_VERYHIGH, enemy, "target";
+                    elseif utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_POINT)
+                    then
+                        --npcBot:ActionImmediate_Chat("Использую ColdFeet для убийства по области!", true);
+                        return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0),
+                            "location";
+                    end
                 end
             end
         end
@@ -127,8 +143,16 @@ function ConsiderColdFeet()
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
             then
-                --npcBot:ActionImmediate_Chat("Использую ColdFeet по врагу в радиусе действия!",true);
-                return BOT_MODE_DESIRE_HIGH, botTarget;
+                if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_UNIT_TARGET)
+                then
+                    --npcBot:ActionImmediate_Chat("Использую ColdFeet для атаки по цели!", true);
+                    return BOT_ACTION_DESIRE_HIGH, botTarget, "target";
+                elseif utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_POINT)
+                then
+                    --npcBot:ActionImmediate_Chat("Использую ColdFeet для атаки по области!", true);
+                    return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0),
+                        "location";
+                end
             end
         end
     end
@@ -141,8 +165,16 @@ function ConsiderColdFeet()
             for _, enemy in pairs(enemyAbility) do
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    --npcBot:ActionImmediate_Chat("Использую ColdFeet что бы оторваться от врага", true);
-                    return BOT_ACTION_DESIRE_VERYHIGH, enemy;
+                    if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_UNIT_TARGET)
+                    then
+                        --npcBot:ActionImmediate_Chat("Использую ColdFeet для отхода по цели!", true);
+                        return BOT_ACTION_DESIRE_VERYHIGH, enemy, "target";
+                    elseif utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_POINT)
+                    then
+                        --npcBot:ActionImmediate_Chat("Использую ColdFeet для отхода по области!", true);
+                        return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0),
+                            "location";
+                    end
                 end
             end
         end

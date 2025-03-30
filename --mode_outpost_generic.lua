@@ -165,15 +165,15 @@ function OnEnd()
 end
 
 function Think()
-	local enemyHeroes = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
+	--[[ 	local enemyHeroes = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
 
 	if utility.IsBusy(npcBot) and (#enemyHeroes > 0 or npcBot:WasRecentlyDamagedByAnyHero(2.0))
 	then
 		npcBot:Action_ClearActions(true);
 		return;
-	end
+	end ]]
 
-	local captureRange = 300
+	local captureRange = 500
 
 	--[[ 	if closestWatcher ~= nil
 	then

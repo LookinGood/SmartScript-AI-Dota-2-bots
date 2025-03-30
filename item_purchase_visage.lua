@@ -9,15 +9,18 @@ local ItemsToBuy =
 
 	"item_enchanted_mango",
 
+	"item_wind_lace",
+
 	"item_magic_wand",
 
 	"item_null_talisman",
 
 	"item_tranquil_boots",
-	"item_ancient_janggo",
 
 	"item_oblivion_staff",
 	"item_witch_blade",
+
+	"item_ancient_janggo",
 
 	"item_oblivion_staff",
 	"item_orchid",

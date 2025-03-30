@@ -32,17 +32,15 @@ local ItemsToBuy =
     "item_buckler",
     "item_guardian_greaves",
 
-    "item_sange",
-    "item_heavens_halberd",
-
     "item_ultimate_scepter",
 
-    "item_overwhelming_blink",
+    "item_heart",
 
     "item_ultimate_scepter_2",
 
-    "item_soul_booster",
-    "item_octarine_core",
+    "item_overwhelming_blink",
+
+    "item_radiance",
 
     "item_aghanims_shard",
 }

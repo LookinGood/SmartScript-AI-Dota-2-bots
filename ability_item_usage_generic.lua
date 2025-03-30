@@ -539,27 +539,24 @@ function ItemUsageThink()
 	end
 
 	-- item_healing_lotus/item_great_healing_lotus
-	local healingLotus = IsItemAvailable("item_healing_lotus");
-	local greatHealingLotus = IsItemAvailable("item_great_healing_lotus");
-	local greaterHealingLotus = IsItemAvailable("item_greater_healing_lotus");
+	local healingLotus = IsItemAvailable("item_famango");
+	local greatHealingLotus = IsItemAvailable("item_great_famango");
+	local greaterHealingLotus = IsItemAvailable("item_greater_famango");
 	if (healingLotus ~= nil and healingLotus:IsFullyCastable()) or (greatHealingLotus ~= nil and greatHealingLotus:IsFullyCastable())
 		or (greaterHealingLotus ~= nil and greaterHealingLotus:IsFullyCastable())
 	then
-		if (healthPercent <= 0.5) or (manaPercent <= 0.5)
+		if healingLotus ~= nil and (healthPercent <= 0.8 or manaPercent <= 0.8)
 		then
-			if healingLotus ~= nil
-			then
-				--npcBot:Action_ClearActions(false);
-				npcBot:Action_UseAbility(healingLotus);
-			elseif greatHealingLotus ~= nil
-			then
-				--npcBot:Action_ClearActions(false);
-				npcBot:Action_UseAbility(greatHealingLotus);
-			elseif greaterHealingLotus ~= nil
-			then
-				--npcBot:Action_ClearActions(false);
-				npcBot:Action_UseAbility(greaterHealingLotus);
-			end
+			--npcBot:ActionImmediate_Chat("Использую предмет healingLotus!", true);
+			npcBot:Action_UseAbility(healingLotus);
+		elseif greatHealingLotus ~= nil and (healthPercent <= 0.6 or manaPercent <= 0.6)
+		then
+			--npcBot:ActionImmediate_Chat("Использую предмет greatHealingLotus!", true);
+			npcBot:Action_UseAbility(greatHealingLotus);
+		elseif greaterHealingLotus ~= nil and (healthPercent <= 0.5 or manaPercent <= 0.5)
+		then
+			--npcBot:ActionImmediate_Chat("Использую предмет greaterHealingLotus!", true);
+			npcBot:Action_UseAbility(greaterHealingLotus);
 		end
 	end
 

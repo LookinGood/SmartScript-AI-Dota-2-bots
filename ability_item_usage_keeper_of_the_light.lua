@@ -147,7 +147,7 @@ function AbilityUsageThink()
     if (castRecallDesire ~= nil)
     then
         npcBot:Action_UseAbilityOnLocation(Recall, castRecallLocation);
-        npcBot:ActionImmediate_Ping(castRecallLocation.x, castRecallLocation.y, true);
+        --npcBot:ActionImmediate_Ping(castRecallLocation.x, castRecallLocation.y, true);
         return;
     end
 
@@ -557,22 +557,25 @@ function ConsiderRecall()
         return;
     end
 
+    if npcBot:HasModifier("modifier_keeper_of_the_light_recall")
+    then
+        return;
+    end
+
     local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
     local allyAbility = GetUnitList(UNIT_LIST_ALLIED_HEROES);
 
     if (#allyAbility > 1)
     then
-        for i = 1, #allyAbility do
-            do
-                if allyAbility[i] ~= npcBot and utility.IsHero(allyAbility[i]) and (allyAbility[i]:GetHealth() / allyAbility[i]:GetMaxHealth() <= 0.6)
-                    and allyAbility[i]:TimeSinceDamagedByAnyHero() >= 4.0 and not allyAbility[i]:IsChanneling()
+        for _, ally in pairs(allyAbility)
+        do
+            if ally ~= npcBot and utility.IsHero(ally) and ally:GetHealth() / ally:GetMaxHealth() <= 0.6 and ally:TimeSinceDamagedByAnyHero() >= 4.0
+                and not ally:IsChanneling() and not ally:HasModifier("modifier_keeper_of_the_light_recall")
+            then
+                if npcBot:DistanceFromFountain() < ally:DistanceFromFountain() and GetUnitToUnitDistance(npcBot, ally) >= 3000
                 then
-                    if npcBot:DistanceFromFountain() < allyAbility[i]:DistanceFromFountain() and GetUnitToUnitDistance(npcBot, allyAbility[i]) >= 3000
-                    then
-                        npcBot:ActionImmediate_Chat("Использую Recall на раненного союзника!", true);
-                        return BOT_ACTION_DESIRE_HIGH,
-                            utility.GetTargetCastPosition(npcBot, allyAbility[i], delayAbility, 0);
-                    end
+                    --npcBot:ActionImmediate_Chat("Использую Recall для спасения " .. ally:GetUnitName(), true);
+                    return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, ally, delayAbility, 0);
                 end
             end
         end
@@ -585,17 +588,15 @@ function ConsiderRecall()
         then
             if (#allyAbility > 1) and GetUnitToUnitDistance(npcBot, botTarget) <= 2000
             then
-                for i = 1, #allyAbility do
-                    do
-                        if allyAbility[i] ~= npcBot and utility.IsHero(allyAbility[i]) and (allyAbility[i]:GetHealth() / allyAbility[i]:GetMaxHealth() > 0.6)
-                            and allyAbility[i]:TimeSinceDamagedByAnyHero() >= 4.0 and not allyAbility[i]:IsChanneling()
+                for _, ally in pairs(allyAbility)
+                do
+                    if ally ~= npcBot and utility.IsHero(ally) and ally:GetHealth() / ally:GetMaxHealth() > 0.6 and ally:TimeSinceDamagedByAnyHero() >= 4.0
+                        and not ally:IsChanneling() and not ally:HasModifier("modifier_keeper_of_the_light_recall")
+                    then
+                        if ally:DistanceFromFountain() < 3000 and GetUnitToUnitDistance(npcBot, ally) >= 3000
                         then
-                            if allyAbility[i]:DistanceFromFountain() < 3000 and GetUnitToUnitDistance(npcBot, allyAbility[i]) >= 3000
-                            then
-                                --npcBot:ActionImmediate_Chat("Использую Recall что бы вызвать союзника в бой!", true);
-                                return BOT_ACTION_DESIRE_HIGH,
-                                    utility.GetTargetCastPosition(npcBot, allyAbility[i], delayAbility, 0);
-                            end
+                            --npcBot:ActionImmediate_Chat("Использую Recall для вызова в бой " .. ally:GetUnitName(), true);
+                            return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, ally, delayAbility, 0);
                         end
                     end
                 end
@@ -637,3 +638,34 @@ function ConsiderSpiritForm()
         end
     end
 end
+
+--[[ for i = 1, #allyAbility do
+    do
+        if allyAbility[i] ~= npcBot and utility.IsHero(allyAbility[i]) and (allyAbility[i]:GetHealth() / allyAbility[i]:GetMaxHealth() <= 0.6)
+            and allyAbility[i]:TimeSinceDamagedByAnyHero() >= 4.0 and not allyAbility[i]:IsChanneling()
+        then
+            if npcBot:DistanceFromFountain() < allyAbility[i]:DistanceFromFountain() and GetUnitToUnitDistance(npcBot, allyAbility[i]) >= 3000
+            then
+                npcBot:ActionImmediate_Chat("Использую Recall на раненного союзника!", true);
+                return BOT_ACTION_DESIRE_HIGH,
+                    utility.GetTargetCastPosition(npcBot, allyAbility[i], delayAbility, 0);
+            end
+        end
+    end
+end
+
+
+for i = 1, #allyAbility do
+    do
+        if allyAbility[i] ~= npcBot and utility.IsHero(allyAbility[i]) and (allyAbility[i]:GetHealth() / allyAbility[i]:GetMaxHealth() > 0.6)
+            and allyAbility[i]:TimeSinceDamagedByAnyHero() >= 4.0 and not allyAbility[i]:IsChanneling()
+        then
+            if allyAbility[i]:DistanceFromFountain() < 3000 and GetUnitToUnitDistance(npcBot, allyAbility[i]) >= 3000
+            then
+                --npcBot:ActionImmediate_Chat("Использую Recall что бы вызвать союзника в бой!", true);
+                return BOT_ACTION_DESIRE_HIGH,
+                    utility.GetTargetCastPosition(npcBot, allyAbility[i], delayAbility, 0);
+            end
+        end
+    end
+end ]]

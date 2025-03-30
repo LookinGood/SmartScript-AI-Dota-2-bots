@@ -28,10 +28,10 @@ local ItemsToBuy =
 
 	"item_blink",
 
-	"item_aghanims_shard",
-
 	"item_veil_of_discord",
 	"item_shivas_guard",
+
+	"item_aghanims_shard",
 
 	"item_ultimate_scepter",
 	"item_ultimate_scepter_2",

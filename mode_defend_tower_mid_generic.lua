@@ -88,6 +88,28 @@ local function GetBuildingToProtect()
     return building, desire;
 end
 
+function GetTowerToDenying()
+    local towers = {
+        TOWER_MID_1,
+        TOWER_MID_2,
+    }
+
+    local denyingTower = nil;
+
+    for _, t in pairs(towers)
+    do
+        local tower = GetTower(GetTeam(), t);
+        local towerHealthPercent = tower:GetHealth() / tower:GetMaxHealth();
+        if tower:IsAlive() and not tower:IsInvulnerable() and towerHealthPercent <= 0.1 and GetUnitToUnitDistance(npcBot, tower) <= 1000
+        then
+            --npcBot:ActionImmediate_Chat("Нужно добить " .. tower:GetUnitName(), true);
+            denyingTower = tower;
+        end
+    end
+
+    return denyingTower;
+end
+
 function GetDefenderBotHero()
     local unit = nil;
     local forse = 100000;
@@ -117,27 +139,40 @@ function GetDesire()
     if not utility.IsHero(npcBot) or not npcBot:IsAlive() or healthPercent <= 0.3 or botLevel <= 3 or
         botMode == BOT_MODE_DEFEND_TOWER_TOP or botMode == BOT_MODE_DEFEND_TOWER_BOT
     then
-        return BOT_ACTION_DESIRE_NONE;
+        return BOT_MODE_DESIRE_NONE;
     end
 
     mainBuilding, desire = GetBuildingToProtect();
 
-    return desire;
+    if mainBuilding ~= nil
+    then
+        return desire;
+    end
+
+    denyingTower = GetTowerToDenying();
+
+    if denyingTower ~= nil
+    then
+        --npcBot:ActionImmediate_Chat("Хочу добить " .. denyingTower:GetUnitName(), true);
+        return BOT_MODE_DESIRE_VERYHIGH;
+    end
+
+    return BOT_MODE_DESIRE_NONE;
 end
 
 function OnStart()
-    if RollPercentage(15)
+    if RollPercentage(5)
     then
-        npcBot:ActionImmediate_Chat("Защищаю " .. mainBuilding:GetUnitName(), false);
+        if mainBuilding ~= nil
+        then
+            npcBot:ActionImmediate_Chat("Защищаю " .. mainBuilding:GetUnitName(), false);
+        end
     end
 end
 
 function OnEnd()
-    if RollPercentage(5)
-    then
-        npcBot:ActionImmediate_Chat("Прекращаю защищать " .. mainBuilding:GetUnitName(), false);
-    end
     mainBuilding = nil;
+    denyingTower = nil;
     npcBot:SetTarget(nil);
 end
 
@@ -147,12 +182,19 @@ function Think()
         return;
     end
 
+    if denyingTower ~= nil
+    then
+        --npcBot:ActionImmediate_Chat("Добиваю " .. denyingTower:GetUnitName(), true);
+        npcBot:Action_ClearActions(false);
+        npcBot:Action_AttackUnit(denyingTower, false);
+        return;
+    end
+
     local healthPercent = npcBot:GetHealth() / npcBot:GetMaxHealth();
     local ancient = GetAncient(GetTeam());
     local ancientLocation = ancient:GetLocation();
     local ancientRadius = 500.0;
     local fountainLocation = utility.GetFountainLocation();
-    --SafeLocation(npcBot);
     local team = npcBot:GetTeam();
     local defendZone = utility.GetEscapeLocation(mainBuilding, wanderRadius);
     local enemyCreeps = npcBot:GetNearbyCreeps(1600, true);
@@ -164,6 +206,7 @@ function Think()
 
     if (healthPercent <= 0.4) and (npcBot:WasRecentlyDamagedByAnyHero(2.0) or npcBot:WasRecentlyDamagedByCreep(3.0))
     then
+        npcBot:Action_ClearActions(false);
         npcBot:Action_MoveToLocation(defendZone);
         return;
     else
@@ -171,11 +214,13 @@ function Think()
         then
             if npcBot:WasRecentlyDamagedByAnyHero(2.0) or (#enemyHeroes > #allyHeroes)
             then
+                npcBot:Action_ClearActions(false);
                 npcBot:Action_MoveToLocation(fountainLocation);
                 return;
             else
                 if GetUnitToLocationDistance(npcBot, ancientLocation) > 1000
                 then
+                    npcBot:Action_ClearActions(false);
                     npcBot:Action_MoveToLocation(ancientLocation);
                     return;
                 else
@@ -197,6 +242,7 @@ function Think()
                         if mainCreep ~= nil
                         then
                             npcBot:SetTarget(mainCreep);
+                            npcBot:Action_ClearActions(false);
                             npcBot:Action_AttackUnit(mainCreep, false);
                             return;
                         end
@@ -204,6 +250,7 @@ function Think()
                         local angle = math.rad(math.fmod(npcBot:GetFacing() + 30, 360));
                         local newLocation = Vector(ancientLocation.x + ancientRadius * math.cos(angle),
                             ancientLocation.y + ancientRadius * math.sin(angle), ancientLocation.z);
+                        npcBot:Action_ClearActions(false);
                         npcBot:Action_MoveToLocation(newLocation);
                         --DebugDrawLine(ancientLocation, newLocation, 255, 0, 0);
                         --npcBot:ActionImmediate_Chat("Охраняю древнего.", true);
@@ -216,11 +263,13 @@ function Think()
                 npcBot:GetCurrentActionType() ~= BOT_ACTION_TYPE_ATTACK and
                 npcBot:GetCurrentActionType() ~= BOT_ACTION_TYPE_ATTACKMOVE
             then
+                npcBot:Action_ClearActions(false);
                 npcBot:Action_MoveToLocation(defendZone);
                 return;
             else
                 if npcBot:WasRecentlyDamagedByAnyHero(2.0)
                 then
+                    npcBot:Action_ClearActions(false);
                     npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -1000) + RandomVector(wanderRadius));
                     --npcBot:Action_MoveToLocation(utility.SafeLocation(npcBot));
                     return;
@@ -247,17 +296,21 @@ function Think()
                             npcBot:SetTarget(mainCreep);
                             if (#enemyHeroes >= #allyHeroes)
                             then
+                                npcBot:Action_ClearActions(false);
                                 npcBot:Action_AttackUnit(mainCreep, true);
                                 return;
                             else
+                                npcBot:Action_ClearActions(false);
                                 npcBot:Action_AttackUnit(mainCreep, false);
                                 return;
                             end
                         else
+                            npcBot:Action_ClearActions(false);
                             npcBot:Action_MoveToLocation(defendZone + RandomVector(wanderRadius));
                             return;
                         end
                     else
+                        npcBot:Action_ClearActions(false);
                         npcBot:Action_MoveToLocation(defendZone + RandomVector(wanderRadius));
                         return;
                     end

@@ -19,10 +19,10 @@ local ItemsToBuy =
 
     "item_eternal_shroud",
 
+    "item_blink",
+
     "item_veil_of_discord",
     "item_shivas_guard",
-
-    "item_blink",
 
     "item_black_king_bar",
 

@@ -116,9 +116,9 @@ function GetDesire()
 		return BOT_MODE_DESIRE_NONE;
 	end
 
-	--closestWatcher, watcherDistance = GetClosestAvailableWatcher()
-	--closestLotusPull, lotusPoolDistance = GetClosestAvailableLotusPool();
 	closestOutpost, outpostDistance = GetClosestAvailableOutpost();
+	--closestWatcher, watcherDistance = GetClosestAvailableWatcher();
+	--closestLotusPull, lotusPoolDistance = GetClosestAvailableLotusPool();
 
 	--[[ 	local randomBot = utility.GetRandomBotPlayer();
 	if npcBot == randomBot
@@ -137,15 +137,15 @@ function GetDesire()
 		end
 	end
 
+--[[ 	if watcherDistance <= 3000
+	then
+		--npcBot:ActionImmediate_Chat("Рядом есть доступный смотритель!", true);
+		return BOT_MODE_DESIRE_VERYHIGH;
+	end ]]
+
 	--[[ 	if lotusPoolDistance <= 4000
 	then
 		npcBot:ActionImmediate_Chat("Рядом есть доступный бассейн с лотусами!", true);
-		return BOT_MODE_DESIRE_VERYHIGH;
-	end
-
-	if watcherDistance <= 3000
-	then
-		npcBot:ActionImmediate_Chat("Рядом есть доступный смотритель!", true);
 		return BOT_MODE_DESIRE_VERYHIGH;
 	end ]]
 
@@ -155,8 +155,11 @@ end
 function OnStart()
 	if RollPercentage(5)
 	then
-		--npcBot:ActionImmediate_Chat("Иду захватывать аванпост.", false);
-		npcBot:ActionImmediate_Ping(closestOutpost:GetLocation().x, closestOutpost:GetLocation().y, true);
+		if closestOutpost ~= nil
+		then
+			--npcBot:ActionImmediate_Chat("Иду захватывать аванпост.", false);
+			npcBot:ActionImmediate_Ping(closestOutpost:GetLocation().x, closestOutpost:GetLocation().y, true);
+		end
 	end
 end
 
@@ -165,28 +168,69 @@ function OnEnd()
 end
 
 function Think()
-	--[[ 	local enemyHeroes = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
+	local enemyHeroes = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
 
-	if utility.IsBusy(npcBot) and (#enemyHeroes > 0 or npcBot:WasRecentlyDamagedByAnyHero(2.0))
+	if (#enemyHeroes > 0 or npcBot:WasRecentlyDamagedByAnyHero(2.0))
 	then
-		npcBot:Action_ClearActions(true);
-		return;
-	end ]]
+		if npcBot:IsChanneling()
+		then
+			npcBot:Action_ClearActions(true);
+			return;
+		end
+	else
+		if utility.IsBusy(npcBot)
+		then
+			return;
+		end
+	end
 
-	local captureRange = 500
+	local captureRange = 300;
 
-	--[[ 	if closestWatcher ~= nil
+	if closestOutpost ~= nil
 	then
+		npcBot:SetTarget(closestOutpost);
+		local AbilityCapture = npcBot:GetAbilityByName('ability_capture');
+		if GetUnitToUnitDistance(npcBot, closestOutpost) > captureRange
+		then
+			--npcBot:ActionImmediate_Chat("Иду захватывать " .. closestOutpost:GetUnitName(), true);
+			npcBot:Action_MoveToLocation(closestOutpost:GetLocation());
+			return;
+		else
+			if AbilityCapture ~= nil
+			then
+				--npcBot:ActionImmediate_Chat("Захватываю " .. closestOutpost:GetUnitName(), true);
+				npcBot:Action_UseAbilityOnEntity(AbilityCapture, closestOutpost);
+				return;
+			else
+				--npcBot:ActionImmediate_Chat("Захватываю(Атакую) " .. closestOutpost:GetUnitName(), true);
+				npcBot:Action_AttackUnit(closestOutpost, false);
+				return;
+			end
+		end
+	end
+
+--[[ 	if closestWatcher ~= nil
+	then
+		npcBot:SetTarget(closestWatcher);
+		local AbilityCapture = npcBot:GetAbilityByName('ability_lamp_use');
 		if GetUnitToUnitDistance(npcBot, closestWatcher) > captureRange
 		then
-			npcBot:ActionImmediate_Chat("Иду захватывать смотрителя!", true);
+			--npcBot:ActionImmediate_Chat("Иду захватывать смотрителя!", true);
 			npcBot:Action_MoveToLocation(closestWatcher:GetLocation());
 			return;
 		else
-			npcBot:ActionImmediate_Chat("Захватываю смотрителя!", true);
-			--npcBot:Action_AttackUnit(closestWatcher, false);
-			npcBot:Action_MoveDirectly(closestWatcher:GetLocation() + RandomVector(50));
-			return;
+			if AbilityCapture ~= nil
+			then
+				--npcBot:ActionImmediate_Chat("Захватываю " .. closestWatcher:GetUnitName(), true);
+				npcBot:ActionImmediate_Chat("Использую " .. AbilityCapture:GetName(), true);
+				npcBot:Action_UseAbilityOnEntity(AbilityCapture, closestWatcher);
+				return;
+			else
+				--npcBot:ActionImmediate_Chat("Захватываю смотрителя(Атакой) " .. closestWatcher:GetUnitName(), true);
+				npcBot:Action_AttackUnit(closestWatcher, false);
+				--npcBot:Action_MoveDirectly(closestWatcher:GetLocation() + RandomVector(50));
+				return;
+			end
 		end
 	end ]]
 
@@ -204,19 +248,4 @@ function Think()
 			return;
 		end
 	end ]]
-
-	if closestOutpost ~= nil
-	then
-		npcBot:SetTarget(closestOutpost);
-		if GetUnitToUnitDistance(npcBot, closestOutpost) > captureRange
-		then
-			--npcBot:ActionImmediate_Chat("Иду захватывать " .. closestOutpost:GetUnitName(), true);
-			npcBot:Action_MoveToLocation(closestOutpost:GetLocation());
-			return;
-		else
-			--npcBot:ActionImmediate_Chat("Захватываю " .. closestOutpost:GetUnitName(), true);
-			npcBot:Action_AttackUnit(closestOutpost, false);
-			return;
-		end
-	end
 end

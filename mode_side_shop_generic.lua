@@ -189,7 +189,7 @@ function OnStart()
 	if RollPercentage(5)
 	then
 		npcBot:ActionImmediate_Chat("Атакую Терзателя!", false);
-		npcBot:ActionImmediate_Ping(closestTormentor:GetLocation().x, closestTormentor:GetLocation().y, true);
+		npcBot:ActionImmediate_Ping(closestTormentorLocation.x, closestTormentorLocation.y, true);
 	end
 end
 

@@ -196,7 +196,7 @@ function ConsiderEnchantTotem()
         return;
     end
 
-    local attackRange = (npcBot:GetAttackRange() + ability:GetSpecialValueInt("bonus_attack_range")) * 2;
+    local attackRange = (npcBot:GetAttackRange() + ability:GetSpecialValueInt("bonus_attack_range"));
     local castRangeAbility = ability:GetSpecialValueInt("distance_scepter");
     local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
     local speedAbility = ability:GetSpecialValueInt("scepter_acceleration_horizontal");

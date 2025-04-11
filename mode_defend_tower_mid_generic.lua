@@ -100,7 +100,8 @@ function GetTowerToDenying()
     do
         local tower = GetTower(GetTeam(), t);
         local towerHealthPercent = tower:GetHealth() / tower:GetMaxHealth();
-        if tower:IsAlive() and not tower:IsInvulnerable() and towerHealthPercent <= 0.1 and GetUnitToUnitDistance(npcBot, tower) <= 1000
+        if (tower:IsAlive() and not tower:IsInvulnerable() and GetUnitToUnitDistance(npcBot, tower) <= 1000) and
+            (towerHealthPercent <= 0.1 or tower:IsSpeciallyDeniable())
         then
             --npcBot:ActionImmediate_Chat("Нужно добить " .. tower:GetUnitName(), true);
             denyingTower = tower;
@@ -204,15 +205,15 @@ function Think()
 
     npcBot:SetTarget(mainBuilding);
 
-    if (healthPercent <= 0.4) and (npcBot:WasRecentlyDamagedByAnyHero(2.0) or npcBot:WasRecentlyDamagedByCreep(3.0))
+    if utility.BotWasRecentlyDamagedByEnemyHero(2.0) or (healthPercent <= 0.4 and npcBot:WasRecentlyDamagedByCreep(2.0))
     then
         npcBot:Action_ClearActions(false);
-        npcBot:Action_MoveToLocation(defendZone);
+        npcBot:Action_MoveToLocation(fountainLocation);
         return;
     else
         if npcBot == botDefender and mainBuilding == ancient
         then
-            if npcBot:WasRecentlyDamagedByAnyHero(2.0) or (#enemyHeroes > #allyHeroes)
+            if utility.BotWasRecentlyDamagedByEnemyHero(2.0) or (#enemyHeroes > #allyHeroes)
             then
                 npcBot:Action_ClearActions(false);
                 npcBot:Action_MoveToLocation(fountainLocation);
@@ -267,7 +268,7 @@ function Think()
                 npcBot:Action_MoveToLocation(defendZone);
                 return;
             else
-                if npcBot:WasRecentlyDamagedByAnyHero(2.0)
+                if utility.BotWasRecentlyDamagedByEnemyHero(2.0)
                 then
                     npcBot:Action_ClearActions(false);
                     npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -1000) + RandomVector(wanderRadius));

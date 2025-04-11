@@ -74,6 +74,11 @@ C["carryHeroes"] = {
     ["npc_dota_hero_void_spirit"] = 1,
     ["npc_dota_hero_invoker"] = 1,
     ["npc_dota_hero_lone_druid"] = 1,
+    ["npc_dota_hero_primal_beast"] = 1,
+    ["npc_dota_hero_hoodwink"] = 1,
+    ["npc_dota_hero_muerta"] = 1,
+    ["npc_dota_hero_marci"] = 1,
+    ["npc_dota_hero_meepo"] = 1,
 }
 
 local S = {}

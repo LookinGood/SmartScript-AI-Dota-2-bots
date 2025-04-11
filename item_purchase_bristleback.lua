@@ -17,12 +17,15 @@ local ItemsToBuy =
 
     "item_phase_boots",
 
-    "item_eternal_shroud",
+    "item_blade_mail",
 
     "item_lesser_crit",
-    "item_greater_crit",
 
     "item_aghanims_shard",
+
+    "item_blink",
+    
+    "item_greater_crit",
 
     "item_overwhelming_blink",
 

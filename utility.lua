@@ -138,6 +138,58 @@ function IsBaseUnderAttack()
 	return false;
 end
 
+function IsEnemyBaseUnderAttack()
+	local radiusUnit = 3000;
+	local towers = {
+		TOWER_BASE_1,
+		TOWER_BASE_2,
+	}
+
+	for _, t in pairs(towers)
+	do
+		local tower = GetTower(GetOpposingTeam(), t);
+		if tower ~= nil and tower:CanBeSeen() and not tower:IsInvulnerable()
+		then
+			if utility.CountAllyCreepAroundUnit(tower, radiusUnit) >= 5
+			then
+				return true;
+			end
+		end
+	end
+
+	local barracks = {
+		BARRACKS_TOP_MELEE,
+		BARRACKS_TOP_RANGED,
+		BARRACKS_MID_MELEE,
+		BARRACKS_MID_RANGED,
+		BARRACKS_BOT_MELEE,
+		BARRACKS_BOT_RANGED,
+	}
+
+	for _, b in pairs(barracks)
+	do
+		local barrack = GetBarracks(GetOpposingTeam(), b);
+		if barrack ~= nil and barrack:CanBeSeen() and not barrack:IsInvulnerable()
+		then
+			if utility.CountAllyCreepAroundUnit(tower, radiusUnit) >= 5
+			then
+				return true;
+			end
+		end
+	end
+
+	local ancient = GetAncient(GetOpposingTeam());
+	if ancient ~= nil and ancient:CanBeSeen() and not ancient:IsInvulnerable()
+	then
+		if utility.CountAllyCreepAroundUnit(tower, radiusUnit) >= 5
+		then
+			return true;
+		end
+	end
+
+	return false;
+end
+
 function IsUnitNeedToHide(npcTarget)
 	return IsValidTarget(npcTarget) and
 		(npcTarget:IsDominated() or

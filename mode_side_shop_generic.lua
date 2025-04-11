@@ -1,21 +1,40 @@
----@diagnostic disable: undefined-global
+---@diagnostic disable: undefined-global, missing-parameter, param-type-mismatch
 require(GetScriptDirectory() .. "/utility")
 
 -- Режим для Терзателя
 
 local npcBot = GetBot();
 local minAllyHeroes = 3;
-local checkRadius = 4000;
+local checkRadius = 8000;
+local radiantTormentorLocation = Vector(7485.5, -7836.5, 328.3);
+local direTormentorLocation = Vector(-7239.9, 7938.6, 333.5);
+local updateInterval = 300;
+local lastUpdateTime = 0;
+local tormentorPositions = {}
 
 --local radiantWisdomRuneLocation = Vector(-8136.8, -913.7, 1341.7);
 --local direWisdomRuneLocation = Vector(8320.9, -339.3, 1318.9);
+--local radiantTormentorCheckTimer = 0.0;
+--local direTormentorCheckTimer = 0.0;
 
-local radiantTormentorLocation = Vector(-8147.1, -1185.7, 273.6);
-local direTormentorLocation = Vector(8125.5, 1022.9, 293.3);
-local radiantTormentorCheckTimer = 0.0;
-local direTormentorCheckTimer = 0.0;
+function HasTormentorInPosition(tormentorLocation)
+	local creeps = GetUnitList(UNIT_LIST_NEUTRAL_CREEPS);
 
-local function GetClosestAvailableTormentor()
+	if (#creeps > 0)
+	then
+		for _, creep in pairs(creeps)
+		do
+			if utility.IsTormentor(creep) and GetUnitToLocationDistance(creep, tormentorLocation) <= 1000
+			then
+				return true;
+			end
+		end
+	end
+
+	return false;
+end
+
+--[[ local function OLDGetClosestAvailableTormentor()
 	local closestUnit = nil;
 	local distance = 100000;
 	local unitsList = GetUnitList(UNIT_LIST_NEUTRAL_CREEPS);
@@ -39,9 +58,45 @@ local function GetClosestAvailableTormentor()
 	end
 
 	return closestUnit, distance;
+end ]]
+
+function GetTormentor(unitsList)
+	if (#unitsList > 0)
+	then
+		for _, unit in pairs(unitsList)
+		do
+			if utility.IsTormentor(unit)
+			then
+				return unit;
+			end
+		end
+	end
+
+	return nil;
 end
 
-local function GetCountAllyHeroesAroundTormentor(tormentor, radius)
+function GetClosestAvailableTormentorLocation()
+	local closestLocation = nil;
+	local distance = 100000;
+
+	if (#tormentorPositions > 0)
+	then
+		for _, location in pairs(tormentorPositions)
+		do
+			local unitDistance = GetUnitToLocationDistance(npcBot, location);
+			if unitDistance < distance
+			then
+				closestLocation = location;
+				distance = unitDistance;
+				break;
+			end
+		end
+	end
+
+	return closestLocation, distance;
+end
+
+function GetCountAllyHeroesAroundTormentorLocation(tormentorLocation, radius)
 	local count = 0;
 	local unitsList = GetUnitList(UNIT_LIST_ALLIED_HEROES);
 
@@ -49,7 +104,7 @@ local function GetCountAllyHeroesAroundTormentor(tormentor, radius)
 	then
 		for _, unit in pairs(unitsList)
 		do
-			if not unit:IsIllusion() and GetUnitToUnitDistance(unit, tormentor) <= radius
+			if not unit:IsIllusion() and GetUnitToLocationDistance(unit, tormentorLocation) <= radius and unit:GetHealth() / unit:GetMaxHealth() >= 0.2
 			then
 				count = count + 1;
 			end
@@ -59,14 +114,15 @@ local function GetCountAllyHeroesAroundTormentor(tormentor, radius)
 	return count;
 end
 
-local function IsAllyHeroAttackTormentor(tormentor)
+function IsAllyHeroAttackTormentor(tormentorLocation)
 	local unitsList = GetUnitList(UNIT_LIST_ALLIED_HEROES);
 
 	if (#unitsList > 0)
 	then
 		for _, unit in pairs(unitsList)
 		do
-			if not unit:IsIllusion() and unit:GetAttackTarget() == tormentor
+			if not unit:IsIllusion() and utility.IsTormentor(unit:GetAttackTarget())
+				and GetUnitToLocationDistance(unit, tormentorLocation) <= 1000
 			then
 				return true;
 			end
@@ -76,17 +132,43 @@ local function IsAllyHeroAttackTormentor(tormentor)
 	return false;
 end
 
+--table.insert(tormentorPositions, radiantTormentorLocation);
+--table.insert(tormentorPositions, direTormentorLocation);
+
 function GetDesire()
 	local enemyHeroes = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
 
 	if not utility.IsHero(npcBot) or not npcBot:IsAlive() or (#enemyHeroes > 0) or utility.IsBaseUnderAttack()
-		or npcBot:GetHealth() / npcBot:GetMaxHealth() < 0.2
+		or npcBot:GetHealth() / npcBot:GetMaxHealth() < 0.2 or DotaTime() < 20 * 60
 	then
 		return BOT_MODE_DESIRE_NONE;
 	end
 
-	local countAllyHeroesNear = GetCountAllyHeroesAroundTormentor(closestTormentor, checkRadius);
-	closestTormentor, tormentorDistance = GetClosestAvailableTormentor();
+	local currentTime = DotaTime();
+	if currentTime - lastUpdateTime >= updateInterval
+	then
+		tormentorPositions = {
+			radiantTormentorLocation,
+			direTormentorLocation
+		}
+		lastUpdateTime = currentTime;
+		--npcBot:ActionImmediate_Chat("Обновляю список доступных Терзателей: " .. #tormentorPositions, true);
+	end
+
+	if (#tormentorPositions > 0)
+	then
+		for i = #tormentorPositions, 1, -1 do
+			if IsLocationVisible(tormentorPositions[i]) and not HasTormentorInPosition(tormentorPositions[i])
+			then
+				--npcBot:ActionImmediate_Ping(tormentorPositions[i].x, tormentorPositions[i].y, false);
+				--npcBot:ActionImmediate_Chat("Удаляю позицию Терзателя - его там нет.", true);
+				table.remove(tormentorPositions, i);
+			end
+		end
+	end
+
+	closestTormentorLocation, tormentorDistance = GetClosestAvailableTormentorLocation();
+	local countAllyHeroesNear = GetCountAllyHeroesAroundTormentorLocation(closestTormentorLocation, checkRadius);
 
 	--[[ 	local randomBot = utility.GetRandomBotPlayer();
 	if npcBot == randomBot
@@ -94,7 +176,7 @@ function GetDesire()
 		utility.GetUnitInfo(closestTormentor)
 	end ]]
 
-	if tormentorDistance <= checkRadius and (countAllyHeroesNear >= minAllyHeroes or IsAllyHeroAttackTormentor(closestTormentor))
+	if tormentorDistance <= checkRadius and (countAllyHeroesNear >= minAllyHeroes or IsAllyHeroAttackTormentor(closestTormentorLocation))
 	then
 		--npcBot:ActionImmediate_Chat("Рядом есть доступный Терзатель.", true);
 		return BOT_MODE_DESIRE_VERYHIGH;
@@ -121,10 +203,42 @@ function Think()
 		return;
 	end
 
-	local attackRange = 1000;
-	local tormentorLocation = closestTormentor:GetLocation();
+	local attackRange = 500;
 
-	if closestTormentor ~= nil
+	if closestTormentorLocation ~= nil
+	then
+		if GetUnitToLocationDistance(npcBot, closestTormentorLocation) > attackRange
+		then
+			--npcBot:ActionImmediate_Chat("Иду к Терзателю!", true);
+			npcBot:Action_MoveToLocation(closestTormentorLocation);
+			return;
+		else
+			if GetCountAllyHeroesAroundTormentorLocation(closestTormentorLocation, 1000) >= minAllyHeroes
+			then
+				local neutralCreeps = npcBot:GetNearbyCreeps(1600, true);
+				local tormentor = GetTormentor(neutralCreeps);
+				if tormentor ~= nil
+				then
+					--npcBot:ActionImmediate_Chat("Атакую " .. tormentor:GetUnitName(), true);
+					npcBot:SetTarget(tormentor);
+					npcBot:Action_AttackUnit(tormentor, false);
+					return;
+				end
+			else
+				--npcBot:ActionImmediate_Chat("Жду союзников!", true);
+				npcBot:Action_MoveToLocation(npcBot:GetLocation() + RandomVector(200));
+				return;
+			end
+		end
+	end
+end
+
+-- unit:GetUnitName() == "npc_dota_watch_tower" -- не работает
+--if string.find(unit:GetUnitName(), "watch_tower") and not unit:HasModifier("modifier_invulnerable")
+-- npcBot:ActionImmediate_Chat(unit:GetUnitName(), true);
+-- print(unit:GetUnitName())
+
+--[[ 	if closestTormentor ~= nil
 	then
 		npcBot:SetTarget(closestTormentor);
 		if GetUnitToUnitDistance(npcBot, closestTormentor) > attackRange
@@ -142,7 +256,7 @@ function Think()
 				--npcBot:ActionImmediate_Chat("Жду союзников!", true);
 				npcBot:Action_MoveToLocation(tormentorLocation + RandomVector(200));
 				return;
-				--[[
+				
 				if GetUnitToLocationDistance(npcBot, radiantWisdomRuneLocation) < GetUnitToLocationDistance(npcBot, direWisdomRuneLocation)
 				then
 					npcBot:Action_MoveDirectly(radiantWisdomRuneLocation + RandomVector(20));
@@ -150,13 +264,7 @@ function Think()
 				else
 					npcBot:Action_MoveDirectly(direWisdomRuneLocation + RandomVector(20));
 					return;
-				end ]]
+				end
 			end
 		end
-	end
-end
-
--- unit:GetUnitName() == "npc_dota_watch_tower" -- не работает
---if string.find(unit:GetUnitName(), "watch_tower") and not unit:HasModifier("modifier_invulnerable")
--- npcBot:ActionImmediate_Chat(unit:GetUnitName(), true);
--- print(unit:GetUnitName())
+	end ]]

@@ -84,46 +84,13 @@ function GetDesire()
         end
     end
 
---[[     -- Выкладывание лотусов у фонтана
-    itemLotus = nil;
-
-    if itemLotus == nil
-    then
-        if npcBot:HasModifier("modifier_fountain_aura_buff")
-        then
-            local lotusSlot1 = npcBot:FindItemSlot("item_famango");
-            local lotusSlot2 = npcBot:FindItemSlot("item_great_famango");
-            local lotusSlot3 = npcBot:FindItemSlot("item_greater_famango");
-
-            if npcBot:GetItemSlotType(lotusSlot1) == ITEM_SLOT_TYPE_BACKPACK
-            then
-                npcBot:ActionImmediate_Chat("Хочу выложить healingLotus!", true);
-                itemLotus = npcBot:GetItemInSlot(lotusSlot1);
-                return BOT_MODE_DESIRE_HIGH;
-            elseif npcBot:GetItemSlotType(lotusSlot2) == ITEM_SLOT_TYPE_BACKPACK
-            then
-                npcBot:ActionImmediate_Chat("Хочу выложить greatHealingLotus!", true);
-                itemLotus = npcBot:GetItemInSlot(lotusSlot2);
-                return BOT_MODE_DESIRE_HIGH;
-            elseif npcBot:GetItemSlotType(lotusSlot2) == ITEM_SLOT_TYPE_BACKPACK
-            then
-                npcBot:ActionImmediate_Chat("Хочу выложить greaterHealingLotus!", true);
-                itemLotus = npcBot:GetItemInSlot(lotusSlot3);
-                return BOT_MODE_DESIRE_HIGH;
-            end
-        end
-    end ]]
-
     return BOT_MODE_DESIRE_NONE;
 end
 
 function OnStart()
     if RollPercentage(5)
     then
-        if itemLotus == nil
-        then
-            npcBot:ActionImmediate_Chat("Отступаю!", false);
-        end
+        npcBot:ActionImmediate_Chat("Отступаю!", false);
     end
     npcBot:SetTarget(nil);
 end
@@ -133,14 +100,6 @@ function Think()
     then
         return;
     end
-
---[[     if itemLotus ~= nil
-    then
-        npcBot:ActionImmediate_Chat("Выкладываю healingLotus!", true);
-        npcBot:Action_ClearActions(false);
-        npcBot:Action_DropItem(itemLotus, npcBot:GetLocation());
-        return;
-    end ]]
 
     local fountainLocation = utility.GetFountainLocation();
 
@@ -187,6 +146,22 @@ function Think()
         end
     end
 end
+
+--[[ local AbilityHighFive = npcBot:GetAbilityByName('high_five');
+npcBot:ActionImmediate_Chat("Дай пять: " .. AbilityHighFive:GetName(), true);
+--local abilityRange = AbilityHighFive:GetSpecialValueInt("acknowledge_range");
+--local allyHeroes = npcBot:GetNearbyHeroes(abilityRange, false, BOT_MODE_NONE);
+--local enemyHeroes = npcBot:GetNearbyHeroes(abilityRange, true, BOT_MODE_NONE);
+if AbilityHighFive ~= nil and AbilityHighFive:IsFullyCastable()
+then
+    npcBot:ActionImmediate_Chat("Дай пять: " .. AbilityHighFive:GetName(), true);
+
+  if (#allyHeroes > 0) or (#enemyHeroes > 0)
+    then
+        npcBot:ActionImmediate_Chat("Дай пять!", true);
+        npcBot:Action_UseAbility(AbilityHighFive);
+    end
+end ]]
 
 --botMode ~= BOT_MODE_DEFEND_TOWER_TOP and
 --botMode ~= BOT_MODE_DEFEND_TOWER_MID and

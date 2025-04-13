@@ -19,6 +19,32 @@ local lastUpdateTime = 0;
     end
 end ]]
 
+function GetCountAllDeadHeroes()
+    local countAllyHeroes = 0;
+    local countEnemyHeroes = 0;
+
+    local allyPlayers = GetTeamPlayers(GetTeam());
+    local enemyPlayers = GetTeamPlayers(GetOpposingTeam());
+
+    for _, i in pairs(allyPlayers)
+    do
+        if not IsHeroAlive(i)
+        then
+            countAllyHeroes = countAllyHeroes + 1;
+        end
+    end
+
+    for _, i in pairs(enemyPlayers)
+    do
+        if not IsHeroAlive(i)
+        then
+            countEnemyHeroes = countEnemyHeroes + 1;
+        end
+    end
+
+    return countAllyHeroes, countEnemyHeroes, #allyPlayers, #enemyPlayers;
+end
+
 function UpdateCreepCamps()
     local camps = GetNeutralSpawners();
 
@@ -148,6 +174,14 @@ end
 function GetDesire()
     if utility.NotCurrectHeroBot(npcBot) or utility.IsBaseUnderAttack() or utility.IsEnemyBaseUnderAttack() or DotaTime() < 1 * 60
     then
+        return BOT_MODE_DESIRE_NONE;
+    end
+
+    local countAllyDeadHeroes, countEnemyDeadHeroes, countAllyPlayers, countEnemyPlayers = GetCountAllDeadHeroes();
+
+    if (countEnemyDeadHeroes >= math.floor(countEnemyPlayers / 2) + 1)
+    then
+        --npcBot:ActionImmediate_Chat(tostring(countEnemyDeadHeroes) .. " героев из " .. tostring(countEnemyPlayers) .. " игроков - мертвы.", true);
         return BOT_MODE_DESIRE_NONE;
     end
 

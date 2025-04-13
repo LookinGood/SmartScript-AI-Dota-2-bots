@@ -80,7 +80,8 @@ end
 
 function IsNight()
 	local time = GetTimeOfDay();
-	return time < 0.5;
+	--return time <= 0.25 and time >= 0.75
+	return time > 0.5;
 end
 
 function IsBaseUnderAttack()
@@ -413,6 +414,19 @@ function GetCurrentCastDistance(castRangeAbility)
 	else
 		return distance;
 	end
+end
+
+function GetEmptyMainItemSlot()
+	local npcBot = GetBot();
+
+	for i = 0, 5 do
+		if npcBot:GetItemInSlot(i) == nil
+		then
+			return i;
+		end
+	end
+
+	return nil;
 end
 
 function GetItemSlotsCount()
@@ -1182,7 +1196,9 @@ end
 
 function CanBeHeal(npcTarget)
 	return IsValidTarget(npcTarget) and not npcTarget:HasModifier("modifier_ice_blast") and
-		not npcTarget:HasModifier("modifier_skeleton_king_reincarnation_scepter_active")
+		not npcTarget:HasModifier("modifier_skeleton_king_reincarnation_scepter_active") and
+		not npcTarget:HasModifier("modifier_doom_bringer_doom_enemy") and
+		not npcTarget:HasModifier("modifier_doom_bringer_doom")
 end
 
 function CanMove(npcTarget)

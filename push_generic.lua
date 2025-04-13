@@ -5,8 +5,40 @@ require(GetScriptDirectory() .. "/utility")
 
 local retreatDistance = 1000;
 
+function GetAllyCreepToRedirectTower()
+    local allyCreeps = npcBot:GetNearbyCreeps(500, false);
+    if (#allyCreeps > 0)
+    then
+        for _, ally in pairs(allyCreeps) do
+            if not ally:IsInvulnerable() and not ally:IsAttackImmune() and ally:GetHealth() / ally:GetMaxHealth() >= 0.5
+                and ally:GetHealth() > npcBot:GetAttackDamage()
+            then
+                --npcBot:ActionImmediate_Chat(ally:GetUnitName() .. " имеет здоровья: " .. ally:GetHealth() .. ", это больше чем сила моей атаки: " .. npcBot:GetAttackDamage(), true);
+                return ally;
+            end
+        end
+    end
+
+    return nil;
+end
+
+function IsEnemyTowerNearAttackBot()
+    local enemyTowers = npcBot:GetNearbyTowers(600, true);
+    if (#enemyTowers > 0)
+    then
+        for _, enemy in pairs(enemyTowers) do
+            if enemy:GetAttackTarget() == npcBot
+            then
+                return true;
+            end
+        end
+    end
+
+    return false;
+end
+
 function Think()
-    local npcBot = GetBot();
+    npcBot = GetBot();
     local botMode = npcBot:GetActiveMode();
     local team = npcBot:GetTeam();
     local wanderRadius = 200;
@@ -28,12 +60,38 @@ function Think()
     local mainCreep = nil;
     local mainBuilding = nil;
 
-    if npcBot:WasRecentlyDamagedByTower(3.0) or
-        utility.BotWasRecentlyDamagedByEnemyHero(3.0) or
-        --npcBot:WasRecentlyDamagedByAnyHero(3.0) or
+    --[[     (npcBot:IsInvisible() and #allyHeroes < #enemyHeroes) or
+    npcBot:IsDisarmed() or
+    npcBot:IsAttackImmune() ]]
+
+    --npcBot:WasRecentlyDamagedByAnyHero(3.0) or
+    --utility.BotWasRecentlyDamagedByEnemyHero(3.0) or
+
+    if IsEnemyTowerNearAttackBot()
+    then
+        local creepToRedirect = GetAllyCreepToRedirectTower();
+        if creepToRedirect ~= nil
+        then
+            --npcBot:ActionImmediate_Chat("Переагриваю башню на " .. creepToRedirect:GetUnitName(), true);
+            npcBot:Action_ClearActions(false);
+            npcBot:Action_AttackUnit(creepToRedirect, true);
+            return;
+        else
+            if retreatDistance < 3000
+            then
+                retreatDistance = retreatDistance + 500;
+            elseif retreatDistance >= 3000
+            then
+                retreatDistance = 1000;
+            end
+            npcBot:Action_ClearActions(false);
+            npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -retreatDistance) + RandomVector(wanderRadius));
+            return;
+        end
+    elseif utility.BotWasRecentlyDamagedByEnemyHero(3.0) or
         (npcBot:IsInvisible() and #allyHeroes < #enemyHeroes) or
-        npcBot:IsDisarmed() or
-        npcBot:IsAttackImmune()
+        npcBot:IsDisarmed()
+    --npcBot:IsAttackImmune()
     then
         if retreatDistance < 3000
         then
@@ -316,6 +374,8 @@ function Think()
             end
         end
     end
+
+    npcBot:ActionImmediate_Chat("Туплю.", true);
 end
 
 ---------------------------------------------------------------------------------------------------

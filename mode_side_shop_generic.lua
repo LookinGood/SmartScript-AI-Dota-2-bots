@@ -6,8 +6,8 @@ require(GetScriptDirectory() .. "/utility")
 local npcBot = GetBot();
 local minAllyHeroes = 3;
 local checkRadius = 8000;
-local radiantTormentorLocation = Vector(7485.5, -7836.5, 328.3);
-local direTormentorLocation = Vector(-7239.9, 7938.6, 333.5);
+local radiantTormentorLocation = Vector(7488.0, -7856.7, 351.6);
+local direTormentorLocation = Vector(-7201.8, 7947.3, 328.1);
 local updateInterval = 300;
 local lastUpdateTime = 0;
 local tormentorPositions = {}
@@ -147,18 +147,30 @@ function GetDesire()
 	local currentTime = DotaTime();
 	if currentTime - lastUpdateTime >= updateInterval
 	then
-		tormentorPositions = {
-			radiantTormentorLocation,
-			direTormentorLocation
-		}
+		if utility.IsNight()
+		then
+			--npcBot:ActionImmediate_Chat("Ночь - Терзатель у Radiant.", true);
+			tormentorPositions = {
+				radiantTormentorLocation
+			}
+		else
+			--npcBot:ActionImmediate_Chat("День - Терзатель у Dire.", true);
+			tormentorPositions = {
+				direTormentorLocation
+			}
+		end
 		lastUpdateTime = currentTime;
 		--npcBot:ActionImmediate_Chat("Обновляю список доступных Терзателей: " .. #tormentorPositions, true);
 	end
+
+	--IsLocationVisible(tormentorPositions[i])
+	--IsRadiusVisible(tormentorPositions[i], 400)
 
 	if (#tormentorPositions > 0)
 	then
 		for i = #tormentorPositions, 1, -1 do
 			if IsLocationVisible(tormentorPositions[i]) and not HasTormentorInPosition(tormentorPositions[i])
+			--and GetUnitToLocationDistance(npcBot, tormentorPositions[i]) <= 500
 			then
 				--npcBot:ActionImmediate_Ping(tormentorPositions[i].x, tormentorPositions[i].y, false);
 				--npcBot:ActionImmediate_Chat("Удаляю позицию Терзателя - его там нет.", true);

@@ -290,7 +290,7 @@ function ConsiderTreeGrab()
         return;
     end
 
-    if (#trees > 0) and (IsLocationVisible(GetTreeLocation(trees[1])) or IsLocationPassable(GetTreeLocation(trees[1])))
+    if (#trees > 0) and IsLocationVisible(GetTreeLocation(trees[1])) and IsLocationPassable(GetTreeLocation(trees[1]))
     then
         if botMode == BOT_MODE_LANING and (ManaPercentage >= 0.5)
         then

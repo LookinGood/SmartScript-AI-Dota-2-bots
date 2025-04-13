@@ -33,7 +33,7 @@ local ItemsToBuy =
 
     "item_aghanims_shard",
 
-    "item_sange",
+    "item_vanguard",
     "item_heavens_halberd",
 
     "item_pers",

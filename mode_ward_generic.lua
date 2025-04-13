@@ -12,7 +12,7 @@ local RADIANT_TOPSPOT3 = Vector(-7938.8, 1834.6, 215.4);
 local RADIANT_TOPSPOTNOTOWER = Vector(-6610.1, -3063.9, 209.1);
 
 local RADIANT_TOPTORMENTOR = Vector(7254.8, -7080.2, 264.4); -- Late game
-local RADIANT_RUNEWISDOM = Vector(-8210.5, 420.0, 295.2); -- Late game
+local RADIANT_RUNEWISDOM = Vector(-8210.5, 420.0, 295.2);    -- Late game
 
 local RADIANT_MIDSPOT1 = Vector(499.2, -1761.3, 102.5);
 local RADIANT_MIDSPOTNOTOWER = Vector(-4343.4, -3883.9, 175.1);
@@ -29,8 +29,8 @@ local RADIANT_BOTSPOTNOTOWER = Vector(-3603.6, -6108.9, 208.0);
 
 ---DIRE WARDING SPOT
 local DIRE_TOPSPOT1 = Vector(-1914.8, 3854.4, 1229.0);
-local DIRE_TOPSPOT2 = Vector(-884.8, 7634.8, 113.6); -- Late game
-local DIRE_TOPSPOT3 = Vector(1023.3, 3573.9, 135.6); -- Forest on the pillar
+local DIRE_TOPSPOT2 = Vector(-884.8, 7634.8, 113.6);  -- Late game
+local DIRE_TOPSPOT3 = Vector(1023.3, 3573.9, 135.6);  -- Forest on the pillar
 local DIRE_TOPSPOT4 = Vector(-4573.6, 4879.5, 131.4); -- Forest near T1
 local DIRE_TOPSPOT5 = Vector(-5451.6, 3792.4, 113.7); -- Forest near T1 Radiant
 
@@ -38,7 +38,7 @@ local DIRE_TOPSPOTPOND = Vector(-7713.2, 4267.1, 119.0);
 local DIRE_TOPSPOTNOTOWER = Vector(3098.2, 5769.3, 219.4);
 
 local DIRE_TOPTORMENTOR = Vector(-7266.9, 7349.9, 239.6); -- Late game
-local DIRE_RUNEWISDOM = Vector(8448.0, -970.3, 290.8); -- Late game
+local DIRE_RUNEWISDOM = Vector(8448.0, -970.3, 290.8);    -- Late game
 
 local DIRE_MIDSPOT1 = Vector(-935.3, 1265.0, 100.4);
 local DIRE_MIDSPOTNOTOWER = Vector(4012.5, 3470.9, 203.9);
@@ -171,20 +171,97 @@ end
 end ]]
 
 function GetDesire()
-    if GetGameState() == GAME_STATE_PRE_GAME or GetGameState() ~= GAME_STATE_GAME_IN_PROGRESS
+    if not utility.IsHero(npcBot) or not npcBot:IsAlive() or npcBot:HasModifier("modifier_skeleton_king_reincarnation_scepter_active")
     then
         return BOT_ACTION_DESIRE_NONE;
     end
 
-    if not utility.IsHero(npcBot) or not npcBot:IsAlive() or utility.IsBaseUnderAttack() or npcBot:HasModifier("modifier_skeleton_king_reincarnation_scepter_active")
+    -- Перемещение лотусов у фонтана
+    itemLotus = nil;
+    itemLotusSlot = nil;
+    emptySlot = utility.GetEmptyMainItemSlot();
+
+    if itemLotus == nil and emptySlot ~= nil
     then
-        return BOT_ACTION_DESIRE_NONE;
+        local lotusSlot1 = npcBot:FindItemSlot("item_famango");
+        local lotusSlot2 = npcBot:FindItemSlot("item_great_famango");
+        local lotusSlot3 = npcBot:FindItemSlot("item_greater_famango");
+
+        if npcBot:GetItemSlotType(lotusSlot1) == ITEM_SLOT_TYPE_BACKPACK
+        then
+            --npcBot:ActionImmediate_Chat("Хочу переложить healingLotus!", true);
+            itemLotus = npcBot:GetItemInSlot(lotusSlot1);
+            itemLotusSlot = lotusSlot1;
+            return BOT_MODE_DESIRE_VERYHIGH;
+        elseif npcBot:GetItemSlotType(lotusSlot2) == ITEM_SLOT_TYPE_BACKPACK
+        then
+            --npcBot:ActionImmediate_Chat("Хочу переложить greatHealingLotus!", true);
+            itemLotus = npcBot:GetItemInSlot(lotusSlot2);
+            itemLotusSlot = lotusSlot2;
+            return BOT_MODE_DESIRE_VERYHIGH;
+        elseif npcBot:GetItemSlotType(lotusSlot3) == ITEM_SLOT_TYPE_BACKPACK
+        then
+            --npcBot:ActionImmediate_Chat("Хочу переложить greaterHealingLotus!", true);
+            itemLotus = npcBot:GetItemInSlot(lotusSlot3);
+            itemLotusSlot = lotusSlot3;
+            return BOT_MODE_DESIRE_VERYHIGH;
+        end
     end
 
     local enemyHeroes = npcBot:GetNearbyHeroes(1000, true, BOT_MODE_NONE);
+
+    if (#enemyHeroes > 0) or utility.IsBaseUnderAttack()
+    then
+        return BOT_ACTION_DESIRE_NONE;
+    end
+
+    courier = utility.GetBotCourier(npcBot);
+    local state = GetCourierState(courier);
+    isCourierNearAndDeliver = false;
+
+    if (state == COURIER_STATE_DELIVERING_ITEMS) and GetUnitToUnitDistance(courier, npcBot) <= 1000 and not utility.IsItemSlotsFull()
+    then
+        isCourierNearAndDeliver = true;
+        --npcBot:ActionImmediate_Chat("Нужно встретить курьера!", true);
+        return BOT_MODE_DESIRE_VERYHIGH;
+    end
+
     local enemyTowers = npcBot:GetNearbyTowers(1000, true);
 
-    if (#enemyHeroes > 0) or (#enemyTowers > 0)
+    if (#enemyTowers > 0)
+    then
+        return BOT_ACTION_DESIRE_NONE;
+    end
+
+    enemyWard = nil;
+    enemyCourier = nil;
+
+    local enemyWards = GetUnitList(UNIT_LIST_ENEMY_WARDS);
+    if (#enemyWards > 0)
+    then
+        for _, ward in pairs(enemyWards) do
+            if ward:CanBeSeen() and GetUnitToUnitDistance(npcBot, ward) <= (npcBot:GetAttackRange() + 150 * 2)
+            then
+                enemyWard = ward;
+                return BOT_ACTION_DESIRE_VERYHIGH;
+            end
+        end
+    end
+
+    local enemyCouriers = npcBot:GetNearbyCreeps(npcBot:GetAttackRange() + 200, true);
+    if (#enemyCouriers > 0)
+    then
+        for _, courier in pairs(enemyCouriers) do
+            if courier:CanBeSeen() and courier:IsCourier() and not courier:IsInvulnerable()
+                and IsLocationPassable(courier:GetLocation())
+            then
+                enemyCourier = courier;
+                return BOT_ACTION_DESIRE_VERYHIGH;
+            end
+        end
+    end
+
+    if GetGameState() == GAME_STATE_PRE_GAME or GetGameState() ~= GAME_STATE_GAME_IN_PROGRESS
     then
         return BOT_ACTION_DESIRE_NONE;
     end
@@ -192,8 +269,6 @@ function GetDesire()
     wardObserver = IsWardAvailable("item_ward_observer");
     wardSentry = IsWardAvailable("item_ward_sentry");
     wardDispenser = IsWardAvailable("item_ward_dispenser");
-    enemyWard = nil;
-    enemyCourier = nil;
 
     if (wardObserver ~= nil and wardObserver:IsFullyCastable()) or
         (wardSentry ~= nil and wardSentry:IsFullyCastable()) or
@@ -229,31 +304,6 @@ function GetDesire()
         end
     end
 
-    local enemyWards = GetUnitList(UNIT_LIST_ENEMY_WARDS);
-    if (#enemyWards > 0)
-    then
-        for _, ward in pairs(enemyWards) do
-            if ward:CanBeSeen() and GetUnitToUnitDistance(npcBot, ward) <= (npcBot:GetAttackRange() + 150 * 2)
-            then
-                enemyWard = ward;
-                return BOT_ACTION_DESIRE_VERYHIGH;
-            end
-        end
-    end
-
-    local enemyCouriers = npcBot:GetNearbyCreeps(npcBot:GetAttackRange() + 200, true);
-    if (#enemyCouriers > 0)
-    then
-        for _, courier in pairs(enemyCouriers) do
-            if courier:CanBeSeen() and courier:IsCourier() and not courier:IsInvulnerable()
-                and IsLocationPassable(courier:GetLocation())
-            then
-                enemyCourier = courier;
-                return BOT_ACTION_DESIRE_VERYHIGH;
-            end
-        end
-    end
-
     return BOT_ACTION_DESIRE_NONE;
 end
 
@@ -266,6 +316,8 @@ end
  ]]
 
 function OnEnd()
+    enemyWard = nil;
+    enemyCourier = nil;
     npcBot:SetTarget(nil);
 end
 
@@ -275,7 +327,21 @@ function Think()
         return;
     end
 
-    if enemyWard ~= nil
+    if (itemLotus ~= nil)
+    then
+        npcBot:ActionImmediate_SwapItems(itemLotusSlot, emptySlot);
+        --npcBot:ActionImmediate_Chat("Перекладываю healingLotus!", true);
+        --npcBot:Action_ClearActions(false);
+        --npcBot:Action_DropItem(itemLotus, npcBot:GetLocation());
+        return;
+    end
+
+    if (isCourierNearAndDeliver == true)
+    then
+        --npcBot:ActionImmediate_Chat("Встречаю курьера!", true);
+        npcBot:Action_MoveToLocation(courier:GetLocation());
+        return;
+    elseif enemyWard ~= nil
     then
         npcBot:SetTarget(enemyWard);
         npcBot:Action_AttackUnit(enemyWard, false);

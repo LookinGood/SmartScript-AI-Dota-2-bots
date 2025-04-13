@@ -22,10 +22,18 @@ local barracks = {
     BARRACKS_MID_RANGED,
 }
 
-local function GetBuildingToProtect()
+function GetBuildingToProtect()
     local building = nil;
     local desire = BOT_MODE_DESIRE_NONE;
     local ancient = GetAncient(GetTeam());
+--[[     local buildingPinged = BuildingPingedByHumanPlayer();
+
+    if buildingPinged ~= nil
+    then
+        npcBot:ActionImmediate_Chat("Защитить: " .. buildingPinged:GetUnitName(), true);
+        desire = BOT_MODE_DESIRE_VERYHIGH;
+        building = buildingPinged;
+    end ]]
 
     for _, t in pairs(towers)
     do
@@ -103,7 +111,7 @@ function GetTowerToDenying()
         if (tower:IsAlive() and not tower:IsInvulnerable() and GetUnitToUnitDistance(npcBot, tower) <= 1000) and
             (towerHealthPercent <= 0.1 or tower:IsSpeciallyDeniable())
         then
-            --npcBot:ActionImmediate_Chat("Нужно добить " .. tower:GetUnitName(), true);
+            npcBot:ActionImmediate_Chat("Нужно добить " .. tower:GetUnitName(), true);
             denyingTower = tower;
         end
     end
@@ -131,6 +139,141 @@ function GetDefenderBotHero()
     --print(unit:GetUnitName())
     return unit;
 end
+
+--[[ function TestBuildingPingedByHumanPlayer()
+    local listPings = {};
+    local teamPlayers = GetTeamPlayers(GetTeam());
+    local ancient = GetAncient(GetTeam());
+end
+
+function BuildingPingedByHumanPlayer()
+    local listPings = {};
+    local teamPlayers = GetTeamPlayers(GetTeam()); -- Таблица с playerID союзников
+    local ancient = GetAncient(GetTeam());
+
+    -- Перебираем союзников
+    if (#teamPlayers > 0)
+    then
+        for k, v in pairs(teamPlayers) do
+            local member = GetTeamMember(k)
+            if member ~= nil and not IsPlayerBot(k)
+            then
+                local ping = member:GetMostRecentPing()
+                if ping ~= nil and (not ping.normal_ping)
+                then
+                    npcBot:ActionImmediate_Chat("Мой ID: ", true);
+                    table.insert(listPings, ping);
+                end
+            end
+        end
+
+
+              for _, playerID in ipairs(teamPlayers) do
+            local member = GetTeamMember(playerID);
+            if member ~= nil and not IsPlayerBot(playerID)
+            then
+                npcBot:ActionImmediate_Chat("Мой ID: ", true);
+                local ping = member:GetMostRecentPing();
+                if ping ~= nil
+                then
+                    table.insert(listPings, ping);
+                end
+            end
+        end 
+    end
+
+    -- Перебираем все найденные пинги
+    if (#listPings > 0)
+    then
+        for _, ping in ipairs(listPings) do
+            if ping ~= nil
+            --and not ping.normal_ping
+            then
+                for _, t in ipairs(towers) do
+                    local tower = GetTower(GetTeam(), t)
+                    if tower ~= nil and not tower:IsInvulnerable() and GetUnitToLocationDistance(tower, ping.location) <= 500
+                    then
+                        npcBot:ActionImmediate_Chat("Пинг рядом с башней: " .. tower:GetUnitName(), true);
+                        return tower;
+                    end
+                end
+
+                for _, b in ipairs(barracks) do
+                    local barrack = GetBarracks(GetTeam(), b)
+                    if barrack ~= nil and not barrack:IsInvulnerable() and GetUnitToLocationDistance(barrack, ping.location) <= 500
+                    then
+                        npcBot:ActionImmediate_Chat("Пинг рядом с барраками: " .. barrack:GetUnitName(), true);
+                        return barrack;
+                    end
+                end
+
+                if ancient ~= nil and not ancient:IsInvulnerable() and GetUnitToLocationDistance(ancient, ping.location) <= 500
+                then
+                    npcBot:ActionImmediate_Chat("Пинг рядом с Древним: " .. ancient:GetUnitName(), true);
+                    return ancient;
+                end
+            end
+        end
+    end
+
+    return nil;
+end ]]
+
+--[[ local function OLDBuildingPingedByHumanPlayer()
+    local listPings = {};
+    local teamPlayers = GetTeamPlayers(GetTeam());
+    local ancient = GetAncient(GetTeam());
+
+    if (#teamPlayers > 0)
+    then
+        for i = #teamPlayers, 1, -1
+        do
+            local member = GetTeamMember(i);
+            if not IsPlayerBot(i)
+            then
+                local ping = member:GetMostRecentPing();
+                table.insert(listPings, ping);
+            end
+        end
+    end
+
+    if (#listPings > 0)
+    then
+        for _, ping in pairs(listPings)
+        do
+            if ping ~= nil and ping.normal_ping
+            then
+                for _, t in pairs(towers)
+                do
+                    local tower = GetTower(GetTeam(), t);
+                    if tower ~= nil and not tower:IsInvulnerable() and GetUnitToLocationDistance(tower, ping.location) <= 500
+                    then
+                        npcBot:ActionImmediate_Chat("Пинг рядом с башней: " .. tower:GetUnitName(), true);
+                        return tower;
+                    end
+                end
+
+                for _, b in pairs(barracks)
+                do
+                    local barrack = GetBarracks(GetTeam(), b);
+                    if barrack ~= nil and not barrack:IsInvulnerable() and GetUnitToLocationDistance(barrack, ping.location) <= 500
+                    then
+                        npcBot:ActionImmediate_Chat("Пинг рядом с барраками: " .. barrack:GetUnitName(), true);
+                        return barrack;
+                    end
+                end
+
+                if ancient ~= nil and not ancient:IsInvulnerable() and GetUnitToLocationDistance(ancient, ping.location) <= 500
+                then
+                    npcBot:ActionImmediate_Chat("Пинг рядом с Древним: " .. ancient:GetUnitName(), true);
+                    return ancient;
+                end
+            end
+        end
+    end
+
+    return nil;
+end ]]
 
 function GetDesire()
     local healthPercent = npcBot:GetHealth() / npcBot:GetMaxHealth();

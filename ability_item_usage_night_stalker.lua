@@ -144,7 +144,7 @@ function ConsiderVoid()
                             return BOT_ACTION_DESIRE_ABSOLUTE, enemy, "target";
                         elseif utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_POINT)
                         then
-                            npcBot:ActionImmediate_Chat("Использую Void для сбивания каста с аганимом!", true);
+                            --npcBot:ActionImmediate_Chat("Использую Void для сбивания каста с аганимом!", true);
                             return BOT_ACTION_DESIRE_ABSOLUTE,
                                 utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0), "location";
                         end

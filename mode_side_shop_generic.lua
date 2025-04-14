@@ -225,7 +225,7 @@ function Think()
 			npcBot:Action_MoveToLocation(closestTormentorLocation);
 			return;
 		else
-			if GetCountAllyHeroesAroundTormentorLocation(closestTormentorLocation, 1000) >= minAllyHeroes
+			if GetCountAllyHeroesAroundTormentorLocation(closestTormentorLocation, 1000) >= minAllyHeroes or IsAllyHeroAttackTormentor(closestTormentorLocation)
 			then
 				local neutralCreeps = npcBot:GetNearbyCreeps(1600, true);
 				local tormentor = GetTormentor(neutralCreeps);

@@ -501,7 +501,7 @@ function ConsiderSupernova()
 
     if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_NO_TARGET)
     then
-        if (HealthPercentage <= 0.3) and (npcBot:WasRecentlyDamagedByAnyHero(2.0) or ally:WasRecentlyDamagedByTower(2.0))
+        if (HealthPercentage <= 0.3) and (npcBot:WasRecentlyDamagedByAnyHero(2.0) or npcBot:WasRecentlyDamagedByTower(2.0))
         then
             return BOT_ACTION_DESIRE_ABSOLUTE, nil;
         end

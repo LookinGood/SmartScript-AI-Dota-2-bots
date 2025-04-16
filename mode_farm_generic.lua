@@ -96,10 +96,16 @@ function HasAllyHeroInCamp(campLocation)
     then
         for _, ally in pairs(allyHeroes)
         do
-            if ally ~= npcBot and not ally:IsIllusion() and GetUnitToLocationDistance(ally, campLocation) <= 600
-                and ally:GetAttackTarget():IsCreep()
+            if string.find(npcBot:GetUnitName(), "meepo") and string.find(ally:GetUnitName(), "meepo")
+                and npcBot:GetPlayerID() == ally:GetPlayerID()
             then
-                return true;
+                return false;
+            else
+                if ally ~= npcBot and not ally:IsIllusion() and GetUnitToLocationDistance(ally, campLocation) <= 600
+                    and ally:GetAttackTarget():IsCreep()
+                then
+                    return true;
+                end
             end
         end
     end

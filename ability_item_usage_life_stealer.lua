@@ -172,10 +172,8 @@ function ConsiderUnfettered()
     then
         for _, spell in pairs(incomingSpells)
         do
-            if not utility.IsAlly(npcBot, spell.caster) and GetUnitToLocationDistance(npcBot, spell.location) <= 300 and spell.is_attack == false and
-                not npcBot:HasModifier("modifier_antimage_counterspell") and
-                not npcBot:HasModifier("modifier_item_sphere_target") and
-                not npcBot:HasModifier("modifier_item_lotus_orb_active")
+            if not utility.IsAlly(npcBot, spell.caster) and GetUnitToLocationDistance(npcBot, spell.location) <= 300 and spell.is_attack == false
+                and not utility.HaveReflectSpell(npcBot)
             then
                 return BOT_ACTION_DESIRE_VERYHIGH;
             end

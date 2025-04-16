@@ -220,6 +220,7 @@ function GetDesire()
     isCourierNearAndDeliver = false;
 
     if (state == COURIER_STATE_DELIVERING_ITEMS) and GetUnitToUnitDistance(courier, npcBot) <= 1000 and not utility.IsItemSlotsFull()
+        and not utility.IsCloneMeepo(npcBot)
     then
         isCourierNearAndDeliver = true;
         --npcBot:ActionImmediate_Chat("Нужно встретить курьера!", true);

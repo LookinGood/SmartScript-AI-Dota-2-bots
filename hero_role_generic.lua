@@ -79,6 +79,8 @@ C["carryHeroes"] = {
     ["npc_dota_hero_muerta"] = 1,
     ["npc_dota_hero_marci"] = 1,
     ["npc_dota_hero_meepo"] = 1,
+    ["npc_dota_hero_kez"] = 1,
+
 }
 
 local S = {}

@@ -26,7 +26,7 @@ function GetBuildingToProtect()
     local building = nil;
     local desire = BOT_MODE_DESIRE_NONE;
     local ancient = GetAncient(GetTeam());
---[[     local buildingPinged = BuildingPingedByHumanPlayer();
+    --[[     local buildingPinged = BuildingPingedByHumanPlayer();
 
     if buildingPinged ~= nil
     then
@@ -97,12 +97,11 @@ function GetBuildingToProtect()
 end
 
 function GetTowerToDenying()
+    local denyingTower = nil;
     local towers = {
         TOWER_MID_1,
         TOWER_MID_2,
     }
-
-    local denyingTower = nil;
 
     for _, t in pairs(towers)
     do
@@ -111,7 +110,7 @@ function GetTowerToDenying()
         if (tower:IsAlive() and not tower:IsInvulnerable() and GetUnitToUnitDistance(npcBot, tower) <= 1000) and
             (towerHealthPercent <= 0.1 or tower:IsSpeciallyDeniable())
         then
-            npcBot:ActionImmediate_Chat("Нужно добить " .. tower:GetUnitName(), true);
+            --npcBot:ActionImmediate_Chat("Нужно добить " .. tower:GetUnitName(), true);
             denyingTower = tower;
         end
     end
@@ -179,7 +178,7 @@ function BuildingPingedByHumanPlayer()
                     table.insert(listPings, ping);
                 end
             end
-        end 
+        end
     end
 
     -- Перебираем все найденные пинги

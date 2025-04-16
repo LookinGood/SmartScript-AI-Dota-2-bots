@@ -138,7 +138,7 @@ end
 function GetDesire()
 	local enemyHeroes = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
 
-	if not utility.IsHero(npcBot) or not npcBot:IsAlive() or (#enemyHeroes > 0) or utility.IsBaseUnderAttack()
+	if not utility.IsHero(npcBot) or not npcBot:IsAlive() or (#enemyHeroes > 0) or utility.IsBaseUnderAttack() or utility.IsEnemyBaseUnderAttack()
 		or npcBot:GetHealth() / npcBot:GetMaxHealth() < 0.2 or DotaTime() < 20 * 60
 	then
 		return BOT_MODE_DESIRE_NONE;
@@ -238,7 +238,7 @@ function Think()
 				end
 			else
 				--npcBot:ActionImmediate_Chat("Жду союзников!", true);
-				npcBot:Action_MoveToLocation(npcBot:GetLocation() + RandomVector(200));
+				npcBot:Action_MoveToLocation(npcBot:GetLocation() + RandomVector(400));
 				return;
 			end
 		end

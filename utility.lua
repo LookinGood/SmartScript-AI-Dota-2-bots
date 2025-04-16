@@ -80,7 +80,6 @@ end
 
 function IsNight()
 	local time = GetTimeOfDay();
-	--return time <= 0.25 and time >= 0.75
 	return time > 0.5;
 end
 
@@ -142,6 +141,9 @@ end
 function IsEnemyBaseUnderAttack()
 	local radiusUnit = 3000;
 	local towers = {
+		TOWER_TOP_3,
+		TOWER_MID_3,
+		TOWER_BOT_3,
 		TOWER_BASE_1,
 		TOWER_BASE_2,
 	}
@@ -610,6 +612,68 @@ end
 function IsBoss(npcTarget)
 	return IsRoshan(npcTarget) or IsTormentor(npcTarget);
 end
+
+function IsRealMeepo(npcTarget)
+	if string.find(npcTarget:GetUnitName(), "meepo")
+	then
+		local item1 = npcTarget:GetItemInSlot(1);
+		local item2 = npcTarget:GetItemInSlot(2);
+		local item3 = npcTarget:GetItemInSlot(3);
+		local item4 = npcTarget:GetItemInSlot(4);
+		local item5 = npcTarget:GetItemInSlot(5);
+
+		if item1 ~= nil or item2 ~= nil or item3 ~= nil or item4 ~= nil or item5 ~= nil
+		then
+			return true;
+		end
+	end
+
+	return false;
+end
+
+function IsCloneMeepo(npcTarget)
+	if string.find(npcTarget:GetUnitName(), "meepo")
+	then
+		local count = 0;
+		for i = 0, 5 do
+			local item = npcTarget:GetItemInSlot(i);
+			if item == nil
+			then
+				count = count + 1;
+				if (count >= 5)
+				then
+					return true;
+				end
+			end
+		end
+	end
+
+	return false;
+end
+
+--[[ function TESTIsCloneMeepo(npcTarget)
+	if string.find(npcTarget:GetUnitName(), "meepo")
+	then
+		local item0 = npcTarget:GetItemInSlot(0);
+		local item1 = npcTarget:GetItemInSlot(1);
+		local item2 = npcTarget:GetItemInSlot(2);
+		local item3 = npcTarget:GetItemInSlot(3);
+		local item4 = npcTarget:GetItemInSlot(4);
+		local item5 = npcTarget:GetItemInSlot(5);
+
+		if (string.find(item0:GetName(), "boots") or item0 == nil) or
+			(string.find(item1:GetName(), "boots") or item1 == nil) or
+			(string.find(item2:GetName(), "boots") or item2 == nil) or
+			(string.find(item3:GetName(), "boots") or item3 == nil) or
+			(string.find(item4:GetName(), "boots") or item4 == nil) or
+			(string.find(item5:GetName(), "boots") or item5 == nil)
+		then
+			return true;
+		end
+	end
+
+	return false;
+end ]]
 
 function IsDisabled(npcTarget)
 	return IsValidTarget(npcTarget) and

@@ -12,7 +12,8 @@ function ItemPurchase(ItemsToBuy, realItemsToBuy)
 
     local npcBot = GetBot();
 
-    if npcBot == nil or npcBot:IsIllusion() or not npcBot:IsHero() or utility.IsClone(npcBot)
+    if npcBot == nil or npcBot:IsIllusion() or not npcBot:IsHero() or utility.IsClone(npcBot) or
+        (utility.IsCloneMeepo(npcBot) and not npcBot:HasModifier("modifier_fountain_aura_buff"))
     then
         return;
     end

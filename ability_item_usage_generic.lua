@@ -13,7 +13,7 @@ local teleportUsage = require(GetScriptDirectory() .. "/teleportation_usage_gene
 function CourierUsageThink()
 	local npcBot = GetBot();
 
-	if npcBot == nil or not utility.IsHero(npcBot) or utility.IsClone(npcBot)
+	if npcBot == nil or not utility.IsHero(npcBot) or utility.IsClone(npcBot) or utility.IsCloneMeepo(npcBot)
 	then
 		return;
 	end
@@ -110,7 +110,7 @@ end
 --#region BUYBACK THINK
 function BuybackUsageThink()
 	local npcBot = GetBot();
-	if not npcBot:IsHero() or npcBot:IsAlive() or npcBot:IsIllusion() or utility.IsClone(npcBot)
+	if not npcBot:IsHero() or npcBot:IsAlive() or npcBot:IsIllusion() or utility.IsClone(npcBot) or utility.IsCloneMeepo(npcBot)
 	then
 		return;
 	elseif not npcBot:IsAlive() and not npcBot:HasBuyback()
@@ -143,7 +143,7 @@ end
 function GlyphUsageThink()
 	local npcBot = GetBot();
 
-	if npcBot == nil or not utility.IsHero(npcBot) or utility.IsClone(npcBot)
+	if npcBot == nil or not utility.IsHero(npcBot) or utility.IsClone(npcBot) or utility.IsCloneMeepo(npcBot)
 	then
 		return;
 	end
@@ -306,22 +306,79 @@ local _tableOfUltimatesAbility =
 	"zuus_thundergods_wrath",
 }
 
---[[ local linesKillEnemyHero = {
+local previousKills = 0;
+local isVictorySay = false;
+local isDefeatSay = false;
+local linesKillEnemyHero = {
+	"You'll be lucky next time...or not.",
+	"No luck - pure skill!",
+	"It was easy!",
+	"Don't be upset, it's just a game, you know?",
+	"Ha! Not bad, huh?",
+	"You can do better!",
+	"Next time, try not to die!",
+	"I learned from the best, what chance did you even have?",
+	"Are there passive bots against us or what?",
+	"You're not very good at this game, are you?",
+}
+
+local linesDefeat = {
+	"GG.",
+	"Well played.",
+	"Next time we will win.",
+	"Wow, that's unexpected.",
+	"I'm waiting for a tip on my profile!",
+}
+
+local linesVictory = {
+	"GG.",
+	"Well played.",
+	"Easiest win!",
+	"Didn't even break a sweat! Go next?",
+	"Try practicing with bots, okay?",
+	"We won? I mean... of course we won!",
+	"Well done everyone!",
 }
 
 local function BotChatMessages()
 	local npcBot = GetBot();
-	local botKills = GetHeroKills(npcBot:GetPlayerID());
-	local message = math.random(#linesKillEnemyHero);
+	local currentKills = GetHeroKills(npcBot:GetPlayerID());
+	local ancient = GetAncient(GetTeam());
+	local enemyAncient = GetAncient(GetOpposingTeam());
 
-	--print(message);
-
-	if botKills >= botKills + 1
+	if ancient ~= nil and not ancient:IsInvulnerable() and (ancient:GetHealth() <= 5)
 	then
-		npcBot:ActionImmediate_Chat(message, true);
-		return;
+		if RollPercentage(15) and (isDefeatSay == false)
+		then
+			local message = linesDefeat[math.random(#linesDefeat)];
+			npcBot:ActionImmediate_Chat(message, true);
+			isDefeatSay = true;
+			return;
+		end
 	end
-end ]]
+
+	if enemyAncient ~= nil and enemyAncient:CanBeSeen() and not enemyAncient:IsInvulnerable() and (enemyAncient:GetHealth() <= 5)
+	then
+		if RollPercentage(15) and (isVictorySay == false)
+		then
+			local message = linesVictory[math.random(#linesVictory)];
+			npcBot:ActionImmediate_Chat(message, true);
+			isVictorySay = true;
+			return;
+		end
+	end
+
+--[[ 	if (currentKills > previousKills)
+	then
+		if RollPercentage(5)
+		then
+			local message = linesKillEnemyHero[math.random(#linesKillEnemyHero)];
+			npcBot:ActionImmediate_Chat(message, true);
+			previousKills = currentKills;
+			return;
+		end
+	end ]]
+end
 
 --local message = nil;
 --local message = linesKillEnemyHero[math.random(#linesKillEnemyHero)];
@@ -330,12 +387,13 @@ function ItemUsageThink()
 	local npcBot = GetBot();
 
 	GlyphUsageThink()
-	--BotChatMessages()
 
-	if not utility.CanUseItems(npcBot) or (npcBot:IsInvisible() and not npcBot:HasModifier("modifier_invisible"))
+	if not utility.CanUseItems(npcBot) or (npcBot:IsInvisible() and not npcBot:HasModifier("modifier_invisible")) or utility.IsCloneMeepo(npcBot)
 	then
 		return;
 	end
+
+	BotChatMessages()
 
 	local botMode = npcBot:GetActiveMode();
 	local attackRange = npcBot:GetAttackRange();

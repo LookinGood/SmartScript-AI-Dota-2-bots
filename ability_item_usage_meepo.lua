@@ -53,12 +53,6 @@ local Dig = AbilitiesReal[4]
 local Megameepo = AbilitiesReal[5]
 local MegaMeepoFling = npcBot:GetAbilityByName("meepo_megameepo_fling");
 
-local castEarthbindDesire = 0;
-local castPoofDesire = 0;
-local castDigDesire = 0;
-local castMegameepoDesire = 0;
-local castMegaMeepoFlingDesire = 0;
-
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
         return;
@@ -69,11 +63,11 @@ function AbilityUsageThink()
     HealthPercentage = npcBot:GetHealth() / npcBot:GetMaxHealth();
     ManaPercentage = npcBot:GetMana() / npcBot:GetMaxMana();
 
-    castEarthbindDesire, castEarthbindLocation = ConsiderEarthbind();
-    castPoofDesire, castPoofLocation = ConsiderPoof();
-    castDigDesire = ConsiderDig();
-    castMegameepoDesire = ConsiderMegameepo();
-    castMegaMeepoFlingDesire, castMegaMeepoFlingTarget = ConsiderMegaMeepoFling();
+    local castEarthbindDesire, castEarthbindLocation = ConsiderEarthbind();
+    local castPoofDesire, castPoofLocation = ConsiderPoof();
+    local castDigDesire = ConsiderDig();
+    local castMegameepoDesire = ConsiderMegameepo();
+    local castMegaMeepoFlingDesire, castMegaMeepoFlingTarget = ConsiderMegaMeepoFling();
 
     if (castEarthbindDesire > 0)
     then

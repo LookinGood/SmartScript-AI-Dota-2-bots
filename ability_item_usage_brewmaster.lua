@@ -69,31 +69,31 @@ function AbilityUsageThink()
     local castPrimalCompanionDesire = ConsiderPrimalCompanion();
     local castPrimalSplitDesire = ConsiderPrimalSplit();
 
-    if (castThunderClapDesire ~= nil)
+    if (castThunderClapDesire > 0)
     then
         npcBot:Action_UseAbility(ThunderClap);
         return;
     end
 
-    if (castCinderBrewDesire ~= nil)
+    if (castCinderBrewDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(CinderBrew, castCinderBrewLocation);
         return;
     end
 
-    if (castDrunkenBrawlerDesire ~= nil)
+    if (castDrunkenBrawlerDesire > 0)
     then
         npcBot:Action_UseAbility(DrunkenBrawler);
         return;
     end
 
-    if (castPrimalCompanionDesire ~= nil)
+    if (castPrimalCompanionDesire > 0)
     then
         npcBot:Action_UseAbility(PrimalCompanion);
         return;
     end
 
-    if (castPrimalSplitDesire ~= nil)
+    if (castPrimalSplitDesire > 0)
     then
         npcBot:Action_UseAbility(PrimalSplit);
         return;
@@ -103,7 +103,7 @@ end
 function ConsiderThunderClap()
     local ability = ThunderClap;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local radiusAbility = ability:GetAOERadius();
@@ -152,12 +152,14 @@ function ConsiderThunderClap()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderCinderBrew()
     local ability = CinderBrew;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -190,30 +192,34 @@ function ConsiderCinderBrew()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderDrunkenBrawler()
     local ability = DrunkenBrawler;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     -- Нет возможности отследить какая стойка активна
     if npcBot:IsAlive()
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderPrimalCompanion()
     local ability = PrimalCompanion;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if utility.IsAbilityAvailable(PrimalSplit) and (HealthPercentage < 0.3)
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     -- Attack use
@@ -244,18 +250,20 @@ function ConsiderPrimalCompanion()
             return BOT_ACTION_DESIRE_LOW;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderPrimalSplit()
     local ability = PrimalSplit;
     if not utility.IsAbilityAvailable(ability)
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if npcBot:HasModifier("modifier_brewmaster_primal_split_duration") or (HealthPercentage >= 0.3)
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local attackRange = npcBot:GetAttackRange();
@@ -278,4 +286,6 @@ function ConsiderPrimalSplit()
             return BOT_ACTION_DESIRE_HIGH;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end

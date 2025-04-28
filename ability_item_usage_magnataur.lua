@@ -69,31 +69,31 @@ function AbilityUsageThink()
     local castHornTossDesire = ConsiderHornToss();
     local castReversePolarityDesire = ConsiderReversePolarity();
 
-    if (castShockwaveDesire ~= nil)
+    if (castShockwaveDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(Shockwave, castShockwaveLocation);
         return;
     end
 
-    if (castEmpowerDesire ~= nil)
+    if (castEmpowerDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(Empower, castEmpowerTarget);
         return;
     end
 
-    if (castSkewerDesire ~= nil)
+    if (castSkewerDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(Skewer, castSkewerLocation);
         return;
     end
 
-    if (castHornTossDesire ~= nil)
+    if (castHornTossDesire > 0)
     then
         npcBot:Action_UseAbility(HornToss);
         return;
     end
 
-    if (castReversePolarityDesire ~= nil)
+    if (castReversePolarityDesire > 0)
     then
         npcBot:Action_UseAbility(ReversePolarity);
         return;
@@ -103,7 +103,7 @@ end
 function ConsiderShockwave()
     local ability = Shockwave;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -169,12 +169,14 @@ function ConsiderShockwave()
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc, "location";
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderEmpower()
     local ability = Empower;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetSpecialValueInt("AbilityCastRange");
@@ -195,12 +197,14 @@ function ConsiderEmpower()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderSkewer()
     local ability = Skewer;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetSpecialValueInt("range");
@@ -253,12 +257,14 @@ function ConsiderSkewer()
             return BOT_ACTION_DESIRE_HIGH, utility.GetEscapeLocation(npcBot, castRangeAbility);
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderHornToss()
     local ability = HornToss;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local radiusAbility = ability:GetAOERadius();
@@ -305,12 +311,14 @@ function ConsiderHornToss()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderReversePolarity()
     local ability = ReversePolarity;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local radiusAbility = ability:GetSpecialValueInt("pull_radius");
@@ -368,4 +376,6 @@ function ConsiderReversePolarity()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end

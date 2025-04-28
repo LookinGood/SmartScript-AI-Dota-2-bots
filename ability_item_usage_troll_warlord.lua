@@ -69,26 +69,26 @@ function AbilityUsageThink()
     local castWhirlingAxesMeleeDesire = ConsiderWhirlingAxesMelee();
     local castBattleTranceDesire = ConsiderBattleTrance();
 
-    if (castBerserkersRageDesire ~= nil) and (DotaTime() >= castBerserkersRageTimer + 2.0)
+    if (castBerserkersRageDesire > 0) and (DotaTime() >= castBerserkersRageTimer + 2.0)
     then
         npcBot:Action_UseAbility(BerserkersRage);
         castBerserkersRageTimer = DotaTime();
         return;
     end
 
-    if (castWhirlingAxesMissleDesire ~= nil)
+    if (castWhirlingAxesMissleDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(WhirlingAxesMissle, castWhirlingAxesMissleLocation);
         return;
     end
 
-    if (castWhirlingAxesMeleeDesire ~= nil)
+    if (castWhirlingAxesMeleeDesire > 0)
     then
         npcBot:Action_UseAbility(WhirlingAxesMelee);
         return;
     end
 
-    if (castBattleTranceDesire ~= nil)
+    if (castBattleTranceDesire > 0)
     then
         npcBot:Action_UseAbility(BattleTrance);
         return;
@@ -98,7 +98,7 @@ end
 function ConsiderBerserkersRage()
     local ability = BerserkersRage;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     --[[     if ability:GetToggleState() == false
@@ -143,12 +143,14 @@ function ConsiderBerserkersRage()
             return BOT_ACTION_DESIRE_HIGH;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderWhirlingAxesMissle()
     local ability = WhirlingAxesMissle;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -222,12 +224,14 @@ function ConsiderWhirlingAxesMissle()
             return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility);
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderWhirlingAxesMelee()
     local ability = WhirlingAxesMelee;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local radiusAbility = ability:GetSpecialValueInt("max_range");
@@ -276,17 +280,19 @@ function ConsiderWhirlingAxesMelee()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderBattleTrance()
     local ability = BattleTrance;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if npcBot:HasModifier("modifier_troll_warlord_battle_trance") or npcBot:IsDisarmed()
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local radiusAbility = ability:GetSpecialValueInt("range");
@@ -310,7 +316,7 @@ function ConsiderBattleTrance()
     -- Retreat use
     if utility.RetreatMode(npcBot)
     then
-        if (#enemyAbility > 0) and (HealthPercentage <= 0.8) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
+        if (#enemyAbility > 0) and (HealthPercentage <= 0.3) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
         then
             for _, enemy in pairs(enemyAbility) do
                 if utility.CanCastOnInvulnerableTarget(enemy)
@@ -321,4 +327,6 @@ function ConsiderBattleTrance()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end

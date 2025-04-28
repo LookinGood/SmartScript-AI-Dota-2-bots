@@ -71,37 +71,37 @@ function AbilityUsageThink()
     local castSpitOutDesire, castSpitOutLocation = ConsiderSpitOut();
     local castMortimerKissesDesire, castMortimerKissesLocation = ConsiderMortimerKisses();
 
-    if (castScatterblastDesire ~= nil)
+    if (castScatterblastDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(Scatterblast, castScatterblastLocation);
         return;
     end
 
-    if (castFiresnapCookieDesire ~= nil)
+    if (castFiresnapCookieDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(FiresnapCookie, castFiresnapCookieTarget);
         return;
     end
 
-    if (castLilShredderDesire ~= nil)
+    if (castLilShredderDesire > 0)
     then
         npcBot:Action_UseAbility(LilShredder);
         return;
     end
 
-    if (castGobbleUpDesire ~= nil)
+    if (castGobbleUpDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(GobbleUp, castGobbleUpTarget);
         return;
     end
 
-    if (castSpitOutDesire ~= nil)
+    if (castSpitOutDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(SpitOut, castSpitOutLocation);
         return;
     end
 
-    if (castMortimerKissesDesire ~= nil)
+    if (castMortimerKissesDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(MortimerKisses, castMortimerKissesLocation);
         return;
@@ -137,7 +137,7 @@ end
 function ConsiderScatterblast()
     local ability = Scatterblast;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -179,7 +179,7 @@ function ConsiderScatterblast()
 
     if npcBot:HasModifier("modifier_snapfire_mortimer_kisses")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     -- Attack use
@@ -234,17 +234,19 @@ function ConsiderScatterblast()
             return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility);
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderFiresnapCookie()
     local ability = FiresnapCookie;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     if npcBot:HasModifier("modifier_snapfire_mortimer_kisses")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -283,7 +285,7 @@ function ConsiderFiresnapCookie()
             end
         end
     end
-    
+
     -- Retreat use
     if (#allyHeroAbility > 0)
     then
@@ -297,17 +299,19 @@ function ConsiderFiresnapCookie()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderLilShredder()
     local ability = LilShredder;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if npcBot:HasModifier("modifier_snapfire_lil_shredder_buff")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local attackRange = npcBot:GetAttackRange() + (ability:GetSpecialValueInt("attack_range_bonus"));
@@ -324,17 +328,19 @@ function ConsiderLilShredder()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderGobbleUp()
     local ability = GobbleUp;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     if npcBot:HasModifier("modifier_snapfire_gobble_up_belly_has_unit")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange() * 2;
@@ -368,17 +374,19 @@ function ConsiderGobbleUp()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderSpitOut()
     local ability = SpitOut;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     if npcBot:HasModifier("modifier_snapfire_mortimer_kisses")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     -- Generic use
@@ -392,12 +400,14 @@ function ConsiderSpitOut()
             return BOT_MODE_DESIRE_HIGH, npcBot:GetLocation() + RandomVector(500);
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderMortimerKisses()
     local ability = MortimerKisses;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -415,4 +425,6 @@ function ConsiderMortimerKisses()
                 utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, speedAbility);
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end

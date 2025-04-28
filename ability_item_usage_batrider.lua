@@ -69,26 +69,26 @@ function AbilityUsageThink()
     local castFireflyDesire = ConsiderFirefly();
     local castFlamingLassoDesire, castFlamingLassoTarget = ConsiderFlamingLasso();
 
-    if (castStickyNapalmDesire ~= nil)
+    if (castStickyNapalmDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(StickyNapalm, castStickyNapalmLocation);
         return;
     end
 
-    if (castFlamebreakDesire ~= nil) and (DotaTime() >= castFlamebreakTimer + 2.0)
+    if (castFlamebreakDesire > 0) and (DotaTime() >= castFlamebreakTimer + 2.0)
     then
         npcBot:Action_UseAbilityOnLocation(Flamebreak, castFlamebreakLocation);
         castFlamebreakTimer = DotaTime();
         return;
     end
 
-    if (castFireflyDesire ~= nil)
+    if (castFireflyDesire > 0)
     then
         npcBot:Action_UseAbility(Firefly);
         return;
     end
 
-    if (castFlamingLassoDesire ~= nil)
+    if (castFlamingLassoDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(FlamingLasso, castFlamingLassoTarget);
         return;
@@ -125,7 +125,7 @@ end
 function ConsiderStickyNapalm()
     local ability = StickyNapalm;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -215,12 +215,14 @@ function ConsiderStickyNapalm()
             return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderFlamebreak()
     local ability = Flamebreak;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -306,17 +308,19 @@ function ConsiderFlamebreak()
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderFirefly()
     local ability = Firefly;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if npcBot:HasModifier("modifier_batrider_firefly")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local attackRange = npcBot:GetAttackRange();
@@ -353,12 +357,14 @@ function ConsiderFirefly()
             return BOT_ACTION_DESIRE_HIGH;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderFlamingLasso()
     local ability = FlamingLasso;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local attackRange = npcBot:GetAttackRange();
@@ -407,4 +413,6 @@ function ConsiderFlamingLasso()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end

@@ -66,19 +66,19 @@ function AbilityUsageThink()
     local castBattleHungerDesire, castBattleHungerTarget = ConsiderBattleHunger();
     local castCullingBladeDesire, castCullingBladeTarget = ConsiderCullingBlade();
 
-    if (castBerserkersCallDesire ~= nil)
+    if (castBerserkersCallDesire > 0)
     then
         npcBot:Action_UseAbility(BerserkersCall);
         return;
     end
 
-    if (castBattleHungerDesire ~= nil)
+    if (castBattleHungerDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(BattleHunger, castBattleHungerTarget);
         return;
     end
 
-    if (castCullingBladeDesire ~= nil)
+    if (castCullingBladeDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(CullingBlade, castCullingBladeTarget);
         return;
@@ -88,7 +88,7 @@ end
 function ConsiderBerserkersCall()
     local ability = BerserkersCall;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local radiusAbility = ability:GetAOERadius();
@@ -141,12 +141,14 @@ function ConsiderBerserkersCall()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderBattleHunger()
     local ability = BattleHunger;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -205,12 +207,14 @@ function ConsiderBattleHunger()
             return BOT_ACTION_DESIRE_VERYHIGH, enemy;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderCullingBlade()
     local ability = CullingBlade;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -221,7 +225,7 @@ function ConsiderCullingBlade()
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) or enemy:GetHealth() / enemy:GetMaxHealth() <= 0.2
+            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) or (enemy:GetHealth() / enemy:GetMaxHealth() <= 0.2)
             then
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
@@ -230,4 +234,6 @@ function ConsiderCullingBlade()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end

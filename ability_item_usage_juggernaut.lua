@@ -67,25 +67,25 @@ function AbilityUsageThink()
     local castSwiftslashDesire, castSwiftslashTarget = ConsiderSwiftslash();
     local castOmnislashDesire, castOmnislashTarget = ConsiderOmnislash();
 
-    if (castBladeFuryDesire ~= nil)
+    if (castBladeFuryDesire > 0)
     then
         npcBot:Action_UseAbility(BladeFury);
         return;
     end
 
-    if (castHealingWardDesire ~= nil)
+    if (castHealingWardDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(HealingWard, castHealingWardLocation);
         return;
     end
 
-    if (castSwiftslashDesire ~= nil)
+    if (castSwiftslashDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(Swiftslash, castSwiftslashTarget);
         return;
     end
 
-    if (castOmnislashDesire ~= nil)
+    if (castOmnislashDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(Omnislash, castOmnislashTarget);
         return;
@@ -95,12 +95,12 @@ end
 function ConsiderBladeFury()
     local ability = BladeFury;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if not utility.CanCastOnMagicImmuneTarget(npcBot)
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local radiusAbility = ability:GetAOERadius();
@@ -155,12 +155,14 @@ function ConsiderBladeFury()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderHealingWard()
     local ability = HealingWard;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -186,17 +188,19 @@ function ConsiderHealingWard()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderSwiftslash()
     local ability = Swiftslash;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     if npcBot:HasModifier("modifier_juggernaut_blade_fury")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -246,17 +250,19 @@ function ConsiderSwiftslash()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderOmnislash()
     local ability = Omnislash;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     if npcBot:HasModifier("modifier_juggernaut_blade_fury")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetSpecialValueInt("AbilityCastRange");
@@ -306,4 +312,6 @@ function ConsiderOmnislash()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end

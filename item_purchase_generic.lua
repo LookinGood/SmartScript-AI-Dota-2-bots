@@ -4,6 +4,8 @@ module("purchase", package.seeall)
 require(GetScriptDirectory() .. "/utility")
 require(GetScriptDirectory() .. "/hero_role_generic")
 
+--local tryBuyTimer = 0.0;
+
 function ItemPurchase(ItemsToBuy, realItemsToBuy)
     if GetGameState() ~= GAME_STATE_GAME_IN_PROGRESS and GetGameState() ~= GAME_STATE_PRE_GAME
     then
@@ -90,141 +92,156 @@ function ItemPurchase(ItemsToBuy, realItemsToBuy)
 
     if sNextItem ~= nil
     then
-        npcBot:SetNextItemPurchaseValue(GetItemCost(sNextItem));
-
-        if npcBot:GetGold() < npcBot:GetNextItemPurchaseValue()
+        --[[       if (GameTime() >= tryBuyTimer + 5.0)
         then
-            npcBot.secretShopMode = false;
-            npcBot.sideShopMode = false;
-        else
-            if npcBot.secretShopMode ~= true and npcBot.sideShopMode ~= true
+        end ]]
+
+        if npcBot.secretShopMode ~= true and npcBot.sideShopMode ~= true
+        then
+            if IsItemPurchasedFromSecretShop(sNextItem)
             then
-                if IsItemPurchasedFromSideShop(sNextItem) and npcBot:DistanceFromSideShop() <= 3000 and not utility.IsItemSlotsFull()
-                    and npcBot:DistanceFromSideShop() ~= 0
-                then
-                    npcBot.sideShopMode = true;
-                end
-                if IsItemPurchasedFromSecretShop(sNextItem) and npcBot:DistanceFromSecretShop() <= 3000 and not utility.IsItemSlotsFull()
+                if npcBot:DistanceFromSecretShop() <= 3000 and not utility.IsItemSlotsFull()
                 then
                     npcBot.secretShopMode = true;
                 end
+            elseif IsItemPurchasedFromSideShop(sNextItem)
+            then
+                if npcBot:DistanceFromSideShop() <= 3000 and not utility.IsItemSlotsFull() and npcBot:DistanceFromSideShop() ~= 0
+                then
+                    npcBot.sideShopMode = true;
+                end
             end
+        end
 
-            if npcBot.sideShopMode == true
+        if npcBot.secretShopMode == true
+        then
+            if npcBot:DistanceFromSecretShop() <= 200 and not utility.IsItemSlotsFull()
             then
-                if npcBot:DistanceFromSideShop() <= 200 and not utility.IsItemSlotsFull()
-                then
-                    PurchaseResult = npcBot:ActionImmediate_PurchaseItem(sNextItem);
-                end
-            elseif npcBot.secretShopMode == true
-            then
-                if npcBot:DistanceFromSecretShop() <= 200 and not utility.IsItemSlotsFull()
-                then
-                    PurchaseResult = npcBot:ActionImmediate_PurchaseItem(sNextItem);
-                else
-                    if courier ~= nil
-                    then
-                        if courier:DistanceFromSecretShop() <= 200 and not utility.IsCourierItemSlotsFull()
-                        then
-                            PurchaseResult = courier:ActionImmediate_PurchaseItem(sNextItem);
-                        end
-                    end
-                end
+                PurchaseResult = npcBot:ActionImmediate_PurchaseItem(sNextItem);
             else
-                if npcBot:DistanceFromFountain() <= 400
+                if courier ~= nil
                 then
-                    if not utility.IsItemSlotsFull() or (utility.IsItemSlotsFull() and not utility.IsStashSlotsFull())
+                    if courier:DistanceFromSecretShop() <= 200 and not utility.IsCourierItemSlotsFull()
                     then
-                        PurchaseResult = npcBot:ActionImmediate_PurchaseItem(sNextItem);
-                    else
-                        if courierState == COURIER_STATE_AT_BASE and not utility.IsCourierItemSlotsFull()
-                        then
-                            PurchaseResult = courier:ActionImmediate_PurchaseItem(sNextItem);
-                        end
-                    end
-                else
-                    if not utility.IsStashSlotsFull()
-                    then
-                        PurchaseResult = npcBot:ActionImmediate_PurchaseItem(sNextItem);
-                    else
-                        if courierState == COURIER_STATE_AT_BASE and not utility.IsCourierItemSlotsFull()
-                        then
-                            PurchaseResult = courier:ActionImmediate_PurchaseItem(sNextItem);
-                        end
+                        PurchaseResult = courier:ActionImmediate_PurchaseItem(sNextItem);
                     end
                 end
             end
-            if sNextItem == "item_aghanims_shard"
+        elseif npcBot.sideShopMode == true
+        then
+            if npcBot:DistanceFromSideShop() <= 200 and not utility.IsItemSlotsFull()
             then
-                if PurchaseResult ~= PURCHASE_ITEM_SUCCESS and
-                    PurchaseResult ~= PURCHASE_ITEM_OUT_OF_STOCK and
-                    PurchaseResult ~= PURCHASE_ITEM_INVALID_ITEM_NAME and
-                    PurchaseResult ~= PURCHASE_ITEM_DISALLOWED_ITEM
-                then
-                    npcBot.secretShopMode = false;
-                    npcBot.sideShopMode = false;
-                    table.remove(realItemsToBuy, 1);
-                end
+                PurchaseResult = npcBot:ActionImmediate_PurchaseItem(sNextItem);
             end
-            if PurchaseResult == PURCHASE_ITEM_SUCCESS
+        else
+            if npcBot:DistanceFromFountain() <= 400
+            then
+                if not utility.IsItemSlotsFull() or (utility.IsItemSlotsFull() and not utility.IsStashSlotsFull())
+                then
+                    PurchaseResult = npcBot:ActionImmediate_PurchaseItem(sNextItem);
+                end
+                --[[       else
+                    if courierState == COURIER_STATE_AT_BASE and not utility.IsCourierItemSlotsFull()
+                    then
+                        PurchaseResult = courier:ActionImmediate_PurchaseItem(sNextItem);
+                    end
+                end ]]
+            else
+                if not utility.IsStashSlotsFull()
+                then
+                    PurchaseResult = npcBot:ActionImmediate_PurchaseItem(sNextItem);
+                end
+                --[[             else
+                    if courierState == COURIER_STATE_AT_BASE and not utility.IsCourierItemSlotsFull() and courier:GetHealth() == courier:GetMaxHealth()
+                    then
+                        PurchaseResult = courier:ActionImmediate_PurchaseItem(sNextItem);
+                    end
+                end ]]
+            end
+        end
+
+        if PurchaseResult == PURCHASE_ITEM_NOT_AT_SECRET_SHOP
+        then
+            npcBot.secretShopMode = true
+            npcBot.sideShopMode = false;
+        end
+        if PurchaseResult == PURCHASE_ITEM_NOT_AT_SIDE_SHOP
+        then
+            npcBot.sideShopMode = true
+            npcBot.secretShopMode = false;
+        end
+        if PurchaseResult == PURCHASE_ITEM_NOT_AT_HOME_SHOP
+        then
+            npcBot.secretShopMode = false;
+            npcBot.sideShopMode = false;
+        end
+
+        if PurchaseResult == PURCHASE_ITEM_SUCCESS
+        then
+            npcBot.secretShopMode = false;
+            npcBot.sideShopMode = false;
+            table.remove(realItemsToBuy, 1);
+        elseif PurchaseResult == PURCHASE_ITEM_INVALID_ITEM_NAME or PurchaseResult == PURCHASE_ITEM_DISALLOWED_ITEM
+        then
+            if sNextItem == "item_aghanims_shard"
             then
                 npcBot.secretShopMode = false;
                 npcBot.sideShopMode = false;
                 table.remove(realItemsToBuy, 1);
+                table.insert(realItemsToBuy, 3, "item_aghanims_shard");
+                npcBot:ActionImmediate_Chat("НеверныйПредмет: Сдвигаю item_aghanims_shard на позицию ниже!", true);
+            else
+                --npcBot:ActionImmediate_Chat("НеверныйПредмет: Удаляю неподходящий предмет из списка!", true);
+                npcBot.secretShopMode = false;
+                npcBot.sideShopMode = false;
+                table.remove(realItemsToBuy, 1);
             end
-            if PurchaseResult == PURCHASE_ITEM_OUT_OF_STOCK
+        elseif PurchaseResult == PURCHASE_ITEM_INSUFFICIENT_GOLD
+        then
+            --npcBot:ActionImmediate_Chat("Не хватает денег на покупку, попробую позже!", true);
+            npcBot.secretShopMode = false;
+            npcBot.sideShopMode = false;
+            --tryBuyTimer = GameTime();
+        else
+            npcBot:SetNextItemPurchaseValue(GetItemCost(sNextItem));
+            if npcBot:GetGold() >= npcBot:GetNextItemPurchaseValue()
             then
                 if sNextItem == "item_aghanims_shard"
                 then
-                    npcBot.secretShopMode = false;
-                    npcBot.sideShopMode = false;
-                    table.remove(realItemsToBuy, 1);
-                    table.insert(realItemsToBuy, 3, "item_aghanims_shard");
-                else
-                    if sNextItem == "item_tango" or
-                        sNextItem == "item_clarity" or
-                        sNextItem == "item_flask" or
-                        sNextItem == "item_enchanted_mango" or
-                        sNextItem == "item_infused_raindrop" or
-                        sNextItem == "item_blood_grenade"
+                    if PurchaseResult ~= PURCHASE_ITEM_SUCCESS and
+                        PurchaseResult ~= PURCHASE_ITEM_OUT_OF_STOCK and
+                        PurchaseResult ~= PURCHASE_ITEM_INVALID_ITEM_NAME and
+                        PurchaseResult ~= PURCHASE_ITEM_DISALLOWED_ITEM
                     then
                         npcBot.secretShopMode = false;
                         npcBot.sideShopMode = false;
                         table.remove(realItemsToBuy, 1);
                     end
                 end
-            end
-            if PurchaseResult == PURCHASE_ITEM_INVALID_ITEM_NAME or PurchaseResult == PURCHASE_ITEM_DISALLOWED_ITEM
-            then
-                if sNextItem == "item_aghanims_shard"
+                if PurchaseResult == PURCHASE_ITEM_OUT_OF_STOCK
                 then
-                    npcBot.secretShopMode = false;
-                    npcBot.sideShopMode = false;
-                    table.remove(realItemsToBuy, 1);
-                    table.insert(realItemsToBuy, 3, "item_aghanims_shard");
-                else
-                    npcBot.secretShopMode = false;
-                    npcBot.sideShopMode = false;
-                    table.remove(realItemsToBuy, 1);
+                    if sNextItem == "item_aghanims_shard"
+                    then
+                        npcBot.secretShopMode = false;
+                        npcBot.sideShopMode = false;
+                        table.remove(realItemsToBuy, 1);
+                        table.insert(realItemsToBuy, 3, "item_aghanims_shard");
+                        --npcBot:ActionImmediate_Chat("КончилсяВМагазине: Сдвигаю item_aghanims_shard на позицию ниже!",true);
+                    else
+                        if sNextItem == "item_tango" or
+                            sNextItem == "item_clarity" or
+                            sNextItem == "item_flask" or
+                            sNextItem == "item_enchanted_mango" or
+                            sNextItem == "item_infused_raindrop" or
+                            sNextItem == "item_blood_grenade"
+                        then
+                            npcBot.secretShopMode = false;
+                            npcBot.sideShopMode = false;
+                            table.remove(realItemsToBuy, 1);
+                        end
+                    end
                 end
-            end
-            if PurchaseResult == PURCHASE_ITEM_INSUFFICIENT_GOLD
-            then
-                npcBot.secretShopMode = false;
-                npcBot.sideShopMode = false;
-            end
-            if PurchaseResult == PURCHASE_ITEM_NOT_AT_SECRET_SHOP
-            then
-                npcBot.secretShopMode = true
-                npcBot.sideShopMode = false;
-            end
-            if PurchaseResult == PURCHASE_ITEM_NOT_AT_SIDE_SHOP
-            then
-                npcBot.sideShopMode = true
-                npcBot.secretShopMode = false;
-            end
-            if PurchaseResult == PURCHASE_ITEM_NOT_AT_HOME_SHOP
-            then
+            else
                 npcBot.secretShopMode = false;
                 npcBot.sideShopMode = false;
             end

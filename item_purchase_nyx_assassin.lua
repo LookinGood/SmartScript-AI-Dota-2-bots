@@ -26,8 +26,6 @@ local ItemsToBuy =
 
     "item_kaya",
 
-    "item_aghanims_shard",
-
     "item_dagon_2",
 
     "item_sange",
@@ -45,6 +43,8 @@ local ItemsToBuy =
 
     "item_soul_booster",
 	"item_octarine_core",
+
+    "item_aghanims_shard",
 
     "item_travel_boots",
     "item_travel_boots_2",

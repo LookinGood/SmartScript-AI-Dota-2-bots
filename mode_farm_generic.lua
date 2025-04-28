@@ -266,9 +266,9 @@ function GetDesire()
         --npcBot:ActionImmediate_Chat("Доступных лагерей: " .. #realCamps, true);
         if botDeaths >= botKills
         then
-            return BOT_MODE_DESIRE_VERYHIGH;
+            return BOT_MODE_DESIRE_MODERATE;
         else
-            return BOT_MODE_DESIRE_HIGH;
+            return BOT_MODE_DESIRE_LOW;
         end
     end
 

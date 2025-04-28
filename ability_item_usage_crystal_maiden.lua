@@ -49,6 +49,7 @@ end
 -- Abilities
 local CrystalNova = AbilitiesReal[1]
 local Frostbite = AbilitiesReal[2]
+local ArcaneAura = AbilitiesReal[3]
 local CrystalClone = AbilitiesReal[4]
 local FreezingField = AbilitiesReal[6]
 
@@ -64,28 +65,35 @@ function AbilityUsageThink()
 
     local castCrystalNovaDesire, castCrystalNovaLocation = ConsiderCrystalNova();
     local castFrostbiteDesire, castFrostbiteTarget = ConsiderFrostbite();
+    local castArcaneAuraDesire = ConsiderArcaneAura();
     local castCrystalCloneDesire, castCrystalCloneLocation = ConsiderCrystalClone();
     local castFreezingFieldDesire = ConsiderFreezingField();
 
-    if (castCrystalNovaDesire ~= nil)
+    if (castCrystalNovaDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(CrystalNova, castCrystalNovaLocation);
         return;
     end
 
-    if (castFrostbiteDesire ~= nil)
+    if (castFrostbiteDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(Frostbite, castFrostbiteTarget);
         return;
     end
 
-    if (castCrystalCloneDesire ~= nil)
+    if (castArcaneAuraDesire > 0)
+    then
+        npcBot:Action_UseAbility(ArcaneAura);
+        return;
+    end
+
+    if (castCrystalCloneDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(CrystalClone, castCrystalCloneLocation);
         return;
     end
 
-    if (castFreezingFieldDesire ~= nil)
+    if (castFreezingFieldDesire > 0)
     then
         npcBot:Action_UseAbility(FreezingField);
         return;
@@ -95,7 +103,7 @@ end
 function ConsiderCrystalNova()
     local ability = CrystalNova;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -168,12 +176,14 @@ function ConsiderCrystalNova()
             return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderFrostbite()
     local ability = Frostbite;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetSpecialValueInt("AbilityCastRange");
@@ -222,12 +232,53 @@ function ConsiderFrostbite()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
+end
+
+function ConsiderArcaneAura()
+    local ability = ArcaneAura;
+    if not utility.IsAbilityAvailable(ability)
+    then
+        return BOT_ACTION_DESIRE_NONE;
+    end
+
+    if npcBot:HasModifier("modifier_crystal_maiden_arcane_overflow_active")
+    then
+        return BOT_ACTION_DESIRE_NONE;
+    end
+
+    local botMana = npcBot:GetMana();
+    local attackRange = npcBot:GetAttackRange();
+    local increaseManaCostPct = ability:GetSpecialValueInt("activation_mana_cost_increase_pct");
+
+    if (not not utility.IsAbilityAvailable(CrystalNova) and botMana < math.floor(CrystalNova:GetManaCost() * (1 + increaseManaCostPct / 100))) and
+        (not not utility.IsAbilityAvailable(Frostbite) and botMana < math.floor(Frostbite:GetManaCost() * (1 + increaseManaCostPct / 100))) and
+        (not not utility.IsAbilityAvailable(FreezingField) and botMana < math.floor(FreezingField:GetManaCost() * (1 + increaseManaCostPct / 100)))
+    then
+        return BOT_ACTION_DESIRE_NONE;
+    end
+
+    -- Attack use
+    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
+    then
+        if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
+        then
+            if GetUnitToUnitDistance(npcBot, botTarget) <= attackRange and not utility.IsDisabled(botTarget)
+            then
+                --npcBot:ActionImmediate_Chat("Использую ArcaneAura!", true);
+                return BOT_MODE_DESIRE_HIGH;
+            end
+        end
+    end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderCrystalClone()
     local ability = CrystalClone;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetSpecialValueInt("hop_distance");
@@ -274,26 +325,28 @@ function ConsiderCrystalClone()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderFreezingField()
     local ability = FreezingField;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if npcBot:HasModifier("modifier_crystal_maiden_freezing_field")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local radiusAbility = ability:GetSpecialValueInt("radius");
-    local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
+    local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility - 100, true, BOT_MODE_NONE);
 
     -- Attack use
     if utility.PvPMode(npcBot)
     then
-        if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= (radiusAbility - 100)
+        if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) < radiusAbility
         then
             --npcBot:ActionImmediate_Chat("Использую FreezingField для нападения!", true);
             return BOT_ACTION_DESIRE_HIGH;
@@ -310,6 +363,8 @@ function ConsiderFreezingField()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 -- Old version

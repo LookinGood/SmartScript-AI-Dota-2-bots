@@ -71,37 +71,37 @@ function AbilityUsageThink()
     local castUnburrowDesire = ConsiderUnburrow();
     local castVendettaDesire = ConsiderVendetta();
 
-    if (castImpaleDesire ~= nil)
+    if (castImpaleDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(Impale, castImpaleLocation);
         return;
     end
 
-    if (castMindFlareDesire ~= nil)
+    if (castMindFlareDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(MindFlare, castMindFlareTarget);
         return;
     end
 
-    if (castSpikedCarapaceDesire ~= nil)
+    if (castSpikedCarapaceDesire > 0)
     then
         npcBot:Action_UseAbility(SpikedCarapace);
         return;
     end
 
-    if (castBurrowDesire ~= nil)
+    if (castBurrowDesire > 0)
     then
         npcBot:Action_UseAbility(Burrow);
         return;
     end
 
-    if (castUnburrowDesire ~= nil)
+    if (castUnburrowDesire > 0)
     then
         npcBot:Action_UseAbility(Unburrow);
         return;
     end
 
-    if (castVendettaDesire ~= nil)
+    if (castVendettaDesire > 0)
     then
         npcBot:Action_UseAbility(Vendetta);
         return;
@@ -111,7 +111,7 @@ end
 function ConsiderImpale()
     local ability = Impale;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -139,7 +139,7 @@ function ConsiderImpale()
 
     if npcBot:HasModifier("modifier_nyx_assassin_vendetta")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     -- Cast if attack enemy
@@ -194,12 +194,14 @@ function ConsiderImpale()
             return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility);
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderMindFlare()
     local ability = MindFlare;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -224,7 +226,7 @@ function ConsiderMindFlare()
 
     if npcBot:HasModifier("modifier_nyx_assassin_vendetta")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     -- Attack use
@@ -238,17 +240,19 @@ function ConsiderMindFlare()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderSpikedCarapace()
     local ability = SpikedCarapace;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if npcBot:HasModifier("modifier_nyx_assassin_spiked_carapace")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local incomingSpells = npcBot:GetIncomingTrackingProjectiles();
@@ -276,28 +280,31 @@ function ConsiderSpikedCarapace()
         for _, spell in pairs(incomingSpells)
         do
             if not utility.IsAlly(npcBot, spell.caster) and GetUnitToLocationDistance(npcBot, spell.location) <= 300 and spell.is_attack == false
+                and not utility.HaveReflectSpell(npcBot)
             then
                 return BOT_ACTION_DESIRE_VERYHIGH;
             end
         end
     end
 
-    if npcBot:WasRecentlyDamagedByAnyHero(1.0)
+    if utility.BotWasRecentlyDamagedByEnemyHero(1.0)
     then
         return BOT_ACTION_DESIRE_VERYHIGH;
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderBurrow()
     local ability = Burrow;
     if not utility.IsAbilityAvailable(ability)
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if npcBot:HasModifier("modifier_nyx_assassin_burrow")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     -- Retreat use
@@ -310,13 +317,15 @@ function ConsiderBurrow()
             return BOT_ACTION_DESIRE_HIGH;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderUnburrow()
     local ability = Unburrow;
     if not utility.IsAbilityAvailable(ability)
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local allyAbility = npcBot:GetNearbyHeroes(1600, false, BOT_MODE_NONE);
@@ -336,18 +345,20 @@ function ConsiderUnburrow()
         --npcBot:ActionImmediate_Chat("Использую Unburrow потому что врагов меньше чем союзников!", true);
         return BOT_ACTION_DESIRE_MODERATE;
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderVendetta()
     local ability = Vendetta;
     if not utility.IsAbilityAvailable(ability)
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if npcBot:HasModifier("modifier_nyx_assassin_vendetta")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     -- Attack use
@@ -370,6 +381,8 @@ function ConsiderVendetta()
             return BOT_ACTION_DESIRE_HIGH;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 --[[ function ConsiderImpale()

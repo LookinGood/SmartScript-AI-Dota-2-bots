@@ -237,6 +237,17 @@ local function IsItemAvailable(item_name)
 	return nil;
 end
 
+function IsNeutralItemAvailable(item_name)
+	local npcBot = GetBot();
+	local neutralItem = npcBot:GetItemInSlot(16);
+
+	if neutralItem ~= nil and neutralItem:GetName() == item_name and neutralItem:IsFullyCastable()
+	then
+		return neutralItem;
+	end
+	return nil;
+end
+
 local function Contains(set, key) -- Содержит ли таблица указанный коюч
 	for index, value in ipairs(set) do
 		if tostring(value) == tostring(key)
@@ -346,9 +357,9 @@ local function BotChatMessages()
 	local ancient = GetAncient(GetTeam());
 	local enemyAncient = GetAncient(GetOpposingTeam());
 
-	if ancient ~= nil and not ancient:IsInvulnerable() and (ancient:GetHealth() <= 5)
+	if ancient ~= nil and not ancient:IsInvulnerable() and ancient:GetHealth() / ancient:GetMaxHealth() < 0.1
 	then
-		if RollPercentage(15) and (isDefeatSay == false)
+		if (isDefeatSay == false)
 		then
 			local message = linesDefeat[math.random(#linesDefeat)];
 			npcBot:ActionImmediate_Chat(message, true);
@@ -357,9 +368,9 @@ local function BotChatMessages()
 		end
 	end
 
-	if enemyAncient ~= nil and enemyAncient:CanBeSeen() and not enemyAncient:IsInvulnerable() and (enemyAncient:GetHealth() <= 5)
+	if enemyAncient ~= nil and enemyAncient:CanBeSeen() and not enemyAncient:IsInvulnerable() and enemyAncient:GetHealth() / enemyAncient:GetMaxHealth() < 0.1
 	then
-		if RollPercentage(15) and (isVictorySay == false)
+		if (isVictorySay == false)
 		then
 			local message = linesVictory[math.random(#linesVictory)];
 			npcBot:ActionImmediate_Chat(message, true);
@@ -368,15 +379,15 @@ local function BotChatMessages()
 		end
 	end
 
---[[ 	if (currentKills > previousKills)
+	--[[ 	if (currentKills > previousKills)
 	then
-		if RollPercentage(5)
+		if RollPercentage(95)
 		then
 			local message = linesKillEnemyHero[math.random(#linesKillEnemyHero)];
 			npcBot:ActionImmediate_Chat(message, true);
-			previousKills = currentKills;
-			return;
 		end
+		previousKills = currentKills;
+		return;
 	end ]]
 end
 
@@ -388,12 +399,16 @@ function ItemUsageThink()
 
 	GlyphUsageThink()
 
-	if not utility.CanUseItems(npcBot) or (npcBot:IsInvisible() and not npcBot:HasModifier("modifier_invisible")) or utility.IsCloneMeepo(npcBot)
+	if not utility.IsHero(npcBot) or not utility.CanUseItems(npcBot) or utility.IsCloneMeepo(npcBot) or
+		(npcBot:IsInvisible() and not npcBot:HasModifier("modifier_invisible"))
 	then
 		return;
 	end
 
-	BotChatMessages()
+	if not utility.IsClone(npcBot)
+	then
+		BotChatMessages()
+	end
 
 	local botMode = npcBot:GetActiveMode();
 	local attackRange = npcBot:GetAttackRange();
@@ -954,7 +969,8 @@ function ItemUsageThink()
 				do
 					if not utility.IsIllusion(ally)
 					then
-						if drumOfEndurance ~= nil and drumOfEndurance:GetCurrentCharges() > 0 and not ally:HasModifier("modifier_item_ancient_janggo_active")
+						--  and drumOfEndurance:GetCurrentCharges() > 0
+						if drumOfEndurance ~= nil and not ally:HasModifier("modifier_item_ancient_janggo_active")
 						then
 							--npcBot:Action_ClearActions(false);
 							npcBot:Action_UseAbility(drumOfEndurance);
@@ -1629,9 +1645,9 @@ function ItemUsageThink()
 		local itemRange = 1200;
 		if utility.CanMove(npcBot)
 		then
-			if utility.PvPMode(npcBot)
+			if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
 			then
-				if utility.IsHero(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) > (attackRange * 2)
+				if (utility.IsHero(botTarget) or utility.IsBoss(botTarget)) and GetUnitToUnitDistance(npcBot, botTarget) > (attackRange * 2)
 				then
 					if blink ~= nil
 					then
@@ -2590,6 +2606,35 @@ function ItemUsageThink()
 			end
 		end
 	end
+
+
+	------------NEUTRAL ITEMS
+	--[[ 	-- item_grisgris
+	local grisgris = IsNeutralItemAvailable("item_grisgris");
+	if grisgris ~= nil
+	then
+		if utility.GetModifierCount(npcBot, "modifier_item_grisgris_counter") >= (npcBot:GetGold() * 2)
+		then
+			npcBot:ActionImmediate_Chat("Использую предмет " .. grisgris:GetName(), true);
+			npcBot:ActionPush_UseAbility(grisgris);
+		end
+	end
+
+	-- item_black_grimoire
+	local blackGrimoire = IsNeutralItemAvailable("item_black_grimoire");
+	if blackGrimoire ~= nil
+	then
+		if blackGrimoire:GetCurrentCharges() >= 10
+		then
+			npcBot:ActionImmediate_Chat("Использую предмет " .. blackGrimoire:GetName(), true);
+			npcBot:Action_UseAbility(blackGrimoire);
+		end
+	end ]]
+
+
+
+
+
 
 	------------
 end

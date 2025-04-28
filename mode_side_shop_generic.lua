@@ -17,6 +17,16 @@ local tormentorPositions = {}
 --local radiantTormentorCheckTimer = 0.0;
 --local direTormentorCheckTimer = 0.0;
 
+function IsPositionInTable(table, pos)
+	for _, p in ipairs(table) do
+		if p.x == pos.x and p.y == pos.y and p.z == pos.z
+		then
+			return true;
+		end
+	end
+	return false;
+end
+
 function HasTormentorInPosition(tormentorLocation)
 	local creeps = GetUnitList(UNIT_LIST_NEUTRAL_CREEPS);
 
@@ -104,7 +114,9 @@ function GetCountAllyHeroesAroundTormentorLocation(tormentorLocation, radius)
 	then
 		for _, unit in pairs(unitsList)
 		do
+			local enemyHeroes = unit:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
 			if not unit:IsIllusion() and GetUnitToLocationDistance(unit, tormentorLocation) <= radius and unit:GetHealth() / unit:GetMaxHealth() >= 0.2
+				and (#enemyHeroes <= 0)
 			then
 				count = count + 1;
 			end
@@ -169,12 +181,19 @@ function GetDesire()
 	if (#tormentorPositions > 0)
 	then
 		for i = #tormentorPositions, 1, -1 do
-			if IsLocationVisible(tormentorPositions[i]) and not HasTormentorInPosition(tormentorPositions[i])
-			--and GetUnitToLocationDistance(npcBot, tormentorPositions[i]) <= 500
+			if IsLocationVisible(tormentorPositions[i])
 			then
-				--npcBot:ActionImmediate_Ping(tormentorPositions[i].x, tormentorPositions[i].y, false);
-				--npcBot:ActionImmediate_Chat("Удаляю позицию Терзателя - его там нет.", true);
-				table.remove(tormentorPositions, i);
+				if not HasTormentorInPosition(tormentorPositions[i])
+				then
+					--npcBot:ActionImmediate_Ping(tormentorPositions[i].x, tormentorPositions[i].y, false);
+					--npcBot:ActionImmediate_Chat("Удаляю позицию Терзателя - его там нет.", true);
+					table.remove(tormentorPositions, i);
+				elseif HasTormentorInPosition(tormentorPositions[i]) and not IsPositionInTable(tormentorPositions, tormentorPositions[i])
+				then
+					npcBot:ActionImmediate_Ping(tormentorPositions[i].x, tormentorPositions[i].y, false);
+					npcBot:ActionImmediate_Chat("Добавляю позицию Терзателя - он на месте.", true);
+					table.insert(tormentorPositions, i);
+				end
 			end
 		end
 	end
@@ -229,16 +248,19 @@ function Think()
 			then
 				local neutralCreeps = npcBot:GetNearbyCreeps(1600, true);
 				local tormentor = GetTormentor(neutralCreeps);
-				if tormentor ~= nil
+				if tormentor ~= nil and not tormentor:IsInvulnerable()
 				then
 					--npcBot:ActionImmediate_Chat("Атакую " .. tormentor:GetUnitName(), true);
 					npcBot:SetTarget(tormentor);
 					npcBot:Action_AttackUnit(tormentor, false);
 					return;
+				else
+					npcBot:Action_MoveToLocation(closestTormentorLocation + RandomVector(400));
+					return;
 				end
 			else
-				--npcBot:ActionImmediate_Chat("Жду союзников!", true);
-				npcBot:Action_MoveToLocation(npcBot:GetLocation() + RandomVector(400));
+				npcBot:ActionImmediate_Chat("Жду союзников!", true);
+				npcBot:Action_MoveToLocation(closestTormentorLocation + RandomVector(400));
 				return;
 			end
 		end

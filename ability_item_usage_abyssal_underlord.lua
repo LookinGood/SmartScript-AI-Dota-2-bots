@@ -65,19 +65,19 @@ function AbilityUsageThink()
     local castPitOfMaliceDesire, castPitOfMaliceLocation = ConsiderPitOfMalice();
     local castFiendsGateDesire, castFiendsGateLocation = ConsiderFiendsGate();
 
-    if (castFirestormDesire ~= nil)
+    if (castFirestormDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(Firestorm, castFirestormLocation);
         return;
     end
 
-    if (castPitOfMaliceDesire ~= nil)
+    if (castPitOfMaliceDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(PitOfMalice, castPitOfMaliceLocation);
         return;
     end
 
-    if (castFiendsGateDesire ~= nil)
+    if (castFiendsGateDesire > 0)
     then
         npcBot:Action_ClearActions(false);
         npcBot:ActionQueue_Delay(5.0);
@@ -89,7 +89,7 @@ end
 function ConsiderFirestorm()
     local ability = Firestorm;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -131,12 +131,14 @@ function ConsiderFirestorm()
             return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderPitOfMalice()
     local ability = PitOfMalice;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -184,12 +186,14 @@ function ConsiderPitOfMalice()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderFiendsGate()
     local ability = FiendsGate;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local minDistance = ability:GetSpecialValueInt("minimum_distance");
@@ -227,4 +231,6 @@ function ConsiderFiendsGate()
             return BOT_ACTION_DESIRE_VERYHIGH, utility.GetEscapeLocation(ancient, 1000) + RandomVector(100);
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end

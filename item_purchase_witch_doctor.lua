@@ -23,9 +23,9 @@ local ItemsToBuy =
 	"item_urn_of_shadows",
 	"item_spirit_vessel",
 
-	"item_aghanims_shard",
-
 	"item_ultimate_scepter",
+
+	"item_aghanims_shard",
 
 	"item_headdress",
 	"item_mekansm",

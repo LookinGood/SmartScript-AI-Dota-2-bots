@@ -19,14 +19,13 @@ local ItemsToBuy =
 
 	"item_armlet",
 
-	"item_vanguard",
-	"item_heavens_halberd",
-
-	"item_black_king_bar",
+	"item_desolator",
 
 	"item_blink",
 
 	"item_aghanims_shard",
+
+	"item_black_king_bar",
 
 	"item_sange",
 	"item_basher",

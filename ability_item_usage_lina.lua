@@ -67,25 +67,25 @@ function AbilityUsageThink()
     local castFlameCloakDesire = ConsiderFlameCloak();
     local castLagunaBladeDesire, castLagunaBladeTarget = ConsiderLagunaBlade();
 
-    if (castDragonSlaveDesire ~= nil)
+    if (castDragonSlaveDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(DragonSlave, castDragonSlaveLocation);
         return;
     end
 
-    if (castLightStrikeArrayDesire ~= nil)
+    if (castLightStrikeArrayDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(LightStrikeArray, castLightStrikeArrayLocation);
         return;
     end
 
-    if (castFlameCloakDesire ~= nil)
+    if (castFlameCloakDesire > 0)
     then
         npcBot:Action_UseAbility(FlameCloak);
         return;
     end
 
-    if (castLagunaBladeDesire ~= nil)
+    if (castLagunaBladeDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(LagunaBlade, castLagunaBladeTarget);
         return;
@@ -95,7 +95,7 @@ end
 function ConsiderDragonSlave()
     local ability = DragonSlave;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -156,12 +156,14 @@ function ConsiderDragonSlave()
             return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility);
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderLightStrikeArray()
     local ability = LightStrikeArray;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -210,12 +212,14 @@ function ConsiderLightStrikeArray()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderFlameCloak()
     local ability = FlameCloak;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local attackRange = npcBot:GetAttackRange();
@@ -239,12 +243,14 @@ function ConsiderFlameCloak()
         --npcBot:ActionImmediate_Chat("Использую FlameCloak для отступления!", true);
         return BOT_ACTION_DESIRE_HIGH;
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderLagunaBlade()
     local ability = LagunaBlade;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -279,4 +285,6 @@ function ConsiderLagunaBlade()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end

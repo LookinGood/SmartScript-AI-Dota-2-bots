@@ -54,7 +54,7 @@ local Eject = AbilitiesReal[4]
 local Dismember = AbilitiesReal[6]
 
 function AbilityUsageThink()
-    if not utility.CanCastWhenChanneling(npcBot) then
+    if not utility.CanCast(npcBot) then
         return;
     end
 
@@ -63,52 +63,56 @@ function AbilityUsageThink()
     HealthPercentage = npcBot:GetHealth() / npcBot:GetMaxHealth();
     ManaPercentage = npcBot:GetMana() / npcBot:GetMaxMana();
 
-    local castRotDesire = ConsiderRot();
-
-    if (castRotDesire ~= nil)
-    then
-        npcBot:Action_UseAbility(Rot);
-        return;
-    end
-
-    if not utility.CanCast(npcBot) then
-        return;
-    end
-
     local castMeatHookDesire, castMeatHookLocation = ConsiderMeatHook();
+    local castRotDesire = ConsiderRot();
     local castFleshHeapDesire = ConsiderFleshHeap();
     local castEjectDesire = ConsiderEject();
     local castDismemberDesire, castDismemberTarget = ConsiderDismember();
 
-    if (castMeatHookDesire ~= nil)
+    if (castMeatHookDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(MeatHook, castMeatHookLocation);
         return;
     end
 
-    if (castFleshHeapDesire ~= nil)
+    if (castRotDesire > 0)
+    then
+        npcBot:Action_UseAbility(Rot);
+        return;
+    end
+
+    if (castFleshHeapDesire > 0)
     then
         npcBot:Action_UseAbility(FleshHeap);
         return;
     end
 
-    if (castEjectDesire ~= nil)
+    if (castEjectDesire > 0)
     then
         npcBot:Action_UseAbility(Eject);
         return;
     end
 
-    if (castDismemberDesire ~= nil)
+    if (castDismemberDesire > 0)
     then
-        npcBot:Action_UseAbilityOnEntity(Dismember, castDismemberTarget);
-        return;
+        if utility.IsAbilityAvailable(Rot) and Rot:GetToggleState() == false
+        then
+            --npcBot:ActionImmediate_Chat("Использую Dismember + Rot!", true);
+            npcBot:Action_ClearActions(false);
+            npcBot:ActionQueue_UseAbility(Rot);
+            npcBot:ActionQueue_UseAbilityOnEntity(Dismember, castDismemberTarget);
+            return;
+        else
+            npcBot:Action_UseAbilityOnEntity(Dismember, castDismemberTarget);
+            return;
+        end
     end
 end
 
 function ConsiderMeatHook()
     local ability = MeatHook;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -225,12 +229,14 @@ function ConsiderMeatHook()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderRot()
     local ability = Rot;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     --[[     local radiusAbility
@@ -254,13 +260,13 @@ function ConsiderRot()
                 then
                     if ability:GetToggleState() == false
                     then
-                        --npcBot:ActionImmediate_Chat("Включаю Rot против 2+ врагов!", true);
+                        --npcBot:ActionImmediate_Chat("Включаю Rot против врагов!", true);
                         return BOT_ACTION_DESIRE_HIGH;
                     end
                 else
                     if ability:GetToggleState() == true
                     then
-                        --npcBot:ActionImmediate_Chat("Выключаю Rot против 2+ врагов!", true);
+                        --npcBot:ActionImmediate_Chat("Выключаю Rot против врагов!", true);
                         return BOT_ACTION_DESIRE_HIGH;
                     end
                 end
@@ -339,17 +345,19 @@ function ConsiderRot()
             return BOT_ACTION_DESIRE_HIGH;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderFleshHeap()
     local ability = FleshHeap;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if npcBot:HasModifier("modifier_pudge_flesh_heap_block")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     -- General use
@@ -359,12 +367,14 @@ function ConsiderFleshHeap()
     then
         return BOT_ACTION_DESIRE_HIGH;
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderEject()
     local ability = Eject;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local allyHeroes = GetUnitList(UNIT_LIST_ALLIED_HEROES);
@@ -377,12 +387,14 @@ function ConsiderEject()
             return BOT_ACTION_DESIRE_HIGH;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderDismember()
     local ability = Dismember;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange() + 200;
@@ -438,4 +450,6 @@ function ConsiderDismember()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end

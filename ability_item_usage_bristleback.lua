@@ -51,6 +51,7 @@ local ViscousNasalGoo = AbilitiesReal[1]
 local QuillSpray = AbilitiesReal[2]
 local Bristleback = AbilitiesReal[3]
 local Hairball = AbilitiesReal[4]
+local Warpath = AbilitiesReal[6]
 
 --npcBot:GetAbilityByName("bristleback_hairball");
 
@@ -68,28 +69,35 @@ function AbilityUsageThink()
     local castQuillSprayDesire = ConsiderQuillSpray();
     local castBristlebackDesire, castBristlebackLocation = ConsiderBristleback();
     local castHairballDesire, castHairballLocation = ConsiderHairball();
+    local castWarpathDesire = ConsiderWarpath();
 
-    if (castViscousNasalGooDesire ~= nil)
+    if (castViscousNasalGooDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(ViscousNasalGoo, castViscousNasalGooTarget);
         return;
     end
 
-    if (castQuillSprayDesire ~= nil)
+    if (castQuillSprayDesire > 0)
     then
         npcBot:Action_UseAbility(QuillSpray);
         return;
     end
 
-    if (castBristlebackDesire ~= nil)
+    if (castBristlebackDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(Bristleback, castBristlebackLocation);
         return;
     end
 
-    if (castHairballDesire ~= nil)
+    if (castHairballDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(Hairball, castHairballLocation);
+        return;
+    end
+
+    if (castWarpathDesire > 0)
+    then
+        npcBot:Action_UseAbility(Warpath);
         return;
     end
 end
@@ -97,7 +105,7 @@ end
 function ConsiderViscousNasalGoo()
     local ability = ViscousNasalGoo;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetSpecialValueInt("AbilityCastRange");
@@ -128,12 +136,14 @@ function ConsiderViscousNasalGoo()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderQuillSpray()
     local ability = QuillSpray;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local radiusAbility = ability:GetAOERadius();
@@ -190,12 +200,14 @@ function ConsiderQuillSpray()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderBristleback()
     local ability = Bristleback;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_POINT)
@@ -232,12 +244,14 @@ function ConsiderBristleback()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderHairball()
     local ability = Hairball;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -303,4 +317,55 @@ function ConsiderHairball()
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
+end
+
+function ConsiderWarpath()
+    local ability = Warpath;
+    if not utility.IsAbilityAvailable(ability) then
+        return BOT_ACTION_DESIRE_NONE;
+    end
+
+    if npcBot:HasModifier("modifier_bristleback_warpath_active")
+    then
+        return BOT_ACTION_DESIRE_NONE;
+    end
+
+    local attackTarget = npcBot:GetAttackTarget();
+
+    -- Attack use
+    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
+    then
+        if utility.IsHero(attackTarget) or utility.IsBoss(attackTarget)
+        then
+            if utility.CanCastSpellOnTarget(ability, attackTarget)
+            then
+                --npcBot:ActionImmediate_Chat("Использую Warpath на врага!", true);
+                return BOT_ACTION_DESIRE_HIGH;
+            end
+        end
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
+    then
+        local enemyAbility = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
+        if (#enemyAbility > 0) and (HealthPercentage <= 0.5)
+        then
+            return BOT_ACTION_DESIRE_HIGH;
+        end
+    end
+
+    if utility.PvEMode(npcBot)
+    then
+        if (ManaPercentage >= 0.5) and attackTarget:IsAncientCreep() and utility.CanCastSpellOnTarget(ability, attackTarget)
+            and (attackTarget:GetHealth() / attackTarget:GetMaxHealth() >= 0.4)
+        then
+            --npcBot:ActionImmediate_Chat("Использую Warpath на крипа!", true);
+            return BOT_ACTION_DESIRE_HIGH;
+        end
+    end
+
+    return BOT_ACTION_DESIRE_NONE;
 end

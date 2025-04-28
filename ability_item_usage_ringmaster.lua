@@ -83,73 +83,73 @@ function AbilityUsageThink()
     local castWeightedPieDesire, castWeightedPieTarget = ConsiderWeightedPie();
     local castCrystalBallDesire, castCrystalBallLocation = ConsiderCrystalBall();
 
-    if (castTameTheBeastsDesire ~= nil)
+    if (castTameTheBeastsDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(TameTheBeasts, castTameTheBeastsLocation);
         return;
     end
 
-    if (castCrackDesire ~= nil)
+    if (castCrackDesire > 0)
     then
         npcBot:Action_UseAbility(Crack);
         return;
     end
 
-    if (castEscapeActDesire ~= nil)
+    if (castEscapeActDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(EscapeAct, castEscapeActTarget);
         return;
     end
 
-    if (castImpalementArtsDesire ~= nil)
+    if (castImpalementArtsDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(ImpalementArts, castImpalementArtsLocation);
         return;
     end
 
-    if (castSpotlightDesire ~= nil)
+    if (castSpotlightDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(Spotlight, castSpotlightLocation);
         return;
     end
 
-    if (castWheelOfWonderDesire ~= nil)
+    if (castWheelOfWonderDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(WheelOfWonder, castWheelOfWonderLocation);
         return;
     end
 
-    if (castFunhouseMirrorDesire ~= nil)
+    if (castFunhouseMirrorDesire > 0)
     then
         npcBot:Action_UseAbility(FunhouseMirror);
         return;
     end
 
-    if (castWhoopeeCushionDesire ~= nil)
+    if (castWhoopeeCushionDesire > 0)
     then
         npcBot:Action_UseAbility(WhoopeeCushion);
         return;
     end
 
-    if (castStrongmanTonicDesire ~= nil)
+    if (castStrongmanTonicDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(StrongmanTonic, castStrongmanTonicTarget);
         return;
     end
 
-    if (castSummonUnicycleDesire ~= nil)
+    if (castSummonUnicycleDesire > 0)
     then
         npcBot:Action_UseAbility(SummonUnicycle);
         return;
     end
 
-    if (castWeightedPieDesire ~= nil)
+    if (castWeightedPieDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(WeightedPie, castWeightedPieTarget);
         return;
     end
 
-    if (castCrystalBallDesire ~= nil)
+    if (castCrystalBallDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(CrystalBall, castCrystalBallLocation);
         return;
@@ -159,7 +159,7 @@ end
 function ConsiderTameTheBeasts()
     local ability = TameTheBeasts;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -231,12 +231,14 @@ function ConsiderTameTheBeasts()
             return BOT_ACTION_DESIRE_MODERATE, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderCrack()
     local ability = Crack;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local castRangeAbility = TameTheBeasts:GetCastRange();
@@ -264,12 +266,14 @@ function ConsiderCrack()
         npcBot:ActionImmediate_Chat("Использую Crack отступая!", true);
         return BOT_ACTION_DESIRE_VERYHIGH;
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderEscapeAct()
     local ability = EscapeAct;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -309,12 +313,14 @@ function ConsiderEscapeAct()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderImpalementArts()
     local ability = ImpalementArts;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -399,12 +405,14 @@ function ConsiderImpalementArts()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderSpotlight()
     local ability = Spotlight;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -424,12 +432,14 @@ function ConsiderSpotlight()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderWheelOfWonder()
     local ability = WheelOfWonder;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -486,13 +496,15 @@ function ConsiderWheelOfWonder()
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 -- Items Ability
 function ConsiderFunhouseMirror()
     local ability = FunhouseMirror;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local attackRange = npcBot:GetAttackRange();
@@ -536,12 +548,14 @@ function ConsiderFunhouseMirror()
             return BOT_ACTION_DESIRE_HIGH;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderWhoopeeCushion()
     local ability = WhoopeeCushion;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local castRangeAbility = ability:GetSpecialValueInt("leap_distance");
@@ -569,12 +583,14 @@ function ConsiderWhoopeeCushion()
             return BOT_ACTION_DESIRE_HIGH;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderStrongmanTonic()
     local ability = StrongmanTonic;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -618,17 +634,19 @@ function ConsiderStrongmanTonic()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderSummonUnicycle()
     local ability = SummonUnicycle;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if utility.IsHaveMaxSpeed(npcBot) or npcBot:HasModifier("modifier_ringmaster_unicycle_movement")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local attackRange = npcBot:GetAttackRange();
@@ -653,12 +671,14 @@ function ConsiderSummonUnicycle()
             return BOT_ACTION_DESIRE_HIGH;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderWeightedPie()
     local ability = WeightedPie;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -695,12 +715,14 @@ function ConsiderWeightedPie()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderCrystalBall()
     local ability = CrystalBall;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local attackRange = npcBot:GetAttackRange();
@@ -730,4 +752,6 @@ function ConsiderCrystalBall()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end

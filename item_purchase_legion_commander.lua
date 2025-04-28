@@ -17,9 +17,9 @@ local ItemsToBuy =
 
     "item_blade_mail",
 
-    "item_black_king_bar",
-
     "item_blink",
+
+    "item_black_king_bar",
 
     "item_lesser_crit",
     "item_greater_crit",

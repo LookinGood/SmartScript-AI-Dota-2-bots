@@ -67,25 +67,25 @@ function AbilityUsageThink()
     local castSpiritSiphonDesire, castSpiritSiphonTarget = ConsiderSpiritSiphon();
     local castExorcismDesire = ConsiderExorcism();
 
-    if (castCryptSwarmDesire ~= nil)
+    if (castCryptSwarmDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(CryptSwarm, castCryptSwarmLocation);
         return;
     end
 
-    if (castSilenceDesire ~= nil)
+    if (castSilenceDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(Silence, castSilenceLocation);
         return;
     end
 
-    if (castSpiritSiphonDesire ~= nil)
+    if (castSpiritSiphonDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(SpiritSiphon, castSpiritSiphonTarget);
         return;
     end
 
-    if (castExorcismDesire ~= nil)
+    if (castExorcismDesire > 0)
     then
         npcBot:Action_UseAbility(Exorcism);
         return;
@@ -95,7 +95,7 @@ end
 function ConsiderCryptSwarm()
     local ability = CryptSwarm;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -158,12 +158,14 @@ function ConsiderCryptSwarm()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderSilence()
     local ability = Silence;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -210,12 +212,14 @@ function ConsiderSilence()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderSpiritSiphon()
     local ability = SpiritSiphon;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -259,17 +263,19 @@ function ConsiderSpiritSiphon()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderExorcism()
     local ability = Exorcism;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if npcBot:HasModifier("modifier_death_prophet_exorcism")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local radiusAbility = ability:GetAOERadius();
@@ -310,4 +316,6 @@ function ConsiderExorcism()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end

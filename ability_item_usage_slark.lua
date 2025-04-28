@@ -67,25 +67,25 @@ function AbilityUsageThink()
     local castDepthShroudDesire, castDepthShroudLocation = ConsiderDepthShroud();
     local castShadowDanceDesire = ConsiderShadowDance();
 
-    if (castDarkPactDesire ~= nil)
+    if (castDarkPactDesire > 0)
     then
         npcBot:Action_UseAbility(DarkPact);
         return;
     end
 
-    if (castPounceDesire ~= nil)
+    if (castPounceDesire > 0)
     then
         npcBot:Action_UseAbility(Pounce);
         return;
     end
 
-    if (castDepthShroudDesire ~= nil)
+    if (castDepthShroudDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(DepthShroud, castDepthShroudLocation);
         return;
     end
 
-    if (castShadowDanceDesire ~= nil)
+    if (castShadowDanceDesire > 0)
     then
         npcBot:Action_UseAbility(ShadowDance);
         return;
@@ -95,7 +95,7 @@ end
 function ConsiderDarkPact()
     local ability = DarkPact;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local selfDamageAbility = ability:GetSpecialValueInt("total_damage") * ability:GetSpecialValueInt("self_damage_pct") /
@@ -103,7 +103,7 @@ function ConsiderDarkPact()
 
     if utility.CanAbilityKillTarget(npcBot, selfDamageAbility, ability:GetDamageType())
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local radiusAbility = ability:GetAOERadius();
@@ -143,12 +143,14 @@ function ConsiderDarkPact()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderPounce()
     local ability = Pounce;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local castRangeAbility = ability:GetSpecialValueInt("pounce_distance");
@@ -175,12 +177,14 @@ function ConsiderPounce()
             return BOT_ACTION_DESIRE_HIGH;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderDepthShroud()
     local ability = DepthShroud;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -201,17 +205,19 @@ function ConsiderDepthShroud()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderShadowDance()
     local ability = ShadowDance;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if npcBot:HasModifier("modifier_slark_depth_shroud") or npcBot:HasModifier("modifier_slark_shadow_dance")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local attackRange = npcBot:GetAttackRange();
@@ -229,10 +235,12 @@ function ConsiderShadowDance()
     -- Retreat use
     if utility.RetreatMode(npcBot)
     then
-        if (HealthPercentage <= 0.7) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
+        if (HealthPercentage <= 0.7) and utility.BotWasRecentlyDamagedByEnemyHero(2.0)
         then
             --npcBot:ActionImmediate_Chat("Использую ShadowDance для отступления!", true);
             return BOT_ACTION_DESIRE_HIGH;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end

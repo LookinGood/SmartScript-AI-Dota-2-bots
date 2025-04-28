@@ -67,19 +67,19 @@ function AbilityUsageThink()
     local castLeapDesire, castLeapLocation, castLeapTargetType = ConsiderLeap();
     local castMoonlightShadowDesire = ConsiderMoonlightShadow();
 
-    if (castStarstormDesire ~= nil)
+    if (castStarstormDesire > 0)
     then
         npcBot:Action_UseAbility(Starstorm);
         return;
     end
 
-    if (castSacredArrowDesire ~= nil)
+    if (castSacredArrowDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(SacredArrow, castSacredArrowLocation);
         return;
     end
 
-    if (castLeapDesire ~= nil)
+    if (castLeapDesire > 0)
     then
         if (castLeapTargetType == nil)
         then
@@ -92,7 +92,7 @@ function AbilityUsageThink()
         end
     end
 
-    if (castMoonlightShadowDesire ~= nil)
+    if (castMoonlightShadowDesire > 0)
     then
         npcBot:Action_UseAbility(MoonlightShadow);
         return;
@@ -102,7 +102,7 @@ end
 function ConsiderStarstorm()
     local ability = Starstorm;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local radiusAbility = ability:GetAOERadius();
@@ -150,12 +150,14 @@ function ConsiderStarstorm()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderSacredArrow()
     local ability = SacredArrow;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -241,12 +243,14 @@ function ConsiderSacredArrow()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderLeap()
     local ability = Leap;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0, 0;
     end
 
     local castRangeAbility = ability:GetSpecialValueInt("leap_distance") * 2;
@@ -303,27 +307,31 @@ function ConsiderLeap()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0, 0;
 end
 
 function ConsiderMoonlightShadow()
     local ability = MoonlightShadow;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local allyAbility = GetUnitList(UNIT_LIST_ALLIED_HEROES);
 
     if (#allyAbility > 0)
     then
-        for i = 1, #allyAbility do
-            local enemyAbility = allyAbility[i]:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
-            if utility.IsHero(allyAbility[i]) and not allyAbility[i]:IsInvisible()
-                and allyAbility[i]:GetHealth() / allyAbility[i]:GetMaxHealth() <= 0.7 and allyAbility[i]:WasRecentlyDamagedByAnyHero(2.0)
-                and (#enemyAbility > 0)
+        for _, ally in pairs(allyAbility)
+        do
+            local enemyAbility = ally:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
+            if utility.IsHero(ally) and not ally:IsInvisible() and ally:GetHealth() / ally:GetMaxHealth() <= 0.7 and
+                ally:WasRecentlyDamagedByAnyHero(2.0) and (#enemyAbility > 0)
             then
                 --npcBot:ActionImmediate_Chat("Использую MoonlightShadow!", true);
-                return BOT_ACTION_DESIRE_HIGH;
+                return BOT_ACTION_DESIRE_ABSOLUTE;
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end

@@ -73,45 +73,45 @@ function AbilityUsageThink()
     local castKeenConveyanceDesire, castKeenConveyanceLocation = ConsiderKeenConveyance();
     local castRearmDesire = ConsiderRearm();
 
-    if (castLaserDesire ~= nil)
+    if (castLaserDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(Laser, castLaserTarget);
         return;
     end
 
-    if (castMarchOfTheMachinesDesire ~= nil)
+    if (castMarchOfTheMachinesDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(MarchOfTheMachines, castMarchOfTheMachinesLocation);
         return;
     end
 
-    if (castHeatSeekingMissileDesire ~= nil)
+    if (castHeatSeekingMissileDesire > 0)
     then
         npcBot:Action_UseAbility(HeatSeekingMissile);
         return;
     end
 
-    if (castDefenseMatrixDesire ~= nil)
+    if (castDefenseMatrixDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(DefenseMatrix, castDefenseMatrixTarget);
         return;
     end
 
-    if (castWarpFlareDesire ~= nil)
+    if (castWarpFlareDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(WarpFlare, castWarpFlareTarget);
         return;
     end
 
-    if (castKeenConveyanceDesire ~= nil)
+    if (castKeenConveyanceDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(KeenConveyance, castKeenConveyanceLocation);
         return;
     end
 
-    if (castRearmDesire ~= nil)
+    if (castRearmDesire > 0)
     then
-        --npcBot:Action_ClearAction(false);
+        npcBot:Action_ClearAction(true);
         npcBot:Action_UseAbility(Rearm);
         return;
     end
@@ -120,7 +120,7 @@ end
 function ConsiderLaser()
     local ability = Laser;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange() + 200;
@@ -168,12 +168,14 @@ function ConsiderLaser()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderMarchOfTheMachines()
     local ability = MarchOfTheMachines;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -198,16 +200,18 @@ function ConsiderMarchOfTheMachines()
             0, 0);
         if locationAoE ~= nil and (ManaPercentage >= 0.5) and (locationAoE.count >= 3)
         then
-            --npcBot:ActionImmediate_Chat("Использую Shrapnel по вражеским крипам!", true);
+            --npcBot:ActionImmediate_Chat("Использую MarchOfTheMachines по вражеским крипам!", true);
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderHeatSeekingMissile()
     local ability = HeatSeekingMissile;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local radiusAbility = ability:GetAOERadius();
@@ -243,12 +247,14 @@ function ConsiderHeatSeekingMissile()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderDefenseMatrix()
     local ability = DefenseMatrix;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -272,12 +278,14 @@ function ConsiderDefenseMatrix()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderWarpFlare()
     local ability = WarpFlare;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -328,34 +336,34 @@ function ConsiderWarpFlare()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderKeenConveyance()
     local ability = KeenConveyance;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
-    local tps = npcBot:GetItemInSlot(15);
-    if tps == nil or not tps:IsFullyCastable()
+    local tpLocation = nil;
+    local shouldTP = false;
+
+    shouldTP, tpLocation = teleportation_usage_generic.ShouldTP()
+
+    if shouldTP
     then
-        local tpLocation = nil;
-        local shouldTP = false;
-
-        shouldTP, tpLocation = teleportation_usage_generic.ShouldTP()
-
-        if shouldTP
-        then
-            --npcBot:ActionImmediate_Chat("Использую KeenConveyance!", true);
-            return BOT_ACTION_DESIRE_HIGH, tpLocation;
-        end
+        --npcBot:ActionImmediate_Chat("Использую KeenConveyance!", true);
+        return BOT_ACTION_DESIRE_HIGH, tpLocation;
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderRearm()
     local ability = Rearm;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local ability1 = npcBot:GetAbilityInSlot(0);
@@ -377,4 +385,6 @@ function ConsiderRearm()
             return BOT_ACTION_DESIRE_MODERATE;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end

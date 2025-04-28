@@ -69,26 +69,26 @@ function AbilityUsageThink()
     local castKineticFieldDesire, castKineticFieldLocation = ConsiderKineticField();
     local castStaticStormDesire, castStaticStormLocation = ConsiderStaticStorm();
 
-    if (castThunderStrikeDesire ~= nil)
+    if (castThunderStrikeDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(ThunderStrike, castThunderStrikeTarget);
         return;
     end
 
-    if (castGlimpseDesire ~= nil)
+    if (castGlimpseDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(Glimpse, castGlimpseTarget);
         return;
     end
 
-    if (castKineticFieldDesire ~= nil) and (GameTime() >= castKineticFieldTimer + 2.0)
+    if (castKineticFieldDesire > 0) and (GameTime() >= castKineticFieldTimer + 2.0)
     then
         npcBot:Action_UseAbilityOnLocation(KineticField, castKineticFieldLocation);
         castKineticFieldTimer = GameTime();
         return;
     end
 
-    if (castStaticStormDesire ~= nil)
+    if (castStaticStormDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(StaticStorm, castStaticStormLocation);
         return;
@@ -98,7 +98,7 @@ end
 function ConsiderThunderStrike()
     local ability = ThunderStrike;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -173,12 +173,14 @@ function ConsiderThunderStrike()
             return BOT_ACTION_DESIRE_VERYHIGH, enemy;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderGlimpse()
     local ability = Glimpse;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -218,12 +220,14 @@ function ConsiderGlimpse()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderKineticField()
     local ability = KineticField;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -252,12 +256,14 @@ function ConsiderKineticField()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderStaticStorm()
     local ability = StaticStorm;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -288,4 +294,6 @@ function ConsiderStaticStorm()
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end

@@ -69,31 +69,31 @@ function AbilityUsageThink()
     local castConsumeDesire = ConsiderConsume();
     local castInfestDesire, castInfestTarget = ConsiderInfest();
 
-    if (castRageDesire ~= nil)
+    if (castRageDesire > 0)
     then
         npcBot:Action_UseAbility(Rage);
         return;
     end
 
-    if (castUnfetteredDesire ~= nil)
+    if (castUnfetteredDesire > 0)
     then
         npcBot:Action_UseAbility(Unfettered);
         return;
     end
 
-    if (castOpenWoundsDesire ~= nil)
+    if (castOpenWoundsDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(OpenWounds, castOpenWoundsTarget);
         return;
     end
 
-    if (castConsumeDesire ~= nil)
+    if (castConsumeDesire > 0)
     then
         npcBot:Action_UseAbility(Consume);
         return;
     end
 
-    if (castInfestDesire ~= nil)
+    if (castInfestDesire > 0)
     then
         --infestTarget = castInfestTarget;
         npcBot:Action_UseAbilityOnEntity(Infest, castInfestTarget);
@@ -110,14 +110,13 @@ end
 
 function ConsiderRage()
     local ability = Rage;
-    if not utility.IsAbilityAvailable(ability)
-    then
-        return;
+    if not utility.IsAbilityAvailable(ability) then
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if not utility.CanCastOnMagicImmuneTarget(npcBot)
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local incomingSpells = npcBot:GetIncomingTrackingProjectiles();
@@ -151,18 +150,20 @@ function ConsiderRage()
     then
         return BOT_ACTION_DESIRE_HIGH;
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderUnfettered()
     local ability = Unfettered;
     if not utility.IsAbilityAvailable(ability)
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if not utility.CanCastOnMagicImmuneTarget(npcBot)
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local incomingSpells = npcBot:GetIncomingTrackingProjectiles();
@@ -194,12 +195,14 @@ function ConsiderUnfettered()
     then
         return BOT_ACTION_DESIRE_HIGH;
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderOpenWounds()
     local ability = OpenWounds;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -231,12 +234,14 @@ function ConsiderOpenWounds()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderConsume()
     local ability = Consume;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local damageAbility = Infest:GetSpecialValueInt("damage");
@@ -273,12 +278,14 @@ function ConsiderConsume()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderInfest()
     local ability = Infest;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -453,4 +460,6 @@ function ConsiderInfest()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end

@@ -72,14 +72,14 @@ function AbilityUsageThink()
     local castMoveAstralSpiritDesire, castMoveAstralSpiritLocation = ConsiderMoveAstralSpirit();
     local castEarthSplitterDesire, castEarthSplitterLocation = ConsiderEarthSplitter();
 
-    if (castEchoStompDesire ~= nil)
+    if (castEchoStompDesire > 0)
     then
         npcBot:Action_ClearActions(true);
         npcBot:Action_UseAbility(EchoStomp);
         return;
     end
 
-    if (castAstralSpiritDesire ~= nil)
+    if (castAstralSpiritDesire > 0)
     then
         if (castAstralSpiritType == "combo")
         then
@@ -93,21 +93,21 @@ function AbilityUsageThink()
         end
     end
 
-    if (castReturnAstralSpiritDesire ~= nil) and (GameTime() >= castReturnAstralSpiritTimer + 2.0)
+    if (castReturnAstralSpiritDesire > 0) and (GameTime() >= castReturnAstralSpiritTimer + 2.0)
     then
         npcBot:Action_UseAbility(ReturnAstralSpirit);
         castReturnAstralSpiritTimer = GameTime();
         return;
     end
 
-    if (castMoveAstralSpiritDesire ~= nil) and (GameTime() >= castMoveAstralSpiritTimer + 2.0)
+    if (castMoveAstralSpiritDesire > 0) and (GameTime() >= castMoveAstralSpiritTimer + 2.0)
     then
         npcBot:Action_UseAbilityOnLocation(MoveAstralSpirit, castMoveAstralSpiritLocation);
         castMoveAstralSpiritTimer = GameTime();
         return;
     end
 
-    if (castEarthSplitterDesire ~= nil)
+    if (castEarthSplitterDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(EarthSplitter, castEarthSplitterLocation);
         return;
@@ -117,7 +117,7 @@ end
 function ConsiderEchoStomp()
     local ability = EchoStomp;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local radiusAbility = ability:GetSpecialValueInt("radius");
@@ -183,12 +183,14 @@ function ConsiderEchoStomp()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderAstralSpirit()
     local ability = AstralSpirit;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -267,12 +269,14 @@ function ConsiderAstralSpirit()
             return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0), nil;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0, 0;
 end
 
 function ConsiderReturnAstralSpirit()
     local ability = ReturnAstralSpirit;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     -- Retreat use
@@ -281,12 +285,14 @@ function ConsiderReturnAstralSpirit()
         --npcBot:ActionImmediate_Chat("Использую ReturnAstralSpirit для отхода!", true);
         return BOT_ACTION_DESIRE_HIGH;
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderMoveAstralSpirit()
     local ability = MoveAstralSpirit;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     -- Cast if attack enemy
@@ -308,12 +314,14 @@ function ConsiderMoveAstralSpirit()
             return BOT_ACTION_DESIRE_VERYHIGH, enemyCreeps[1]:GetLocation();
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderEarthSplitter()
     local ability = EarthSplitter;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -357,6 +365,8 @@ function ConsiderEarthSplitter()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 -- Old version

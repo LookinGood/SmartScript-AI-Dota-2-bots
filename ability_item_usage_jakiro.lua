@@ -69,19 +69,19 @@ function AbilityUsageThink()
     ConsiderLiquidFrost();
     local castMacropyreDesire, castMacropyreLocation = ConsiderMacropyre();
 
-    if (castDualBreathDesire ~= nil)
+    if (castDualBreathDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(DualBreath, castDualBreathLocation);
         return;
     end
 
-    if (castIcePathDesire ~= nil)
+    if (castIcePathDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(IcePath, castIcePathLocation);
         return;
     end
 
-    if (castMacropyreDesire ~= nil)
+    if (castMacropyreDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(Macropyre, castMacropyreLocation);
         return;
@@ -91,7 +91,7 @@ end
 function ConsiderDualBreath()
     local ability = DualBreath;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -167,12 +167,14 @@ function ConsiderDualBreath()
             return BOT_ACTION_DESIRE_MODERATE, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility);
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderIcePath()
     local ability = IcePath;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -233,6 +235,8 @@ function ConsiderIcePath()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderLiquidFire()
@@ -262,7 +266,7 @@ end
 function ConsiderMacropyre()
     local ability = Macropyre;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -292,4 +296,6 @@ function ConsiderMacropyre()
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end

@@ -79,43 +79,43 @@ function AbilityUsageThink()
     local castSpiritsOutDesire = ConsiderSpiritsOut();
     local castRelocateDesire, castRelocateLocation = ConsiderRelocate();
 
-    if (castTetherDesire ~= nil)
+    if (castTetherDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(Tether, castTetherTarget);
         return;
     end
 
-    if (castBreakTetherDesire ~= nil)
+    if (castBreakTetherDesire > 0)
     then
         npcBot:Action_UseAbility(BreakTether);
         return;
     end
 
-    if (castSpiritsDesire ~= nil)
+    if (castSpiritsDesire > 0)
     then
         npcBot:Action_UseAbility(Spirits);
         return;
     end
 
-    if (castOverchargeDesire ~= nil)
+    if (castOverchargeDesire > 0)
     then
         npcBot:Action_UseAbility(Overcharge);
         return;
     end
 
-    if (castSpiritsInDesire ~= nil)
+    if (castSpiritsInDesire > 0)
     then
         npcBot:Action_UseAbility(SpiritsIn);
         return;
     end
 
-    if (castSpiritsOutDesire ~= nil)
+    if (castSpiritsOutDesire > 0)
     then
         npcBot:Action_UseAbility(SpiritsOut);
         return;
     end
 
-    if (castRelocateDesire ~= nil)
+    if (castRelocateDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(Relocate, castRelocateLocation);
         return;
@@ -152,12 +152,12 @@ end
 function ConsiderTether()
     local ability = Tether;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     if npcBot:HasModifier("modifier_wisp_tether")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -261,17 +261,19 @@ function ConsiderTether()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderBreakTether()
     local ability = BreakTether;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if boundAlly ~= nil and boundAlly:IsHero()
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local allyAbility = npcBot:GetNearbyHeroes(1600, false, BOT_MODE_NONE);
@@ -284,17 +286,19 @@ function ConsiderBreakTether()
             return BOT_ACTION_DESIRE_HIGH;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderSpirits()
     local ability = Spirits;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if npcBot:HasModifier("modifier_wisp_spirits")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     --local minRangeAbility = ability:GetSpecialValueInt("min_range");
@@ -336,17 +340,19 @@ function ConsiderSpirits()
             return BOT_ACTION_DESIRE_LOW;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderOvercharge()
     local ability = Overcharge;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if npcBot:HasModifier("modifier_wisp_overcharge")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     -- Heal use
@@ -368,6 +374,8 @@ function ConsiderOvercharge()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 local function IsEnemyHeroUnderSpirits()
@@ -389,12 +397,12 @@ end
 function ConsiderSpiritsIn()
     local ability = SpiritsIn;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if SpiritsOut:GetToggleState() == true
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if IsEnemyHeroUnderSpirits()
@@ -466,17 +474,19 @@ function ConsiderSpiritsIn()
             return BOT_ACTION_DESIRE_HIGH;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderSpiritsOut()
     local ability = SpiritsOut;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if SpiritsIn:GetToggleState() == true
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if IsEnemyHeroUnderSpirits()
@@ -548,12 +558,14 @@ function ConsiderSpiritsOut()
             return BOT_ACTION_DESIRE_HIGH;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderRelocate()
     local ability = Relocate;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     -- Safe use
@@ -583,4 +595,6 @@ function ConsiderRelocate()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end

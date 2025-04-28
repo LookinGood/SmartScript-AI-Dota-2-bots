@@ -69,7 +69,7 @@ function AbilityUsageThink()
     local castHauntDesire = ConsiderHaunt();
     local castShadowStepDesire, castShadowStepTarget = ConsiderShadowStep();
 
-    if (castSpectralDaggerDesire ~= nil)
+    if (castSpectralDaggerDesire > 0)
     then
         if (castSpectralDaggerTargetType == "target")
         then
@@ -82,25 +82,25 @@ function AbilityUsageThink()
         end
     end
 
-    if (castDispersionDesire ~= nil)
+    if (castDispersionDesire > 0)
     then
         npcBot:Action_UseAbility(Dispersion);
         return;
     end
 
-    if (castRealityDesire ~= nil)
+    if (castRealityDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(Reality, castRealityLocation);
         return;
     end
 
-    if (castHauntDesire ~= nil)
+    if (castHauntDesire > 0)
     then
         npcBot:Action_UseAbility(Haunt);
         return;
     end
 
-    if (castShadowStepDesire ~= nil)
+    if (castShadowStepDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(ShadowStep, castShadowStepTarget);
         return;
@@ -110,7 +110,7 @@ end
 function ConsiderSpectralDagger()
     local ability = SpectralDagger;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -167,12 +167,14 @@ function ConsiderSpectralDagger()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0, 0;
 end
 
 function ConsiderDispersion()
     local ability = Dispersion;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local radiusAbility = ability:GetSpecialValueInt("max_radius");
@@ -190,12 +192,14 @@ function ConsiderDispersion()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderReality()
     local ability = Reality;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local attackRange = npcBot:GetAttackRange();
@@ -242,12 +246,14 @@ function ConsiderReality()
                     return BOT_MODE_DESIRE_ABSOLUTE, allyAbility[i]:GetLocation();
                 end
             end ]]
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderShadowStep()
     local ability = ShadowStep;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     --local damageAbility = SpectralDagger:GetSpecialValueInt("damage");
@@ -288,13 +294,15 @@ function ConsiderShadowStep()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderHaunt()
     local ability = Haunt;
     if not utility.IsAbilityAvailable(ability)
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local attackRange = npcBot:GetAttackRange();
@@ -308,4 +316,6 @@ function ConsiderHaunt()
             return BOT_ACTION_DESIRE_HIGH;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end

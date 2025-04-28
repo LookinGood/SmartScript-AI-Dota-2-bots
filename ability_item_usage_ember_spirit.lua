@@ -69,31 +69,31 @@ function AbilityUsageThink()
     local castActivateFireRemnantDesire, castActivateFireRemnantLocation = ConsiderActivateFireRemnant();
     local castFireRemnantDesire, castFireRemnantLocation = ConsiderFireRemnant();
 
-    if (castSearingChainsDesire ~= nil)
+    if (castSearingChainsDesire > 0)
     then
         npcBot:Action_UseAbility(SearingChains);
         return;
     end
 
-    if (castSleightOfFistDesire ~= nil)
+    if (castSleightOfFistDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(SleightOfFist, castSleightOfFistLocation);
         return;
     end
 
-    if (castFlameGuardDesire ~= nil)
+    if (castFlameGuardDesire > 0)
     then
         npcBot:Action_UseAbility(FlameGuard);
         return;
     end
 
-    if (castActivateFireRemnantDesire ~= nil)
+    if (castActivateFireRemnantDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(ActivateFireRemnant, castActivateFireRemnantLocation);
         return;
     end
 
-    if (castFireRemnantDesire ~= nil)
+    if (castFireRemnantDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(FireRemnant, castFireRemnantLocation);
         return;
@@ -103,7 +103,7 @@ end
 function ConsiderSearingChains()
     local ability = SearingChains;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local radiusAbility = ability:GetAOERadius();
@@ -118,7 +118,7 @@ function ConsiderSearingChains()
             then
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    return BOT_ACTION_DESIRE_VERYHIGH, enemy;
+                    return BOT_ACTION_DESIRE_VERYHIGH;
                 end
             end
         end
@@ -139,12 +139,14 @@ function ConsiderSearingChains()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderSleightOfFist()
     local ability = SleightOfFist;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -234,17 +236,19 @@ function ConsiderSleightOfFist()
             return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderFlameGuard()
     local ability = FlameGuard;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if npcBot:HasModifier("modifier_ember_spirit_flame_guard")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local radiusAbility = ability:GetSpecialValueInt("radius");
@@ -274,12 +278,14 @@ function ConsiderFlameGuard()
             return BOT_ACTION_DESIRE_HIGH;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderActivateFireRemnant()
     local ability = ActivateFireRemnant;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = FireRemnant:GetCastRange();
@@ -319,17 +325,19 @@ function ConsiderActivateFireRemnant()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderFireRemnant()
     local ability = FireRemnant;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     --[[     if npcBot:GetMana() < ActivateFireRemnant:GetManaCost()
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end ]]
 
     local castRangeAbility = ability:GetCastRange();
@@ -366,4 +374,6 @@ function ConsiderFireRemnant()
             return BOT_ACTION_DESIRE_HIGH, utility.GetEscapeLocation(npcBot, castRangeAbility);
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end

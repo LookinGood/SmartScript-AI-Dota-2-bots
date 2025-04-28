@@ -78,51 +78,51 @@ function AbilityUsageThink()
     local castToggleMovementDesire = ConsiderToggleMovement();
     local castSupernovaDesire, castSupernovaTarget, castSupernovaTargetType = ConsiderSupernova();
 
-    if (castIcarusDiveDesire ~= nil)
+    if (castIcarusDiveDesire > 0)
     then
         icarusDiveLocation = castIcarusDiveLocation;
         npcBot:Action_UseAbilityOnLocation(IcarusDive, castIcarusDiveLocation);
         return;
     end
 
-    if (castIcarusDiveStopDesire ~= nil)
+    if (castIcarusDiveStopDesire > 0)
     then
         npcBot:Action_UseAbility(IcarusDiveStop);
         return;
     end
 
-    if (castFireSpiritsDesire ~= nil)
+    if (castFireSpiritsDesire > 0)
     then
         npcBot:Action_UseAbility(FireSpirits);
         return;
     end
 
-    if (castLaunchFireSpiritDesire ~= nil) and (DotaTime() >= launchFireSpiritTimer + 2.0)
+    if (castLaunchFireSpiritDesire > 0) and (DotaTime() >= launchFireSpiritTimer + 2.0)
     then
         npcBot:Action_UseAbilityOnLocation(LaunchFireSpirit, castLaunchFireSpiritLocation);
         launchFireSpiritTimer = DotaTime();
         return;
     end
 
-    if (castSunRayDesire ~= nil)
+    if (castSunRayDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(SunRay, castSunRayLocation);
         return;
     end
 
-    if (castStopSunRayDesire ~= nil)
+    if (castStopSunRayDesire > 0)
     then
         npcBot:Action_UseAbility(StopSunRay);
         return;
     end
 
-    if (castToggleMovementDesire ~= nil)
+    if (castToggleMovementDesire > 0)
     then
         npcBot:Action_UseAbility(ToggleMovement);
         return;
     end
 
-    if (castSupernovaDesire ~= nil)
+    if (castSupernovaDesire > 0)
     then
         if (castSupernovaTargetType == nil)
         then
@@ -163,12 +163,12 @@ end
 function ConsiderIcarusDive()
     local ability = IcarusDive;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     if npcBot:HasModifier("modifier_phoenix_sun_ray")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local attackRange = npcBot:GetAttackRange();
@@ -205,7 +205,7 @@ function ConsiderIcarusDive()
             0, 0);
         if locationAoE ~= nil and (HealthPercentage >= 0.7) and (locationAoE.count >= 3)
         then
-            return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc, "location";
+            return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
         end
     end
 
@@ -219,12 +219,14 @@ function ConsiderIcarusDive()
             return BOT_ACTION_DESIRE_MODERATE, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderIcarusDiveStop()
     local ability = IcarusDiveStop;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     -- General use
@@ -245,17 +247,19 @@ function ConsiderIcarusDiveStop()
             return BOT_ACTION_DESIRE_MODERATE;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderFireSpirits()
     local ability = FireSpirits;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if npcBot:HasModifier("modifier_phoenix_fire_spirit_count")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -314,12 +318,14 @@ function ConsiderFireSpirits()
             return BOT_ACTION_DESIRE_LOW;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderLaunchFireSpirit()
     local ability = LaunchFireSpirit;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -397,20 +403,22 @@ function ConsiderLaunchFireSpirit()
             radiusAbility, 0, 0);
         if locationAoE ~= nil and (locationAoE.count >= 3) and (HealthPercentage >= 0.7) and (ManaPercentage >= 0.5)
         then
-            return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc, "location";
+            return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderSunRay()
     local ability = SunRay;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if npcBot:HasModifier("modifier_phoenix_sun_ray")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local castRangeAbility = npcBot:GetAttackRange() + 200;
@@ -428,17 +436,19 @@ function ConsiderSunRay()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderStopSunRay()
     local ability = StopSunRay;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if not npcBot:HasModifier("modifier_phoenix_sun_ray")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local castRangeAbility = SunRay:GetCastRange();
@@ -449,29 +459,31 @@ function ConsiderStopSunRay()
         --npcBot:ActionImmediate_Chat("Выключаю SunRay!", true);
         return BOT_ACTION_DESIRE_HIGH;
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderToggleMovement()
     local ability = ToggleMovement;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if not npcBot:HasModifier("modifier_phoenix_sun_ray") or npcBot:IsAlive()
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 end
 
 function ConsiderSupernova()
     local ability = Supernova;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0, 0;
     end
 
     if npcBot:HasModifier("modifier_phoenix_sun")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0, 0;
     end
 
     local radiusAbility = ability:GetSpecialValueInt("cast_range_tooltip_scepter");
@@ -488,7 +500,7 @@ function ConsiderSupernova()
                     if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_NO_TARGET)
                     then
                         --npcBot:ActionImmediate_Chat("Использую Supernova1 по 2+ врагам!", true);
-                        return BOT_ACTION_DESIRE_HIGH, nil;
+                        return BOT_ACTION_DESIRE_HIGH, nil, nil;
                     elseif utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_UNIT_TARGET)
                     then
                         --npcBot:ActionImmediate_Chat("Использую Supernova2 по 2+ врагам!", true);
@@ -503,7 +515,7 @@ function ConsiderSupernova()
     then
         if (HealthPercentage <= 0.3) and (npcBot:WasRecentlyDamagedByAnyHero(2.0) or npcBot:WasRecentlyDamagedByTower(2.0))
         then
-            return BOT_ACTION_DESIRE_ABSOLUTE, nil;
+            return BOT_ACTION_DESIRE_ABSOLUTE, nil, nil;
         end
     elseif utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_UNIT_TARGET)
     then
@@ -522,4 +534,6 @@ function ConsiderSupernova()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0, 0;
 end

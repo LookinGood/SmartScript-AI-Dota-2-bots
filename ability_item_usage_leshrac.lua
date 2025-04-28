@@ -69,31 +69,31 @@ function AbilityUsageThink()
     local castNihilismDesire = ConsiderNihilism();
     local castPulseNovaDesire = ConsiderPulseNova();
 
-    if (castSplitEarthDesire ~= nil)
+    if (castSplitEarthDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(SplitEarth, castSplitEarthLocation);
         return;
     end
 
-    if (castDiabolicEdictDesire ~= nil)
+    if (castDiabolicEdictDesire > 0)
     then
         npcBot:Action_UseAbility(DiabolicEdict);
         return;
     end
 
-    if (castLightningStormDesire ~= nil)
+    if (castLightningStormDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(LightningStorm, castLightningStormTarget);
         return;
     end
 
-    if (castNihilismDesire ~= nil)
+    if (castNihilismDesire > 0)
     then
         npcBot:Action_UseAbility(Nihilism);
         return;
     end
 
-    if (castPulseNovaDesire ~= nil)
+    if (castPulseNovaDesire > 0)
     then
         npcBot:Action_UseAbility(PulseNova);
         return;
@@ -131,7 +131,7 @@ end
 function ConsiderSplitEarth()
     local ability = SplitEarth;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -180,12 +180,14 @@ function ConsiderSplitEarth()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderDiabolicEdict()
     local ability = DiabolicEdict;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local attackTarget = npcBot:GetAttackTarget();
@@ -219,12 +221,14 @@ function ConsiderDiabolicEdict()
     then
         return BOT_ACTION_DESIRE_HIGH;
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderLightningStorm()
     local ability = LightningStorm;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -299,12 +303,14 @@ function ConsiderLightningStorm()
             return BOT_ACTION_DESIRE_VERYHIGH, enemy;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderNihilism()
     local ability = Nihilism;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local radiusAbility = ability:GetSpecialValueInt("radius");
@@ -329,12 +335,14 @@ function ConsiderNihilism()
             return BOT_ACTION_DESIRE_HIGH;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderPulseNova()
     local ability = PulseNova;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local attackRange = npcBot:GetAttackRange();
@@ -390,4 +398,6 @@ function ConsiderPulseNova()
             return BOT_ACTION_DESIRE_HIGH;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end

@@ -67,25 +67,25 @@ function AbilityUsageThink()
     local castGorgonsGraspDesire, castGorgonsGraspLocation = ConsiderGorgonsGrasp();
     local castStoneGazeDesire = ConsiderStoneGaze();
 
-    if (castSplitShotDesire ~= nil)
+    if (castSplitShotDesire > 0)
     then
         npcBot:Action_UseAbility(SplitShot);
         return;
     end
 
-    if (castMysticSnakeDesire ~= nil)
+    if (castMysticSnakeDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(MysticSnake, castMysticSnakeTarget);
         return;
     end
 
-    if (castGorgonsGraspDesire ~= nil)
+    if (castGorgonsGraspDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(GorgonsGrasp, castGorgonsGraspLocation);
         return;
     end
 
-    if (castStoneGazeDesire ~= nil)
+    if (castStoneGazeDesire > 0)
     then
         npcBot:Action_UseAbility(StoneGaze);
         return;
@@ -95,7 +95,7 @@ end
 function ConsiderSplitShot()
     local ability = SplitShot;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local attackTarget = npcBot:GetAttackTarget();
@@ -147,12 +147,14 @@ function ConsiderSplitShot()
             return BOT_ACTION_DESIRE_HIGH;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderMysticSnake()
     local ability = MysticSnake;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -244,12 +246,14 @@ function ConsiderMysticSnake()
             return BOT_ACTION_DESIRE_VERYHIGH, enemy;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderGorgonsGrasp()
     local ability = GorgonsGrasp;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -331,17 +335,19 @@ function ConsiderGorgonsGrasp()
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderStoneGaze()
     local ability = StoneGaze;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if npcBot:HasModifier("modifier_medusa_stone_gaze")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local radiusAbility = ability:GetSpecialValueInt("AbilityCastRange");
@@ -378,4 +384,6 @@ function ConsiderStoneGaze()
             return BOT_ACTION_DESIRE_HIGH;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end

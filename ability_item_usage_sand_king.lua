@@ -67,25 +67,25 @@ function AbilityUsageThink()
     local castStingerDesire, castStingerLocation = ConsiderStinger();
     local castEpicenterDesire = ConsiderEpicenter();
 
-    if (castBurrowstrikeDesire ~= nil)
+    if (castBurrowstrikeDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(Burrowstrike, castBurrowstrikeLocation);
         return;
     end
 
-    if (castSandStormDesire ~= nil)
+    if (castSandStormDesire > 0)
     then
         npcBot:Action_UseAbility(SandStorm);
         return;
     end
 
-    if (castStingerDesire ~= nil)
+    if (castStingerDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(Stinger, castStingerLocation);
         return;
     end
 
-    if (castEpicenterDesire ~= nil)
+    if (castEpicenterDesire > 0)
     then
         npcBot:Action_UseAbility(Epicenter);
         return;
@@ -95,7 +95,7 @@ end
 function ConsiderBurrowstrike()
     local ability = Burrowstrike;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetSpecialValueInt("AbilityCastRange");
@@ -154,17 +154,19 @@ function ConsiderBurrowstrike()
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderSandStorm()
     local ability = SandStorm;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if npcBot:HasModifier("modifier_sandking_sand_storm")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local attackRange = npcBot:GetAttackRange();
@@ -206,12 +208,14 @@ function ConsiderSandStorm()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderStinger()
     local ability = Stinger;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -307,17 +311,19 @@ function ConsiderStinger()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderEpicenter()
     local ability = Epicenter;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if npcBot:HasModifier("modifier_sand_king_epicenter")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local radiusAbility = ability:GetSpecialValueInt("epicenter_radius_base");
@@ -345,4 +351,6 @@ function ConsiderEpicenter()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end

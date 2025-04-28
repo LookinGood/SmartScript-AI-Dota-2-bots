@@ -67,25 +67,25 @@ function AbilityUsageThink()
     local castFlakCannonDesire = ConsiderFlakCannon();
     local castCallDownDesire, castCallDownLocation = ConsiderCallDown();
 
-    if (castRocketBarrageDesire ~= nil)
+    if (castRocketBarrageDesire > 0)
     then
         npcBot:Action_UseAbility(RocketBarrage);
         return;
     end
 
-    if (castHomingMissileDesire ~= nil)
+    if (castHomingMissileDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(HomingMissile, castHomingMissileTarget);
         return;
     end
 
-    if (castFlakCannonDesire ~= nil)
+    if (castFlakCannonDesire > 0)
     then
         npcBot:Action_UseAbility(FlakCannon);
         return;
     end
 
-    if (castCallDownDesire ~= nil)
+    if (castCallDownDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(CallDown, castCallDownLocation);
         return;
@@ -95,7 +95,7 @@ end
 function ConsiderRocketBarrage()
     local ability = RocketBarrage;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local radiusAbility = ability:GetAOERadius();
@@ -115,12 +115,14 @@ function ConsiderRocketBarrage()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderHomingMissile()
     local ability = HomingMissile;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -168,12 +170,14 @@ function ConsiderHomingMissile()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderFlakCannon()
     local ability = FlakCannon;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local attackTarget = npcBot:GetAttackTarget();
@@ -192,12 +196,14 @@ function ConsiderFlakCannon()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderCallDown()
     local ability = CallDown;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -229,4 +235,6 @@ function ConsiderCallDown()
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end

@@ -67,25 +67,25 @@ function AbilityUsageThink()
     local castLatentToxicityDesire, castLatentToxicitytarget = ConsiderLatentToxicity();
     local castNoxiousPlagueDesire, castNoxiousPlagueTarget = ConsiderNoxiousPlague();
 
-    if (castVenomousGaleDesire ~= nil)
+    if (castVenomousGaleDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(VenomousGale, castVenomousGaleLocation);
         return;
     end
 
-    if (castPlagueWardDesire ~= nil)
+    if (castPlagueWardDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(PlagueWard, castPlagueWardLocation);
         return;
     end
 
-    if (castLatentToxicityDesire ~= nil)
+    if (castLatentToxicityDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(LatentToxicity, castLatentToxicitytarget);
         return;
     end
 
-    if (castNoxiousPlagueDesire ~= nil)
+    if (castNoxiousPlagueDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(NoxiousPlague, castNoxiousPlagueTarget);
         return;
@@ -95,7 +95,7 @@ end
 function ConsiderVenomousGale()
     local ability = VenomousGale;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -158,7 +158,7 @@ function ConsiderVenomousGale()
         if locationAoE ~= nil and (locationAoE.count >= 3) and (ManaPercentage >= 0.6)
         then
             --npcBot:ActionImmediate_Chat("Использую VenomousGale по вражеским крипам!", true);
-            return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc, "location";
+            return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
         end
     end
 
@@ -172,12 +172,14 @@ function ConsiderVenomousGale()
             return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility);
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderPlagueWard()
     local ability = PlagueWard;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -285,12 +287,14 @@ function ConsiderPlagueWard()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderLatentToxicity()
     local ability = LatentToxicity;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -340,12 +344,14 @@ function ConsiderLatentToxicity()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderNoxiousPlague()
     local ability = NoxiousPlague;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -395,6 +401,8 @@ function ConsiderNoxiousPlague()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 ---- DELETED ABILITY

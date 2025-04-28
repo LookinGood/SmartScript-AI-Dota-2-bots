@@ -5,13 +5,13 @@ require(GetScriptDirectory() .. "/utility")
 
 local retreatDistance = 1000;
 
-function GetAllyCreepToRedirectTower()
-    local allyCreeps = npcBot:GetNearbyCreeps(500, false);
+function GetAllyCreepToRedirectTower(tower)
+    local allyCreeps = npcBot:GetNearbyCreeps(tower:GetAttackRange(), false);
     if (#allyCreeps > 0)
     then
         for _, ally in pairs(allyCreeps) do
             if not ally:IsInvulnerable() and not ally:IsAttackImmune() and ally:GetHealth() / ally:GetMaxHealth() >= 0.5
-                and ally:GetHealth() > npcBot:GetAttackDamage()
+                and ally:GetHealth() > npcBot:GetAttackDamage() and GetUnitToUnitDistance(ally, tower) <= tower:GetAttackRange()
             then
                 --npcBot:ActionImmediate_Chat(ally:GetUnitName() .. " имеет здоровья: " .. ally:GetHealth() .. ", это больше чем сила моей атаки: " .. npcBot:GetAttackDamage(), true);
                 return ally;
@@ -22,19 +22,19 @@ function GetAllyCreepToRedirectTower()
     return nil;
 end
 
-function IsEnemyTowerNearAttackBot()
+function GetEnemyTowerNearAttackBot()
     local enemyTowers = npcBot:GetNearbyTowers(600, true);
     if (#enemyTowers > 0)
     then
         for _, enemy in pairs(enemyTowers) do
             if enemy:GetAttackTarget() == npcBot
             then
-                return true;
+                return enemy;
             end
         end
     end
 
-    return false;
+    return nil;
 end
 
 function Think()
@@ -67,9 +67,10 @@ function Think()
     --npcBot:WasRecentlyDamagedByAnyHero(3.0) or
     --utility.BotWasRecentlyDamagedByEnemyHero(3.0) or
 
-    if IsEnemyTowerNearAttackBot()
+    local enemyTower = GetEnemyTowerNearAttackBot();
+    if enemyTower ~= nil
     then
-        local creepToRedirect = GetAllyCreepToRedirectTower();
+        local creepToRedirect = GetAllyCreepToRedirectTower(enemyTower);
         if creepToRedirect ~= nil
         then
             --npcBot:ActionImmediate_Chat("Переагриваю башню на " .. creepToRedirect:GetUnitName(), true);
@@ -105,9 +106,7 @@ function Think()
         return;
     else
         local frontlocation = GetLaneFrontLocation(team, lane, -200);
-        if GetUnitToLocationDistance(npcBot, frontlocation) > 500 and
-            npcBot:GetCurrentActionType() ~= BOT_ACTION_TYPE_ATTACK and
-            npcBot:GetCurrentActionType() ~= BOT_ACTION_TYPE_ATTACKMOVE
+        if GetUnitToLocationDistance(npcBot, frontlocation) <= 1000 and GetUnitToLocationDistance(npcBot, frontlocation) > 500
         then
             local enemyTowers = npcBot:GetNearbyTowers(500, true);
             local enemyBarracks = npcBot:GetNearbyBarracks(500, true);
@@ -177,6 +176,11 @@ function Think()
                 npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -500) + RandomVector(wanderRadius));
                 return;
             end
+        elseif GetUnitToLocationDistance(npcBot, frontlocation) > 500
+        then
+            npcBot:Action_ClearActions(false);
+            npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -500) + RandomVector(wanderRadius));
+            return;
         else
             local enemyCreeps = npcBot:GetNearbyCreeps(1000, true);
             local enemyTowers = npcBot:GetNearbyTowers(1000, true);

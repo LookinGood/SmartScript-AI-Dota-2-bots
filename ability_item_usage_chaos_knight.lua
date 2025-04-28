@@ -65,19 +65,19 @@ function AbilityUsageThink()
     local castRealityRiftDesire, castRealityRiftTarget = ConsiderRealityRift();
     local castPhantasmDesire = ConsiderPhantasm();
 
-    if (castChaosBoltDesire ~= nil)
+    if (castChaosBoltDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(ChaosBolt, castChaosBoltTarget);
         return;
     end
 
-    if (castRealityRiftDesire ~= nil)
+    if (castRealityRiftDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(RealityRift, castRealityRiftTarget);
         return;
     end
 
-    if (castPhantasmDesire ~= nil)
+    if (castPhantasmDesire > 0)
     then
         npcBot:Action_UseAbility(Phantasm);
         return;
@@ -87,7 +87,7 @@ end
 function ConsiderChaosBolt()
     local ability = ChaosBolt;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -137,12 +137,14 @@ function ConsiderChaosBolt()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderRealityRift()
     local ability = RealityRift;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -174,13 +176,15 @@ function ConsiderRealityRift()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderPhantasm()
     local ability = Phantasm;
     if not utility.IsAbilityAvailable(ability)
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     -- Attack use
@@ -192,7 +196,7 @@ function ConsiderPhantasm()
         end
     end
 
-        -- Retreat use
+    -- Retreat use
     if utility.RetreatMode(npcBot)
     then
         local enemyAbility = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
@@ -201,4 +205,6 @@ function ConsiderPhantasm()
             return BOT_ACTION_DESIRE_HIGH;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end

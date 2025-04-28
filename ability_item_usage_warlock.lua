@@ -67,25 +67,25 @@ function AbilityUsageThink()
     local castUpheavalDesire, castUpheavalLocation = ConsiderUpheaval();
     local castChaoticOfferingDesire, castChaoticOfferingLocation = ConsiderChaoticOffering();
 
-    if (castFatalBondsDesire ~= nil)
+    if (castFatalBondsDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(FatalBonds, castFatalBondsTarget);
         return;
     end
 
-    if (castShadowWordDesire ~= nil)
+    if (castShadowWordDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(ShadowWord, castShadowWordTarget);
         return;
     end
 
-    if (castUpheavalDesire ~= nil)
+    if (castUpheavalDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(Upheaval, castUpheavalLocation);
         return;
     end
 
-    if (castChaoticOfferingDesire ~= nil)
+    if (castChaoticOfferingDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(ChaoticOffering, castChaoticOfferingLocation);
         return;
@@ -97,11 +97,12 @@ end
 function ConsiderFatalBonds()
     local ability = FatalBonds;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
     local radiusAbility = ability:GetSpecialValueInt("search_aoe");
+    local boundCount = ability:GetSpecialValueInt("count");
 
     -- Attack use
     if utility.PvPMode(npcBot)
@@ -111,7 +112,7 @@ function ConsiderFatalBonds()
         then
             local enemyHeroesAoe = botTarget:GetNearbyHeroes(radiusAbility, false, BOT_MODE_NONE);
             local enemyCreepsAoe = botTarget:GetNearbyCreeps(radiusAbility, false);
-            if #enemyHeroesAoe > 1 or #enemyCreepsAoe >= ability:GetSpecialValueInt("count") / 2
+            if (#enemyHeroesAoe > 1) or (#enemyCreepsAoe >= math.floor(boundCount / 2))
             then
                 --npcBot:ActionImmediate_Chat("Использую FatalBonds по врагу в радиусе действия!",true);
                 return BOT_ACTION_DESIRE_HIGH, botTarget;
@@ -122,18 +123,14 @@ function ConsiderFatalBonds()
     -- Cast if push/defend/farm
     if utility.PvEMode(npcBot)
     then
-        local enemyCreeps = npcBot:GetNearbyCreeps(castRangeAbility, true);
-        if (#enemyCreeps > 0) and (ManaPercentage >= 0.7)
+        local enemyCreeps = npcBot:GetNearbyCreeps(radiusAbility, true);
+        if (#enemyCreeps >= math.floor(boundCount / 2)) and (ManaPercentage >= 0.7)
         then
             for _, enemy in pairs(enemyCreeps) do
-                local enemyCreepsAoe = enemy:GetNearbyCreeps(radiusAbility, false);
-                if #enemyCreepsAoe >= ability:GetSpecialValueInt("count") / 2
+                if utility.CanCastSpellOnTarget(ability, enemy) and not enemy:HasModifier("modifier_warlock_fatal_bonds")
                 then
-                    if utility.CanCastSpellOnTarget(ability, enemy)
-                    then
-                        --npcBot:ActionImmediate_Chat("Использую FatalBonds на крипов!", true);
-                        return BOT_ACTION_DESIRE_VERYHIGH, enemy;
-                    end
+                    --npcBot:ActionImmediate_Chat("Использую FatalBonds на крипов!", true);
+                    return BOT_ACTION_DESIRE_VERYHIGH, enemy;
                 end
             end
         end
@@ -150,7 +147,7 @@ function ConsiderFatalBonds()
             then
                 local enemyHeroesAoe = enemy:GetNearbyHeroes(radiusAbility, false, BOT_MODE_NONE);
                 local enemyCreepsAoe = enemy:GetNearbyCreeps(radiusAbility, false);
-                if #enemyHeroesAoe > 1 or #enemyCreepsAoe >= ability:GetSpecialValueInt("count") / 2
+                if (#enemyHeroesAoe > 1) or (#enemyCreepsAoe >= math.floor(boundCount / 2))
                 then
                     --npcBot:ActionImmediate_Chat("Использую FatalBonds на лайне!", true);
                     return BOT_ACTION_DESIRE_HIGH, enemy;
@@ -158,12 +155,14 @@ function ConsiderFatalBonds()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderShadowWord()
     local ability = ShadowWord;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -220,12 +219,14 @@ function ConsiderShadowWord()
             return BOT_ACTION_DESIRE_VERYHIGH, enemy;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderUpheaval()
     local ability = Upheaval;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -256,12 +257,14 @@ function ConsiderUpheaval()
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderChaoticOffering()
     local ability = ChaoticOffering;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -305,4 +308,6 @@ function ConsiderChaoticOffering()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end

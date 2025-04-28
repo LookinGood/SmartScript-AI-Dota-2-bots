@@ -17,9 +17,9 @@ local ItemsToBuy =
 
     "item_echo_sabre",
 
-    "item_black_king_bar",
-
     "item_blink",
+
+    "item_black_king_bar",
 
     "item_aghanims_shard",
 

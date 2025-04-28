@@ -69,31 +69,31 @@ function AbilityUsageThink()
     local castNightmareEndDesire = ConsiderNightmareEnd();
     local castFiendsGripDesire, castFiendsGripTarget = ConsiderFiendsGrip();
 
-    if (castEnfeebleDesire ~= nil)
+    if (castEnfeebleDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(Enfeeble, castEnfeebleTarget);
         return;
     end
 
-    if (castBrainSapDesire ~= nil)
+    if (castBrainSapDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(BrainSap, castBrainSapTarget);
         return;
     end
 
-    if (castNightmareDesire ~= nil)
+    if (castNightmareDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(Nightmare, castNightmareTarget);
         return;
     end
 
-    if (castNightmareEndDesire ~= nil)
+    if (castNightmareEndDesire > 0)
     then
         npcBot:Action_UseAbility(NightmareEnd);
         return;
     end
 
-    if (castFiendsGripDesire ~= nil)
+    if (castFiendsGripDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(FiendsGrip, castFiendsGripTarget);
         return;
@@ -103,7 +103,7 @@ end
 function ConsiderEnfeeble()
     local ability = Enfeeble;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -150,12 +150,14 @@ function ConsiderEnfeeble()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderBrainSap()
     local ability = BrainSap;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -212,12 +214,14 @@ function ConsiderBrainSap()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderNightmare()
     local ability = Nightmare;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -284,12 +288,14 @@ function ConsiderNightmare()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderNightmareEnd()
     local ability = NightmareEnd;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local allyAbility = GetUnitList(UNIT_LIST_ALLIED_HEROES);
@@ -323,12 +329,14 @@ function ConsiderNightmareEnd()
         --npcBot:ActionImmediate_Chat("Использую NightmareEnd!", true);
         return BOT_ACTION_DESIRE_MODERATE;
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderFiendsGrip()
     local ability = FiendsGrip;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -377,4 +385,6 @@ function ConsiderFiendsGrip()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end

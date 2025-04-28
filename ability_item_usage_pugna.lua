@@ -64,7 +64,7 @@ function AbilityUsageThink()
 
     local castDecrepifyDesire, castDecrepifyTarget = ConsiderDecrepify();
 
-    if (castDecrepifyDesire ~= nil)
+    if (castDecrepifyDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(Decrepify, castDecrepifyTarget);
         return;
@@ -78,7 +78,7 @@ function AbilityUsageThink()
     local castNetherWardDesire, castNetherWardLocation = ConsiderNetherWard();
     local castLifeDrainDesire, castLifeDrainTarget = ConsiderLifeDrain();
 
-    if (castNetherBlastDesire ~= nil)
+    if (castNetherBlastDesire > 0)
     then
         if utility.IsAbilityAvailable(Decrepify) and (npcBot:GetMana() >= NetherBlast:GetManaCost() + Decrepify:GetManaCost())
             and castNetherBlastTarget ~= nil and not castNetherBlastTarget:IsAttackImmune()
@@ -95,13 +95,13 @@ function AbilityUsageThink()
         end
     end
 
-    if (castNetherWardDesire ~= nil)
+    if (castNetherWardDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(NetherWard, castNetherWardLocation);
         return;
     end
 
-    if (castLifeDrainDesire ~= nil)
+    if (castLifeDrainDesire > 0)
     then
         if utility.IsAbilityAvailable(Decrepify) and (npcBot:GetMana() >= LifeDrain:GetManaCost() + Decrepify:GetManaCost())
             and castLifeDrainTarget ~= nil and not castLifeDrainTarget:IsAttackImmune()
@@ -123,7 +123,7 @@ end
 function ConsiderNetherBlast()
     local ability = NetherBlast;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0, 0;
     end
 
     local castRangeAbility = ability:GetCastRange() + 200;
@@ -213,22 +213,24 @@ function ConsiderNetherBlast()
             return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0), enemy;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0, 0;
 end
 
 function ConsiderDecrepify()
     local ability = Decrepify;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange() + 200;
     local allyAbility = npcBot:GetNearbyHeroes(castRangeAbility, false, BOT_MODE_NONE);
     local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
 
-    -- Cast if attack enemy
+    --[[     -- Cast if attack enemy
     if utility.PvPMode(npcBot)
     then
-        --[[         if utility.IsHero(botTarget)
+        if utility.IsHero(botTarget)
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
                 and not utility.IsDisabled(botTarget) and not botTarget:IsAttackImmune()
@@ -236,8 +238,8 @@ function ConsiderDecrepify()
                 npcBot:ActionImmediate_Chat("Использую Decrepify на врага!", true);
                 return BOT_ACTION_DESIRE_HIGH, botTarget;
             end
-        end ]]
-    end
+        end
+    end ]]
 
     -- Use if need retreat
     if utility.RetreatMode(npcBot)
@@ -279,12 +281,14 @@ function ConsiderDecrepify()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderNetherWard()
     local ability = NetherWard;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -305,12 +309,14 @@ function ConsiderNetherWard()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderLifeDrain()
     local ability = LifeDrain;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange() + 200;
@@ -387,4 +393,6 @@ function ConsiderLifeDrain()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end

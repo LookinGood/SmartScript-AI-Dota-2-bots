@@ -4,12 +4,12 @@ require(GetScriptDirectory() .. "/utility")
 local npcBot = GetBot();
 
 function GetDesire()
-    local botMode = npcBot:GetActiveMode();
+--[[     local botMode = npcBot:GetActiveMode();
 
     if botMode == BOT_MODE_SHRINE or npcBot:GetCurrentActionType() == BOT_ACTION_TYPE_SHRINE
     then
-        return BOT_ACTION_DESIRE_NONE;
-    end
+        return BOT_MODE_DESIRE_NONE;
+    end ]]
 
     castAbility = nil;
 
@@ -35,10 +35,10 @@ function GetDesire()
         npcBot:HasModifier("modifier_spirit_breaker_charge_of_darkness")
     then
         --npcBot:ActionImmediate_Chat("Решаю стоять на месте кастуя!", true);
-        return BOT_ACTION_DESIRE_ABSOLUTE;
+        return BOT_MODE_DESIRE_ABSOLUTE;
     end
 
-    return BOT_ACTION_DESIRE_NONE;
+    return BOT_MODE_DESIRE_NONE;
 end
 
 function Think()
@@ -52,7 +52,7 @@ end
 
 --[[     if castAbility == nil or not npcBot:IsChanneling()
     then
-        return BOT_ACTION_DESIRE_NONE;
+      return BOT_MODE_DESIRE_NONE;
     end ]]
 
 

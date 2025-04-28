@@ -75,26 +75,26 @@ function AbilityUsageThink()
     local castFadeBoltDesire, castFadeBoltTarget = ConsiderFadeBolt();
     local castSpellStealDesire, castSpellStealTarget = ConsiderSpellSteal();
 
-    if (castTelekinesisDesire ~= nil)
+    if (castTelekinesisDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(Telekinesis, castTelekinesisTarget);
         return;
     end
 
-    if (castTelekinesisLandDesire ~= nil) and (DotaTime() >= castLandTimer + 2.0)
+    if (castTelekinesisLandDesire > 0) and (DotaTime() >= castLandTimer + 2.0)
     then
         npcBot:Action_UseAbilityOnLocation(TelekinesisLand, castTelekinesisLandLocation);
         castLandTimer = DotaTime();
         return;
     end
 
-    if (castTelekinesisLandSelfDesire ~= nil)
+    if (castTelekinesisLandSelfDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(TelekinesisLandSelf, castTelekinesisLandSelfLocation);
         return;
     end
 
-    if (castFadeBoltDesire ~= nil)
+    if (castFadeBoltDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(FadeBolt, castFadeBoltTarget);
         return;
@@ -106,7 +106,7 @@ function AbilityUsageThink()
     spell_usage_generic.CastCustomSpell(ability4)
     spell_usage_generic.CastCustomSpell(ability5)
 
-    if (castSpellStealDesire ~= nil)
+    if (castSpellStealDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(SpellSteal, castSpellStealTarget);
         return;
@@ -116,7 +116,7 @@ end
 function ConsiderTelekinesis()
     local ability = Telekinesis;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -162,12 +162,14 @@ function ConsiderTelekinesis()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderTelekinesisLand()
     local ability = TelekinesisLand;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     --local liftDuration = Telekinesis:GetSpecialValueInt("lift_duration");
@@ -191,12 +193,14 @@ function ConsiderTelekinesisLand()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderTelekinesisLandSelf()
     local ability = TelekinesisLandSelf;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     if utility.RetreatMode(npcBot)
@@ -204,12 +208,14 @@ function ConsiderTelekinesisLandSelf()
         --npcBot:ActionImmediate_Chat("Использую TelekinesisLandSelf при отходе", true);
         return BOT_MODE_DESIRE_MODERATE, utility.SafeLocation(npcBot);
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderFadeBolt()
     local ability = FadeBolt;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -280,18 +286,20 @@ function ConsiderFadeBolt()
             return BOT_ACTION_DESIRE_VERYHIGH, enemy;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderSpellSteal()
     local ability = SpellSteal;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     --[[     if (ability4 ~= nil and utility.IsAbilityAvailable(ability4)) and
         (ability5 ~= nil and utility.IsAbilityAvailable(ability5))
     then
-        return;
+      return BOT_ACTION_DESIRE_NONE, 0;
     end ]]
 
     local castRangeAbility = ability:GetCastRange();
@@ -312,4 +320,6 @@ function ConsiderSpellSteal()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end

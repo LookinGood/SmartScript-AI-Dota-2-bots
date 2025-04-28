@@ -70,25 +70,25 @@ function AbilityUsageThink()
     local castFriendlyShadowDesire, castFriendlyShadowTarget = ConsiderFriendlyShadow();
     local castTrackDesire, castTrackTarget = ConsiderTrack();
 
-    if (castShurikenTossDesire ~= nil)
+    if (castShurikenTossDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(ShurikenToss, castShurikenTossTarget);
         return;
     end
 
-    if (castShadowWalkDesire ~= nil)
+    if (castShadowWalkDesire > 0)
     then
         npcBot:Action_UseAbility(ShadowWalk);
         return;
     end
 
-    if (castFriendlyShadowDesire ~= nil)
+    if (castFriendlyShadowDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(FriendlyShadow, castFriendlyShadowTarget);
         return;
     end
 
-    if (castTrackDesire ~= nil)
+    if (castTrackDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(Track, castTrackTarget);
         return;
@@ -104,7 +104,7 @@ end
 function ConsiderShurikenToss()
     local ability = ShurikenToss;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetSpecialValueInt("cast_range");
@@ -129,7 +129,7 @@ function ConsiderShurikenToss()
 
     if npcBot:IsInvisible()
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     -- Attack use
@@ -195,6 +195,8 @@ function ConsiderShurikenToss()
             return BOT_ACTION_DESIRE_HIGH, enemy;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderJinada()
@@ -248,12 +250,12 @@ end
 function ConsiderShadowWalk()
     local ability = ShadowWalk;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if npcBot:IsInvisible()
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local attackTarget = npcBot:GetAttackTarget();
@@ -292,12 +294,14 @@ function ConsiderShadowWalk()
             return BOT_MODE_DESIRE_MODERATE;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderFriendlyShadow()
     local ability = FriendlyShadow;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -319,12 +323,14 @@ function ConsiderFriendlyShadow()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderTrack()
     local ability = Track;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -368,4 +374,6 @@ function ConsiderTrack()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end

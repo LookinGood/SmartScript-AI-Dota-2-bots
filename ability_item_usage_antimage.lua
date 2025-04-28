@@ -70,31 +70,31 @@ function AbilityUsageThink()
     local castCounterspellAllyDesire, castCounterspellAllyTarget = ConsiderCounterspellAlly();
     local castManaVoidDesire, castManaVoidTarget = ConsiderManaVoid();
 
-    if (castBlinkDesire ~= nil)
+    if (castBlinkDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(Blink, castBlinkLocation);
         return;
     end
 
-    if (castCounterspellDesire ~= nil)
+    if (castCounterspellDesire > 0)
     then
         npcBot:Action_UseAbility(Counterspell);
         return;
     end
 
-    if (castBlinkFragmentDesire ~= nil)
+    if (castBlinkFragmentDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(BlinkFragment, castBlinkFragmentLocation);
         return;
     end
 
-    if (castCounterspellAllyDesire ~= nil)
+    if (castCounterspellAllyDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(CounterspellAlly, castCounterspellAllyTarget);
         return;
     end
 
-    if (castManaVoidDesire ~= nil)
+    if (castManaVoidDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(ManaVoid, castManaVoidTarget);
         return;
@@ -104,7 +104,7 @@ end
 function ConsiderBlink()
     local ability = Blink;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local attackRange = npcBot:GetAttackRange();
@@ -156,17 +156,19 @@ function ConsiderBlink()
     then
         return BOT_ACTION_DESIRE_VERYLOW, botTarget:GetLocation();
     end ]]
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderCounterspell()
     local ability = Counterspell;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if utility.HaveReflectSpell(npcBot)
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local incomingSpells = npcBot:GetIncomingTrackingProjectiles();
@@ -191,12 +193,14 @@ function ConsiderCounterspell()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderBlinkFragment()
     local ability = BlinkFragment;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -215,12 +219,14 @@ function ConsiderBlinkFragment()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderCounterspellAlly()
     local ability = CounterspellAlly;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -247,12 +253,14 @@ function ConsiderCounterspellAlly()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderManaVoid()
     local ability = ManaVoid;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -273,4 +281,6 @@ function ConsiderManaVoid()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end

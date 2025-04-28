@@ -65,19 +65,19 @@ function AbilityUsageThink()
     local castSlithereenCrushDesire = ConsiderSlithereenCrush();
     local castCorrosiveHazeDesire, castCorrosiveHazeTarget = ConsiderCorrosiveHaze();
 
-    if (castGuardianSprintDesire ~= nil)
+    if (castGuardianSprintDesire > 0)
     then
         npcBot:Action_UseAbility(GuardianSprint);
         return;
     end
 
-    if (castSlithereenCrushDesire ~= nil)
+    if (castSlithereenCrushDesire > 0)
     then
         npcBot:Action_UseAbility(SlithereenCrush);
         return;
     end
 
-    if (castCorrosiveHazeDesire ~= nil)
+    if (castCorrosiveHazeDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(CorrosiveHaze, castCorrosiveHazeTarget);
         return;
@@ -88,11 +88,12 @@ function ConsiderGuardianSprint()
     local ability = GuardianSprint;
     if not utility.IsAbilityAvailable(ability)
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
-    if npcBot:HasModifier("modifier_slardar_sprint") then
-        return;
+    if npcBot:HasModifier("modifier_slardar_sprint")
+    then
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     -- Attack use
@@ -116,12 +117,14 @@ function ConsiderGuardianSprint()
             return BOT_ACTION_DESIRE_HIGH;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderSlithereenCrush()
     local ability = SlithereenCrush;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local radiusAbility = ability:GetAOERadius();
@@ -157,12 +160,14 @@ function ConsiderSlithereenCrush()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderCorrosiveHaze()
     local ability = CorrosiveHaze;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -222,4 +227,6 @@ function ConsiderCorrosiveHaze()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end

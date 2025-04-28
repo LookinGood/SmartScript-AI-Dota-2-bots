@@ -69,31 +69,31 @@ function AbilityUsageThink()
     local castReelInDesire = ConsiderReelIn();
     local castSongOfTheSirenDesire = ConsiderSongOfTheSiren();
 
-    if (castMirrorImageDesire ~= nil)
+    if (castMirrorImageDesire > 0)
     then
         npcBot:Action_UseAbility(MirrorImage);
         return;
     end
 
-    if (castEnsnareDesire ~= nil)
+    if (castEnsnareDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(Ensnare, castEnsnareTarget);
         return;
     end
 
-    if (castDelugeDesire ~= nil)
+    if (castDelugeDesire > 0)
     then
         npcBot:Action_UseAbility(Deluge);
         return;
     end
 
-    if (castReelInDesire ~= nil)
+    if (castReelInDesire > 0)
     then
         npcBot:Action_UseAbility(ReelIn);
         return;
     end
 
-    if (castSongOfTheSirenDesire ~= nil)
+    if (castSongOfTheSirenDesire > 0)
     then
         npcBot:Action_UseAbility(SongOfTheSiren);
         return;
@@ -103,7 +103,7 @@ end
 function ConsiderMirrorImage()
     local ability = MirrorImage;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local incomingSpells = npcBot:GetIncomingTrackingProjectiles();
@@ -113,7 +113,7 @@ function ConsiderMirrorImage()
     then
         for _, spell in pairs(incomingSpells)
         do
-            if GetUnitToLocationDistance(npcBot, spell.location) <= 300 and spell.is_attack == false
+            if GetUnitToLocationDistance(npcBot, spell.location) <= 300 and spell.is_attack == false and not utility.HaveReflectSpell(npcBot)
             then
                 return BOT_ACTION_DESIRE_VERYHIGH;
             end
@@ -158,12 +158,14 @@ function ConsiderMirrorImage()
             return BOT_ACTION_DESIRE_LOW;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderEnsnare()
     local ability = Ensnare;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -209,12 +211,14 @@ function ConsiderEnsnare()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderDeluge()
     local ability = Deluge;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local radiusAbility = ability:GetAOERadius();
@@ -267,12 +271,14 @@ function ConsiderDeluge()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderReelIn()
     local ability = ReelIn;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local attackRange = npcBot:GetAttackRange();
@@ -290,18 +296,20 @@ function ConsiderReelIn()
             return BOT_ACTION_DESIRE_MODERATE;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderSongOfTheSiren()
     local ability = SongOfTheSiren;
     if not utility.IsAbilityAvailable(ability)
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if npcBot:HasModifier("modifier_naga_siren_song_of_the_siren_aura")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local radiusAbility = ability:GetSpecialValueInt("radius");
@@ -321,4 +329,6 @@ function ConsiderSongOfTheSiren()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end

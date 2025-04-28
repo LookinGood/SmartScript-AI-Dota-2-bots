@@ -75,7 +75,7 @@ function AbilityUsageThink()
 
     stoneRemnantRange = StoneRemnant:GetCastRange();
 
-    if (castBoulderSmashDesire ~= nil)
+    if (castBoulderSmashDesire > 0)
     then
         if (castBoulderSmashRemnant == true)
         then
@@ -89,7 +89,7 @@ function AbilityUsageThink()
         end
     end
 
-    if (castRollingBoulderDesire ~= nil)
+    if (castRollingBoulderDesire > 0)
     then
         if (castRollingBoulderRemnant == true)
         then
@@ -103,7 +103,7 @@ function AbilityUsageThink()
         end
     end
 
-    if (castGeomagneticGripDesire ~= nil)
+    if (castGeomagneticGripDesire > 0)
     then
         if (castGeomagneticGripRemnant == true)
         then
@@ -117,13 +117,13 @@ function AbilityUsageThink()
         end
     end
 
-    if (castEnchantRemnantDesire ~= nil)
+    if (castEnchantRemnantDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(EnchantRemnant, castEnchantRemnantTarget);
         return;
     end
 
-    if (castMagnetizeDesire ~= nil)
+    if (castMagnetizeDesire > 0)
     then
         if (castMagnetizeRemnant == true)
         then
@@ -145,7 +145,7 @@ end
 function ConsiderBoulderSmash()
     local ability = BoulderSmash;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0, 0;
     end
 
     local castRangeAbility = ability:GetSpecialValueInt("unit_distance");
@@ -239,12 +239,14 @@ function ConsiderBoulderSmash()
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc, false;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0, 0;
 end
 
 function ConsiderRollingBoulder()
     local ability = RollingBoulder;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0, 0, 0;
     end
 
     local minCastRange = ability:GetSpecialValueInt("distance");
@@ -340,12 +342,14 @@ function ConsiderRollingBoulder()
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc, false, nil;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0, 0, 0;
 end
 
 function ConsiderGeomagneticGrip()
     local ability = GeomagneticGrip;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0, 0, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -436,12 +440,14 @@ function ConsiderGeomagneticGrip()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0, 0, 0;
 end
 
 function ConsiderEnchantRemnant()
     local ability = EnchantRemnant;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -532,12 +538,14 @@ function ConsiderEnchantRemnant()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderMagnetize()
     local ability = Magnetize;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0, 0;
     end
 
     local radiusAbility = ability:GetSpecialValueInt("cast_radius");
@@ -577,4 +585,6 @@ function ConsiderMagnetize()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0, 0;
 end

@@ -67,25 +67,25 @@ function AbilityUsageThink()
     local castBlurDesire = ConsiderBlur();
     local castFanOfKnivesDesire = ConsiderFanOfKnives();
 
-    if (castStiflingDaggerDesire ~= nil)
+    if (castStiflingDaggerDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(StiflingDagger, castStiflingDaggerTarget);
         return;
     end
 
-    if (castPhantomStrikeDesire ~= nil)
+    if (castPhantomStrikeDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(PhantomStrike, castPhantomStrikeTarget);
         return;
     end
 
-    if (castBlurDesire ~= nil)
+    if (castBlurDesire > 0)
     then
         npcBot:Action_UseAbility(Blur);
         return;
     end
 
-    if (castFanOfKnivesDesire ~= nil)
+    if (castFanOfKnivesDesire > 0)
     then
         npcBot:Action_UseAbility(FanOfKnives);
         return;
@@ -95,7 +95,7 @@ end
 function ConsiderStiflingDagger()
     local ability = StiflingDagger;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -161,6 +161,8 @@ function ConsiderStiflingDagger()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderPhantomStrike()
@@ -189,7 +191,7 @@ function ConsiderPhantomStrike()
     -- Retreat use
     if utility.RetreatMode(npcBot)
     then
-        if (HealthPercentage <= 0.8) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
+        if (HealthPercentage <= 0.8) and utility.BotWasRecentlyDamagedByEnemyHero(2.0)
         then
             local allyAbility = npcBot:GetNearbyHeroes(castRangeAbility, false, BOT_MODE_NONE);
             local allyCreeps = npcBot:GetNearbyCreeps(castRangeAbility, false);
@@ -242,13 +244,16 @@ function ConsiderPhantomStrike()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderBlur()
     local ability = Blur;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
+
 
     local radiusAbility = ability:GetSpecialValueInt("radius");
 
@@ -267,12 +272,14 @@ function ConsiderBlur()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderFanOfKnives()
     local ability = FanOfKnives;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local radiusAbility = ability:GetAOERadius();
@@ -331,4 +338,6 @@ function ConsiderFanOfKnives()
         --npcBot:ActionImmediate_Chat("Использую FanOfKnives против Рошана!", true);
         return BOT_ACTION_DESIRE_HIGH;
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end

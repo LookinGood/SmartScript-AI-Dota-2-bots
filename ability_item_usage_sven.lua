@@ -65,19 +65,19 @@ function AbilityUsageThink()
     local castWarcryDesire = ConsiderWarcry();
     local castGodsStrengthDesire = ConsiderGodsStrength();
 
-    if (castStormHammerDesire ~= nil)
+    if (castStormHammerDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(StormHammer, castStormHammerTarget);
         return;
     end
 
-    if (castWarcryDesire ~= nil)
+    if (castWarcryDesire > 0)
     then
         npcBot:Action_UseAbility(Warcry);
         return;
     end
 
-    if (castGodsStrengthDesire ~= nil)
+    if (castGodsStrengthDesire > 0)
     then
         npcBot:Action_UseAbility(GodsStrength);
         return;
@@ -87,7 +87,7 @@ end
 function ConsiderStormHammer()
     local ability = StormHammer;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     --local attackRange = npcBot:GetAttackRange();
@@ -161,13 +161,16 @@ function ConsiderStormHammer()
             end
         end
     end ]]
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderWarcry()
     local ability = Warcry;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
+
     local radiusAbility = ability:GetAOERadius();
     local allyAbility = npcBot:GetNearbyHeroes(radiusAbility, false, BOT_MODE_NONE);
 
@@ -190,33 +193,39 @@ function ConsiderWarcry()
     -- Attack use
     if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
     then
-        if utility.IsHero(botTarget) or utility.IsBoss(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= npcBot:GetAttackRange() * 4
+        if (utility.IsHero(botTarget) or utility.IsBoss(botTarget)) and GetUnitToUnitDistance(npcBot, botTarget) <= (npcBot:GetAttackRange() * 4)
         then
             --npcBot:ActionImmediate_Chat("Использую Warcry для нападения!", true);
             return BOT_ACTION_DESIRE_HIGH;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderGodsStrength()
     local ability = GodsStrength;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if npcBot:HasModifier("modifier_sven_gods_strength") or npcBot:IsDisarmed()
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     -- Attack use
-    if utility.PvPMode(npcBot)
+    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
     then
-        if utility.IsHero(botTarget) and utility.CanCastOnInvulnerableTarget(botTarget)
-            and GetUnitToUnitDistance(npcBot, botTarget) <= npcBot:GetAttackRange() * 4
+        if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
         then
-            --npcBot:ActionImmediate_Chat("Использую GodsStrength для нападения!", true);
-            return BOT_ACTION_DESIRE_HIGH;
+            if utility.CanCastOnInvulnerableTarget(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= (npcBot:GetAttackRange() * 4)
+            then
+                --npcBot:ActionImmediate_Chat("Использую GodsStrength для нападения!", true);
+                return BOT_ACTION_DESIRE_HIGH;
+            end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end

@@ -65,19 +65,19 @@ function AbilityUsageThink()
     local castBlinkStrikeDesire, castBlinkStrikeTarget = ConsiderBlinkStrike();
     local castTricksOfTheTradeDesire, castTricksOfTheTradeLocation = ConsiderTricksOfTheTrade();
 
-    if (castSmokeScreenDesire ~= nil)
+    if (castSmokeScreenDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(SmokeScreen, castSmokeScreenLocation);
         return;
     end
 
-    if (castBlinkStrikeDesire ~= nil)
+    if (castBlinkStrikeDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(BlinkStrike, castBlinkStrikeTarget);
         return;
     end
 
-    if (castTricksOfTheTradeDesire ~= nil)
+    if (castTricksOfTheTradeDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(TricksOfTheTrade, castTricksOfTheTradeLocation);
         return;
@@ -87,7 +87,7 @@ end
 function ConsiderSmokeScreen()
     local ability = SmokeScreen;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -137,12 +137,14 @@ function ConsiderSmokeScreen()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderBlinkStrike()
     local ability = BlinkStrike;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local attackRange = npcBot:GetAttackRange();
@@ -239,12 +241,14 @@ function ConsiderBlinkStrike()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderTricksOfTheTrade()
     local ability = TricksOfTheTrade;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -284,4 +288,6 @@ function ConsiderTricksOfTheTrade()
             return BOT_ACTION_DESIRE_HIGH, utility.GetEscapeLocation(npcBot, castRangeAbility);
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end

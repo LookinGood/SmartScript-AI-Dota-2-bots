@@ -254,7 +254,7 @@ function ShouldTP()
         return false, nil;
     end
 
-    if botMode == BOT_MODE_LANING
+    if botMode == BOT_MODE_LANING and DotaTime() >= 2 * 60
     then
         local assignedLane = npcBot:GetAssignedLane();
         if towerLaning == nil

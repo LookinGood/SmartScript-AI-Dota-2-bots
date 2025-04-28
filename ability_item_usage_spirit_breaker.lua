@@ -62,33 +62,33 @@ function AbilityUsageThink()
     botTarget = npcBot:GetTarget();
     HealthPercentage = npcBot:GetHealth() / npcBot:GetMaxHealth();
     ManaPercentage = npcBot:GetMana() / npcBot:GetMaxMana();
-    GreaterBashDamage = npcBot:GetCurrentMovementSpeed() / 100 * GreaterBash:GetSpecialValueInt("damage");
+    GreaterBashDamage = math.floor(npcBot:GetCurrentMovementSpeed() / 100 * GreaterBash:GetSpecialValueInt("damage"));
 
     local castChargeOfDarknessDesire, castChargeOfDarknessTarget = ConsiderChargeOfDarkness();
     local castBulldozeDesire = ConsiderBulldoze();
     local castPlanarPocketDesire = ConsiderPlanarPocket();
     local castNetherStrikeDesire, castNetherStrikeTarget = ConsiderNetherStrike();
 
-    if (castChargeOfDarknessDesire ~= nil)
+    if (castChargeOfDarknessDesire > 0)
     then
         npcBot:Action_ClearActions(true);
         npcBot:Action_UseAbilityOnEntity(ChargeOfDarkness, castChargeOfDarknessTarget);
         return;
     end
 
-    if (castBulldozeDesire ~= nil)
+    if (castBulldozeDesire > 0)
     then
         npcBot:Action_UseAbility(Bulldoze);
         return;
     end
 
-    if (castPlanarPocketDesire ~= nil)
+    if (castPlanarPocketDesire > 0)
     then
         npcBot:Action_UseAbility(PlanarPocket);
         return;
     end
 
-    if (castNetherStrikeDesire ~= nil)
+    if (castNetherStrikeDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(NetherStrike, castNetherStrikeTarget);
         return;
@@ -115,12 +115,12 @@ end
 function ConsiderChargeOfDarkness()
     local ability = ChargeOfDarkness;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     if npcBot:HasModifier("modifier_spirit_breaker_charge_of_darkness") or npcBot:IsRooted()
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = 600;
@@ -198,17 +198,19 @@ function ConsiderChargeOfDarkness()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderBulldoze()
     local ability = Bulldoze;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if npcBot:HasModifier("modifier_spirit_breaker_bulldoze")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local attackRange = npcBot:GetAttackRange();
@@ -235,17 +237,19 @@ function ConsiderBulldoze()
             return BOT_ACTION_DESIRE_HIGH;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderPlanarPocket()
     local ability = PlanarPocket;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if npcBot:HasModifier("modifier_spirit_breaker_planar_pocket")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local radiusAbility = ability:GetSpecialValueInt("radius");
@@ -283,12 +287,14 @@ function ConsiderPlanarPocket()
             return BOT_ACTION_DESIRE_VERYHIGH;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderNetherStrike()
     local ability = NetherStrike;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -322,4 +328,6 @@ function ConsiderNetherStrike()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end

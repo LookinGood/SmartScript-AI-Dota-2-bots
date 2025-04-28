@@ -65,19 +65,19 @@ function AbilityUsageThink()
     local castOverpowerDesire = ConsiderOverpower();
     local castEnrageDesire = ConsiderEnrage();
 
-    if (castEarthshockDesire ~= nil)
+    if (castEarthshockDesire > 0)
     then
         npcBot:Action_UseAbility(Earthshock);
         return;
     end
 
-    if (castOverpowerDesire ~= nil)
+    if (castOverpowerDesire > 0)
     then
         npcBot:Action_UseAbility(Overpower);
         return;
     end
 
-    if (castEnrageDesire ~= nil)
+    if (castEnrageDesire > 0)
     then
         npcBot:Action_UseAbility(Enrage);
         return;
@@ -87,7 +87,7 @@ end
 function ConsiderEarthshock()
     local ability = Earthshock;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local radiusAbility = ability:GetSpecialValueInt("shock_radius") + ability:GetSpecialValueInt("hop_distance");
@@ -147,17 +147,19 @@ function ConsiderEarthshock()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderOverpower()
     local ability = Overpower;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if npcBot:HasModifier("modifier_ursa_overpower")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local attackTarget = npcBot:GetAttackTarget();
@@ -191,22 +193,26 @@ function ConsiderOverpower()
             return BOT_ACTION_DESIRE_HIGH;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderEnrage()
     local ability = Enrage;
     if not utility.IsAbilityAvailable(ability)
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if npcBot:HasModifier("modifier_ursa_enrage")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if ((HealthPercentage <= 0.8) and (npcBot:WasRecentlyDamagedByAnyHero(2.0) or npcBot:WasRecentlyDamagedByTower(2.0))) or utility.IsDisabled(npcBot)
     then
         return BOT_ACTION_DESIRE_HIGH;
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end

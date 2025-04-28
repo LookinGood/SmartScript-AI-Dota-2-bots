@@ -68,25 +68,25 @@ function AbilityUsageThink()
     local castSparkWraithDesire, castSparkWraithLocation = ConsiderSparkWraith();
     local castTempestDoubleDesire, castTempestDoubleLocation = ConsiderTempestDouble();
 
-    if (castFluxDesire ~= nil)
+    if (castFluxDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(Flux, castFluxTarget);
         return;
     end
 
-    if (castMagneticFieldDesire ~= nil)
+    if (castMagneticFieldDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(MagneticField, castMagneticFieldLocation);
         return;
     end
 
-    if (castSparkWraithDesire ~= nil)
+    if (castSparkWraithDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(SparkWraith, castSparkWraithLocation);
         return;
     end
 
-    if (castTempestDoubleDesire ~= nil)
+    if (castTempestDoubleDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(TempestDouble, castTempestDoubleLocation);
         return;
@@ -96,7 +96,7 @@ end
 function ConsiderFlux()
     local ability = Flux;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local damageAbility;
@@ -164,12 +164,14 @@ function ConsiderFlux()
             return BOT_ACTION_DESIRE_MODERATE, enemy;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderMagneticField()
     local ability = MagneticField;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -285,12 +287,14 @@ function ConsiderMagneticField()
             end
         end
     end ]]
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderSparkWraith()
     local ability = SparkWraith;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local damageAbility;
@@ -380,12 +384,14 @@ function ConsiderSparkWraith()
             return BOT_ACTION_DESIRE_MODERATE, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderTempestDouble()
     local ability = TempestDouble;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local attackTarget = npcBot:GetAttackTarget();
@@ -433,6 +439,8 @@ function ConsiderTempestDouble()
             return BOT_ACTION_DESIRE_MODERATE, attackTarget:GetLocation() + RandomVector(castRangeAbility);
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 -- СТАРАЯ ВЕРСИЯ НЕНАПРАВЛЯЕМАЯ

@@ -71,39 +71,38 @@ function AbilityUsageThink()
     local castLightningHandsDesire = ConsiderLightningHands();
     local castThundergodWrathDesire = ConsiderThundergodWrath();
 
-    if (castArcLightningDesire ~= nil)
+    if (castArcLightningDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(ArcLightning, castArcLightningTarget);
         return;
     end
 
-    if (castLightningBoltDesire ~= nil)
+    if (castLightningBoltDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(LightningBolt, castLightningBoltLocation);
         return;
     end
 
-    if (castHeavenlyJumpDesire ~= nil)
+    if (castHeavenlyJumpDesire > 0)
     then
         npcBot:Action_UseAbility(HeavenlyJump);
         return;
     end
 
-    if (castNimbusDesire ~= nil)
+    if (castNimbusDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(Nimbus, castNimbusLocation);
         return;
     end
 
-    if (castLightningHandsDesire ~= nil)
+    if (castLightningHandsDesire > 0)
     then
         npcBot:Action_UseAbility(LightningHands);
         return;
     end
 
-    if (castThundergodWrathDesire ~= nil)
+    if (castThundergodWrathDesire > 0)
     then
-        npcBot:Action_ClearActions(false);
         npcBot:Action_UseAbility(ThundergodWrath);
         return;
     end
@@ -112,7 +111,7 @@ end
 function ConsiderArcLightning()
     local ability = ArcLightning;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -163,12 +162,14 @@ function ConsiderArcLightning()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderLightningBolt()
     local ability = LightningBolt;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -226,17 +227,19 @@ function ConsiderLightningBolt()
             return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderHeavenlyJump()
     local ability = HeavenlyJump;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if npcBot:HasModifier("modifier_zuus_heavenly_jump_boost_buff")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local castRangeAbility = ability:GetSpecialValueInt("range");
@@ -278,12 +281,14 @@ function ConsiderHeavenlyJump()
             return BOT_ACTION_DESIRE_HIGH;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderNimbus()
     local ability = Nimbus;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetSpecialValueInt("cloud_radius") * 10;
@@ -343,7 +348,9 @@ function ConsiderNimbus()
                 end
             end
         end
-        --[[         -- Pushing/defending
+    end
+
+    --[[         -- Pushing/defending
     elseif utility.PvEMode(npcBot)
     then
         local enemyTower = GetUnitList(UNIT_LIST_ENEMY_BUILDINGS);
@@ -377,13 +384,14 @@ function ConsiderNimbus()
                 end
             end
         end ]]
-    end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderLightningHands()
     local ability = LightningHands;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if ability:GetToggleState() == false
@@ -395,12 +403,14 @@ function ConsiderLightningHands()
     then
         ability:ToggleAutoCast();
     end ]]
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderThundergodWrath()
     local ability = ThundergodWrath;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local enemyAbility = GetUnitList(UNIT_LIST_ENEMY_HEROES);
@@ -425,6 +435,8 @@ function ConsiderThundergodWrath()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 --[[     -- Generic use if can kill enemy hero

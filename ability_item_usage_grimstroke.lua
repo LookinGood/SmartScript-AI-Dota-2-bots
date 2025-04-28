@@ -71,37 +71,37 @@ function AbilityUsageThink()
     local castDarkPortraitDesire, castDarkPortraitTarget = ConsiderDarkPortrait();
     local castSoulbindDesire, castSoulbindTarget = ConsiderSoulbind();
 
-    if (castStrokeOfFateDesire ~= nil)
+    if (castStrokeOfFateDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(StrokeOfFate, castStrokeOfFateLocation);
         return;
     end
 
-    if (castPhantomsEmbraceDesire ~= nil)
+    if (castPhantomsEmbraceDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(PhantomsEmbrace, castPhantomsEmbraceTarget);
         return;
     end
 
-    if (castInkSwellDesire ~= nil)
+    if (castInkSwellDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(InkSwell, castInkSwellTarget);
         return;
     end
 
-    if (castInkExplosionDesire ~= nil)
+    if (castInkExplosionDesire > 0)
     then
         npcBot:Action_UseAbility(InkExplosion);
         return;
     end
 
-    if (castDarkPortraitDesire ~= nil)
+    if (castDarkPortraitDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(DarkPortrait, castDarkPortraitTarget);
         return;
     end
 
-    if (castSoulbindDesire ~= nil)
+    if (castSoulbindDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(Soulbind, castSoulbindTarget);
         return;
@@ -111,7 +111,7 @@ end
 function ConsiderStrokeOfFate()
     local ability = StrokeOfFate;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -186,12 +186,14 @@ function ConsiderStrokeOfFate()
             return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility);
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderPhantomsEmbrace()
     local ability = PhantomsEmbrace;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -226,7 +228,7 @@ function ConsiderPhantomsEmbrace()
         end
     end
 
-        -- Retreat use
+    -- Retreat use
     if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
@@ -240,30 +242,29 @@ function ConsiderPhantomsEmbrace()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderInkSwell()
     local ability = InkSwell;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
     local radiusAbility = ability:GetSpecialValueInt("radius");
-    local allyAbility = GetUnitList(UNIT_LIST_ALLIED_HEROES);
+    local allyAbility = npcBot:GetNearbyHeroes(castRangeAbility, false, BOT_MODE_NONE);
 
     -- Cast if allys has negative effect or low HP
     if (#allyAbility > 0)
     then
-        for i = 1, #allyAbility do
-            if GetUnitToUnitDistance(allyAbility[i], npcBot) <= castRangeAbility
+        for _, ally in pairs(allyAbility)
+        do
+            if utility.IsHero(ally) and (utility.IsDisabled(ally) or (ally:GetHealth() / ally:GetMaxHealth() <= 0.8 and ally:WasRecentlyDamagedByAnyHero(2.0)))
             then
-                if utility.IsDisabled(allyAbility[i])
-                    or (allyAbility[i]:GetHealth() / allyAbility[i]:GetMaxHealth() <= 0.8 and allyAbility[i]:WasRecentlyDamagedByAnyHero(2.0))
-                then
-                    --npcBot:ActionImmediate_Chat("Использую InkSwell на союзника!", true);
-                    return BOT_MODE_DESIRE_ABSOLUTE, allyAbility[i];
-                end
+                --npcBot:ActionImmediate_Chat("Использую InkSwell на союзника раненного!", true);
+                return BOT_ACTION_DESIRE_ABSOLUTE, ally;
             end
         end
     end
@@ -271,54 +272,62 @@ function ConsiderInkSwell()
     -- Attack use
     if utility.PvPMode(npcBot)
     then
-        if utility.IsValidTarget(botTarget) and utility.IsHero(botTarget)
+        if utility.IsHero(botTarget)
         then
-            for i = 1, #allyAbility do
-                if utility.IsValidTarget(allyAbility[i]) and GetUnitToUnitDistance(allyAbility[i], npcBot) <= (castRangeAbility + 200)
-                then
-                    if GetUnitToUnitDistance(allyAbility[i], botTarget) <= radiusAbility
-                        or (GetUnitToUnitDistance(allyAbility[i], botTarget) > (allyAbility[i]:GetAttackRange() * 2) and GetUnitToUnitDistance(allyAbility[i], botTarget) < 2000)
+            if (#allyAbility > 0)
+            then
+                for _, ally in pairs(allyAbility)
+                do
+                    if utility.IsHero(ally) and (GetUnitToUnitDistance(ally, botTarget) <= radiusAbility or
+                            (GetUnitToUnitDistance(ally, botTarget) > ally:GetAttackRange() * 2 and GetUnitToUnitDistance(ally, botTarget) < 1000))
                     then
                         --npcBot:ActionImmediate_Chat("Использую InkSwell на союзника рядом с врагом!", true);
-                        return BOT_MODE_DESIRE_ABSOLUTE, allyAbility[i];
+                        return BOT_ACTION_DESIRE_ABSOLUTE, ally;
                     end
                 end
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderInkExplosion()
     local ability = InkExplosion;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local radiusAbility = InkSwell:GetSpecialValueInt("radius");
     local allyHeroes = GetUnitList(UNIT_LIST_ALLIED_HEROES);
 
     -- Use if around ally has enemy hero
-    for _, ally in pairs(allyHeroes) do
-        if ally:HasModifier("modifier_grimstroke_spirit_walk_buff")
-        then
-            local enemyHeroes = ally:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
-            if (#enemyHeroes > 0)
+    if (#allyHeroes > 0)
+    then
+        for _, ally in pairs(allyHeroes) do
+            if ally:HasModifier("modifier_grimstroke_spirit_walk_buff")
             then
-                for _, enemy in pairs(enemyHeroes) do
-                    if utility.CanCastSpellOnTarget(InkSwell, enemy) and not utility.IsDisabled(enemy)
-                    then
-                        return BOT_ACTION_DESIRE_HIGH;
+                local enemyHeroes = ally:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
+                if (#enemyHeroes > 0)
+                then
+                    for _, enemy in pairs(enemyHeroes) do
+                        if utility.CanCastSpellOnTarget(InkSwell, enemy) and not utility.IsDisabled(enemy)
+                        then
+                            return BOT_ACTION_DESIRE_HIGH;
+                        end
                     end
                 end
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderDarkPortrait()
     local ability = DarkPortrait;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -330,8 +339,8 @@ function ConsiderDarkPortrait()
         if (#enemyAbility > 0)
         then
             for _, enemy in pairs(enemyAbility) do
-                if (enemy:GetHealth() / enemy:GetMaxHealth() >= 0.6) and (enemy:GetLevel() >= npcBot:GetLevel())
-                    and utility.SafeCast(enemy, false)
+                if utility.CanCastSpellOnTarget(ability, enemy) and (enemy:GetHealth() / enemy:GetMaxHealth() >= 0.6) and
+                    (enemy:GetRawOffensivePower() >= npcBot:GetOffensivePower())
                 then
                     --npcBot:ActionImmediate_Chat("Использую DarkPortrait на врага в радиусе действия!",true);
                     return BOT_MODE_DESIRE_HIGH, enemy;
@@ -339,32 +348,38 @@ function ConsiderDarkPortrait()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderSoulbind()
     local ability = Soulbind;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
     local radiusAbility = ability:GetSpecialValueInt("chain_latch_radius");
-    local enemyAbility = GetUnitList(UNIT_LIST_ENEMY_HEROES);
+    local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
 
     -- Attack use
     if utility.PvPMode(npcBot)
     then
         if utility.IsHero(botTarget) and utility.CanCastOnMagicImmuneTarget(botTarget)
-            and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility and utility.SafeCast(botTarget, true)
+            and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
         then
-            for i = 1, #enemyAbility do
-                if enemyAbility[i] ~= botTarget and utility.CanCastOnMagicImmuneTarget(enemyAbility[i])
-                    and GetUnitToUnitDistance(enemyAbility[i], botTarget) <= radiusAbility
-                then
-                    --npcBot:ActionImmediate_Chat("Использую Soulbind по врагу в радиусе действия!",true);
-                    return BOT_MODE_DESIRE_ABSOLUTE, botTarget;
+            if (#enemyAbility > 1)
+            then
+                for _, enemy in pairs(enemyAbility) do
+                    if enemy ~= botTarget and utility.CanCastSpellOnTarget(ability, enemy) and GetUnitToUnitDistance(enemy, botTarget) <= radiusAbility
+                    then
+                        --npcBot:ActionImmediate_Chat("Использую Soulbind по врагу в радиусе действия!", true);
+                        return BOT_ACTION_DESIRE_ABSOLUTE, botTarget;
+                    end
                 end
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end

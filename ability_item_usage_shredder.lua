@@ -80,53 +80,53 @@ function AbilityUsageThink()
     local castChakramDesire, castChakramLocation = ConsiderChakram();
     local castReturnChakramDesire = ConsiderReturnChakram();
 
-    if (castWhirlingDeathDesire ~= nil)
+    if (castWhirlingDeathDesire > 0)
     then
         npcBot:Action_UseAbility(WhirlingDeath);
         return;
     end
 
-    if (castTimberChainDesire ~= nil)
+    if (castTimberChainDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(TimberChain, castTimberChainLocation);
         return;
     end
 
-    if (castReactiveArmorDesire ~= nil)
+    if (castReactiveArmorDesire > 0)
     then
         npcBot:Action_UseAbility(ReactiveArmor);
         return;
     end
 
-    if (castFlamethrowerDesire ~= nil)
+    if (castFlamethrowerDesire > 0)
     then
         npcBot:Action_UseAbility(Flamethrower);
         return;
     end
 
-    if (castSecondChakramDesire ~= nil)
+    if (castSecondChakramDesire > 0)
     then
         chakram2Position = castSecondChakramLocation;
-        castSecondChakramTimer = DotaTime();
+        castSecondChakramTimer = GameTime();
         npcBot:Action_UseAbilityOnLocation(SecondChakram, castSecondChakramLocation);
         return;
     end
 
-    if (castReturnSecondChakramDesire ~= nil)
+    if (castReturnSecondChakramDesire > 0)
     then
         npcBot:Action_UseAbility(ReturnSecondChakram);
         return;
     end
 
-    if (castChakramDesire ~= nil)
+    if (castChakramDesire > 0)
     then
         chakramPosition = castChakramLocation;
-        castChakramTimer = DotaTime();
+        castChakramTimer = GameTime();
         npcBot:Action_UseAbilityOnLocation(Chakram, castChakramLocation);
         return;
     end
 
-    if (castReturnChakramDesire ~= nil)
+    if (castReturnChakramDesire > 0)
     then
         npcBot:Action_UseAbility(ReturnChakram);
         return;
@@ -227,7 +227,7 @@ end
 function ConsiderWhirlingDeath()
     local ability = WhirlingDeath;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local radiusAbility = ability:GetAOERadius();
@@ -284,17 +284,19 @@ function ConsiderWhirlingDeath()
     then
         return BOT_ACTION_DESIRE_HIGH;
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderTimberChain()
     local ability = TimberChain;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     if npcBot:HasModifier("modifier_shredder_timber_chain")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -374,6 +376,8 @@ function ConsiderTimberChain()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 --local ancient = GetAncient(GetTeam());
@@ -386,17 +390,17 @@ end
 function ConsiderReactiveArmor()
     local ability = ReactiveArmor;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if not utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_NO_TARGET)
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if npcBot:HasModifier("modifier_shredder_reactive_armor_bomb")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local radiusAbility = ability:GetSpecialValueInt("radius");
@@ -424,17 +428,19 @@ function ConsiderReactiveArmor()
             return BOT_ACTION_DESIRE_HIGH;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderFlamethrower()
     local ability = Flamethrower;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if npcBot:HasModifier("modifier_shredder_timber_chain")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local attackTarget = npcBot:GetAttackTarget();
@@ -476,17 +482,19 @@ function ConsiderFlamethrower()
             return BOT_ACTION_DESIRE_HIGH;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderChakram()
     local ability = Chakram;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     if npcBot:HasModifier("modifier_shredder_timber_chain")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -571,23 +579,25 @@ function ConsiderChakram()
         if locationAoE ~= nil and (locationAoE.count >= 3) and (ManaPercentage >= 0.6)
         then
             --npcBot:ActionImmediate_Chat("Использую Chakram по вражеским крипам!", true);
-            return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc, "location";
+            return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderReturnChakram()
     local ability = ReturnChakram;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if npcBot:HasModifier("modifier_shredder_timber_chain") or chakramPosition == nil
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
-    if DotaTime() > (castChakramTimer + 2.0)
+    if GameTime() > (castChakramTimer + 2.0)
     then
         return BOT_MODE_DESIRE_MODERATE;
     end
@@ -623,17 +633,19 @@ function ConsiderReturnChakram()
             return BOT_ACTION_DESIRE_HIGH;
         end
     end ]]
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderSecondChakram()
     local ability = SecondChakram;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     if npcBot:HasModifier("modifier_shredder_timber_chain")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -718,23 +730,25 @@ function ConsiderSecondChakram()
         if locationAoE ~= nil and (locationAoE.count >= 3) and (ManaPercentage >= 0.6)
         then
             --npcBot:ActionImmediate_Chat("Использую Chakram2 по вражеским крипам!", true);
-            return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc, "location";
+            return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderReturnSecondChakram()
     local ability = ReturnSecondChakram;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if npcBot:HasModifier("modifier_shredder_timber_chain") or chakram2Position == nil
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
-    if DotaTime() > (castSecondChakramTimer + 2.0)
+    if GameTime() > (castSecondChakramTimer + 2.0)
     then
         return BOT_MODE_DESIRE_MODERATE;
     end
@@ -770,4 +784,6 @@ function ConsiderReturnSecondChakram()
             return BOT_ACTION_DESIRE_HIGH;
         end
     end ]]
+
+    return BOT_ACTION_DESIRE_NONE;
 end

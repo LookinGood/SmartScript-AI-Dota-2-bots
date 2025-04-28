@@ -34,18 +34,7 @@ end
 
 function AbilityLevelUpThink(AbilityToLevelUp)
     local npcBot = GetBot();
-
-    if npcBot:GetAbilityPoints() > 0 and #AbilityToLevelUp == 0
-    then
-        for i = 0, 23, 1 do
-            local ability = npcBot:GetAbilityInSlot(i)
-            if ability ~= nil and ability:CanAbilityBeUpgraded() and not ability:IsHidden()
-            then
-                --npcBot:ActionImmediate_Chat("Улучшаю дополнительную способность: " .. ability:GetName(), true);
-                npcBot:ActionImmediate_LevelAbility(ability:GetName());
-            end
-        end
-    elseif npcBot:GetAbilityPoints() < 1 or #AbilityToLevelUp == 0
+    if npcBot:GetAbilityPoints() < 1 or utility.IsClone(npcBot) or utility.IsCloneMeepo(npcBot)
     then
         return;
     end
@@ -56,6 +45,26 @@ function AbilityLevelUpThink(AbilityToLevelUp)
     then
         npcBot:ActionImmediate_LevelAbility(AbilityToLevelUp[1]);
         table.remove(AbilityToLevelUp, 1);
+        return;
+    end
+
+    if npcBot:GetAbilityPoints() > 0 and (#AbilityToLevelUp == 0 or not ability:CanAbilityBeUpgraded() or ability:IsHidden())
+    then
+        for i = 0, 23, 1 do
+            local ability = npcBot:GetAbilityInSlot(i);
+            if ability ~= nil and ability:CanAbilityBeUpgraded() and not ability:IsHidden()
+            then
+                --npcBot:ActionImmediate_Chat("Улучшаю дополнительную способность: " .. ability:GetName(), true);
+                npcBot:ActionImmediate_LevelAbility(ability:GetName());
+                if (#AbilityToLevelUp > 0)
+                then
+                    --npcBot:ActionImmediate_Chat("Удаляю способность: " .. npcBot:GetAbilityByName(AbilityToLevelUp[1]):GetName(), true);
+                    --npcBot:ActionImmediate_Chat("Количество абилок для прокачки: " .. #AbilityToLevelUp, true);
+                    table.remove(AbilityToLevelUp, 1);
+                    return;
+                end
+            end
+        end
     end
 end
 

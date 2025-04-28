@@ -69,32 +69,32 @@ function AbilityUsageThink()
     local castGaleForceDesire, castGaleForceLocation = ConsiderGaleForce();
     local castFocusFireDesire, castFocusFireTarget = ConsiderFocusFire();
 
-    if (castShackleshotDesire ~= nil)
+    if (castShackleshotDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(Shackleshot, castShackleshotTarget);
         return;
     end
 
-    if (castPowershotDesire ~= nil)
+    if (castPowershotDesire > 0)
     then
         npcBot:Action_ClearActions(true);
-        npcBot:Action_UseAbilityOnLocation(Powershot, castPowershotLocation);
+        npcBot:ActionQueue_UseAbilityOnLocation(Powershot, castPowershotLocation);
         return;
     end
 
-    if (castWindrunDesire ~= nil)
+    if (castWindrunDesire > 0)
     then
         npcBot:Action_UseAbility(Windrun);
         return;
     end
 
-    if (castGaleForceDesire ~= nil)
+    if (castGaleForceDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(GaleForce, castGaleForceLocation);
         return;
     end
 
-    if (castFocusFireDesire ~= nil)
+    if (castFocusFireDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(FocusFire, castFocusFireTarget);
         return;
@@ -104,7 +104,7 @@ end
 function ConsiderShackleshot()
     local ability = Shackleshot;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -157,12 +157,14 @@ function ConsiderShackleshot()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderPowershot()
     local ability = Powershot;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -226,18 +228,20 @@ function ConsiderPowershot()
             return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility);
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderWindrun()
     local ability = Windrun;
     if not utility.IsAbilityAvailable(ability)
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if npcBot:HasModifier("modifier_windrunner_windrun")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     -- Attack use
@@ -264,12 +268,14 @@ function ConsiderWindrun()
             return BOT_ACTION_DESIRE_HIGH;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderGaleForce()
     local ability = GaleForce;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -348,12 +354,14 @@ function ConsiderGaleForce()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderFocusFire()
     local ability = FocusFire;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local attackTarget = npcBot:GetAttackTarget();
@@ -395,4 +403,6 @@ function ConsiderFocusFire()
             return BOT_ACTION_DESIRE_HIGH, attackTarget;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end

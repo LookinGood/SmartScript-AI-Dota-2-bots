@@ -71,37 +71,37 @@ function AbilityUsageThink()
     local castNecromasteryDesire, castNecromasteryTarget = ConsiderNecromastery();
     local castRequiemOfSoulsDesire = ConsiderRequiemOfSouls();
 
-    if (castShadowraze1Desire ~= nil)
+    if (castShadowraze1Desire > 0)
     then
         npcBot:Action_UseAbility(Shadowraze1);
         return;
     end
 
-    if (castShadowraze2Desire ~= nil)
+    if (castShadowraze2Desire > 0)
     then
         npcBot:Action_UseAbility(Shadowraze2);
         return;
     end
 
-    if (castShadowraze3Desire ~= nil)
+    if (castShadowraze3Desire > 0)
     then
         npcBot:Action_UseAbility(Shadowraze3);
         return;
     end
 
-    if (castFeastOfSoulDesire ~= nil)
+    if (castFeastOfSoulDesire > 0)
     then
         npcBot:Action_UseAbility(FeastOfSoul);
         return;
     end
 
-    if (castNecromasteryDesire ~= nil)
+    if (castNecromasteryDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(Necromastery, castNecromasteryTarget);
         return;
     end
 
-    if (castRequiemOfSoulsDesire ~= nil)
+    if (castRequiemOfSoulsDesire > 0)
     then
         npcBot:Action_UseAbility(RequiemOfSouls);
         return;
@@ -111,7 +111,7 @@ end
 function ConsiderShadowraze1()
     local ability = Shadowraze1;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local castRangeAbility = ability:GetSpecialValueInt("shadowraze_range");
@@ -179,12 +179,14 @@ function ConsiderShadowraze1()
             return BOT_ACTION_DESIRE_VERYHIGH;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderShadowraze2()
     local ability = Shadowraze2;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local castRangeAbility = ability:GetSpecialValueInt("shadowraze_range");
@@ -252,12 +254,14 @@ function ConsiderShadowraze2()
             return BOT_ACTION_DESIRE_VERYHIGH;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderShadowraze3()
     local ability = Shadowraze3;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local castRangeAbility = ability:GetSpecialValueInt("shadowraze_range");
@@ -325,12 +329,14 @@ function ConsiderShadowraze3()
             return BOT_ACTION_DESIRE_VERYHIGH;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderFeastOfSoul()
     local ability = FeastOfSoul;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local attackTarget = npcBot:GetAttackTarget();
@@ -338,7 +344,7 @@ function ConsiderFeastOfSoul()
 
     if utility.GetModifierCount(npcBot, "modifier_nevermore_necromastery") <= abilityCount
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     -- Attack use
@@ -352,12 +358,14 @@ function ConsiderFeastOfSoul()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderNecromastery()
     local ability = Necromastery;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_AUTOCAST) and utility.GetModifierCount(npcBot, "modifier_nevermore_necromastery") >= 1
@@ -399,17 +407,19 @@ function ConsiderNecromastery()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderRequiemOfSouls()
     local ability = RequiemOfSouls;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if utility.GetModifierCount(npcBot, "modifier_nevermore_necromastery") < 10
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local radiusAbility = ability:GetAOERadius();
@@ -445,4 +455,6 @@ function ConsiderRequiemOfSouls()
             return BOT_ACTION_DESIRE_HIGH;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end

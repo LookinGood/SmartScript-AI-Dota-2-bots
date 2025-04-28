@@ -68,25 +68,25 @@ function AbilityUsageThink()
     local castSavageRoarDesire = ConsiderSavageRoar();
     local castTrueFormDesire = ConsiderTrueForm();
 
-    if (castSummonSpiritBearDesire ~= nil)
+    if (castSummonSpiritBearDesire > 0)
     then
         npcBot:Action_UseAbility(SummonSpiritBear);
         return;
     end
 
-    if (castSpiritLinkDesire ~= nil)
+    if (castSpiritLinkDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(SpiritLink, castSpiritLinkTarget);
         return;
     end
 
-    if (castSavageRoarDesire ~= nil)
+    if (castSavageRoarDesire > 0)
     then
         npcBot:Action_UseAbility(SavageRoar);
         return;
     end
 
-    if (castTrueFormDesire ~= nil)
+    if (castTrueFormDesire > 0)
     then
         npcBot:Action_UseAbility(TrueForm);
         return;
@@ -118,14 +118,14 @@ end
 function ConsiderSummonSpiritBear()
     local ability = SummonSpiritBear;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local maxUnits = 1;
 
     if CountBears() >= maxUnits
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     return BOT_ACTION_DESIRE_HIGH;
@@ -164,12 +164,14 @@ function ConsiderSummonSpiritBear()
             return BOT_ACTION_DESIRE_LOW;
         end
     end ]]
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderSpiritLink()
     local ability = SpiritLink;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -194,12 +196,14 @@ function ConsiderSpiritLink()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderSavageRoar()
     local ability = SavageRoar;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local radiusAbility = ability:GetAOERadius();
@@ -246,17 +250,19 @@ function ConsiderSavageRoar()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderTrueForm()
     local ability = TrueForm;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if npcBot:HasModifier("modifier_lone_druid_true_form")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     -- Attack use
@@ -280,4 +286,6 @@ function ConsiderTrueForm()
             return BOT_ACTION_DESIRE_HIGH;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end

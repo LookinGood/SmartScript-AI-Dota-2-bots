@@ -77,37 +77,37 @@ function AbilityUsageThink()
     local castAttributeShiftStrengthDesire = ConsiderAttributeShiftStrength();
     --local castMorphDesire, castMorphTarget = ConsiderMorph();
 
-    if (castWaveformDesire ~= nil)
+    if (castWaveformDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(Waveform, castWaveformLocation);
         return;
     end
 
-    if (castAdaptiveStrikeAgilityDesire ~= nil)
+    if (castAdaptiveStrikeAgilityDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(AdaptiveStrikeAgility, castAdaptiveStrikeAgilityTarget);
         return;
     end
 
-    --[[     if (castAdaptiveStrikeStrengthDesire ~= nil)
+    --[[     if (castAdaptiveStrikeStrengthDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(AdaptiveStrikeStrength, castAdaptiveStrikeStrengthTarget);
         return;
     end ]]
 
-    if (castAttributeShiftAgilityDesire ~= nil)
+    if (castAttributeShiftAgilityDesire > 0)
     then
         npcBot:Action_UseAbility(AttributeShiftAgility);
         return;
     end
 
-    if (castAttributeShiftStrengthDesire ~= nil)
+    if (castAttributeShiftStrengthDesire > 0)
     then
         npcBot:Action_UseAbility(AttributeShiftStrength);
         return;
     end
 
-    if (castMorphDesire ~= nil)
+    if (castMorphDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(Morph, castMorphTarget);
         return;
@@ -147,7 +147,7 @@ end
 function ConsiderWaveform()
     local ability = Waveform;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetSpecialValueInt("AbilityCastRange");
@@ -206,12 +206,14 @@ function ConsiderWaveform()
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc, "location";
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderAdaptiveStrikeAgility()
     local ability = AdaptiveStrikeAgility;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -260,12 +262,14 @@ function ConsiderAdaptiveStrikeAgility()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 --[[ function ConsiderAdaptiveStrikeStrength()
     local ability = AdaptiveStrikeStrength;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -312,17 +316,19 @@ end
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end ]]
 
 function ConsiderAttributeShiftAgility()
     local ability = AttributeShiftAgility;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if npcBot:HasModifier("modifier_morphling_morph_str")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local abilityRate = ability:GetSpecialValueInt("morph_rate_tooltip");
@@ -351,17 +357,19 @@ function ConsiderAttributeShiftAgility()
             return BOT_ACTION_DESIRE_HIGH;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderAttributeShiftStrength()
     local ability = AttributeShiftStrength;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if npcBot:HasModifier("modifier_morphling_morph_agi")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local abilityRate = ability:GetSpecialValueInt("morph_rate_tooltip");
@@ -402,17 +410,19 @@ function ConsiderAttributeShiftStrength()
             return BOT_ACTION_DESIRE_HIGH;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderMorph()
     local ability = Morph;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     if npcBot:HasModifier("modifier_morphling_replicate_manager")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -437,4 +447,6 @@ function ConsiderMorph()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end

@@ -24,13 +24,12 @@ local ItemsToBuy =
 	"item_sange",
 	"item_abyssal_blade",
 
-	"item_aghanims_shard",
-
-	"item_ultimate_scepter",
-
 	"item_radiance",
 
+	"item_ultimate_scepter",
 	"item_ultimate_scepter_2",
+
+	"item_aghanims_shard",
 
 	"item_disperser",
 

@@ -67,13 +67,13 @@ function AbilityUsageThink()
     local castMultishotDesire, castMultishotLocation = ConsiderMultishot();
     local castGlacierDesire = ConsiderGlacier();
 
-    if (castGustDesire ~= nil)
+    if (castGustDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(Gust, castGustLocation);
         return;
     end
 
-    if (castMultishotDesire ~= nil)
+    if (castMultishotDesire > 0)
     then
         npcBot:Action_ClearActions(true);
         --npcBot:ActionQueue_Delay(1.0);
@@ -81,7 +81,7 @@ function AbilityUsageThink()
         return;
     end
 
-    if (castGlacierDesire ~= nil)
+    if (castGlacierDesire > 0)
     then
         npcBot:Action_UseAbility(Glacier);
         return;
@@ -112,7 +112,7 @@ end
 function ConsiderGust()
     local ability = Gust;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -163,12 +163,14 @@ function ConsiderGust()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderMultishot()
     local ability = Multishot;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = npcBot:GetAttackRange() * ability:GetSpecialValueInt("arrow_range_multiplier");
@@ -217,12 +219,14 @@ function ConsiderMultishot()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderGlacier()
     local ability = Glacier;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local attackTarget = npcBot:GetAttackTarget();
@@ -236,4 +240,6 @@ function ConsiderGlacier()
             return BOT_ACTION_DESIRE_HIGH;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end

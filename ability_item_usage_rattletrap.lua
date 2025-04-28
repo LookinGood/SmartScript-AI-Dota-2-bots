@@ -71,37 +71,37 @@ function AbilityUsageThink()
     local castJetpackDesire = ConsiderJetpack();
     local castHookshotDesire, castHookshotLocation = ConsiderHookshot();
 
-    if (castBatteryAssaultDesire ~= nil)
+    if (castBatteryAssaultDesire > 0)
     then
         npcBot:Action_UseAbility(BatteryAssault);
         return;
     end
 
-    if (castPowerCogsDesire ~= nil)
+    if (castPowerCogsDesire > 0)
     then
         npcBot:Action_UseAbility(PowerCogs);
         return;
     end
 
-    if (castRocketFlareDesire ~= nil)
+    if (castRocketFlareDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(RocketFlare, castRocketFlareLocation);
         return;
     end
 
-    if (castOverclockingDesire ~= nil)
+    if (castOverclockingDesire > 0)
     then
         npcBot:Action_UseAbility(Overclocking);
         return;
     end
 
-    if (castJetpackDesire ~= nil)
+    if (castJetpackDesire > 0)
     then
         npcBot:Action_UseAbility(Jetpack);
         return;
     end
 
-    if (castHookshotDesire ~= nil)
+    if (castHookshotDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(Hookshot, castHookshotLocation);
         return;
@@ -152,12 +152,12 @@ end
 function ConsiderBatteryAssault()
     local ability = BatteryAssault;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if npcBot:HasModifier("modifier_rattletrap_battery_assault")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local radiusAbility = ability:GetAOERadius();
@@ -204,17 +204,19 @@ function ConsiderBatteryAssault()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderPowerCogs()
     local ability = PowerCogs;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if npcBot:HasModifier("modifier_rattletrap_cog_immune")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local radiusAbility = ability:GetAOERadius();
@@ -250,12 +252,14 @@ function ConsiderPowerCogs()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderRocketFlare()
     local ability = RocketFlare;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local radiusAbility = ability:GetSpecialValueInt("radius");
@@ -314,17 +318,19 @@ function ConsiderRocketFlare()
             return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility);
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderOverclocking()
     local ability = Overclocking;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if npcBot:HasModifier("modifier_rattletrap_overclocking")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     -- Attack use
@@ -355,17 +361,19 @@ function ConsiderOverclocking()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderJetpack()
     local ability = Jetpack;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if npcBot:HasModifier("modifier_rattletrap_jetpack")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local attackRange = npcBot:GetAttackRange();
@@ -392,12 +400,14 @@ function ConsiderJetpack()
             return BOT_ACTION_DESIRE_HIGH;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderHookshot()
     local ability = Hookshot;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -458,7 +468,7 @@ function ConsiderHookshot()
         end
     end
 
-        -- Use if need retreat
+    -- Use if need retreat
     if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0) and (HealthPercentage <= 0.7) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
@@ -570,4 +580,6 @@ function ConsiderHookshot()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end

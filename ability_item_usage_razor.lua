@@ -65,19 +65,19 @@ function AbilityUsageThink()
     local castStaticLinkDesire, castStaticLinkTarget = ConsiderStaticLink();
     local castEyeOfTheStormDesire = ConsiderEyeOfTheStorm();
 
-    if (castPlasmaFieldDesire ~= nil)
+    if (castPlasmaFieldDesire > 0)
     then
         npcBot:Action_UseAbility(PlasmaField);
         return;
     end
 
-    if (castStaticLinkDesire ~= nil)
+    if (castStaticLinkDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(StaticLink, castStaticLinkTarget);
         return;
     end
 
-    if (castEyeOfTheStormDesire ~= nil)
+    if (castEyeOfTheStormDesire > 0)
     then
         npcBot:Action_UseAbility(EyeOfTheStorm);
         return;
@@ -87,7 +87,7 @@ end
 function ConsiderPlasmaField()
     local ability = PlasmaField;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local radiusAbility = ability:GetAOERadius();
@@ -159,12 +159,14 @@ function ConsiderPlasmaField()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderStaticLink()
     local ability = StaticLink;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetSpecialValueInt("AbilityCastRange");
@@ -206,17 +208,19 @@ function ConsiderStaticLink()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderEyeOfTheStorm()
     local ability = EyeOfTheStorm;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if npcBot:HasModifier("modifier_razor_eye_of_the_storm")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local radiusAbility = ability:GetAOERadius();
@@ -257,4 +261,6 @@ function ConsiderEyeOfTheStorm()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end

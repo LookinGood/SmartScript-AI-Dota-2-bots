@@ -69,31 +69,31 @@ function AbilityUsageThink()
     local castHitchARideDesire, castHitchARideTarget = ConsiderHitchARide();
     local castStampedeDesire = ConsiderStampede();
 
-    if (castHoofStompDesire ~= nil)
+    if (castHoofStompDesire > 0)
     then
         npcBot:Action_UseAbility(HoofStomp);
         return;
     end
 
-    if (castDoubleEdgeDesire ~= nil)
+    if (castDoubleEdgeDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(DoubleEdge, castDoubleEdgeTarget);
         return;
     end
 
-    if (castWorkHorseDesire ~= nil)
+    if (castWorkHorseDesire > 0)
     then
         npcBot:Action_UseAbility(WorkHorse);
         return;
     end
 
-    if (castHitchARideDesire ~= nil)
+    if (castHitchARideDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(HitchARide, castHitchARideTarget);
         return;
     end
 
-    if (castStampedeDesire ~= nil)
+    if (castStampedeDesire > 0)
     then
         npcBot:Action_UseAbility(Stampede);
         return;
@@ -103,7 +103,7 @@ end
 function ConsiderHoofStomp()
     local ability = HoofStomp;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local radiusAbility = ability:GetAOERadius();
@@ -139,12 +139,14 @@ function ConsiderHoofStomp()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderDoubleEdge()
     local ability = DoubleEdge;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange() * 2;
@@ -178,18 +180,20 @@ function ConsiderDoubleEdge()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderWorkHorse()
     local ability = WorkHorse;
     if not utility.IsAbilityAvailable(ability)
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if npcBot:HasModifier("modifier_centaur_stampede")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local attackRange = npcBot:GetAttackRange();
@@ -214,12 +218,14 @@ function ConsiderWorkHorse()
             return BOT_ACTION_DESIRE_HIGH;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderHitchARide()
     local ability = HitchARide;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -241,18 +247,20 @@ function ConsiderHitchARide()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderStampede()
     local ability = Stampede;
     if not utility.IsAbilityAvailable(ability)
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if npcBot:HasModifier("modifier_centaur_stampede")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local attackRange = npcBot:GetAttackRange();
@@ -275,4 +283,6 @@ function ConsiderStampede()
             return BOT_ACTION_DESIRE_HIGH;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end

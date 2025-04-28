@@ -4,7 +4,7 @@ require(GetScriptDirectory() .. "/ability_item_usage_generic")
 require(GetScriptDirectory() .. "/ability_levelup_generic")
 
 function CourierUsageThink()
-    ability_item_usage_generic.CourierUsageThink()
+    ability_item_usage_generic.CourierUsageThink();
 end
 
 function BuybackUsageThink()
@@ -67,25 +67,25 @@ function AbilityUsageThink()
     local castWolfBiteDesire, castWolfBiteTarget = ConsiderWolfBite();
     local castShapeshiftDesire = ConsiderShapeshift();
 
-    if (castSummonWolvesDesire ~= nil)
+    if (castSummonWolvesDesire > 0)
     then
         npcBot:Action_UseAbility(SummonWolves);
         return;
     end
 
-    if (castHowlDesire ~= nil)
+    if (castHowlDesire > 0)
     then
         npcBot:Action_UseAbility(Howl);
         return;
     end
 
-    if (castWolfBiteDesire ~= nil)
+    if (castWolfBiteDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(WolfBite, castWolfBiteTarget);
         return;
     end
 
-    if (castShapeshiftDesire ~= nil)
+    if (castShapeshiftDesire > 0)
     then
         npcBot:Action_UseAbility(Shapeshift);
         return;
@@ -116,14 +116,14 @@ end
 function ConsiderSummonWolves()
     local ability = SummonWolves;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local maxUnits = ability:GetSpecialValueInt("wolf_count");
 
     if CountWolfs() >= maxUnits
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     -- Attack use
@@ -164,12 +164,14 @@ function ConsiderSummonWolves()
             return BOT_ACTION_DESIRE_LOW;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderHowl()
     local ability = Howl;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local attackRange = npcBot:GetAttackRange();
@@ -203,12 +205,14 @@ function ConsiderHowl()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderWolfBite()
     local ability = WolfBite;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -229,17 +233,19 @@ function ConsiderWolfBite()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderShapeshift()
     local ability = Shapeshift;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if npcBot:HasModifier("modifier_lycan_shapeshift")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     -- Attack use
@@ -253,8 +259,10 @@ function ConsiderShapeshift()
                 return BOT_ACTION_DESIRE_HIGH;
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         local enemyAbility = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
         if (#enemyAbility > 0) and (HealthPercentage < 0.5)
@@ -263,4 +271,6 @@ function ConsiderShapeshift()
             return BOT_ACTION_DESIRE_HIGH;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end

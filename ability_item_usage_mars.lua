@@ -67,25 +67,25 @@ function AbilityUsageThink()
     local castBulwarkDesire = ConsiderBulwark();
     local castArenaOfBloodDesire, castArenaOfBloodLocation = ConsiderArenaOfBlood();
 
-    if (castSpearOfMarsDesire ~= nil)
+    if (castSpearOfMarsDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(SpearOfMars, castSpearOfMarsLocation);
         return;
     end
 
-    if (castGodsRebukeDesire ~= nil)
+    if (castGodsRebukeDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(GodsRebuke, castGodsRebukeLocation);
         return;
     end
 
-    if (castBulwarkDesire ~= nil)
+    if (castBulwarkDesire > 0)
     then
         npcBot:Action_UseAbility(Bulwark);
         return;
     end
 
-    if (castArenaOfBloodDesire ~= nil)
+    if (castArenaOfBloodDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(ArenaOfBlood, castArenaOfBloodLocation);
         return;
@@ -95,7 +95,7 @@ end
 function ConsiderSpearOfMars()
     local ability = SpearOfMars;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetSpecialValueInt("spear_range");
@@ -169,12 +169,14 @@ function ConsiderSpearOfMars()
             return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility);
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderGodsRebuke()
     local ability = GodsRebuke;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetSpecialValueInt("radius");
@@ -210,8 +212,10 @@ function ConsiderGodsRebuke()
                     utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
             end
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
@@ -223,8 +227,10 @@ function ConsiderGodsRebuke()
                 end
             end
         end
-        -- Cast if push/defend/farm
-    elseif utility.PvEMode(npcBot)
+    end
+
+    -- Cast if push/defend/farm
+    if utility.PvEMode(npcBot)
     then
         local locationAoE = npcBot:FindAoELocation(true, false, npcBot:GetLocation(), castRangeAbility, radiusAbility,
             0, 0);
@@ -232,8 +238,10 @@ function ConsiderGodsRebuke()
         then
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
         end
-        -- Cast when laning
-    elseif botMode == BOT_MODE_LANING
+    end
+
+    -- Cast when laning
+    if botMode == BOT_MODE_LANING
     then
         local enemy = utility.GetWeakest(enemyAbility);
         if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)
@@ -241,12 +249,14 @@ function ConsiderGodsRebuke()
             return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderBulwark()
     local ability = Bulwark;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local radiusAbility = ability:GetSpecialValueInt("forward_angle");
@@ -281,12 +291,14 @@ function ConsiderBulwark()
             return BOT_ACTION_DESIRE_VERYLOW;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderArenaOfBlood()
     local ability = ArenaOfBlood;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -319,8 +331,10 @@ function ConsiderArenaOfBlood()
             --npcBot:ActionImmediate_Chat("Использую ArenaOfBlood по 2+ врагам!", true);
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
         end
-        -- Retreat use
-    elseif utility.RetreatMode(npcBot)
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
     then
         local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility + (radiusAbility / 2), true, BOT_MODE_NONE);
         if (#enemyAbility > 0)
@@ -341,4 +355,6 @@ function ConsiderArenaOfBlood()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end

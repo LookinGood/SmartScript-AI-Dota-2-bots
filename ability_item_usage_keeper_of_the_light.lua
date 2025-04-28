@@ -95,63 +95,63 @@ function AbilityUsageThink()
     local castRecallDesire, castRecallLocation = ConsiderRecall();
     local castSpiritFormDesire = ConsiderSpiritForm();
 
-    if (castIlluminateDesire ~= nil)
+    if (castIlluminateDesire > 0)
     then
         npcBot:Action_ClearActions(true);
         npcBot:ActionQueue_UseAbilityOnLocation(Illuminate, castIlluminateLocation);
         return;
     end
 
-    if (castReleaseIlluminateDesire ~= nil)
+    if (castReleaseIlluminateDesire > 0)
     then
         npcBot:Action_UseAbility(ReleaseIlluminate);
         return;
     end
 
-    if (castIlluminateSpiritFormDesire ~= nil)
+    if (castIlluminateSpiritFormDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(IlluminateSpiritForm, castIlluminateSpiritFormLocation);
         return;
     end
 
-    --[[     if (castReleaseIlluminateSpiritFormDesire ~= nil)
+    --[[     if (castReleaseIlluminateSpiritFormDesire > 0)
     then
         npcBot:Action_UseAbility(ReleaseIlluminateSpiritForm);
         return;
     end ]]
 
-    if (castBlindingLightDesire ~= nil)
+    if (castBlindingLightDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(BlindingLight, castBlindingLightLocation);
         return;
     end
 
-    if (castChakraMagicDesire ~= nil)
+    if (castChakraMagicDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(ChakraMagic, castChakraMagicTarget);
         return;
     end
 
-    if (castSolarBindDesire ~= nil)
+    if (castSolarBindDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(SolarBind, castSolarBindTarget);
         return;
     end
 
-    if (castWillOWispDesire ~= nil)
+    if (castWillOWispDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(WillOWisp, castWillOWispLocation);
         return;
     end
 
-    if (castRecallDesire ~= nil)
+    if (castRecallDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(Recall, castRecallLocation);
         --npcBot:ActionImmediate_Ping(castRecallLocation.x, castRecallLocation.y, true);
         return;
     end
 
-    if (castSpiritFormDesire ~= nil)
+    if (castSpiritFormDesire > 0)
     then
         npcBot:Action_UseAbility(SpiritForm);
         return;
@@ -161,7 +161,7 @@ end
 function ConsiderIlluminate()
     local ability = Illuminate;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetSpecialValueInt("range");
@@ -220,12 +220,14 @@ function ConsiderIlluminate()
             return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility);
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderReleaseIlluminate()
     local ability = ReleaseIlluminate;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     --local allyAbility = npcBot:GetNearbyHeroes(1600, false, BOT_MODE_NONE);
@@ -235,12 +237,14 @@ function ConsiderReleaseIlluminate()
         --npcBot:ActionImmediate_Chat("Использую ReleaseIlluminate!", true);
         return BOT_ACTION_DESIRE_MODERATE;
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderIlluminateSpiritForm()
     local ability = IlluminateSpiritForm;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetSpecialValueInt("range");
@@ -314,12 +318,14 @@ function ConsiderIlluminateSpiritForm()
             return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility);
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderBlindingLight()
     local ability = BlindingLight;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -403,12 +409,14 @@ function ConsiderBlindingLight()
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderChakraMagic()
     local ability = ChakraMagic;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -427,12 +435,14 @@ function ConsiderChakraMagic()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderSolarBind()
     local ability = SolarBind;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -464,12 +474,14 @@ function ConsiderSolarBind()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderWillOWisp()
     local ability = WillOWisp;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -548,18 +560,19 @@ function ConsiderWillOWisp()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderRecall()
     local ability = Recall;
-    if not utility.IsAbilityAvailable(ability)
-    then
-        return;
+    if not utility.IsAbilityAvailable(ability) then
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     if npcBot:HasModifier("modifier_keeper_of_the_light_recall")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
@@ -603,18 +616,20 @@ function ConsiderRecall()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderSpiritForm()
     local ability = SpiritForm;
     if not utility.IsAbilityAvailable(ability)
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if npcBot:HasModifier("modifier_keeper_of_the_light_spirit_form")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     -- Attack use
@@ -637,6 +652,8 @@ function ConsiderSpiritForm()
             return BOT_ACTION_DESIRE_HIGH;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 --[[ for i = 1, #allyAbility do

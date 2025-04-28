@@ -140,75 +140,85 @@ function AbilityUsageThink()
     local castEMPDesire, castEMPLocation = ConsiderEMP();
     local castAlacrityDesire, castAlacrityTarget = ConsiderAlacrity();
     local castChaosMeteorDesire, castChaosMeteorLocation = ConsiderChaosMeteor();
-    local castSunStrikeDesire, castSunStrikeLocation = ConsiderSunStrike();
+    local castSunStrikeDesire, castSunStrikeLocation, castSunStrikeTargetType = ConsiderSunStrike();
     local castForgeSpiritDesire = ConsiderForgeSpirit();
     local castIceWallDesire = ConsiderIceWall();
     local castDeafeningBlastDesire, castDeafeningBlastLocation = ConsiderDeafeningBlast();
 
-    if (castColdSnapDesire ~= nil)
+    if (castColdSnapDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(ColdSnap, castColdSnapTarget);
         timerColdSnap = GameTime();
         return;
     end
 
-    if (castGhostWalkDesire ~= nil)
+    if (castGhostWalkDesire > 0)
     then
         npcBot:Action_UseAbility(GhostWalk);
+        npcBot:ActionQueue_UseAbility(hAbility)
         timerGhostWalk = GameTime();
         return;
     end
 
-    if (castTornadoDesire ~= nil)
+    if (castTornadoDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(Tornado, castTornadoLocation);
         timerTornado = GameTime();
         return;
     end
 
-    if (castEMPDesire ~= nil)
+    if (castEMPDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(EMP, castEMPLocation);
         timerEMP = GameTime();
         return;
     end
 
-    if (castAlacrityDesire ~= nil)
+    if (castAlacrityDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(Alacrity, castAlacrityTarget);
         timerAlacrity = GameTime();
         return;
     end
 
-    if (castChaosMeteorDesire ~= nil)
+    if (castChaosMeteorDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(ChaosMeteor, castChaosMeteorLocation);
         timerChaosMeteor = GameTime();
         return;
     end
 
-    if (castSunStrikeDesire ~= nil)
+    if (castSunStrikeDesire > 0)
     then
-        npcBot:Action_UseAbilityOnLocation(SunStrike, castSunStrikeLocation);
-        timerSunStrike = GameTime();
-        return;
+        if (castSunStrikeTargetType == "location")
+        then
+            npcBot:Action_UseAbilityOnLocation(SunStrike, castSunStrikeLocation);
+            timerSunStrike = GameTime();
+            return;
+        elseif (castSunStrikeTargetType == "cataclysm")
+        then
+            npcBot:Action_UseAbilityOnEntity(SunStrike, npcBot);
+            npcBot:Action_UseAbilityOnEntity(SunStrike, npcBot);
+            timerSunStrike = GameTime() - SunStrike:GetSpecialValueInt("cataclysm_cooldown");
+            return;
+        end
     end
 
-    if (castForgeSpiritDesire ~= nil)
+    if (castForgeSpiritDesire > 0)
     then
         npcBot:Action_UseAbility(ForgeSpirit);
         timerForgeSpirit = GameTime();
         return;
     end
 
-    if (castIceWallDesire ~= nil)
+    if (castIceWallDesire > 0)
     then
         npcBot:Action_UseAbility(IceWall);
         timerIceWall = GameTime();
         return;
     end
 
-    if (castDeafeningBlastDesire ~= nil)
+    if (castDeafeningBlastDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(DeafeningBlast, castDeafeningBlastLocation);
         timerDeafeningBlast = GameTime();
@@ -401,7 +411,7 @@ function ConsiderSpheres()
                         return;
                     end
                 end
-            elseif botMode == BOT_MODE_ROSHAN
+            elseif utility.BossMode(npcBot)
             then
                 if QuasReady()
                 then
@@ -496,7 +506,7 @@ end
 function ConsiderColdSnap()
     local ability = ColdSnap;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -544,17 +554,19 @@ function ConsiderColdSnap()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderGhostWalk()
     local ability = GhostWalk;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if npcBot:IsInvisible()
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if utility.RetreatMode(npcBot)
@@ -565,12 +577,14 @@ function ConsiderGhostWalk()
             return BOT_MODE_DESIRE_VERYHIGH;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderTornado()
     local ability = Tornado;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -625,12 +639,14 @@ function ConsiderTornado()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderEMP()
     local ability = EMP;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -689,12 +705,14 @@ function ConsiderEMP()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderAlacrity()
     local ability = Alacrity;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -747,12 +765,14 @@ function ConsiderAlacrity()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderChaosMeteor()
     local ability = ChaosMeteor;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -790,16 +810,20 @@ function ConsiderChaosMeteor()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderSunStrike()
     local ability = SunStrike;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0, 0;
     end
 
+    local radiusAbility = ability:GetSpecialValueInt("cataclysm_max_range");
     local damageAbility = ability:GetSpecialValueInt("damage");
     local delayAbility = ability:GetSpecialValueInt("delay");
+    local cataclysmCount = ability:GetSpecialValueInt("cataclysm_count");
     local enemyAbility = GetUnitList(UNIT_LIST_ENEMY_HEROES);
 
     -- Cast if can kill somebody
@@ -810,32 +834,63 @@ function ConsiderSunStrike()
             then
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    npcBot:ActionImmediate_Chat("Использую SunStrike что бы добить " .. enemy:GetUnitName(), true);
+                    if (cataclysmCount > 0) and utility.IsDisabled(enemy)
+                    then
+                        --npcBot:ActionImmediate_Chat("Использую SunStrike-Cataclysm что бы добить " .. enemy:GetUnitName(), true);
+                        return BOT_ACTION_DESIRE_ABSOLUTE, 0, "cataclysm";
+                    end
                     return BOT_ACTION_DESIRE_ABSOLUTE,
-                        utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
+                        utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0), "location";
                 end
             end
         end
     end
 
     -- Attack use
-    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
+    if utility.PvPMode(npcBot)
     then
-        if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
+        -- Cast if enemy >=2
+        if (cataclysmCount > 0)
+        then
+            local locationAoE = npcBot:FindAoELocation(true, true, npcBot:GetLocation(), 3000, radiusAbility * 2, 0, 0);
+            if locationAoE ~= nil and (locationAoE.count >= 2)
+            then
+                --npcBot:ActionImmediate_Chat("Использую SunStrike-Cataclysm по 2м+ врагам!", true);
+                return BOT_ACTION_DESIRE_HIGH, 0, "cataclysm";
+            end
+        end
+        if utility.IsHero(botTarget)
         then
             if utility.CanCastSpellOnTarget(ability, botTarget)
             then
+                if (cataclysmCount > 0) and utility.IsDisabled(botTarget)
+                then
+                    --npcBot:ActionImmediate_Chat("Использую SunStrike-Cataclysm против " .. botTarget:GetUnitName(), true);
+                    return BOT_ACTION_DESIRE_VERYHIGH, 0, "cataclysm";
+                end
                 return BOT_ACTION_DESIRE_VERYHIGH,
-                    utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
+                    utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0), "location";
             end
         end
     end
+
+    -- Boss use
+    if utility.BossMode(npcBot) and utility.IsBoss(botTarget)
+    then
+        if utility.CanCastSpellOnTarget(ability, botTarget)
+        then
+            return BOT_ACTION_DESIRE_VERYHIGH,
+                utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0), "location";
+        end
+    end
+
+    return BOT_ACTION_DESIRE_NONE, 0, 0;
 end
 
 function ConsiderForgeSpirit()
     local ability = ForgeSpirit;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local castRangeAbility = ability:GetSpecialValueInt("spirit_attack_range") + npcBot:GetAttackRange();
@@ -868,12 +923,14 @@ function ConsiderForgeSpirit()
             return BOT_ACTION_DESIRE_LOW;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderIceWall()
     local ability = IceWall;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local castRangeAbility = ability:GetSpecialValueInt("wall_place_distance");
@@ -920,12 +977,14 @@ function ConsiderIceWall()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderDeafeningBlast()
     local ability = DeafeningBlast;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -990,4 +1049,6 @@ function ConsiderDeafeningBlast()
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end

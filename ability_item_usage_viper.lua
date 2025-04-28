@@ -67,19 +67,19 @@ function AbilityUsageThink()
     local castNosediveDesire, castNosediveLocation = ConsiderNosedive();
     local castViperStrikeDesire, castViperStrikeTarget = ConsiderViperStrike();
 
-    if (castNethertoxinDesire ~= nil)
+    if (castNethertoxinDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(Nethertoxin, castNethertoxinLocation);
         return;
     end
 
-    if (castNosediveDesire ~= nil)
+    if (castNosediveDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(Nosedive, castNosediveLocation);
         return;
     end
 
-    if (castViperStrikeDesire ~= nil)
+    if (castViperStrikeDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(ViperStrike, castViperStrikeTarget);
         return;
@@ -112,7 +112,7 @@ end
 function ConsiderNethertoxin()
     local ability = Nethertoxin;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -158,7 +158,7 @@ function ConsiderNethertoxin()
             0, 0);
         if locationAoE ~= nil and (ManaPercentage >= 0.7) and (locationAoE.count >= 3)
         then
-            return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc, "location";
+            return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
         end
     end
 
@@ -172,12 +172,14 @@ function ConsiderNethertoxin()
             return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility);
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderNosedive()
     local ability = Nosedive;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -202,12 +204,14 @@ function ConsiderNosedive()
             return BOT_ACTION_DESIRE_HIGH, utility.GetEscapeLocation(npcBot, castRangeAbility);
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderViperStrike()
     local ability = ViperStrike;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -256,4 +260,6 @@ function ConsiderViperStrike()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end

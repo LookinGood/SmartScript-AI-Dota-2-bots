@@ -68,25 +68,25 @@ function AbilityUsageThink()
     local castInfernalBladeDesire, castInfernalBladeTarget = ConsiderInfernalBlade();
     local castDoomDesire, castDoomTarget = ConsiderDoom();
 
-    if (castDevourDesire ~= nil)
+    if (castDevourDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(Devour, castDevourTarget);
         return;
     end
 
-    if (castScorchedEarthDesire ~= nil)
+    if (castScorchedEarthDesire > 0)
     then
         npcBot:Action_UseAbility(ScorchedEarth);
         return;
     end
 
-    if (castInfernalBladeDesire ~= nil)
+    if (castInfernalBladeDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(InfernalBlade, castInfernalBladeTarget);
         return;
     end
 
-    if (castDoomDesire ~= nil)
+    if (castDoomDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(Doom, castDoomTarget);
         return;
@@ -102,12 +102,12 @@ end
 function ConsiderDevour()
     local ability = Devour;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     if npcBot:HasModifier("modifier_doom_bringer_devour")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -146,12 +146,14 @@ function ConsiderDevour()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderScorchedEarth()
     local ability = ScorchedEarth;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local radiusAbility = ability:GetSpecialValueInt("radius");
@@ -194,17 +196,19 @@ function ConsiderScorchedEarth()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderInfernalBlade()
     local ability = InfernalBlade;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     if npcBot:IsDisarmed()
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = npcBot:GetAttackRange();
@@ -249,12 +253,14 @@ function ConsiderInfernalBlade()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderDoom()
     local ability = Doom;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -290,7 +296,7 @@ function ConsiderDoom()
     end
 
     -- Retreat or help ally use
-    if utility.RetreatMode(npcBot) or botMode == BOT_MODE_DEFEND_ALLY
+    if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0) and (HealthPercentage <= 0.5)
         then
@@ -303,4 +309,6 @@ function ConsiderDoom()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end

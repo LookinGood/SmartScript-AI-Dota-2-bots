@@ -49,6 +49,7 @@ end
 -- Abilities
 local Bloodrage = AbilitiesReal[1]
 local BloodRite = AbilitiesReal[2]
+local Thirst = AbilitiesReal[3]
 local BloodMist = AbilitiesReal[4]
 local Rupture = AbilitiesReal[6]
 
@@ -64,28 +65,35 @@ function AbilityUsageThink()
 
     local castBloodrageDesire, castBloodrageTarget = ConsiderBloodrage();
     local castBloodRiteDesire, castBloodRiteLocation = ConsiderBloodRite();
+    local castThirstDesire = ConsiderThirst();
     local castBloodMistDesire = ConsiderBloodMist();
     local castRuptureDesire, castRuptureTarget = ConsiderRupture();
 
-    if (castBloodrageDesire ~= nil)
+    if (castBloodrageDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(Bloodrage, castBloodrageTarget);
         return;
     end
 
-    if (castBloodRiteDesire ~= nil)
+    if (castBloodRiteDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(BloodRite, castBloodRiteLocation);
         return;
     end
 
-    if (castBloodMistDesire ~= nil)
+    if (castThirstDesire > 0)
+    then
+        npcBot:Action_UseAbility(Thirst);
+        return;
+    end
+
+    if (castBloodMistDesire > 0)
     then
         npcBot:Action_UseAbility(BloodMist);
         return;
     end
 
-    if (castRuptureDesire ~= nil)
+    if (castRuptureDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(Rupture, castRuptureTarget);
         return;
@@ -95,7 +103,7 @@ end
 function ConsiderBloodrage()
     local ability = Bloodrage;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -116,12 +124,14 @@ function ConsiderBloodrage()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderBloodRite()
     local ability = BloodRite;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -193,12 +203,63 @@ function ConsiderBloodRite()
             return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
+end
+
+function ConsiderThirst()
+    local ability = Thirst;
+    if not utility.IsAbilityAvailable(ability)
+    then
+        return BOT_ACTION_DESIRE_NONE;
+    end
+
+    if npcBot:HasModifier("modifier_bloodseeker_thirst_active")
+    then
+        return BOT_ACTION_DESIRE_NONE;
+    end
+
+    local attackRange = npcBot:GetAttackRange();
+    local enemyAbility = GetUnitList(UNIT_LIST_ENEMY_HEROES);
+
+    if (#enemyAbility > 0)
+    then
+        for _, enemy in pairs(enemyAbility) do
+            if not utility.IsIllusion(enemy) and enemy:GetHealth() >= enemy:GetMaxHealth()
+            then
+                return BOT_ACTION_DESIRE_NONE;
+            end
+        end
+    end
+
+    -- Attack use
+    if utility.PvPMode(npcBot)
+    then
+        if utility.IsHero(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) > attackRange and GetUnitToUnitDistance(npcBot, botTarget) < 1000
+        then
+            --npcBot:ActionImmediate_Chat("Использую Thirst для нападения!", true);
+            return BOT_ACTION_DESIRE_HIGH;
+        end
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
+    then
+        local enemyAbility = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
+        if (#enemyAbility > 0) and (HealthPercentage <= 0.6)
+        then
+            --npcBot:ActionImmediate_Chat("Использую Thirst для отступления!", true);
+            return BOT_ACTION_DESIRE_HIGH;
+        end
+    end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderBloodMist()
     local ability = BloodMist;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local radiusAbility = ability:GetAOERadius();
@@ -228,12 +289,14 @@ function ConsiderBloodMist()
             return BOT_ACTION_DESIRE_HIGH;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderRupture()
     local ability = Rupture;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetSpecialValueInt("AbilityCastRange");
@@ -295,4 +358,6 @@ function ConsiderRupture()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end

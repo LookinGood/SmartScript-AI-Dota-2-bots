@@ -57,7 +57,8 @@ local WalrusPunch = AbilitiesReal[6]
 
 function AbilityUsageThink()
     local castLaunchSnowballDesire = ConsiderLaunchSnowball();
-    if (castLaunchSnowballDesire ~= nil)
+
+    if (castLaunchSnowballDesire > 0)
     then
         npcBot:Action_UseAbility(LaunchSnowball);
         return;
@@ -79,37 +80,37 @@ function AbilityUsageThink()
     local castWalrusKickDesire, castWalrusKickTarget = ConsiderWalrusKick();
     local castWalrusPunchDesire, castWalrusPunchTarget = ConsiderWalrusPunch();
 
-    if (castIceShardsDesire ~= nil)
+    if (castIceShardsDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(IceShards, castIceShardsLocation);
         return;
     end
 
-    if (castSnowballDesire ~= nil)
+    if (castSnowballDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(Snowball, castSnowballTarget);
         return;
     end
 
-    if (castTagTeamDesire ~= nil)
+    if (castTagTeamDesire > 0)
     then
         npcBot:Action_UseAbility(TagTeam);
         return;
     end
 
-    if (castDrinkingBuddiesDesire ~= nil)
+    if (castDrinkingBuddiesDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(DrinkingBuddies, castDrinkingBuddiesTarget);
         return;
     end
 
-    if (castWalrusKickDesire ~= nil)
+    if (castWalrusKickDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(WalrusKick, castWalrusKickTarget);
         return;
     end
 
-    if (castWalrusPunchDesire ~= nil)
+    if (castWalrusPunchDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(WalrusPunch, castWalrusPunchTarget);
         return;
@@ -119,7 +120,7 @@ end
 function ConsiderIceShards()
     local ability = IceShards;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -179,12 +180,14 @@ function ConsiderIceShards()
             return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility);
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderSnowball()
     local ability = Snowball;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -250,12 +253,14 @@ function ConsiderSnowball()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderLaunchSnowball()
     local ability = LaunchSnowball;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     --npcBot:ActionImmediate_Chat("Использую LaunchSnowball!", true);
@@ -265,7 +270,7 @@ end
 function ConsiderTagTeam()
     local ability = TagTeam;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local radiusAbility = ability:GetSpecialValueInt("radius");
@@ -292,12 +297,14 @@ function ConsiderTagTeam()
             --npcBot:ActionImmediate_Chat("Использую TagTeam для отступления!", true);
             return BOT_ACTION_DESIRE_HIGH;
         end ]]
+
+        return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderDrinkingBuddies()
     local ability = DrinkingBuddies;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -359,12 +366,14 @@ function ConsiderDrinkingBuddies()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderWalrusKick()
     local ability = WalrusKick;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -411,12 +420,14 @@ function ConsiderWalrusKick()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderWalrusPunch()
     local ability = WalrusPunch;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -450,4 +461,6 @@ function ConsiderWalrusPunch()
             ability:ToggleAutoCast()
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end

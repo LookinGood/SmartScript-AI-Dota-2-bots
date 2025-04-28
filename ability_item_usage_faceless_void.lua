@@ -65,19 +65,19 @@ function AbilityUsageThink()
     local castTimeDilationDesire = ConsiderTimeDilation();
     local castTimeLockDesire, castTimeLockLocation = ConsiderTimeLock();
 
-    if (castTimeWalkDesire ~= nil)
+    if (castTimeWalkDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(TimeWalk, castTimeWalkLocation);
         return;
     end
 
-    if (castTimeDilationDesire ~= nil)
+    if (castTimeDilationDesire > 0)
     then
         npcBot:Action_UseAbility(TimeDilation);
         return;
     end
 
-    if (castTimeLockDesire ~= nil)
+    if (castTimeLockDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(TimeLock, castTimeLockLocation);
         return;
@@ -87,7 +87,7 @@ end
 function ConsiderTimeWalk()
     local ability = TimeWalk;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local attackRange = npcBot:GetAttackRange();
@@ -114,12 +114,14 @@ function ConsiderTimeWalk()
             return BOT_ACTION_DESIRE_HIGH, utility.GetEscapeLocation(npcBot, castRangeAbility);
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderTimeDilation()
     local ability = TimeDilation;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local radiusAbility = ability:GetAOERadius();
@@ -141,12 +143,14 @@ function ConsiderTimeDilation()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderTimeLock()
     local ability = TimeLock;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -226,4 +230,6 @@ function ConsiderTimeLock()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end

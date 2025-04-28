@@ -72,37 +72,37 @@ function AbilityUsageThink()
     local castTerrorWaveDesire = ConsiderTerrorWave();
     local castSunderDesire, castSunderTarget = ConsiderSunder();
 
-    if (castReflectionDesire ~= nil)
+    if (castReflectionDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(Reflection, castReflectionLocation);
         return;
     end
 
-    if (castConjureImageDesire ~= nil)
+    if (castConjureImageDesire > 0)
     then
         npcBot:Action_UseAbility(ConjureImage);
         return;
     end
 
-    if (castMetamorphosisDesire ~= nil)
+    if (castMetamorphosisDesire > 0)
     then
         npcBot:Action_UseAbility(Metamorphosis);
         return;
     end
 
-    if (castDemonZealDesire ~= nil)
+    if (castDemonZealDesire > 0)
     then
         npcBot:Action_UseAbility(DemonZeal);
         return;
     end
 
-    if (castTerrorWaveDesire ~= nil)
+    if (castTerrorWaveDesire > 0)
     then
         npcBot:Action_UseAbility(TerrorWave);
         return;
     end
 
-    if (castSunderDesire ~= nil)
+    if (castSunderDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(Sunder, castSunderTarget);
         return;
@@ -112,7 +112,7 @@ end
 function ConsiderReflection()
     local ability = Reflection;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -166,12 +166,14 @@ function ConsiderReflection()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderConjureImage()
     local ability = ConjureImage;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     -- Attack use
@@ -212,17 +214,19 @@ function ConsiderConjureImage()
             return BOT_ACTION_DESIRE_LOW;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderMetamorphosis()
     local ability = Metamorphosis;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if npcBot:HasModifier("modifier_terrorblade_metamorphosis")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local attackRange = npcBot:GetAttackRange() + ability:GetSpecialValueInt("bonus_range");
@@ -236,17 +240,19 @@ function ConsiderMetamorphosis()
             return BOT_ACTION_DESIRE_HIGH;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderDemonZeal()
     local ability = DemonZeal;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if npcBot:HasModifier("modifier_terrorblade_metamorphosis") or (utility.IsAbilityAvailable(Metamorphosis) or utility.IsAbilityAvailable(TerrorWave))
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local attackRange = npcBot:GetAttackRange();
@@ -274,12 +280,14 @@ function ConsiderDemonZeal()
             return BOT_ACTION_DESIRE_HIGH;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderTerrorWave()
     local ability = TerrorWave;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local radiusAbility = ability:GetSpecialValueInt("scepter_radius");
@@ -322,12 +330,14 @@ function ConsiderTerrorWave()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderSunder()
     local ability = Sunder;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -366,4 +376,6 @@ function ConsiderSunder()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end

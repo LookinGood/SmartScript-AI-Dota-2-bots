@@ -69,31 +69,31 @@ function AbilityUsageThink()
     local castTreeThrowDesire, castTreeThrowTarget = ConsiderTreeThrow();
     local castTreeVolleyDesire, castTreeVolleyLocation = ConsiderTreeVolley();
 
-    if (castAvalancheDesire ~= nil)
+    if (castAvalancheDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(Avalanche, castAvalancheLocation);
         return;
     end
 
-    if (castTossDesire ~= nil)
+    if (castTossDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(Toss, castTossTarget);
         return;
     end
 
-    if (castTreeGrabDesire ~= nil)
+    if (castTreeGrabDesire > 0)
     then
         npcBot:Action_UseAbilityOnTree(TreeGrab, castTreeGrabTarget);
         return;
     end
 
-    if (castTreeThrowDesire ~= nil)
+    if (castTreeThrowDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(TreeThrow, castTreeThrowTarget);
         return;
     end
 
-    if (castTreeVolleyDesire ~= nil)
+    if (castTreeVolleyDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(TreeVolley, castTreeVolleyLocation);
         return;
@@ -103,7 +103,7 @@ end
 function ConsiderAvalanche()
     local ability = Avalanche;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -166,12 +166,14 @@ function ConsiderAvalanche()
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderToss()
     local ability = Toss;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local grabRadius = ability:GetSpecialValueInt("grab_radius");
@@ -264,7 +266,7 @@ function ConsiderToss()
     -- Cast when laning
     if botMode == BOT_MODE_LANING and (ManaPercentage >= 0.7)
     then
-        if #grabAllyHeroes <= 1 and #grabEnemyHeroes > 0 or #grabAllyCreeps > 0 or #grabEnemyCreeps > 0
+        if (#grabAllyHeroes <= 1) and (#grabEnemyHeroes > 0 or #grabAllyCreeps > 0 or #grabEnemyCreeps > 0)
         then
             local enemy = utility.GetWeakest(enemyAbility);
             if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)
@@ -274,12 +276,14 @@ function ConsiderToss()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderTreeGrab()
     local ability = TreeGrab;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -287,7 +291,7 @@ function ConsiderTreeGrab()
 
     if (#trees == 0) or utility.RetreatMode(npcBot) or npcBot:HasModifier("modifier_tiny_tree_grab")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     if (#trees > 0) and IsLocationVisible(GetTreeLocation(trees[1])) and IsLocationPassable(GetTreeLocation(trees[1]))
@@ -299,12 +303,14 @@ function ConsiderTreeGrab()
             return BOT_ACTION_DESIRE_HIGH, trees[1];
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderTreeThrow()
     local ability = TreeThrow;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local attackRange = npcBot:GetAttackRange();
@@ -354,12 +360,14 @@ function ConsiderTreeThrow()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderTreeVolley()
     local ability = TreeVolley;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local grabRadius = ability:GetSpecialValueInt("tree_grab_radius");
@@ -367,7 +375,7 @@ function ConsiderTreeVolley()
 
     if (#trees < 4)
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -397,4 +405,6 @@ function ConsiderTreeVolley()
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end

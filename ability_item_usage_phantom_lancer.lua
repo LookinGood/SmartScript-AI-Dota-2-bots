@@ -67,25 +67,25 @@ function AbilityUsageThink()
     local castPhantomRushDesire = ConsiderPhantomRush();
     local castJuxtaposeDesire = ConsiderJuxtapose();
 
-    if (castSpiritLanceDesire ~= nil)
+    if (castSpiritLanceDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(SpiritLance, castSpiritLanceTarget);
         return;
     end
 
-    if (castDoppelgangerDesire ~= nil)
+    if (castDoppelgangerDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(Doppelganger, castDoppelgangerLocation);
         return;
     end
 
-    if (castPhantomRushDesire ~= nil)
+    if (castPhantomRushDesire > 0)
     then
         npcBot:Action_UseAbility(PhantomRush);
         return;
     end
 
-    if (castJuxtaposeDesire ~= nil)
+    if (castJuxtaposeDesire > 0)
     then
         npcBot:Action_UseAbility(Juxtapose);
         return;
@@ -95,7 +95,7 @@ end
 function ConsiderSpiritLance()
     local ability = SpiritLance;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -152,12 +152,14 @@ function ConsiderSpiritLance()
             return BOT_ACTION_DESIRE_VERYHIGH, enemy;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderDoppelganger()
     local ability = Doppelganger;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -197,12 +199,14 @@ function ConsiderDoppelganger()
             return BOT_ACTION_DESIRE_HIGH, utility.GetEscapeLocation(npcBot, castRangeAbility);
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderPhantomRush()
     local ability = PhantomRush;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     --local minCastRangeAbility = ability:GetSpecialValueInt("min_distance");
@@ -233,17 +237,19 @@ function ConsiderPhantomRush()
 
     --[[ if attackTarget ~= nil and (GetUnitToUnitDistance(npcBot, attackTarget) >= minCastRangeAbility and
             GetUnitToUnitDistance(npcBot, attackTarget) <= maxCastRangeAbility) ]]
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderJuxtapose()
     local ability = Juxtapose;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if npcBot:IsInvisible()
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local incomingSpells = npcBot:GetIncomingTrackingProjectiles();
@@ -254,6 +260,7 @@ function ConsiderJuxtapose()
         for _, spell in pairs(incomingSpells)
         do
             if not utility.IsAlly(npcBot, spell.caster) and GetUnitToLocationDistance(npcBot, spell.location) <= 300 and spell.is_attack == false
+                and not utility.HaveReflectSpell(npcBot)
             then
                 --npcBot:ActionImmediate_Chat("Использую Juxtapose что бы уклониться от снаряда!",true);
                 return BOT_ACTION_DESIRE_VERYHIGH;
@@ -271,4 +278,6 @@ function ConsiderJuxtapose()
             return BOT_MODE_DESIRE_HIGH;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end

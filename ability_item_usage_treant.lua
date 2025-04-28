@@ -53,6 +53,8 @@ local LivingArmor = AbilitiesReal[3]
 local EyesInTheForest = AbilitiesReal[4]
 local Overgrowth = AbilitiesReal[6]
 
+local castEyesInTheForestTimer = 0.0;
+
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
         return;
@@ -69,31 +71,32 @@ function AbilityUsageThink()
     local castEyesInTheForestDesire, castEyesInTheForestTarget = ConsiderEyesInTheForest();
     local castOvergrowthDesire = ConsiderOvergrowth();
 
-    if (castNaturesGraspDesire ~= nil)
+    if (castNaturesGraspDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(NaturesGrasp, castNaturesGraspLocation);
         return;
     end
 
-    if (castLeechSeedDesire ~= nil)
+    if (castLeechSeedDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(LeechSeed, castLeechSeedTarget);
         return;
     end
 
-    if (castLivingArmorDesire ~= nil)
+    if (castLivingArmorDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(LivingArmor, castLivingArmorTarget);
         return;
     end
 
-    if (castEyesInTheForestDesire ~= nil)
+    if (castEyesInTheForestDesire > 0) and (GameTime() >= castEyesInTheForestTimer + 10.0)
     then
         npcBot:Action_UseAbilityOnTree(EyesInTheForest, castEyesInTheForestTarget);
+        castEyesInTheForestTimer = GameTime();
         return;
     end
 
-    if (castOvergrowthDesire ~= nil)
+    if (castOvergrowthDesire > 0)
     then
         npcBot:Action_UseAbility(Overgrowth);
         return;
@@ -103,7 +106,7 @@ end
 function ConsiderNaturesGrasp()
     local ability = NaturesGrasp;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -146,7 +149,7 @@ function ConsiderNaturesGrasp()
             0, 0);
         if locationAoE ~= nil and (locationAoE.count >= 3) and (ManaPercentage >= 0.6)
         then
-            return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc, "location";
+            return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
         end
     end
 
@@ -159,12 +162,14 @@ function ConsiderNaturesGrasp()
             return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderLeechSeed()
     local ability = LeechSeed;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -240,12 +245,14 @@ function ConsiderLeechSeed()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderLivingArmor()
     local ability = LivingArmor;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local allyAbility = GetUnitList(UNIT_LIST_ALLIED_HEROES);
@@ -271,7 +278,7 @@ function ConsiderLivingArmor()
     then
         for _, ally in pairs(allyBuildings)
         do
-            if not ally:HasModifier("modifier_treant_living_armor") and ally:GetHealth() < ally:GetMaxHealth() and
+            if (not ally:HasModifier("modifier_treant_living_armor") and ally:GetHealth() < ally:GetMaxHealth()) and
                 (ally:IsTower() or ally:IsBarracks() or ally:IsFort())
             then
                 --npcBot:ActionImmediate_Chat("Использую living armor на союзное здание!", true);
@@ -289,12 +296,14 @@ function ConsiderLivingArmor()
             return BOT_MODE_DESIRE_HIGH, allyAncient;
         end
     end ]]
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderEyesInTheForest()
     local ability = EyesInTheForest;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -313,12 +322,14 @@ function ConsiderEyesInTheForest()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderOvergrowth()
     local ability = Overgrowth;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local radiusAbility = ability:GetAOERadius();
@@ -338,4 +349,6 @@ function ConsiderOvergrowth()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end

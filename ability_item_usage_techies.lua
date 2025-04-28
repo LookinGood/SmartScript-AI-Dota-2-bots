@@ -72,13 +72,13 @@ function AbilityUsageThink()
     local castMinefieldSignDesire, castMinefieldSignLocation = ConsiderMinefieldSign();
     local castProximityMinesDesire, castProximityMinesLocation = ConsiderProximityMines();
 
-    if (castStickyBombDesire ~= nil)
+    if (castStickyBombDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(StickyBomb, castStickyBombLocation);
         return;
     end
 
-    if (castReactiveTazerDesire ~= nil)
+    if (castReactiveTazerDesire > 0)
     then
         if (castReactiveTazerTargetType == nil)
         then
@@ -91,35 +91,50 @@ function AbilityUsageThink()
         end
     end
 
-    if (castDetonateTazerDesire ~= nil)
+    if (castDetonateTazerDesire > 0)
     then
         npcBot:Action_UseAbility(DetonateTazer);
         return;
     end
 
-    if (castBlastOffDesire ~= nil)
+    if (castBlastOffDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(BlastOff, castBlastOffLocation);
         return;
     end
 
-    if (castProximityMinesDesire ~= nil)
+    if (castProximityMinesDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(ProximityMines, castProximityMinesLocation);
         return;
     end
 
-    if (castMinefieldSignDesire ~= nil)
+    if (castMinefieldSignDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(MinefieldSign, castMinefieldSignLocation);
         return;
     end
 end
 
+local function MineInRadius(radius, location)
+    local unit = GetUnitList(UNIT_LIST_ALLIED_OTHER);
+    for _, creep in pairs(unit)
+    do
+        if creep:GetUnitName() == "npc_dota_techies_land_mine"
+        then
+            if GetUnitToLocationDistance(creep, location) <= radius
+            then
+                return true;
+            end
+        end
+    end
+    return false;
+end
+
 function ConsiderStickyBomb()
     local ability = StickyBomb;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -196,12 +211,14 @@ function ConsiderStickyBomb()
             return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility);
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderReactiveTazer()
     local ability = ReactiveTazer;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -257,12 +274,14 @@ function ConsiderReactiveTazer()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0, 0;
 end
 
 function ConsiderDetonateTazer()
     local ability = DetonateTazer;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local radiusAbility = ReactiveTazer:GetSpecialValueInt("stun_radius");
@@ -284,12 +303,14 @@ function ConsiderDetonateTazer()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderBlastOff()
     local ability = BlastOff;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -315,13 +336,16 @@ function ConsiderBlastOff()
     end
 
     -- Attack use
-    if utility.PvPMode(npcBot)
+    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
     then
-        if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget)
-            and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility and (HealthPercentage >= 0.1)
+        if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
         then
-            --npcBot:ActionImmediate_Chat("Использую Blast Off для нападения!", true);
-            return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
+            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+                and (HealthPercentage > 0.1)
+            then
+                --npcBot:ActionImmediate_Chat("Использую Blast Off для нападения!", true);
+                return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
+            end
         end
     end
 
@@ -334,38 +358,35 @@ function ConsiderBlastOff()
             return BOT_ACTION_DESIRE_HIGH, utility.GetEscapeLocation(npcBot, castRangeAbility);
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderMinefieldSign()
     local ability = MinefieldSign;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
-    local castRangeAbility = ability:GetCastRange();
-    local radiusAbility = ability:GetSpecialValueInt("aura_radius");
+    local castRangeAbility = ability:GetCastRange() + npcBot:GetAttackRange();
+    local radiusAbility = ability:GetAOERadius();
 
-    if GetGameState() == GAME_STATE_PRE_GAME and not utility.PvPMode(npcBot) and botMode ~= BOT_MODE_RETREAT and npcBot:DistanceFromFountain() > 6000
+    --print(radiusAbility)
+    --print(ability:GetSpecialValueInt("aura_radius"))
+    --print(ability:GetSpecialValueInt("aura_radius") + ability:GetSpecialValueInt("special_bonus_scepter"))
+
+    if GetGameState() == GAME_STATE_PRE_GAME and not utility.PvPMode(npcBot) and not utility.RetreatMode(npcBot) and npcBot:DistanceFromFountain() > 6000
     then
         --npcBot:ActionImmediate_Chat("Использую Mine field Sign до начала игры!",true);
         return BOT_ACTION_DESIRE_HIGH, npcBot:GetLocation();
     end
 
-    if not npcBot:HasScepter()
-    then
-        if not utility.PvPMode(npcBot) and MineInRadius(radiusAbility, npcBot:GetLocation()) and
-            utility.CountEnemyHeroAroundUnit(npcBot, radiusAbility) == 0 and
-            utility.CountEnemyTowerAroundUnit(npcBot, 1000) == 0
-        then
-            --npcBot:ActionImmediate_Chat("Использую Mine field Sign рядом со своей миной!", true);
-            return BOT_ACTION_DESIRE_HIGH, npcBot:GetLocation();
-        end
-    elseif npcBot:HasScepter()
+    if (radiusAbility >= 1000)
     then
         -- Attack use
         if utility.PvPMode(npcBot)
         then
-            if utility.CanCastOnMagicImmuneAndInvulnerableTarget(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= (castRangeAbility + 700)
+            if utility.CanCastOnMagicImmuneAndInvulnerableTarget(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
             then
                 --npcBot:ActionImmediate_Chat("Использую Minefield Sign для нападения!", true);
                 return BOT_ACTION_DESIRE_HIGH, botTarget:GetLocation();
@@ -381,34 +402,29 @@ function ConsiderMinefieldSign()
                 for _, enemy in pairs(enemyAbility) do
                     if utility.CanCastOnMagicImmuneAndInvulnerableTarget(enemy)
                     then
-                        --npcBot:ActionImmediate_Chat("Использую Minefield Sign для отступления!",true);
+                        --npcBot:ActionImmediate_Chat("Использую Minefield Sign для отступления!", true);
                         return BOT_ACTION_DESIRE_HIGH, npcBot:GetLocation();
                     end
                 end
             end
         end
-    end
-end
-
-local function MineInRadius(radius, location)
-    local unit = GetUnitList(UNIT_LIST_ALLIED_OTHER);
-    for _, creep in pairs(unit)
-    do
-        if creep:GetUnitName() == "npc_dota_techies_land_mine"
+    else
+        if not utility.PvPMode(npcBot) and MineInRadius(radiusAbility, npcBot:GetLocation()) and
+            utility.CountEnemyHeroAroundUnit(npcBot, radiusAbility) == 0 and
+            utility.CountEnemyTowerAroundUnit(npcBot, 1000) == 0
         then
-            if GetUnitToLocationDistance(creep, location) <= radius
-            then
-                return true;
-            end
+            --npcBot:ActionImmediate_Chat("Использую Mine field Sign рядом со своей миной!", true);
+            return BOT_ACTION_DESIRE_HIGH, npcBot:GetLocation();
         end
     end
-    return false;
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderProximityMines()
     local ability = ProximityMines;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local attackRange = npcBot:GetAttackRange();
@@ -451,4 +467,6 @@ function ConsiderProximityMines()
         --npcBot:ActionImmediate_Chat("Использую Proximity Mines для минирования!", true);
         return BOT_MODE_DESIRE_LOW, npcBot:GetLocation() + RandomVector(castRangeAbility);
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end

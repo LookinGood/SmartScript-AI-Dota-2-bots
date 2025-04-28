@@ -72,13 +72,13 @@ function AbilityUsageThink()
     local castEnchantTotemDesire, castEnchantTotemTarget, castEnchantTotemTargetType = ConsiderEnchantTotem();
     local castEchoSlamDesire = ConsiderEchoSlam();
 
-    if (castFissureDesire ~= nil)
+    if (castFissureDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(Fissure, castFissureLocation);
         return;
     end
 
-    if (castEnchantTotemDesire ~= nil)
+    if (castEnchantTotemDesire > 0)
     then
         if (castEnchantTotemTargetType == nil)
         then
@@ -95,7 +95,7 @@ function AbilityUsageThink()
         end
     end
 
-    if (castEchoSlamDesire ~= nil)
+    if (castEchoSlamDesire > 0)
     then
         npcBot:Action_UseAbility(EchoSlam);
         return;
@@ -115,7 +115,7 @@ end
 function ConsiderFissure()
     local ability = Fissure;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -183,17 +183,19 @@ function ConsiderFissure()
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc, "location";
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderEnchantTotem()
     local ability = EnchantTotem;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0, 0;
     end
 
     if npcBot:HasModifier("modifier_earthshaker_enchant_totem")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0, 0;
     end
 
     local attackRange = (npcBot:GetAttackRange() + ability:GetSpecialValueInt("bonus_attack_range"));
@@ -294,6 +296,8 @@ function ConsiderEnchantTotem()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0, 0;
 end
 
 local function EchoSlamDamage()
@@ -320,7 +324,7 @@ end
 function ConsiderEchoSlam()
     local ability = EchoSlam;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local radiusAbility = ability:GetAOERadius();
@@ -348,4 +352,6 @@ function ConsiderEchoSlam()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end

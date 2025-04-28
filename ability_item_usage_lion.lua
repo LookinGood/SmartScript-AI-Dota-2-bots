@@ -67,13 +67,13 @@ function AbilityUsageThink()
     local castManaDrainDesire, castManaDrainTarget = ConsiderManaDrain();
     local castFingerOfDeathDesire, castFingerOfDeathTarget = ConsiderFingerOfDeath();
 
-    if (castEarthSpikeDesire ~= nil)
+    if (castEarthSpikeDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(EarthSpike, castEarthSpikeTarget);
         return;
     end
 
-    if (castHexDesire ~= nil)
+    if (castHexDesire > 0)
     then
         if (castHexTargetType == "target")
         then
@@ -86,19 +86,19 @@ function AbilityUsageThink()
         end
     end
 
-    if (castHexDesire ~= nil)
+    if (castHexDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(Hex, castHexTarget);
         return;
     end
 
-    if (castManaDrainDesire ~= nil)
+    if (castManaDrainDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(ManaDrain, castManaDrainTarget);
         return;
     end
 
-    if (castFingerOfDeathDesire ~= nil)
+    if (castFingerOfDeathDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(FingerOfDeath, castFingerOfDeathTarget);
         return;
@@ -108,7 +108,7 @@ end
 function ConsiderEarthSpike()
     local ability = EarthSpike;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -183,7 +183,7 @@ function ConsiderEarthSpike()
         if locationAoE ~= nil and (ManaPercentage >= 0.6) and (locationAoE.count >= 3)
         then
             --npcBot:ActionImmediate_Chat("Использую EarthSpike по вражеским крипам!", true);
-            return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc, "location";
+            return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
         end
     end
 
@@ -196,12 +196,14 @@ function ConsiderEarthSpike()
             return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility);
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderHex()
     local ability = Hex;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -289,12 +291,14 @@ function ConsiderHex()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0, 0;
 end
 
 function ConsiderManaDrain()
     local ability = ManaDrain;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -346,12 +350,14 @@ function ConsiderManaDrain()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderFingerOfDeath()
     local ability = FingerOfDeath;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -386,4 +392,6 @@ function ConsiderFingerOfDeath()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end

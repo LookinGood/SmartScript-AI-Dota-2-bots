@@ -69,26 +69,26 @@ function AbilityUsageThink()
     local castConcussiveGrenadeDesire, castConcussiveGrenadeLocation = ConsiderConcussiveGrenade();
     local castAssassinateDesire, castAssassinateTarget = ConsiderAssassinate();
 
-    if (castShrapnelDesire ~= nil) and (GameTime() >= castShrapnelTimer + 2.0)
+    if (castShrapnelDesire > 0) and (GameTime() >= castShrapnelTimer + 2.0)
     then
         npcBot:Action_UseAbilityOnLocation(Shrapnel, castShrapnelLocation);
         castShrapnelTimer = GameTime();
         return;
     end
 
-    if (castTakeAimDesire ~= nil)
+    if (castTakeAimDesire > 0)
     then
         npcBot:Action_UseAbility(TakeAim);
         return;
     end
 
-    if (castConcussiveGrenadeDesire ~= nil)
+    if (castConcussiveGrenadeDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(ConcussiveGrenade, castConcussiveGrenadeLocation);
         return;
     end
 
-    if (castAssassinateDesire ~= nil)
+    if (castAssassinateDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(Assassinate, castAssassinateTarget);
         return;
@@ -98,7 +98,7 @@ end
 function ConsiderShrapnel()
     local ability = Shrapnel;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -140,12 +140,14 @@ function ConsiderShrapnel()
             return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderTakeAim()
     local ability = TakeAim;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local attackRange = npcBot:GetAttackRange() + ability:GetSpecialValueInt("bonus_attack_range");
@@ -162,12 +164,14 @@ function ConsiderTakeAim()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderConcussiveGrenade()
     local ability = ConcussiveGrenade;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetSpecialValueInt("AbilityCastRange");
@@ -199,12 +203,14 @@ function ConsiderConcussiveGrenade()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderAssassinate()
     local ability = Assassinate;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -239,4 +245,6 @@ function ConsiderAssassinate()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end

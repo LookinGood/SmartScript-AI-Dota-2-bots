@@ -69,7 +69,7 @@ function AbilityUsageThink()
     local castDeadInIheWaterDesire, castDeadInIheWaterTarget = ConsiderDeadInIheWater();
     local castRavageDesire = ConsiderRavage();
 
-    if (castGushDesire ~= nil)
+    if (castGushDesire > 0)
     then
         if (castGushTargetType == "target")
         then
@@ -82,25 +82,25 @@ function AbilityUsageThink()
         end
     end
 
-    if (castKrakenShellDesire ~= nil)
+    if (castKrakenShellDesire > 0)
     then
         npcBot:Action_UseAbility(KrakenShell);
         return;
     end
 
-    if (castAnchorSmashDesire ~= nil)
+    if (castAnchorSmashDesire > 0)
     then
         npcBot:Action_UseAbility(AnchorSmash);
         return;
     end
 
-    if (castDeadInIheWaterDesire ~= nil)
+    if (castDeadInIheWaterDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(DeadInIheWater, castDeadInIheWaterTarget);
         return;
     end
 
-    if (castRavageDesire ~= nil)
+    if (castRavageDesire > 0)
     then
         npcBot:Action_UseAbility(Ravage);
         return;
@@ -110,7 +110,7 @@ end
 function ConsiderGush()
     local ability = Gush;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -232,17 +232,19 @@ function ConsiderGush()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0, 0;
 end
 
 function ConsiderKrakenShell()
     local ability = KrakenShell;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if npcBot:HasModifier("modifier_tidehunter_kraken_shell")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local enemyAbility = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
@@ -267,12 +269,14 @@ function ConsiderKrakenShell()
             return BOT_ACTION_DESIRE_HIGH;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderAnchorSmash()
     local ability = AnchorSmash;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local radiusAbility = ability:GetAOERadius();
@@ -321,12 +325,14 @@ function ConsiderAnchorSmash()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderDeadInIheWater()
     local ability = DeadInIheWater;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -373,12 +379,14 @@ function ConsiderDeadInIheWater()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderRavage()
     local ability = Ravage;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local radiusAbility = ability:GetAOERadius();
@@ -429,4 +437,6 @@ function ConsiderRavage()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end

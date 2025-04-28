@@ -67,25 +67,25 @@ function AbilityUsageThink()
     local castDeathSeekerDesire, castDeathSeekerTarget = ConsiderDeathSeeker();
     local castReapersScytheDesire, castReapersScytheTarget = ConsiderReapersScythe();
 
-    if (castDeathPulseDesire ~= nil)
+    if (castDeathPulseDesire > 0)
     then
         npcBot:Action_UseAbility(DeathPulse);
         return;
     end
 
-    if (castGhostShroudDesire ~= nil)
+    if (castGhostShroudDesire > 0)
     then
         npcBot:Action_UseAbility(GhostShroud);
         return;
     end
 
-    if (castDeathSeekerDesire ~= nil)
+    if (castDeathSeekerDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(DeathSeeker, castDeathSeekerTarget);
         return;
     end
 
-    if (castReapersScytheDesire ~= nil)
+    if (castReapersScytheDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(ReapersScythe, castReapersScytheTarget);
         return;
@@ -95,7 +95,7 @@ end
 function ConsiderDeathPulse()
     local ability = DeathPulse;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local damageAbility = ability:GetAbilityDamage();
@@ -160,12 +160,14 @@ function ConsiderDeathPulse()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderGhostShroud()
     local ability = GhostShroud;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local radiusAbility = ability:GetSpecialValueInt("slow_aoe");
@@ -174,7 +176,7 @@ function ConsiderGhostShroud()
     -- Attack use
     if utility.PvPMode(npcBot)
     then
-        if (#enemyAbility > 0) and (HealthPercentage <= 0.7) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
+        if (#enemyAbility > 0) and (HealthPercentage <= 0.7) and utility.BotWasRecentlyDamagedByEnemyHero(2.0)
         then
             for _, enemy in pairs(enemyAbility)
             do
@@ -190,17 +192,19 @@ function ConsiderGhostShroud()
     -- Retreat use
     if utility.RetreatMode(npcBot)
     then
-        if (npcBot:GetHealth() / npcBot:GetMaxHealth() <= 0.8) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
+        if (HealthPercentage <= 0.8) and utility.BotWasRecentlyDamagedByEnemyHero(2.0)
         then
             return BOT_ACTION_DESIRE_HIGH;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderDeathSeeker()
     local ability = DeathSeeker;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -309,12 +313,14 @@ function ConsiderDeathSeeker()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderReapersScythe()
     local ability = ReapersScythe;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetSpecialValueFloat("AbilityCastRange");
@@ -335,4 +341,6 @@ function ConsiderReapersScythe()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end

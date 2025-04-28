@@ -69,62 +69,41 @@ function AbilityUsageThink()
     local castRainOfDestinyDesire, castRainOfDestinyLocation = ConsiderRainOfDestiny();
     local castFalsePromiseDesire, castFalsePromiseTarget = ConsiderFalsePromise();
 
-    if castFortunesEndDesire == nil then castFortunesEndDesire = BOT_ACTION_DESIRE_NONE end;
-    if castFatesEdictDesire == nil then castFatesEdictDesire = BOT_ACTION_DESIRE_NONE end;
-    if castPurifyingFlamesDesire == nil then castPurifyingFlamesDesire = BOT_ACTION_DESIRE_NONE end;
-    if castRainOfDestinyDesire == nil then castRainOfDestinyDesire = BOT_ACTION_DESIRE_NONE end;
-    if castFalsePromiseDesire == nil then castFalsePromiseDesire = BOT_ACTION_DESIRE_NONE end;
-
-    if (castFortunesEndDesire > BOT_ACTION_DESIRE_NONE)
+    if (castFortunesEndDesire > 0)
     then
-        if (castFortunesEndDesire > castFatesEdictDesire and castPurifyingFlamesDesire and castRainOfDestinyDesire and castFalsePromiseDesire)
-        then
-            npcBot:Action_UseAbilityOnEntity(FortunesEnd, castFortunesEndTarget);
-            return;
-        end
+        npcBot:Action_UseAbilityOnEntity(FortunesEnd, castFortunesEndTarget);
+        return;
     end
 
-    if (castFatesEdictDesire > BOT_ACTION_DESIRE_NONE)
+    if (castFatesEdictDesire > 0)
     then
-        if (castFatesEdictDesire > castFortunesEndDesire and castPurifyingFlamesDesire and castRainOfDestinyDesire and castFalsePromiseDesire)
-        then
-            npcBot:Action_UseAbilityOnEntity(FatesEdict, castFatesEdictTarget);
-            return;
-        end
+        npcBot:Action_UseAbilityOnEntity(FatesEdict, castFatesEdictTarget);
+        return;
     end
 
-    if (castPurifyingFlamesDesire > BOT_ACTION_DESIRE_NONE)
+    if (castPurifyingFlamesDesire > 0)
     then
-        if (castPurifyingFlamesDesire > castFortunesEndDesire and castFatesEdictDesire and castRainOfDestinyDesire and castFalsePromiseDesire)
-        then
-            npcBot:Action_UseAbilityOnEntity(PurifyingFlames, castPurifyingFlamesTarget);
-            return;
-        end
+        npcBot:Action_UseAbilityOnEntity(PurifyingFlames, castPurifyingFlamesTarget);
+        return;
     end
 
-    if (castRainOfDestinyDesire > BOT_ACTION_DESIRE_NONE)
+    if (castRainOfDestinyDesire > 0)
     then
-        if (castRainOfDestinyDesire > castFortunesEndDesire and castFatesEdictDesire and castPurifyingFlamesDesire and castFalsePromiseDesire)
-        then
-            npcBot:Action_UseAbilityOnLocation(RainOfDestiny, castRainOfDestinyLocation);
-            return;
-        end
+        npcBot:Action_UseAbilityOnLocation(RainOfDestiny, castRainOfDestinyLocation);
+        return;
     end
 
-    if (castFalsePromiseDesire > BOT_ACTION_DESIRE_NONE)
+    if (castFalsePromiseDesire > 0)
     then
-        if (castFalsePromiseDesire > castFortunesEndDesire and castFatesEdictDesire and castRainOfDestinyDesire and castPurifyingFlamesDesire)
-        then
-            npcBot:Action_UseAbilityOnEntity(FalsePromise, castFalsePromiseTarget);
-            return;
-        end
+        npcBot:Action_UseAbilityOnEntity(FalsePromise, castFalsePromiseTarget);
+        return;
     end
 end
 
 function ConsiderFortunesEnd()
     local ability = FortunesEnd;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -184,12 +163,14 @@ function ConsiderFortunesEnd()
             return BOT_ACTION_DESIRE_MODERATE, enemy;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderFatesEdict()
     local ability = FatesEdict;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -236,12 +217,14 @@ function ConsiderFatesEdict()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderPurifyingFlames()
     local ability = PurifyingFlames;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -304,12 +287,14 @@ function ConsiderPurifyingFlames()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderRainOfDestiny()
     local ability = RainOfDestiny;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -347,12 +332,14 @@ function ConsiderRainOfDestiny()
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderFalsePromise()
     local ability = FalsePromise;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -372,4 +359,6 @@ function ConsiderFalsePromise()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end

@@ -69,31 +69,31 @@ function AbilityUsageThink()
     local castSummonConvertDesire = ConsiderSummonConvert();
     local castHandOfGodDesire = ConsiderHandOfGod();
 
-    if (castPenitenceDesire ~= nil)
+    if (castPenitenceDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(Penitence, castPenitenceTarget);
         return;
     end
 
-    if (castHolyPersuasionDesire ~= nil)
+    if (castHolyPersuasionDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(HolyPersuasion, castHolyPersuasionTarget);
         return;
     end
 
-    if (castDivineFavorDesire ~= nil)
+    if (castDivineFavorDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(DivineFavor, castDivineFavorTarget);
         return;
     end
 
-    if (castSummonConvertDesire ~= nil)
+    if (castSummonConvertDesire > 0)
     then
         npcBot:Action_UseAbility(SummonConvert);
         return;
     end
 
-    if (castHandOfGodDesire ~= nil)
+    if (castHandOfGodDesire > 0)
     then
         npcBot:Action_UseAbility(HandOfGod);
         return;
@@ -103,7 +103,7 @@ end
 function ConsiderPenitence()
     local ability = Penitence;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -165,6 +165,8 @@ function ConsiderPenitence()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 local function CreepUnderControlCount()
@@ -192,7 +194,7 @@ end
 function ConsiderHolyPersuasion()
     local ability = HolyPersuasion;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -201,7 +203,7 @@ function ConsiderHolyPersuasion()
 
     if CreepUnderControlCount() >= creepMax
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     if utility.PvPMode(npcBot) or utility.RetreatMode(npcBot) or botMode ~= BOT_MODE_LANING
@@ -220,12 +222,14 @@ function ConsiderHolyPersuasion()
             return BOT_ACTION_DESIRE_HIGH, enemy;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderDivineFavor()
     local ability = DivineFavor;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -257,19 +261,21 @@ function ConsiderDivineFavor()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderSummonConvert()
     local ability = SummonConvert;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local creepMax = HolyPersuasion:GetSpecialValueInt("max_units");
 
     if CreepUnderControlCount() >= creepMax
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     -- General use
@@ -278,12 +284,14 @@ function ConsiderSummonConvert()
         --npcBot:ActionImmediate_Chat("Использую SummonConvert!", true);
         return BOT_ACTION_DESIRE_HIGH;
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderHandOfGod()
     local ability = HandOfGod;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local allyHeroes = GetUnitList(UNIT_LIST_ALLIED_HEROES);
@@ -301,4 +309,6 @@ function ConsiderHandOfGod()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end

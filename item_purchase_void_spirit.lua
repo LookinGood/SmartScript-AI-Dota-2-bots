@@ -15,7 +15,6 @@ local ItemsToBuy =
 
 	"item_power_treads",
 
-	"item_oblivion_staff",
 	"item_mage_slayer",
 
 	"item_pers",

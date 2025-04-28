@@ -78,31 +78,31 @@ function AbilityUsageThink()
     local castUnrefinedFireblastDesire, castUnrefinedFireblastTarget = ConsiderUnrefinedFireblast();
     local castFireShieldDesire, castFireShieldTarget = ConsiderFireShield();
 
-    if (castFireblastDesire ~= nil)
+    if (castFireblastDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(Fireblast, castFireblastTarget);
         return;
     end
 
-    if (castIgniteDesire ~= nil)
+    if (castIgniteDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(Ignite, castIgniteTarget);
         return;
     end
 
-    if (castBloodlustDesire ~= nil)
+    if (castBloodlustDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(Bloodlust, castBloodlustTarget);
         return;
     end
 
-    if (castUnrefinedFireblastDesire ~= nil)
+    if (castUnrefinedFireblastDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(UnrefinedFireblast, castUnrefinedFireblastTarget);
         return;
     end
 
-    if (castFireShieldDesire ~= nil)
+    if (castFireShieldDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(FireShield, castFireShieldTarget);
         return;
@@ -112,7 +112,7 @@ end
 function ConsiderFireblast()
     local ability = Fireblast;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -161,6 +161,8 @@ function ConsiderFireblast()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderIgnite()
@@ -242,12 +244,14 @@ function ConsiderIgnite()
             return BOT_ACTION_DESIRE_HIGH, enemy;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderBloodlust()
     local ability = Bloodlust;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -320,12 +324,14 @@ function ConsiderBloodlust()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderUnrefinedFireblast()
     local ability = UnrefinedFireblast;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -351,7 +357,7 @@ function ConsiderUnrefinedFireblast()
 
     if Fireblast:IsCooldownReady()
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     -- Attack use
@@ -381,12 +387,14 @@ function ConsiderUnrefinedFireblast()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderFireShield()
     local ability = FireShield;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -442,4 +450,6 @@ function ConsiderFireShield()
             return BOT_MODE_DESIRE_HIGH, allyAncient;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end

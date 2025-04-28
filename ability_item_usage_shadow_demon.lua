@@ -71,37 +71,37 @@ function AbilityUsageThink()
     local castDemonicCleanseDesire, castDemonicCleanseTarget = ConsiderDemonicCleanse();
     local castDemonicPurgeDesire, castDemonicPurgeTarget = ConsiderDemonicPurge();
 
-    if (castDisruptionDesire ~= nil)
+    if (castDisruptionDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(Disruption, castDisruptionTarget);
         return;
     end
 
-    if (castDisseminateDesire ~= nil)
+    if (castDisseminateDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(Disseminate, castDisseminateTarget);
         return;
     end
 
-    if (castShadowPoisonDesire ~= nil)
+    if (castShadowPoisonDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(ShadowPoison, castShadowPoisonLocation);
         return;
     end
 
-    if (castShadowPoisonReleaseDesire ~= nil)
+    if (castShadowPoisonReleaseDesire > 0)
     then
         npcBot:Action_UseAbility(ShadowPoisonRelease);
         return;
     end
 
-    if (castDemonicCleanseDesire ~= nil)
+    if (castDemonicCleanseDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(DemonicCleanse, castDemonicCleanseTarget);
         return;
     end
 
-    if (castDemonicPurgeDesire ~= nil)
+    if (castDemonicPurgeDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(DemonicPurge, castDemonicPurgeTarget);
         return;
@@ -111,7 +111,7 @@ end
 function ConsiderDisruption()
     local ability = Disruption;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -204,12 +204,14 @@ function ConsiderDisruption()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderDisseminate()
     local ability = Disseminate;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -243,12 +245,14 @@ function ConsiderDisseminate()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderShadowPoison()
     local ability = ShadowPoison;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -293,12 +297,14 @@ function ConsiderShadowPoison()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderShadowPoisonRelease()
     local ability = ShadowPoisonRelease;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local enemyAbility = GetUnitList(UNIT_LIST_ENEMY_HEROES);
@@ -324,12 +330,14 @@ function ConsiderShadowPoisonRelease()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderDemonicCleanse()
     local ability = DemonicCleanse;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -350,12 +358,14 @@ function ConsiderDemonicCleanse()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderDemonicPurge()
     local ability = DemonicPurge;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -391,4 +401,6 @@ function ConsiderDemonicPurge()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end

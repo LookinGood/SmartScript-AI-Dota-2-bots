@@ -67,19 +67,19 @@ function AbilityUsageThink()
     ConsiderGeminateAttack();
     local castTimeLapseDesire, castTimeLapseTarget, castTimeLapseTargetType = ConsiderTimeLapse();
 
-    if (castTheSwarmDesire ~= nil)
+    if (castTheSwarmDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(TheSwarm, castTheSwarmLocation);
         return;
     end
 
-    if (castShukuchiDesire ~= nil)
+    if (castShukuchiDesire > 0)
     then
         npcBot:Action_UseAbility(Shukuchi);
         return;
     end
 
-    if (castTimeLapseDesire ~= nil)
+    if (castTimeLapseDesire > 0)
     then
         if (castTimeLapseTargetType == nil)
         then
@@ -91,17 +91,28 @@ function AbilityUsageThink()
             return;
         end
     end
+
+    if npcBot:HasModifier("modifier_weaver_shukuchi")
+    then
+        local radiusAbility = Shukuchi:GetSpecialValueInt("radius");
+        if utility.PvPMode(npcBot) and utility.IsHero(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) > radiusAbility
+        then
+            --npcBot:ActionImmediate_Chat("Иду под shukuchi за целью: " .. botTarget:GetUnitName(), true);
+            npcBot:Action_MoveToLocation(botTarget:GetLocation());
+            return;
+        end
+    end
 end
 
 function ConsiderTheSwarm()
     local ability = TheSwarm;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     if npcBot:IsInvisible()
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -165,17 +176,19 @@ function ConsiderTheSwarm()
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderShukuchi()
     local ability = Shukuchi;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if npcBot:IsInvisible()
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local attackRange = npcBot:GetAttackRange();
@@ -220,6 +233,8 @@ function ConsiderShukuchi()
             return BOT_MODE_DESIRE_VERYHIGH;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderGeminateAttack()
@@ -237,19 +252,19 @@ end
 function ConsiderTimeLapse()
     local ability = TimeLapse;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0, 0;
     end
 
     if npcBot:IsInvisible()
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0, 0;
     end
 
     if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_NO_TARGET)
     then
         if (HealthPercentage <= 0.4) and (npcBot:WasRecentlyDamagedByAnyHero(2.0) or ally:WasRecentlyDamagedByTower(2.0))
         then
-            return BOT_ACTION_DESIRE_ABSOLUTE, nil;
+            return BOT_ACTION_DESIRE_ABSOLUTE, nil, nil;
         end
     elseif utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_UNIT_TARGET)
     then
@@ -267,4 +282,6 @@ function ConsiderTimeLapse()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0, 0;
 end

@@ -69,19 +69,19 @@ function AbilityUsageThink()
     local castSpinnersSnareDesire, castSpinnersSnareLocation = ConsiderSpinnersSnare();
     local castSpawnSpiderlingsDesire, castSpawnSpiderlingsTarget = ConsiderSpawnSpiderlings();
 
-    if (castInsatiableHungerDesire ~= nil)
+    if (castInsatiableHungerDesire > 0)
     then
         npcBot:Action_UseAbility(InsatiableHunger);
         return;
     end
 
-    if (castSpinWebDesire ~= nil)
+    if (castSpinWebDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(SpinWeb, castSpinWebLocation);
         return;
     end
 
-    if (castSilkenBolaDesire ~= nil)
+    if (castSilkenBolaDesire > 0)
     then
         if (castSilkenBolaTargetType == "target")
         then
@@ -94,13 +94,13 @@ function AbilityUsageThink()
         end
     end
 
-    if (castSpinnersSnareDesire ~= nil)
+    if (castSpinnersSnareDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(SpinnersSnare, castSpinnersSnareLocation);
         return;
     end
 
-    if (castSpawnSpiderlingsDesire ~= nil)
+    if (castSpawnSpiderlingsDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(SpawnSpiderlings, castSpawnSpiderlingsTarget);
         return;
@@ -110,12 +110,12 @@ end
 function ConsiderInsatiableHunger()
     local ability = InsatiableHunger;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if npcBot:HasModifier("modifier_broodmother_insatiable_hunger")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local attackTarget = npcBot:GetAttackTarget();
@@ -131,17 +131,19 @@ function ConsiderInsatiableHunger()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderSpinWeb()
     local ability = SpinWeb;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     if npcBot:HasModifier("modifier_broodmother_spin_web")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -171,16 +173,18 @@ function ConsiderSpinWeb()
     end
 
     -- General use
-    if npcBot:WasRecentlyDamagedByCreep(2.0) or npcBot:WasRecentlyDamagedByTower(2.0) or npcBot:WasRecentlyDamagedByAnyHero(2.0)
+    if utility.RetreatMode(npcBot) or utility.PvEMode(npcBot) or utility.WanderMode(npcBot)
     then
         return BOT_ACTION_DESIRE_MODERATE, utility.GetTargetCastPosition(npcBot, npcBot, delayAbility, 0);
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderSilkenBola()
     local ability = SilkenBola;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -251,24 +255,28 @@ function ConsiderSilkenBola()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderSpinnersSnare()
     local ability = SpinnersSnare;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     if npcBot:IsAlive()
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderSpawnSpiderlings()
     local ability = SpawnSpiderlings;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -318,4 +326,6 @@ function ConsiderSpawnSpiderlings()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end

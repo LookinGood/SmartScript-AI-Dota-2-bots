@@ -19,9 +19,9 @@ local ItemsToBuy =
 
     "item_phase_boots",
 
-    "item_desolator",
-
     "item_blink",
+
+    "item_desolator",
 
     "item_echo_sabre",
 

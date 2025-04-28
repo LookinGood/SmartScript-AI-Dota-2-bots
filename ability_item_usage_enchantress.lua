@@ -69,25 +69,25 @@ function AbilityUsageThink()
     local castSproinkDesire = ConsiderSproink();
     local castLittleFriendsDesire, castLittleFriendsTarget = ConsiderLittleFriends();
 
-    if (castEnchantDesire ~= nil)
+    if (castEnchantDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(Enchant, castEnchantTarget);
         return;
     end
 
-    if (castNaturesAttendantsDesire ~= nil)
+    if (castNaturesAttendantsDesire > 0)
     then
         npcBot:Action_UseAbility(NaturesAttendants);
         return;
     end
 
-    if (castSproinkDesire ~= nil)
+    if (castSproinkDesire > 0)
     then
         npcBot:Action_UseAbility(Sproink);
         return;
     end
 
-    if (castLittleFriendsDesire ~= nil)
+    if (castLittleFriendsDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(LittleFriends, castLittleFriendsTarget);
         return;
@@ -142,7 +142,7 @@ end
 function ConsiderEnchant()
     local ability = Enchant;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local attackRange = npcBot:GetAttackRange();
@@ -206,12 +206,14 @@ function ConsiderEnchant()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderNaturesAttendants()
     local ability = NaturesAttendants;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local radiusAbility = ability:GetSpecialValueInt("radius");
@@ -230,12 +232,14 @@ function ConsiderNaturesAttendants()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderSproink()
     local ability = Sproink;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local attackRange = npcBot:GetAttackRange();
@@ -260,12 +264,14 @@ function ConsiderSproink()
             return BOT_ACTION_DESIRE_HIGH;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderLittleFriends()
     local ability = LittleFriends;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -308,4 +314,6 @@ function ConsiderLittleFriends()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end

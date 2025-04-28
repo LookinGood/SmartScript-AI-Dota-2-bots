@@ -67,19 +67,19 @@ function AbilityUsageThink()
     local castTombstoneDesire, castTombstoneTarget, castTombstoneTargetType = ConsiderTombstone();
     local castFleshGolemDesire = ConsiderFleshGolem();
 
-    if (castDecayDesire ~= nil)
+    if (castDecayDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(Decay, castDecayLocation);
         return;
     end
 
-    if (castSoulRipDesire ~= nil)
+    if (castSoulRipDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(SoulRip, castSoulRipTarget);
         return;
     end
 
-    if (castTombstoneDesire ~= nil)
+    if (castTombstoneDesire > 0)
     then
         if (castTombstoneTargetType == "location")
         then
@@ -92,7 +92,7 @@ function AbilityUsageThink()
         end
     end
 
-    if (castFleshGolemDesire ~= nil)
+    if (castFleshGolemDesire > 0)
     then
         npcBot:Action_UseAbility(FleshGolem);
         return;
@@ -102,7 +102,7 @@ end
 function ConsiderDecay()
     local ability = Decay;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -202,12 +202,14 @@ function ConsiderDecay()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderSoulRip()
     local ability = SoulRip;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -264,12 +266,14 @@ function ConsiderSoulRip()
             return BOT_ACTION_DESIRE_HIGH, botTarget;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderTombstone()
     local ability = Tombstone;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -325,17 +329,19 @@ function ConsiderTombstone()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0, 0;
 end
 
 function ConsiderFleshGolem()
     local ability = FleshGolem;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if npcBot:HasModifier("modifier_undying_flesh_golem")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local attackRange = npcBot:GetAttackRange();
@@ -359,4 +365,6 @@ function ConsiderFleshGolem()
             return BOT_ACTION_DESIRE_HIGH;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end

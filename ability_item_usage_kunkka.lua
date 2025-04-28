@@ -73,43 +73,43 @@ function AbilityUsageThink()
     local castTidalWaveDesire, castTidalWaveLocation = ConsiderTidalWave();
     local castGhostshipDesire, castGhostshipLocation = ConsiderGhostship();
 
-    if (castTorrentDesire ~= nil)
+    if (castTorrentDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(Torrent, castTorrentLocation);
         return;
     end
 
-    if (castTidebringerDesire ~= nil)
+    if (castTidebringerDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(Tidebringer, castTidebringerTarget);
         return;
     end
 
-    if (castXMarksTheSpotDesire ~= nil)
+    if (castXMarksTheSpotDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(XMarksTheSpot, castXMarksTheSpotTarget);
         return;
     end
 
-    if (castReturnDesire ~= nil)
+    if (castReturnDesire > 0)
     then
         npcBot:Action_UseAbility(Return);
         return;
     end
 
-    if (castTorrentStormDesire ~= nil)
+    if (castTorrentStormDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(TorrentStorm, castTorrentStormLocation);
         return;
     end
 
-    if (castTidalWaveDesire ~= nil)
+    if (castTidalWaveDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(TidalWave, castTidalWaveLocation);
         return;
     end
 
-    if (castGhostshipDesire ~= nil)
+    if (castGhostshipDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(Ghostship, castGhostshipLocation);
         return;
@@ -119,7 +119,7 @@ end
 function ConsiderTorrent()
     local ability = Torrent;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -179,12 +179,14 @@ function ConsiderTorrent()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderTidebringer()
     local ability = Tidebringer;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     if not ability:GetAutoCastState()
@@ -210,12 +212,14 @@ function ConsiderTidebringer()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderXMarksTheSpot()
     local ability = XMarksTheSpot;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -259,12 +263,14 @@ function ConsiderXMarksTheSpot()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderReturn()
     local ability = Return;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local enemyAbility = GetUnitList(UNIT_LIST_ENEMY_HEROES);
@@ -280,17 +286,19 @@ function ConsiderReturn()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderTorrentStorm()
     local ability = TorrentStorm;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     if not Torrent:IsTrained()
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -326,12 +334,14 @@ function ConsiderTorrentStorm()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderTidalWave()
     local ability = TidalWave;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -371,12 +381,14 @@ function ConsiderTidalWave()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderGhostship()
     local ability = Ghostship;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -439,4 +451,6 @@ function ConsiderGhostship()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end

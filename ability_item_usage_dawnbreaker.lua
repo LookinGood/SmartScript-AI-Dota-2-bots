@@ -69,31 +69,31 @@ function AbilityUsageThink()
     local castSolarGuardianLandDesire = ConsiderSolarGuardianLand();
     local castSolarGuardianDesire, castSolarGuardianLocation = ConsiderSolarGuardian();
 
-    if (castStarbreakerDesire ~= nil)
+    if (castStarbreakerDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(Starbreaker, castStarbreakerLocation);
         return;
     end
 
-    if (castCelestialHammerDesire ~= nil)
+    if (castCelestialHammerDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(CelestialHammer, castCelestialHammerLocation);
         return;
     end
 
-    if (castConvergeDesire ~= nil)
+    if (castConvergeDesire > 0)
     then
         npcBot:Action_UseAbility(Converge);
         return;
     end
 
-    if (castSolarGuardianLandDesire ~= nil)
+    if (castSolarGuardianLandDesire > 0)
     then
         npcBot:Action_UseAbility(SolarGuardianLand);
         return;
     end
 
-    if (castSolarGuardianDesire ~= nil)
+    if (castSolarGuardianDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(SolarGuardian, castSolarGuardianLocation);
         return;
@@ -103,13 +103,13 @@ end
 function ConsiderStarbreaker()
     local ability = Starbreaker;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     if npcBot:HasModifier("modifier_starbreaker_fire_wreath_caster") or
         npcBot:HasModifier("modifier_fire_wreath_magic_immunity_tooltip")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local projectiles = GetLinearProjectiles();
@@ -119,7 +119,7 @@ function ConsiderStarbreaker()
         do
             if project ~= nil and project.ability:GetName() == "dawnbreaker_celestial_hammer"
             then
-                return;
+                return BOT_ACTION_DESIRE_NONE, 0;
             end
         end
     end
@@ -167,12 +167,14 @@ function ConsiderStarbreaker()
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderCelestialHammer()
     local ability = CelestialHammer;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local attackRange = npcBot:GetAttackRange();
@@ -244,12 +246,14 @@ function ConsiderCelestialHammer()
             return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility);
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderConverge()
     local ability = Converge;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -298,12 +302,14 @@ function ConsiderConverge()
             end
         end ]]
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderSolarGuardianLand()
     local ability = SolarGuardianLand;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if utility.RetreatMode(npcBot)
@@ -311,12 +317,14 @@ function ConsiderSolarGuardianLand()
         --npcBot:ActionImmediate_Chat("Использую SolarGuardianLand!", true);
         return BOT_ACTION_DESIRE_HIGH;
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderSolarGuardian()
     local ability = SolarGuardian;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetSpecialValueInt("max_offset_distance"); -- 350
@@ -377,4 +385,6 @@ function ConsiderSolarGuardian()
             end ]]
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end

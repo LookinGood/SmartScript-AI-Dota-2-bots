@@ -66,19 +66,19 @@ function AbilityUsageThink()
     local castWaveOfTerrorDesire, castWaveOfTerrorLocation = ConsiderWaveOfTerror();
     local castNetherSwapDesire, castNetherSwapTarget = ConsiderNetherSwap();
 
-    if (castMagicMissileDesire ~= nil)
+    if (castMagicMissileDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(MagicMissile, castMagicMissileTarget);
         return;
     end
 
-    if (castNetherSwapDesire ~= nil)
+    if (castNetherSwapDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(NetherSwap, castNetherSwapTarget);
         return;
     end
 
-    if (castWaveOfTerrorDesire ~= nil)
+    if (castWaveOfTerrorDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(WaveOfTerror, castWaveOfTerrorLocation);
         return;
@@ -88,7 +88,7 @@ end
 function ConsiderMagicMissile()
     local ability = MagicMissile;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -137,12 +137,14 @@ function ConsiderMagicMissile()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderWaveOfTerror()
     local ability = WaveOfTerror;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -202,12 +204,14 @@ function ConsiderWaveOfTerror()
             return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility);
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderNetherSwap()
     local ability = NetherSwap;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -276,4 +280,6 @@ function ConsiderNetherSwap()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end

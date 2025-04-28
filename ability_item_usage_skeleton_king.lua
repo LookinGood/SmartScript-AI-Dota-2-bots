@@ -65,19 +65,19 @@ function AbilityUsageThink()
     local castVampiricSpiritDesire = ConsiderVampiricSpirit();
     local castReincarnationDesire, castReincarnationTarget = ConsiderReincarnation();
 
-    if (castWraithfireBlastDesire ~= nil)
+    if (castWraithfireBlastDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(WraithfireBlast, castWraithfireBlastTarget);
         return;
     end
 
-    if (castVampiricSpiritDesire ~= nil)
+    if (castVampiricSpiritDesire > 0)
     then
         npcBot:Action_UseAbility(VampiricSpirit);
         return;
     end
 
-    if (castReincarnationDesire ~= nil)
+    if (castReincarnationDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(Reincarnation, castReincarnationTarget);
         return;
@@ -87,7 +87,7 @@ end
 function ConsiderWraithfireBlast()
     local ability = WraithfireBlast;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -137,6 +137,8 @@ function ConsiderWraithfireBlast()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 -- utility.GetModifierCount(npcBot, "modifier_skeleton_king_vampiric_aura") >= abilityCount / 2
@@ -144,14 +146,14 @@ end
 function ConsiderVampiricSpirit()
     local ability = VampiricSpirit;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local abilityCount = ability:GetSpecialValueInt("max_skeleton_charges");
 
     if utility.GetModifierCount(npcBot, "modifier_skeleton_king_bone_guard") < abilityCount / 2
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local enemyAbility = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
@@ -211,12 +213,14 @@ function ConsiderVampiricSpirit()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderReincarnation()
     local ability = Reincarnation;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local radiusAbility = ability:GetSpecialValueInt("slow_radius");
@@ -230,4 +234,6 @@ function ConsiderReincarnation()
             return BOT_ACTION_DESIRE_VERYLOW, npcBot;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end

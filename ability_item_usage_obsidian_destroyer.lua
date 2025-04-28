@@ -65,13 +65,13 @@ function AbilityUsageThink()
     local castAstralImprisonmentDesire, castAstralImprisonmentTarget = ConsiderAstralImprisonment();
     local castSanitysEclipseDesire, castSanitysEclipseLocation = ConsiderSanitysEclipse();
 
-    if (castAstralImprisonmentDesire ~= nil)
+    if (castAstralImprisonmentDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(AstralImprisonment, castAstralImprisonmentTarget);
         return;
     end
 
-    if (castSanitysEclipseDesire ~= nil)
+    if (castSanitysEclipseDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(SanitysEclipse, castSanitysEclipseLocation);
         return;
@@ -101,7 +101,7 @@ end
 function ConsiderAstralImprisonment()
     local ability = AstralImprisonment;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetSpecialValueInt("AbilityCastRange");
@@ -135,7 +135,8 @@ function ConsiderAstralImprisonment()
                 then
                     for _, spell in pairs(incomingSpells)
                     do
-                        if not utility.IsAlly(npcBot, spell.caster) and GetUnitToLocationDistance(ally, spell.location) <= 400 and spell.is_attack == false
+                        if not utility.IsAlly(ally, spell.caster) and GetUnitToLocationDistance(ally, spell.location) <= 400 and spell.is_attack == false
+                            and not utility.HaveReflectSpell(ally)
                         then
                             --npcBot:ActionImmediate_Chat("Использую AstralImprisonment что бы уклониться от заклинания!",true);
                             return BOT_ACTION_DESIRE_VERYHIGH, ally;
@@ -195,12 +196,14 @@ function ConsiderAstralImprisonment()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderSanitysEclipse()
     local ability = SanitysEclipse;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local botMana = npcBot:GetMana();
@@ -235,4 +238,6 @@ function ConsiderSanitysEclipse()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end

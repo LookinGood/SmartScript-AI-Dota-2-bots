@@ -65,19 +65,19 @@ function AbilityUsageThink()
     local castLunarOrbitDesire = ConsiderLunarOrbit();
     local castEclipseDesire, castEclipseLocation, castEclipseTargetType = ConsiderEclipse();
 
-    if (castLucentBeamDesire ~= nil)
+    if (castLucentBeamDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(LucentBeam, castLucentBeamTarget);
         return;
     end
 
-    if (castLunarOrbitDesire ~= nil)
+    if (castLunarOrbitDesire > 0)
     then
         npcBot:Action_UseAbility(LunarOrbit);
         return;
     end
 
-    if (castEclipseDesire ~= nil)
+    if (castEclipseDesire > 0)
     then
         if (castEclipseTargetType == nil)
         then
@@ -94,7 +94,7 @@ end
 function ConsiderLucentBeam()
     local ability = LucentBeam;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -143,12 +143,14 @@ function ConsiderLucentBeam()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderLunarOrbit()
     local ability = LunarOrbit;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     --[[     if not utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_NO_TARGET)
@@ -180,12 +182,14 @@ function ConsiderLunarOrbit()
             return BOT_ACTION_DESIRE_HIGH;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderEclipse()
     local ability = Eclipse;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0, 0;
     end
 
     local castRangeAbility = ability:GetSpecialValueInt("AbilityCastRange");
@@ -209,4 +213,6 @@ function ConsiderEclipse()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0, 0;
 end

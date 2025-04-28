@@ -67,25 +67,25 @@ function AbilityUsageThink()
     local castShadowWaveDesire, castShadowWaveTarget = ConsiderShadowWave();
     local castNothlProjectionDesire, castNothlProjectionLocation = ConsiderNothlProjection();
 
-    if (castPoisonTouchDesire ~= nil)
+    if (castPoisonTouchDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(PoisonTouch, castPoisonTouchTarget);
         return;
     end
 
-    if (castShallowGraveDesire ~= nil)
+    if (castShallowGraveDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(ShallowGrave, castShallowGraveTarget);
         return;
     end
 
-    if (castShadowWaveDesire ~= nil)
+    if (castShadowWaveDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(ShadowWave, castShadowWaveTarget);
         return;
     end
 
-    if (castNothlProjectionDesire ~= nil)
+    if (castNothlProjectionDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(NothlProjection, castNothlProjectionLocation);
         return;
@@ -95,7 +95,7 @@ end
 function ConsiderPoisonTouch()
     local ability = PoisonTouch;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -174,12 +174,14 @@ function ConsiderPoisonTouch()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderShallowGrave()
     local ability = ShallowGrave;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -200,12 +202,14 @@ function ConsiderShallowGrave()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderShadowWave()
     local ability = ShadowWave;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -294,12 +298,14 @@ function ConsiderShadowWave()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderNothlProjection()
     local ability = NothlProjection;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange() + 200;
@@ -322,6 +328,8 @@ function ConsiderNothlProjection()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 ---- DELETED ABILITY

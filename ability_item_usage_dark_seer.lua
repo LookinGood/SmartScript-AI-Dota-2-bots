@@ -67,25 +67,25 @@ function AbilityUsageThink()
     local castSurgeDesire, castSurgeTarget = ConsiderSurge();
     local castWallOfReplicaDesire, castWallOfReplicaLocation = ConsiderWallOfReplica();
 
-    if (castVacuumDesire ~= nil)
+    if (castVacuumDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(Vacuum, castVacuumLocation);
         return;
     end
 
-    if (castIonShellDesire ~= nil)
+    if (castIonShellDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(IonShell, castIonShellTarget);
         return;
     end
 
-    if (castSurgeDesire ~= nil)
+    if (castSurgeDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(Surge, castSurgeTarget);
         return;
     end
 
-    if (castWallOfReplicaDesire ~= nil)
+    if (castWallOfReplicaDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(WallOfReplica, castWallOfReplicaLocation);
         return;
@@ -95,7 +95,7 @@ end
 function ConsiderVacuum()
     local ability = Vacuum;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -188,12 +188,14 @@ function ConsiderVacuum()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderIonShell()
     local ability = IonShell;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -278,12 +280,14 @@ function ConsiderIonShell()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderSurge()
     local ability = Surge;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -338,12 +342,14 @@ function ConsiderSurge()
             return BOT_ACTION_DESIRE_HIGH, npcBot;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderWallOfReplica()
     local ability = WallOfReplica;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -371,4 +377,6 @@ function ConsiderWallOfReplica()
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end

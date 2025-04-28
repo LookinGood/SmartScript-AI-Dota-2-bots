@@ -67,25 +67,25 @@ function AbilityUsageThink()
     local castMidnightPulseDesire, castMidnightPulseLocation = ConsiderMidnightPulse();
     local castBlackHoleDesire, castBlackHoleLocation = ConsiderBlackHole();
 
-    if (castMaleficeDesire ~= nil)
+    if (castMaleficeDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(Malefice, castMaleficeTarget);
         return;
     end
 
-    if (castDemonicSummoningDesire ~= nil)
+    if (castDemonicSummoningDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(DemonicSummoning, castDemonicSummoningLocation);
         return;
     end
 
-    if (castMidnightPulseDesire ~= nil)
+    if (castMidnightPulseDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(MidnightPulse, castMidnightPulseLocation);
         return;
     end
 
-    if (castBlackHoleDesire ~= nil)
+    if (castBlackHoleDesire > 0)
     then
         --npcBot:Action_ClearActions(true);
         --npcBot:ActionQueue_Delay(1.0);
@@ -97,7 +97,7 @@ end
 function ConsiderMalefice()
     local ability = Malefice;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -158,12 +158,14 @@ function ConsiderMalefice()
             return BOT_ACTION_DESIRE_VERYHIGH, enemy;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderDemonicSummoning()
     local ability = DemonicSummoning;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -250,12 +252,14 @@ function ConsiderDemonicSummoning()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderMidnightPulse()
     local ability = MidnightPulse;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -297,12 +301,14 @@ function ConsiderMidnightPulse()
             return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderBlackHole()
     local ability = BlackHole;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange() + 200;
@@ -337,6 +343,8 @@ function ConsiderBlackHole()
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 -- OLD ABILITIES

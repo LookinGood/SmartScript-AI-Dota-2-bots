@@ -26,8 +26,8 @@ local ItemsToBuy =
 
 	"item_sange",
 
-	"item_soul_booster",
-	"item_bloodstone",
+	"item_rod_of_atos",
+	"item_gungir",
 
 	"item_ultimate_scepter",
 
@@ -37,6 +37,10 @@ local ItemsToBuy =
 
 	"item_soul_booster",
 	"item_octarine_core",
+
+	"item_ultimate_scepter_2",
+
+	"item_heart",
 }
 
 local realItemsToBuy = {}

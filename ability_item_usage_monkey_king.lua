@@ -71,37 +71,37 @@ function AbilityUsageThink()
     local castMischiefDesire = ConsiderMischief();
     local castWukongsCommandDesire, castWukongsCommandLocation = ConsiderWukongsCommand();
 
-    if (castBoundlessStrikeDesire ~= nil)
+    if (castBoundlessStrikeDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(BoundlessStrike, castBoundlessStrikeLocation);
         return;
     end
 
-    if (castTreeDanceDesire ~= nil)
+    if (castTreeDanceDesire > 0)
     then
         npcBot:Action_UseAbilityOnTree(TreeDance, castTreeDanceTarget);
         return;
     end
 
-    if (castPrimalSpringDesire ~= nil)
+    if (castPrimalSpringDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(PrimalSpring, castPrimalSpringLocation);
         return;
     end
 
-    if (castSpringEarlyDesire ~= nil)
+    if (castSpringEarlyDesire > 0)
     then
         npcBot:Action_UseAbility(SpringEarly);
         return;
     end
 
-    if (castMischiefDesire ~= nil)
+    if (castMischiefDesire > 0)
     then
         npcBot:Action_UseAbility(Mischief);
         return;
     end
 
-    if (castWukongsCommandDesire ~= nil)
+    if (castWukongsCommandDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(WukongsCommand, castWukongsCommandLocation);
         return;
@@ -111,7 +111,7 @@ end
 function ConsiderBoundlessStrike()
     local ability = BoundlessStrike;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -184,12 +184,14 @@ function ConsiderBoundlessStrike()
             return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderTreeDance()
     local ability = TreeDance;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -197,7 +199,7 @@ function ConsiderTreeDance()
 
     if (#trees == 0)
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     -- Attack use
@@ -238,12 +240,14 @@ function ConsiderTreeDance()
             end
         end
     end ]]
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderPrimalSpring()
     local ability = PrimalSpring;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     --[[     if not ability:IsActivated()
@@ -295,12 +299,14 @@ function ConsiderPrimalSpring()
             return BOT_ACTION_DESIRE_HIGH, utility.GetEscapeLocation(npcBot, castRangeAbility);
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderSpringEarly()
     local ability = SpringEarly;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     -- Retreat use
@@ -309,27 +315,25 @@ function ConsiderSpringEarly()
         --npcBot:ActionImmediate_Chat("Использую SpringEarly для отхода!", true);
         return BOT_ACTION_DESIRE_HIGH;
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderMischief()
     local ability = Mischief;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if npcBot:HasModifier("modifier_monkey_king_transform")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local attackRange = npcBot:GetAttackRange();
     local incomingSpells = npcBot:GetIncomingTrackingProjectiles();
 
-    if GetGameState() == GAME_STATE_PRE_GAME or npcBot:HasModifier('modifier_fountain_aura_buff') or
-        botMode == BOT_MODE_RUNE or
-        botMode == BOT_MODE_WARD or
-        botMode == BOT_MODE_SECRET_SHOP or
-        botMode == BOT_MODE_SIDE_SHOP
+    if GetGameState() == GAME_STATE_PRE_GAME or npcBot:HasModifier('modifier_fountain_aura_buff') or utility.WanderMode(npcBot)
     then
         return BOT_ACTION_DESIRE_VERYLOW;
     end
@@ -340,9 +344,7 @@ function ConsiderMischief()
         for _, spell in pairs(incomingSpells)
         do
             if not utility.IsAlly(npcBot, spell.caster) and GetUnitToLocationDistance(npcBot, spell.location) <= 100 and spell.is_attack == false and
-                not npcBot:HasModifier("modifier_antimage_counterspell") and
-                not npcBot:HasModifier("modifier_item_sphere_target") and
-                not npcBot:HasModifier("modifier_item_lotus_orb_active")
+                not utility.HaveReflectSpell(npcBot)
             then
                 --npcBot:ActionImmediate_Chat("Использую Mischief что бы сбить снаряд!", true);
                 return BOT_ACTION_DESIRE_VERYHIGH;
@@ -369,12 +371,14 @@ function ConsiderMischief()
         --npcBot:ActionImmediate_Chat("Использую Mischief для отступления!", true);
         return BOT_ACTION_DESIRE_HIGH;
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderWukongsCommand()
     local ability = WukongsCommand;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetSpecialValueInt("cast_range");
@@ -402,4 +406,6 @@ function ConsiderWukongsCommand()
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end

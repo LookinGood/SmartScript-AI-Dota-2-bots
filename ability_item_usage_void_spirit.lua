@@ -67,25 +67,25 @@ function AbilityUsageThink()
     local castResonantPulseDesire = ConsiderResonantPulse();
     local castAstralStepDesire, castAstralStepLocation = ConsiderAstralStep();
 
-    if (castAetherRemnantDesire ~= nil)
+    if (castAetherRemnantDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(AetherRemnant, castAetherRemnantLocation);
         return;
     end
 
-    if (castDissimilateDesire ~= nil)
+    if (castDissimilateDesire > 0)
     then
         npcBot:Action_UseAbility(Dissimilate);
         return;
     end
 
-    if (castResonantPulseDesire ~= nil)
+    if (castResonantPulseDesire > 0)
     then
         npcBot:Action_UseAbility(ResonantPulse);
         return;
     end
 
-    if (castAstralStepDesire ~= nil)
+    if (castAstralStepDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(AstralStep, castAstralStepLocation);
         return;
@@ -95,7 +95,7 @@ end
 function ConsiderAetherRemnant()
     local ability = AetherRemnant;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -156,15 +156,17 @@ function ConsiderAetherRemnant()
             radiusAbility, 0, 0);
         if locationAoE ~= nil and (locationAoE.count >= 3) and (ManaPercentage >= 0.6)
         then
-            return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc, "location";
+            return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderDissimilate()
     local ability = Dissimilate;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local incomingSpells = npcBot:GetIncomingTrackingProjectiles();
@@ -227,12 +229,14 @@ function ConsiderDissimilate()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderResonantPulse()
     local ability = ResonantPulse;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local radiusAbility = ability:GetAOERadius();
@@ -300,12 +304,14 @@ function ConsiderResonantPulse()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderAstralStep()
     local ability = AstralStep;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local minCastRange = ability:GetSpecialValueInt("min_travel_distance");
@@ -369,4 +375,6 @@ function ConsiderAstralStep()
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end

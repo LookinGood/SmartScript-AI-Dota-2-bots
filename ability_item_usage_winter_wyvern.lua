@@ -67,25 +67,25 @@ function AbilityUsageThink()
     local castColdEmbraceDesire, castColdEmbraceTarget = ConsiderColdEmbrace();
     local castWintersCurseDesire, castWintersCurseTarget = ConsiderWintersCurse();
 
-    if (castArcticBurnDesire ~= nil)
+    if (castArcticBurnDesire > 0)
     then
         npcBot:Action_UseAbility(ArcticBurn);
         return;
     end
 
-    if (castSplinterBlastDesire ~= nil)
+    if (castSplinterBlastDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(SplinterBlast, castSplinterBlastTarget);
         return;
     end
 
-    if (castColdEmbraceDesire ~= nil)
+    if (castColdEmbraceDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(ColdEmbrace, castColdEmbraceTarget);
         return;
     end
 
-    if (castWintersCurseDesire ~= nil)
+    if (castWintersCurseDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(WintersCurse, castWintersCurseTarget);
         return;
@@ -95,7 +95,7 @@ end
 function ConsiderArcticBurn()
     local ability = ArcticBurn;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local castRangeAbility = npcBot:GetAttackRange() + ability:GetSpecialValueInt("attack_range_bonus");
@@ -153,12 +153,14 @@ function ConsiderArcticBurn()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderSplinterBlast()
     local ability = SplinterBlast;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -275,12 +277,14 @@ function ConsiderSplinterBlast()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderColdEmbrace()
     local ability = ColdEmbrace;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -305,12 +309,14 @@ function ConsiderColdEmbrace()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderWintersCurse()
     local ability = WintersCurse;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -352,4 +358,6 @@ function ConsiderWintersCurse()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end

@@ -67,7 +67,7 @@ function AbilityUsageThink()
     local castHunterInTheNightDesire, castHunterInTheNightTarget = ConsiderHunterInTheNight();
     local castDarkAscensionDesire = ConsiderDarkAscension();
 
-    if (castVoidDesire ~= nil)
+    if (castVoidDesire > 0)
     then
         if (castVoidTargetType == "target")
         then
@@ -80,19 +80,19 @@ function AbilityUsageThink()
         end
     end
 
-    if (castCripplingFearDesire ~= nil)
+    if (castCripplingFearDesire > 0)
     then
         npcBot:Action_UseAbility(CripplingFear);
         return;
     end
 
-    if (castHunterInTheNightDesire ~= nil)
+    if (castHunterInTheNightDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(HunterInTheNight, castHunterInTheNightTarget);
         return;
     end
 
-    if (castDarkAscensionDesire ~= nil)
+    if (castDarkAscensionDesire > 0)
     then
         npcBot:Action_UseAbility(DarkAscension);
         return;
@@ -102,7 +102,7 @@ end
 function ConsiderVoid()
     local ability = Void;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -209,12 +209,14 @@ function ConsiderVoid()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0, 0;
 end
 
 function ConsiderCripplingFear()
     local ability = CripplingFear;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local radiusAbility = ability:GetAOERadius();
@@ -278,17 +280,19 @@ function ConsiderCripplingFear()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderHunterInTheNight()
     local ability = HunterInTheNight;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     if not utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_UNIT_TARGET)
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange() * 2;
@@ -318,18 +322,20 @@ function ConsiderHunterInTheNight()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderDarkAscension()
     local ability = DarkAscension;
     if not utility.IsAbilityAvailable(ability)
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if npcBot:HasModifier("modifier_night_stalker_darkness")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     -- Attack use
@@ -350,4 +356,6 @@ function ConsiderDarkAscension()
             return BOT_ACTION_DESIRE_HIGH;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end

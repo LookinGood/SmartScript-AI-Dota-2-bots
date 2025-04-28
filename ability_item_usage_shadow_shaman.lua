@@ -67,25 +67,25 @@ function AbilityUsageThink()
     local castShacklesDesire, castShacklesTarget = ConsiderShackles();
     local castMassSerpentWardDesire, castMassSerpentWardLocation = ConsiderMassSerpentWard();
 
-    if (castEtherShockDesire ~= nil)
+    if (castEtherShockDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(EtherShock, castEtherShockTarget);
         return;
     end
 
-    if (castHexDesire ~= nil)
+    if (castHexDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(Hex, castHexTarget);
         return;
     end
 
-    if (castShacklesDesire ~= nil)
+    if (castShacklesDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(Shackles, castShacklesTarget);
         return;
     end
 
-    if (castMassSerpentWardDesire ~= nil)
+    if (castMassSerpentWardDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(MassSerpentWard, castMassSerpentWardLocation);
         return;
@@ -95,7 +95,7 @@ end
 function ConsiderEtherShock()
     local ability = EtherShock;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -156,12 +156,14 @@ function ConsiderEtherShock()
             return BOT_ACTION_DESIRE_VERYHIGH, enemy;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderHex()
     local ability = Hex;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -218,12 +220,14 @@ function ConsiderHex()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderShackles()
     local ability = Shackles;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -273,12 +277,14 @@ function ConsiderShackles()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderMassSerpentWard()
     local ability = MassSerpentWard;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -309,4 +315,6 @@ function ConsiderMassSerpentWard()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end

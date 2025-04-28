@@ -892,8 +892,9 @@ function IsAbilityAvailable(ability)
 		ability:IsFullyCastable() and
 		ability:IsActivated() and
 		ability:IsTrained() and
-		not ability:IsHidden() and
-		not ability:IsPassive()
+		not ability:IsHidden()
+		and not CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_PASSIVE)
+	--and not ability:IsPassive()
 end
 
 function IsTargetedByEnemy(unit, bcreeps)
@@ -1278,6 +1279,23 @@ function CanMove(npcTarget)
 	else
 		return true;
 	end
+end
+
+function IsBotStuck()
+	--[[ 	local npcBot = GetBot();
+	local botLocation = nil;
+	local stuckTimer = 0;
+	local attackTarget = npcBot:GetAttackTarget();
+	if (npcBot:GetCurrentActionType() == BOT_ACTION_TYPE_MOVE_TO or npcBot:GetCurrentActionType() == BOT_ACTION_TYPE_MOVE_TO_DIRECTLY)
+		and not IsLocationPassable(botLocation)
+		and attackTarget == nil
+		and DotaTime() > stuckTimer + 5.0
+		and GetUnitToLocationDistance(npcBot, botLocation) <= 25
+	then
+		return true;
+	end ]]
+
+	return false;
 end
 
 function CanCastOnMagicImmuneTarget(npcTarget)

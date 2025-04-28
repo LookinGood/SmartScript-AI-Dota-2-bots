@@ -50,8 +50,8 @@ end
 local Strafe = AbilitiesReal[1]
 local TarBomb = AbilitiesReal[2]
 local DeathPact = AbilitiesReal[3]
-local BurningArmy = AbilitiesReal[4]
-local BurningBarrage = AbilitiesReal[5]
+local BurningBarrage = npcBot:GetAbilityByName("clinkz_burning_barrage");
+local BurningArmy = npcBot:GetAbilityByName("clinkz_burning_army");
 local SkeletonWalk = AbilitiesReal[6]
 
 function AbilityUsageThink()
@@ -71,37 +71,37 @@ function AbilityUsageThink()
     local castBurningBarrageDesire, castBurningBarrageLocation = ConsiderBurningBarrage();
     local castSkeletonWalkDesire = ConsiderSkeletonWalk();
 
-    if (castStrafeDesire ~= nil)
+    if (castStrafeDesire > 0)
     then
         npcBot:Action_UseAbility(Strafe);
         return;
     end
 
-    if (castTarBombDesire ~= nil)
+    if (castTarBombDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(TarBomb, castTarBombTarget);
         return;
     end
 
-    if (castDeathPactDesire ~= nil)
+    if (castDeathPactDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(DeathPact, castDeathPactTarget);
         return;
     end
 
-    if (castBurningArmyDesire ~= nil)
+    if (castBurningArmyDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(BurningArmy, castBurningArmyLocation);
         return;
     end
 
-    if (castBurningBarrageDesire ~= nil)
+    if (castBurningBarrageDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(BurningBarrage, castBurningBarrageLocation);
         return;
     end
 
-    if (castSkeletonWalkDesire ~= nil)
+    if (castSkeletonWalkDesire > 0)
     then
         npcBot:Action_UseAbility(SkeletonWalk);
         return;
@@ -111,7 +111,7 @@ end
 function ConsiderStrafe()
     local ability = Strafe;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local attackTarget = npcBot:GetAttackTarget();
@@ -140,17 +140,19 @@ function ConsiderStrafe()
             return BOT_ACTION_DESIRE_HIGH;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderTarBomb()
     local ability = TarBomb;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     if npcBot:IsInvisible()
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -221,12 +223,14 @@ function ConsiderTarBomb()
             return BOT_ACTION_DESIRE_VERYHIGH, enemy;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderDeathPact()
     local ability = DeathPact;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -247,17 +251,19 @@ function ConsiderDeathPact()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderBurningArmy()
     local ability = BurningArmy;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     if npcBot:IsInvisible()
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -291,17 +297,19 @@ function ConsiderBurningArmy()
             return BOT_ACTION_DESIRE_HIGH, npcBot:GetLocation();
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderBurningBarrage()
     local ability = BurningBarrage;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     if npcBot:IsInvisible()
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetSpecialValueInt("range");
@@ -319,17 +327,19 @@ function ConsiderBurningBarrage()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderSkeletonWalk()
     local ability = SkeletonWalk;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if npcBot:IsInvisible()
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local attackRange = npcBot:GetAttackRange();
@@ -363,4 +373,6 @@ function ConsiderSkeletonWalk()
             return BOT_MODE_DESIRE_MODERATE;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end

@@ -65,13 +65,13 @@ function AbilityUsageThink()
     local castPressTheAttackDesire, castPressTheAttackTarget, castPressTheAttackTargetType = ConsiderPressTheAttack();
     local castDuelDesire, castDuelTarget = ConsiderDuel();
 
-    if (castOverwhelmingOddsDesire ~= nil)
+    if (castOverwhelmingOddsDesire > 0)
     then
         npcBot:Action_UseAbility(OverwhelmingOdds);
         return;
     end
 
-    if (castPressTheAttackDesire ~= nil)
+    if (castPressTheAttackDesire > 0)
     then
         if (castPressTheAttackTargetType == "target")
         then
@@ -84,7 +84,7 @@ function AbilityUsageThink()
         end
     end
 
-    if (castDuelDesire ~= nil)
+    if (castDuelDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(Duel, castDuelTarget);
         return;
@@ -94,7 +94,7 @@ end
 function ConsiderOverwhelmingOdds()
     local ability = OverwhelmingOdds;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local radiusAbility = ability:GetAOERadius();
@@ -154,12 +154,14 @@ function ConsiderOverwhelmingOdds()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderPressTheAttack()
     local ability = PressTheAttack;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -224,12 +226,14 @@ function ConsiderPressTheAttack()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderDuel()
     local ability = Duel;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -252,7 +256,7 @@ function ConsiderDuel()
 
     if npcBot:IsDisarmed()
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     -- Attack use
@@ -279,4 +283,6 @@ function ConsiderDuel()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end

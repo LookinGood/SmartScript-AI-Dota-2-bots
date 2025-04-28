@@ -67,25 +67,25 @@ function AbilityUsageThink()
     local castHammerOfPurityDesire, castHammerOfPurityTarget = ConsiderHammerOfPurity();
     local castGuardianAngelDesire, castGuardianAngelLocation = ConsiderGuardianAngel();
 
-    if (castPurificationDesire ~= nil)
+    if (castPurificationDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(Purification, castPurificationTarget);
         return;
     end
 
-    if (castRepelDesire ~= nil)
+    if (castRepelDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(Repel, castRepelTarget);
         return;
     end
 
-    if (castHammerOfPurityDesire ~= nil)
+    if (castHammerOfPurityDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(HammerOfPurity, castHammerOfPurityTarget);
         return;
     end
 
-    if (castGuardianAngelDesire ~= nil)
+    if (castGuardianAngelDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(GuardianAngel, castGuardianAngelLocation);
         return;
@@ -95,7 +95,7 @@ end
 function ConsiderPurification()
     local ability = Purification;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -195,12 +195,14 @@ function ConsiderPurification()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderRepel()
     local ability = Repel;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -229,12 +231,14 @@ function ConsiderRepel()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderHammerOfPurity()
     local ability = HammerOfPurity;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local attackTarget = npcBot:GetAttackTarget();
@@ -310,12 +314,14 @@ function ConsiderHammerOfPurity()
             return BOT_ACTION_DESIRE_VERYHIGH, enemy;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderGuardianAngel()
     local ability = GuardianAngel;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -364,6 +370,8 @@ function ConsiderGuardianAngel()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 -- СТАРЫЕ ВЕРСИИ СПОСОБНОСТЕЙ

@@ -63,29 +63,37 @@ function AbilityUsageThink()
     ManaPercentage = npcBot:GetMana() / npcBot:GetMaxMana();
 
     local castSwashbuckleDesire, castSwashbuckleLocation = ConsiderSwashbuckle();
-    local castShieldCrashDesire = ConsiderShieldCrash();
+    local castShieldCrashDesire, castShieldCrashDoubleJump = ConsiderShieldCrash();
     local castRollUpDesire = ConsiderRollUp();
     local castRollingThunderDesire = ConsiderRollingThunder();
 
-    if (castSwashbuckleDesire ~= nil)
+    if (castSwashbuckleDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(Swashbuckle, castSwashbuckleLocation);
         return;
     end
 
-    if (castShieldCrashDesire ~= nil)
+    if (castShieldCrashDesire > 0)
     then
-        npcBot:Action_UseAbility(ShieldCrash);
-        return;
+        if (castShieldCrashDoubleJump == true)
+        then
+            npcBot:Action_ClearActions(false);
+            npcBot:ActionQueue_UseAbility(ShieldCrash);
+            npcBot:ActionQueue_UseAbility(ShieldCrash);
+            return;
+        else
+            npcBot:Action_UseAbility(ShieldCrash);
+            return;
+        end
     end
 
-    if (castRollUpDesire ~= nil)
+    if (castRollUpDesire > 0)
     then
         npcBot:Action_UseAbility(RollUp);
         return;
     end
 
-    if (castRollingThunderDesire ~= nil)
+    if (castRollingThunderDesire > 0)
     then
         npcBot:Action_UseAbility(RollingThunder);
         return;
@@ -95,12 +103,12 @@ end
 function ConsiderSwashbuckle()
     local ability = Swashbuckle;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     if npcBot:HasModifier("modifier_pangolier_gyroshell")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -141,14 +149,17 @@ function ConsiderSwashbuckle()
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderShieldCrash()
     local ability = ShieldCrash;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
+    local canDoubleJump = ability:GetSpecialValueInt("can_double_jump");
     local castRangeAbility = ability:GetSpecialValueInt("jump_horizontal_distance") +
         ability:GetSpecialValueInt("radius");
     local damageAbility = ability:GetSpecialValueInt("damage");
@@ -163,8 +174,14 @@ function ConsiderShieldCrash()
             then
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    --npcBot:ActionImmediate_Chat("Использую ShieldCrash что бы убить цель!", true);
-                    return BOT_ACTION_DESIRE_VERYHIGH;
+                    if canDoubleJump == 1
+                    then
+                        --npcBot:ActionImmediate_Chat("Использую ShieldCrash 2РАЗА что бы убить цель!", true);
+                        return BOT_ACTION_DESIRE_VERYHIGH, true;
+                    else
+                        --npcBot:ActionImmediate_Chat("Использую ShieldCrash 1раз что бы убить цель!", true);
+                        return BOT_ACTION_DESIRE_VERYHIGH, false;
+                    end
                 end
             end
         end
@@ -176,8 +193,14 @@ function ConsiderShieldCrash()
         if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
             and not utility.IsDisabled(botTarget) and npcBot:IsFacingLocation(botTarget:GetLocation(), 10)
         then
-            --npcBot:ActionImmediate_Chat("Использую ShieldCrash по врагу в радиусе действия!",true);
-            return BOT_ACTION_DESIRE_HIGH;
+            if canDoubleJump == 1
+            then
+                --npcBot:ActionImmediate_Chat("Использую ShieldCrash 2РАЗА по врагу в радиусе действия!", true);
+                return BOT_ACTION_DESIRE_HIGH, true;
+            else
+                --npcBot:ActionImmediate_Chat("Использую ShieldCrash 1раз по врагу в радиусе действия!", true);
+                return BOT_ACTION_DESIRE_HIGH, false;
+            end
         end
     end
 
@@ -187,21 +210,29 @@ function ConsiderShieldCrash()
         if (HealthPercentage <= 0.8) and npcBot:WasRecentlyDamagedByAnyHero(2.0) and npcBot:IsFacingLocation(utility.SafeLocation(npcBot), 40)
             and npcBot:DistanceFromFountain() >= castRangeAbility
         then
-            --npcBot:ActionImmediate_Chat("Использую ShieldCrash для отхода!",true);
-            return BOT_ACTION_DESIRE_HIGH;
+            if canDoubleJump == 1
+            then
+                --npcBot:ActionImmediate_Chat("Использую ShieldCrash 2РАЗА для отхода!", true);
+                return BOT_ACTION_DESIRE_HIGH, true;
+            else
+                --npcBot:ActionImmediate_Chat("Использую ShieldCrash 1раз для отхода!", true);
+                return BOT_ACTION_DESIRE_HIGH, false;
+            end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderRollUp()
     local ability = RollUp;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if not utility.CanCastOnMagicImmuneTarget(npcBot) or npcBot:HasModifier("modifier_pangolier_gyroshell")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local incomingSpells = npcBot:GetIncomingTrackingProjectiles();
@@ -211,7 +242,7 @@ function ConsiderRollUp()
     then
         for _, spell in pairs(incomingSpells)
         do
-            if GetUnitToLocationDistance(npcBot, spell.location) <= 300 and spell.is_attack == false
+            if GetUnitToLocationDistance(npcBot, spell.location) <= 300 and spell.is_attack == false and not utility.HaveReflectSpell(npcBot)
             then
                 return BOT_ACTION_DESIRE_VERYHIGH;
             end
@@ -227,18 +258,20 @@ function ConsiderRollUp()
             return BOT_ACTION_DESIRE_HIGH;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderRollingThunder()
     local ability = RollingThunder;
     if not utility.IsAbilityAvailable(ability)
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if npcBot:HasModifier("modifier_pangolier_gyroshell")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local attackRange = npcBot:GetAttackRange();
@@ -246,7 +279,7 @@ function ConsiderRollingThunder()
     -- Attack use
     if utility.PvPMode(npcBot)
     then
-        if utility.IsHero(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) > (attackRange * 2) and GetUnitToUnitDistance(npcBot, botTarget) < 2000
+        if utility.IsHero(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) > (attackRange * 2) and GetUnitToUnitDistance(npcBot, botTarget) <= 1000
             and npcBot:IsFacingLocation(botTarget:GetLocation(), 10)
         then
             --npcBot:ActionImmediate_Chat("Использую RollingThunder для нападения!", true);
@@ -264,4 +297,6 @@ function ConsiderRollingThunder()
             return BOT_ACTION_DESIRE_HIGH;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end

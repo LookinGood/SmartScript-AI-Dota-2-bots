@@ -67,13 +67,13 @@ function AbilityUsageThink()
     local castLastWordDesire, castLastWordTarget, castLastWordTargetType = ConsiderLastWord();
     local castGlobalSilenceDesire = ConsiderGlobalSilence();
 
-    if (castArcaneCurseDesire ~= nil)
+    if (castArcaneCurseDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(ArcaneCurse, castArcaneCurseLocation);
         return;
     end
 
-    if (castLastWordDesire ~= nil)
+    if (castLastWordDesire > 0)
     then
         if (castLastWordTargetType == "target")
         then
@@ -86,7 +86,7 @@ function AbilityUsageThink()
         end
     end
 
-    if (castGlobalSilenceDesire ~= nil)
+    if (castGlobalSilenceDesire > 0)
     then
         npcBot:Action_UseAbility(GlobalSilence);
         return;
@@ -96,7 +96,7 @@ end
 function ConsiderArcaneCurse()
     local ability = ArcaneCurse;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -169,6 +169,8 @@ function ConsiderArcaneCurse()
             return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderGlaivesOfWisdom()
@@ -194,7 +196,7 @@ end
 function ConsiderLastWord()
     local ability = LastWord;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -283,12 +285,14 @@ function ConsiderLastWord()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0, 0;
 end
 
 function ConsiderGlobalSilence()
     local ability = GlobalSilence;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     -- Use in teamfight
@@ -306,4 +310,6 @@ function ConsiderGlobalSilence()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end

@@ -67,7 +67,7 @@ function AbilityUsageThink()
     local castOverloadDesire = ConsiderOverload();
     local castBallLightningDesire, castBallLightningLocation = ConsiderBallLightning();
 
-    if (castStaticRemnantDesire ~= nil)
+    if (castStaticRemnantDesire > 0)
     then
         if (castStaticRemnantTargetType == "location")
         then
@@ -80,7 +80,7 @@ function AbilityUsageThink()
         end
     end
 
-    if (castElectricVortexDesire ~= nil)
+    if (castElectricVortexDesire > 0)
     then
         if (castElectricVortexTargetType == "target")
         then
@@ -93,13 +93,13 @@ function AbilityUsageThink()
         end
     end
 
-    if (castOverloadDesire ~= nil)
+    if (castOverloadDesire > 0)
     then
         npcBot:Action_UseAbility(Overload);
         return;
     end
 
-    if (castBallLightningDesire ~= nil)
+    if (castBallLightningDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(BallLightning, castBallLightningLocation);
         return;
@@ -109,7 +109,7 @@ end
 function ConsiderStaticRemnant()
     local ability = StaticRemnant;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0, 0;
     end
 
     local castRangeAbility = ability:GetSpecialValueInt("AbilityCastRange");
@@ -225,12 +225,14 @@ function ConsiderStaticRemnant()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0, 0;
 end
 
 function ConsiderElectricVortex()
     local ability = ElectricVortex;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0, 0;
     end
 
     --local castRangeAbility = ability:GetCastRange();
@@ -253,7 +255,7 @@ function ConsiderElectricVortex()
                         utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_NO_TARGET)
                     then
                         --npcBot:ActionImmediate_Chat("Использую ElectricVortex с аганимом на " .. enemy:GetUnitName(), true);
-                        return BOT_ACTION_DESIRE_VERYHIGH, nil;
+                        return BOT_ACTION_DESIRE_VERYHIGH, nil, nil;
                     end
                 end
             end
@@ -273,7 +275,7 @@ function ConsiderElectricVortex()
                     return BOT_ACTION_DESIRE_HIGH, botTarget, "target";
                 elseif utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_NO_TARGET)
                 then
-                    return BOT_ACTION_DESIRE_HIGH, nil;
+                    return BOT_ACTION_DESIRE_HIGH, nil, nil;
                 end
             end
         end
@@ -292,23 +294,25 @@ function ConsiderElectricVortex()
                         return BOT_ACTION_DESIRE_HIGH, enemy, "target";
                     elseif utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_NO_TARGET)
                     then
-                        return BOT_ACTION_DESIRE_HIGH, nil;
+                        return BOT_ACTION_DESIRE_HIGH, nil, nil;
                     end
                 end
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0, 0;
 end
 
 function ConsiderOverload()
     local ability = Overload;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if npcBot:HasModifier("modifier_storm_spirit_electric_rave")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local attackTarget = npcBot:GetAttackTarget();
@@ -337,17 +341,19 @@ function ConsiderOverload()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderBallLightning()
     local ability = BallLightning;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     if npcBot:HasModifier("modifier_storm_spirit_ball_lightning")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local attackRange = npcBot:GetAttackRange();
@@ -361,7 +367,7 @@ function ConsiderBallLightning()
         for _, spell in pairs(incomingSpells)
         do
             if not utility.IsAlly(npcBot, spell.caster) and GetUnitToLocationDistance(npcBot, spell.location) <= 500 and spell.is_attack == false
-                and spell.is_dodgeable == true
+                and spell.is_dodgeable == true and not utility.HaveReflectSpell(npcBot)
             then
                 --npcBot:ActionImmediate_Chat("Использую BallLightning для уклонения от снарядов!", true);
                 return BOT_ACTION_DESIRE_HIGH, utility.GetEscapeLocation(npcBot, escapeRadius);
@@ -391,4 +397,6 @@ function ConsiderBallLightning()
             return BOT_ACTION_DESIRE_HIGH, utility.GetEscapeLocation(npcBot, escapeRadius * 2);
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end

@@ -71,37 +71,37 @@ function AbilityUsageThink()
     local castSilentAsTheGraveDesire = ConsiderSilentAsTheGrave();
     local castSummonFamiliarsDesire = ConsiderSummonFamiliars();
 
-    if (castGraveChillDesire ~= nil)
+    if (castGraveChillDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(GraveChill, castGraveChillTarget);
         return;
     end
 
-    if (castSoulAssumptionDesire ~= nil)
+    if (castSoulAssumptionDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(SoulAssumption, castSoulAssumptionTarget);
         return;
     end
 
-    if (castGravekeepersCloakDesire ~= nil)
+    if (castGravekeepersCloakDesire > 0)
     then
         npcBot:Action_UseAbility(GravekeepersCloak);
         return;
     end
 
-    if (castStoneFormDesire ~= nil)
+    if (castStoneFormDesire > 0)
     then
         npcBot:Action_UseAbility(StoneForm);
         return;
     end
 
-    if (castSilentAsTheGraveDesire ~= nil)
+    if (castSilentAsTheGraveDesire > 0)
     then
         npcBot:Action_UseAbility(SilentAsTheGrave);
         return;
     end
 
-    if (castSummonFamiliarsDesire ~= nil)
+    if (castSummonFamiliarsDesire > 0)
     then
         npcBot:Action_UseAbility(SummonFamiliars);
         return;
@@ -131,7 +131,7 @@ end
 function ConsiderGraveChill()
     local ability = GraveChill;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -162,12 +162,14 @@ function ConsiderGraveChill()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderSoulAssumption()
     local ability = SoulAssumption;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -204,17 +206,19 @@ function ConsiderSoulAssumption()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderGravekeepersCloak()
     local ability = GravekeepersCloak;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if npcBot:HasModifier("modifier_visage_summon_familiars_stone_form_buff")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local radiusAbility = StoneForm:GetSpecialValueInt("stun_radius");
@@ -241,12 +245,14 @@ function ConsiderGravekeepersCloak()
     then
         return BOT_ACTION_DESIRE_HIGH;
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderStoneForm()
     local ability = StoneForm;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local radiusAbility = ability:GetSpecialValueInt("stun_radius");
@@ -270,18 +276,20 @@ function ConsiderStoneForm()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderSilentAsTheGrave()
     local ability = SilentAsTheGrave;
     if not utility.IsAbilityAvailable(ability)
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if npcBot:IsInvisible()
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local attackRange = npcBot:GetAttackRange();
@@ -304,25 +312,27 @@ function ConsiderSilentAsTheGrave()
             return BOT_ACTION_DESIRE_HIGH;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderSummonFamiliars()
     local ability = SummonFamiliars;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     -- Alternative use-mod broken this spell for bot
     if npcBot:IsAlive()
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local maxFamiliars = ability:GetSpecialValueInt("familiar_count");
 
     if CountFamiliars() >= maxFamiliars
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local attackRange = npcBot:GetAttackRange();
@@ -357,4 +367,6 @@ function ConsiderSummonFamiliars()
             return BOT_ACTION_DESIRE_LOW;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end

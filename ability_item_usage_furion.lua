@@ -69,7 +69,7 @@ function AbilityUsageThink()
     local castCurseOfTheOldgrowthDesire = ConsiderCurseOfTheOldgrowth();
     local castWrathOfNatureDesire, castWrathOfNatureTarget = ConsiderWrathOfNature();
 
-    if (castSproutDesire ~= nil)
+    if (castSproutDesire > 0)
     then
         if (castSproutTargetType == "combo")
         then
@@ -83,13 +83,13 @@ function AbilityUsageThink()
         end
     end
 
-    if (castTeleportationDesire ~= nil)
+    if (castTeleportationDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(Teleportation, castTeleportationLocation);
         return;
     end
 
-    if (castNaturesCallDesire ~= nil)
+    if (castNaturesCallDesire > 0)
     then
         if (castNaturesCallTargetType == "location")
         then
@@ -101,13 +101,13 @@ function AbilityUsageThink()
         end
     end
 
-    if (castCurseOfTheOldgrowthDesire ~= nil)
+    if (castCurseOfTheOldgrowthDesire > 0)
     then
         npcBot:Action_UseAbility(CurseOfTheOldgrowth);
         return;
     end
 
-    if (castWrathOfNatureDesire ~= nil)
+    if (castWrathOfNatureDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(WrathOfNature, castWrathOfNatureTarget);
         return;
@@ -117,7 +117,7 @@ end
 function ConsiderSprout()
     local ability = Sprout;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -176,24 +176,24 @@ function ConsiderSprout()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0, 0;
 end
 
 function ConsiderTeleportation()
     local ability = Teleportation;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
-    local tps = npcBot:GetItemInSlot(15);
-    if tps == nil or not tps:IsFullyCastable()
+    local shouldTP, tpLocation = teleportation_usage_generic.ShouldTP();
+    
+    if shouldTP
     then
-        local shouldTP, tpLocation = teleportation_usage_generic.ShouldTP();
-        if shouldTP
-        then
-            --npcBot:ActionImmediate_Chat("Использую Teleportation!", true);
-            return BOT_ACTION_DESIRE_HIGH, tpLocation;
-        end
+        --npcBot:ActionImmediate_Chat("Использую Teleportation!", true);
+        return BOT_ACTION_DESIRE_HIGH, tpLocation;
     end
+
 
     -- Cast if attack enemy
     if utility.IsValidTarget(botTarget)
@@ -208,12 +208,14 @@ function ConsiderTeleportation()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderNaturesCall()
     local ability = NaturesCall;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -269,12 +271,14 @@ function ConsiderNaturesCall()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0, 0;
 end
 
 function ConsiderCurseOfTheOldgrowth()
     local ability = CurseOfTheOldgrowth;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local castRangeAbility = ability:GetSpecialValueInt("range");
@@ -300,12 +304,14 @@ function ConsiderCurseOfTheOldgrowth()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderWrathOfNature()
     local ability = WrathOfNature;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local damageAbility = ability:GetSpecialValueInt("damage");
@@ -355,4 +361,6 @@ function ConsiderWrathOfNature()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end

@@ -65,13 +65,13 @@ function AbilityUsageThink()
     ConsiderBurningSpear();
     local castLifeBreakDesire, castLifeBreakTarget = ConsiderLifeBreak();
 
-    if (castInnerFireDesire ~= nil)
+    if (castInnerFireDesire > 0)
     then
         npcBot:Action_UseAbility(InnerFire);
         return;
     end
 
-    if (castLifeBreakDesire ~= nil)
+    if (castLifeBreakDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(LifeBreak, castLifeBreakTarget);
         return;
@@ -81,7 +81,7 @@ end
 function ConsiderInnerFire()
     local ability = InnerFire;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local radiusAbility = ability:GetSpecialValueInt("radius");
@@ -132,6 +132,8 @@ function ConsiderInnerFire()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderBurningSpear()
@@ -157,7 +159,7 @@ end
 function ConsiderLifeBreak()
     local ability = LifeBreak;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -173,4 +175,6 @@ function ConsiderLifeBreak()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end

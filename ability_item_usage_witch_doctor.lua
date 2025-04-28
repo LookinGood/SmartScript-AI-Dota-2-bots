@@ -69,31 +69,31 @@ function AbilityUsageThink()
     local castVoodooSwitcherooDesire = ConsiderVoodooSwitcheroo();
     local castDeathWardDesire, castDeathWardLocation = ConsiderDeathWard();
 
-    if (castParalyzingCaskDesire ~= nil)
+    if (castParalyzingCaskDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(ParalyzingCask, castParalyzingCaskTarget);
         return;
     end
 
-    if (castVoodooRestorationDesire ~= nil)
+    if (castVoodooRestorationDesire > 0)
     then
         npcBot:Action_UseAbility(VoodooRestoration);
         return;
     end
 
-    if (castMaledictDesire ~= nil)
+    if (castMaledictDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(Maledict, castMaledictLocation);
         return;
     end
 
-    if (castVoodooSwitcherooDesire ~= nil)
+    if (castVoodooSwitcherooDesire > 0)
     then
         npcBot:Action_UseAbility(VoodooSwitcheroo);
         return;
     end
 
-    if (castDeathWardDesire ~= nil)
+    if (castDeathWardDesire > 0)
     then
         npcBot:Action_ClearActions(true);
         npcBot:Action_UseAbilityOnLocation(DeathWard, castDeathWardLocation);
@@ -118,6 +118,7 @@ function AbilityUsageThink()
                             npcBot:Action_ClearActions(false);
                             npcBot:Action_MoveToLocation(ally:GetLocation() +
                                 RandomVector(VoodooRestoration:GetSpecialValueInt("radius")));
+                            return;
                         end
                     end
                 end
@@ -129,7 +130,7 @@ end
 function ConsiderParalyzingCask()
     local ability = ParalyzingCask;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -193,12 +194,14 @@ function ConsiderParalyzingCask()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderVoodooRestoration()
     local ability = VoodooRestoration;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local radiusAbility = ability:GetSpecialValueInt("radius");
@@ -217,14 +220,14 @@ function ConsiderVoodooRestoration()
             end
         end
 
-        if countHeroesToHeal > 0
+        if (countHeroesToHeal > 0)
         then
             if ability:GetToggleState() == false
             then
                 --npcBot:ActionImmediate_Chat("Использую VoodooRestoration для хила!", true);
                 return BOT_ACTION_DESIRE_HIGH;
             end
-        elseif countHeroesToHeal <= 0 and not utility.PvPMode(npcBot)
+        elseif (countHeroesToHeal <= 0) and not utility.PvPMode(npcBot)
         then
             if ability:GetToggleState() == true
             then
@@ -251,12 +254,14 @@ function ConsiderVoodooRestoration()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderMaledict()
     local ability = Maledict;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -283,7 +288,7 @@ function ConsiderMaledict()
     then
         if utility.IsHero(botTarget)
         then
-            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility + 200
                 and not botTarget:HasModifier("modifier_maledict")
             then
                 return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
@@ -300,12 +305,14 @@ function ConsiderMaledict()
             return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderVoodooSwitcheroo()
     local ability = VoodooSwitcheroo;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local radiusAbility = DeathWard:GetSpecialValueInt("attack_range_tooltip");
@@ -316,14 +323,10 @@ function ConsiderVoodooSwitcheroo()
     then
         for _, spell in pairs(incomingSpells)
         do
-            print(tostring(spell.caster:GetName()))
-            if not utility.IsAlly(npcBot, spell.caster) and GetUnitToLocationDistance(npcBot, spell.location) <= 300 and spell.is_attack == false and
-                not npcBot:HasModifier("modifier_antimage_counterspell") and
-                not npcBot:HasModifier("modifier_item_sphere_target") and
-                not npcBot:HasModifier("modifier_item_lotus_orb_active")
+            if not utility.IsAlly(npcBot, spell.caster) and GetUnitToLocationDistance(npcBot, spell.location) <= 300 and spell.is_attack == false
+                and not utility.HaveReflectSpell(npcBot)
             then
-                npcBot:ActionImmediate_Chat("Использую VoodooSwitcheroo что бы сбить снаряд!",
-                    true);
+                --npcBot:ActionImmediate_Chat("Использую VoodooSwitcheroo что бы сбить снаряд!", true);
                 return BOT_ACTION_DESIRE_VERYHIGH;
             end
         end
@@ -333,18 +336,20 @@ function ConsiderVoodooSwitcheroo()
     if utility.PvPMode(npcBot)
     then
         if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget)
-            and GetUnitToUnitDistance(npcBot, botTarget) <= radiusAbility and (botTarget:GetHealth() / botTarget:GetMaxHealth() > 0.1)
+            and GetUnitToUnitDistance(npcBot, botTarget) < radiusAbility and (botTarget:GetHealth() / botTarget:GetMaxHealth() > 0.1)
         then
             --npcBot:ActionImmediate_Chat("Использую VoodooSwitcheroo на врага!", true);
             return BOT_ACTION_DESIRE_HIGH;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderDeathWard()
     local ability = DeathWard;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -368,4 +373,6 @@ function ConsiderDeathWard()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end

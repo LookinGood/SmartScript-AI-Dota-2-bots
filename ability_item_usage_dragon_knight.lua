@@ -67,25 +67,25 @@ function AbilityUsageThink()
     local castFireballDesire, castFireballLocation = ConsiderFireball();
     local castElderDragonFormDesire = ConsiderElderDragonForm();
 
-    if (castBreatheFireDesire ~= nil)
+    if (castBreatheFireDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(BreatheFire, castBreatheFireLocation);
         return;
     end
 
-    if (castDragonTailDesire ~= nil)
+    if (castDragonTailDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(DragonTail, castDragonTailTarget);
         return;
     end
 
-    if (castFireballDesire ~= nil)
+    if (castFireballDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(Fireball, castFireballLocation);
         return;
     end
 
-    if (castElderDragonFormDesire ~= nil)
+    if (castElderDragonFormDesire > 0)
     then
         npcBot:Action_UseAbility(ElderDragonForm);
         return;
@@ -95,7 +95,7 @@ end
 function ConsiderBreatheFire()
     local ability = BreatheFire;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetSpecialValueInt("AbilityCastRange");
@@ -172,12 +172,14 @@ function ConsiderBreatheFire()
             return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility);
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderDragonTail()
     local ability = DragonTail;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange() + 200;
@@ -226,12 +228,14 @@ function ConsiderDragonTail()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderFireball()
     local ability = Fireball;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -295,17 +299,19 @@ function ConsiderFireball()
             return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderElderDragonForm()
     local ability = ElderDragonForm;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if npcBot:HasModifier("modifier_dragon_knight_corrosive_breath")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local attackRange = npcBot:GetAttackRange() + ability:GetSpecialValueInt("bonus_attack_range");
@@ -332,4 +338,6 @@ function ConsiderElderDragonForm()
             return BOT_ACTION_DESIRE_HIGH;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end

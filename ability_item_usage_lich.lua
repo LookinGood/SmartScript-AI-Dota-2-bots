@@ -69,19 +69,19 @@ function AbilityUsageThink()
     local castIceSpireDesire, castIceSpireLocation = ConsiderIceSpire();
     local castChainFrostDesire, castChainFrostTarget = ConsiderChainFrost();
 
-    if (castFrostBlastDesire ~= nil)
+    if (castFrostBlastDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(FrostBlast, castFrostBlastTarget);
         return;
     end
 
-    if (castFrostShieldDesire ~= nil)
+    if (castFrostShieldDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(FrostShield, castFrostShieldTarget);
         return;
     end
 
-    if (castSinisterGazeDesire ~= nil)
+    if (castSinisterGazeDesire > 0)
     then
         if (castSinisterGazeTargetType == "target")
         then
@@ -94,13 +94,13 @@ function AbilityUsageThink()
         end
     end
 
-    if (castIceSpireDesire ~= nil)
+    if (castIceSpireDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(IceSpire, castIceSpireLocation);
         return;
     end
 
-    if (castChainFrostDesire ~= nil)
+    if (castChainFrostDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(ChainFrost, castChainFrostTarget);
         return;
@@ -110,7 +110,7 @@ end
 function ConsiderFrostBlast()
     local ability = FrostBlast;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -190,12 +190,14 @@ function ConsiderFrostBlast()
             return BOT_ACTION_DESIRE_VERYHIGH, enemy;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderFrostShield()
     local ability = FrostShield;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -272,12 +274,14 @@ function ConsiderFrostShield()
             return BOT_MODE_DESIRE_HIGH, allyAncient;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderSinisterGaze()
     local ability = SinisterGaze;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -381,12 +385,14 @@ function ConsiderSinisterGaze()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderIceSpire()
     local ability = IceSpire;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -440,12 +446,14 @@ function ConsiderIceSpire()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderChainFrost()
     local ability = ChainFrost;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -508,4 +516,6 @@ function ConsiderChainFrost()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end

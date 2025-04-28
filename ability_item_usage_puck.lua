@@ -69,31 +69,31 @@ function AbilityUsageThink()
     local castPhaseShiftDesire = ConsiderPhaseShift();
     local castDreamCoilDesire, castDreamCoilLocation = ConsiderDreamCoil();
 
-    if (castIllusoryOrbDesire ~= nil)
+    if (castIllusoryOrbDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(IllusoryOrb, castIllusoryOrbLocation);
         return;
     end
 
-    if (castEtherealJauntDesire ~= nil)
+    if (castEtherealJauntDesire > 0)
     then
         npcBot:Action_UseAbility(EtherealJaunt);
         return;
     end
 
-    if (castWaningRiftDesire ~= nil)
+    if (castWaningRiftDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(WaningRift, castWaningRiftLocation);
         return;
     end
 
-    if (castPhaseShiftDesire ~= nil)
+    if (castPhaseShiftDesire > 0)
     then
         npcBot:Action_UseAbility(PhaseShift);
         return;
     end
 
-    if (castDreamCoilDesire ~= nil)
+    if (castDreamCoilDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(DreamCoil, castDreamCoilLocation);
         return;
@@ -103,7 +103,7 @@ end
 function ConsiderIllusoryOrb()
     local ability = IllusoryOrb;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local attackRange = npcBot:GetAttackRange();
@@ -174,12 +174,14 @@ function ConsiderIllusoryOrb()
             return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility);
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderEtherealJaunt()
     local ability = EtherealJaunt;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local attackRange = npcBot:GetAttackRange();
@@ -230,12 +232,14 @@ function ConsiderEtherealJaunt()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderWaningRift()
     local ability = WaningRift;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local attackRange = npcBot:GetAttackRange();
@@ -254,7 +258,7 @@ function ConsiderWaningRift()
             for _, spell in pairs(incomingSpells)
             do
                 if not utility.IsAlly(npcBot, spell.caster) and GetUnitToLocationDistance(npcBot, spell.location) <= 300 and spell.is_attack == false
-                    and spell.is_dodgeable == true
+                    and spell.is_dodgeable == true and not utility.HaveReflectSpell(npcBot)
                 then
                     --npcBot:ActionImmediate_Chat("Использую WaningRift для уклонения от снарядов!",true);
                     return BOT_ACTION_DESIRE_HIGH, utility.GetEscapeLocation(npcBot, castRangeAbility);
@@ -320,17 +324,19 @@ function ConsiderWaningRift()
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderPhaseShift()
     local ability = PhaseShift;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if npcBot:HasModifier("modifier_puck_phase_shift")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local incomingSpells = npcBot:GetIncomingTrackingProjectiles();
@@ -347,16 +353,18 @@ function ConsiderPhaseShift()
         end
     end
 
-    if npcBot:WasRecentlyDamagedByAnyHero(1.0) or npcBot:WasRecentlyDamagedByTower(1.0)
+    if utility.BotWasRecentlyDamagedByEnemyHero(1.0) or npcBot:WasRecentlyDamagedByTower(1.0)
     then
         return BOT_ACTION_DESIRE_VERYHIGH;
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderDreamCoil()
     local ability = DreamCoil;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -435,4 +443,6 @@ function ConsiderDreamCoil()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end

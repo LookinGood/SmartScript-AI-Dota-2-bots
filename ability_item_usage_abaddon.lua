@@ -65,19 +65,19 @@ function AbilityUsageThink()
     local castAphoticShieldDesire, castAphoticShieldTarget = ConsiderAphoticShield();
     local castBorrowedTimeDesire = ConsiderBorrowedTime();
 
-    if (castMistCoilDesire ~= nil)
+    if (castMistCoilDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(MistCoil, castMistCoilTarget);
         return;
     end
 
-    if (castAphoticShieldDesire ~= nil)
+    if (castAphoticShieldDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(AphoticShield, castAphoticShieldTarget);
         return;
     end
 
-    if (castBorrowedTimeDesire ~= nil)
+    if (castBorrowedTimeDesire > 0)
     then
         npcBot:Action_UseAbility(BorrowedTime);
         return;
@@ -87,7 +87,7 @@ end
 function ConsiderMistCoil()
     local ability = MistCoil;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -149,12 +149,14 @@ function ConsiderMistCoil()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderAphoticShield()
     local ability = AphoticShield;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -197,17 +199,19 @@ function ConsiderAphoticShield()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderBorrowedTime()
     local ability = BorrowedTime;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if npcBot:HasModifier("modifier_abaddon_borrowed_time") or utility.TargetCantDie(npcBot)
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local enemyAbility = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
@@ -217,4 +221,6 @@ function ConsiderBorrowedTime()
         --npcBot:ActionImmediate_Chat("Использую BorrowedTime!", true);
         return BOT_ACTION_DESIRE_VERYLOW;
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end

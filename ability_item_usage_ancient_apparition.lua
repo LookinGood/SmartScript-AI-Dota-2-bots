@@ -69,7 +69,7 @@ function AbilityUsageThink()
     local castReleaseDesire = ConsiderRelease();
     local castIceBlastDesire, castIceBlastLocation = ConsiderIceBlast();
 
-    if (castColdFeetDesire ~= nil)
+    if (castColdFeetDesire > 0)
     then
         if (castColdFeetTargetType == "target")
         then
@@ -82,19 +82,19 @@ function AbilityUsageThink()
         end
     end
 
-    if (castIceVortexDesire ~= nil)
+    if (castIceVortexDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(IceVortex, castIceVortexLocation);
         return;
     end
 
-    if (castReleaseDesire ~= nil)
+    if (castReleaseDesire > 0)
     then
         npcBot:Action_UseAbility(Release);
         return;
     end
 
-    if (castIceBlastDesire ~= nil)
+    if (castIceBlastDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(IceBlast, castIceBlastLocation);
         --releaseLocation = castIceBlastLocation;
@@ -105,7 +105,7 @@ end
 function ConsiderColdFeet()
     local ability = ColdFeet;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -179,12 +179,14 @@ function ConsiderColdFeet()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderIceVortex()
     local ability = IceVortex;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -245,6 +247,8 @@ function ConsiderIceVortex()
             return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderChillingTouch()
@@ -290,7 +294,7 @@ end
 function ConsiderRelease()
     local ability = Release;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local projectiles = GetLinearProjectiles();
@@ -315,12 +319,14 @@ function ConsiderRelease()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderIceBlast()
     local ability = IceBlast;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local healthLimit = ability:GetSpecialValueInt("kill_pct");
@@ -344,7 +350,10 @@ function ConsiderIceBlast()
         if utility.CanCastSpellOnTarget(ability, botTarget)
         then
             --npcBot:ActionImmediate_Chat("Использую IceBlast по врагу в радиусе действия!",true);
-            return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
+            return BOT_ACTION_DESIRE_VERYHIGH,
+            utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, abilitySpeed);
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end

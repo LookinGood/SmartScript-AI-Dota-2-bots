@@ -50,7 +50,7 @@ end
 local WildAxes = AbilitiesReal[1]
 local SummonBoar = AbilitiesReal[2]
 local SummonHawk = AbilitiesReal[3]
-local InnerBeast = AbilitiesReal[4]
+local InnerBeast = npcBot:GetAbilityByName("beastmaster_inner_beast");
 local DrumsOfSlom = AbilitiesReal[5]
 local PrimalRoar = AbilitiesReal[6]
 --SummonBoar = npcBot:GetAbilityByName("beastmaster_call_of_the_wild_boar");
@@ -73,37 +73,37 @@ function AbilityUsageThink()
     local castDrumsOfSlomDesire = ConsiderDrumsOfSlom();
     local castPrimalRoarDesire, castPrimalRoarTarget = ConsiderPrimalRoar();
 
-    if (castWildAxesDesire ~= nil)
+    if (castWildAxesDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(WildAxes, castWildAxesLocation);
         return;
     end
 
-    if (castSummonBoarDesire ~= nil)
+    if (castSummonBoarDesire > 0)
     then
         npcBot:Action_UseAbility(SummonBoar);
         return;
     end
 
-    if (castSummonHawkDesire ~= nil)
+    if (castSummonHawkDesire > 0)
     then
         npcBot:Action_UseAbility(SummonHawk);
         return;
     end
 
-    if (castInnerBeastDesire ~= nil)
+    if (castInnerBeastDesire > 0)
     then
         npcBot:Action_UseAbility(InnerBeast);
         return;
     end
 
-    if (castDrumsOfSlomDesire ~= nil)
+    if (castDrumsOfSlomDesire > 0)
     then
         npcBot:Action_UseAbility(DrumsOfSlom);
         return;
     end
 
-    if (castPrimalRoarDesire ~= nil)
+    if (castPrimalRoarDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(PrimalRoar, castPrimalRoarTarget);
         return;
@@ -113,7 +113,7 @@ end
 function ConsiderWildAxes()
     local ability = WildAxes;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -170,12 +170,14 @@ function ConsiderWildAxes()
             return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderSummonBoar()
     local ability = SummonBoar;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     -- Attack use
@@ -216,12 +218,14 @@ function ConsiderSummonBoar()
             return BOT_ACTION_DESIRE_LOW;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderSummonHawk()
     local ability = SummonHawk;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local radiusAbility = ability:GetSpecialValueInt("radius");
@@ -256,17 +260,19 @@ function ConsiderSummonHawk()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderInnerBeast()
     local ability = InnerBeast;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
-    if npcBot:HasModifier("modifier_beastmaster_inner_beast")
+    if npcBot:HasModifier("modifier_beastmaster_inner_beast_berserk")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local attackTarget = npcBot:GetAttackTarget();
@@ -293,12 +299,14 @@ function ConsiderInnerBeast()
             return BOT_ACTION_DESIRE_HIGH;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderDrumsOfSlom()
     local ability = DrumsOfSlom;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local radiusAbility = ability:GetSpecialValueInt("radius");
@@ -318,12 +326,14 @@ function ConsiderDrumsOfSlom()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderPrimalRoar()
     local ability = PrimalRoar;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -371,6 +381,8 @@ function ConsiderPrimalRoar()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 --[[ OLD VERSION

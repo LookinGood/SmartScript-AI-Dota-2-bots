@@ -69,32 +69,33 @@ function AbilityUsageThink()
     local castPsionicProjectionDesire, castPsionicProjectionLocation = ConsiderPsionicProjection();
     local castPsionicTrapDesire, castPsionicTrapLocation = ConsiderPsionicTrap();
 
-    if (castRefractionDesire ~= nil)
+    if (castRefractionDesire > 0)
     then
         npcBot:Action_UseAbility(Refraction);
         return;
     end
 
-    if (castMeldDesire ~= nil)
+    if (castMeldDesire > 0)
     then
+        npcBot:Action_ClearAction(true);
         npcBot:Action_UseAbility(Meld);
         return;
     end
 
-    if (castTrapDesire ~= nil)
+    if (castTrapDesire > 0)
     then
         npcBot:ActionPush_UseAbility(Trap);
         return;
     end
 
-    if (castPsionicProjectionDesire ~= nil)
+    if (castPsionicProjectionDesire > 0)
     then
         npcBot:Action_ClearAction(true);
         npcBot:Action_UseAbilityOnLocation(PsionicProjection, castPsionicProjectionLocation);
         return;
     end
 
-    if (castPsionicTrapDesire ~= nil)
+    if (castPsionicTrapDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(PsionicTrap, castPsionicTrapLocation);
         return;
@@ -104,14 +105,14 @@ end
 function ConsiderRefraction()
     local ability = Refraction;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local abilityCount = ability:GetSpecialValueInt("instances");
 
     if utility.GetModifierCount(npcBot, "modifier_templar_assassin_refraction_absorb") >= abilityCount / 2
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local attackRange = npcBot:GetAttackRange();
@@ -146,17 +147,19 @@ function ConsiderRefraction()
     then
         return BOT_ACTION_DESIRE_HIGH;
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderMeld()
     local ability = Meld;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if npcBot:IsInvisible()
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local attackTarget = npcBot:GetAttackTarget();
@@ -183,23 +186,25 @@ function ConsiderMeld()
             return BOT_MODE_DESIRE_VERYHIGH;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderTrap()
     local ability = Trap;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     -- Из-за того что боты не умеют использовать альтернативное использование способностей, скил не работает как нужно и отключен до решения проблемы
     if npcBot:IsAlive()
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if utility.GetModifierCount(npcBot, "modifier_templar_assassin_psionic_trap_counter") < 1
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local radiusAbility = PsionicTrap:GetSpecialValueInt("trap_radius");
@@ -224,29 +229,33 @@ function ConsiderTrap()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderPsionicProjection()
     local ability = PsionicProjection;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if npcBot:IsAlive()
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderPsionicTrap()
     local ability = PsionicTrap;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     if utility.GetModifierCount(npcBot, "modifier_templar_assassin_psionic_trap_counter") >= 1
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -298,4 +307,6 @@ function ConsiderPsionicTrap()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end

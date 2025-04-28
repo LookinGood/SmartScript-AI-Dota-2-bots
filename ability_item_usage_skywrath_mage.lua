@@ -67,25 +67,25 @@ function AbilityUsageThink()
     local castAncientSealDesire, castAncientSealTarget = ConsiderAncientSeal();
     local castMysticFlareDesire, castMysticFlareLocation = ConsiderMysticFlare();
 
-    if (castArcaneBoltDesire ~= nil)
+    if (castArcaneBoltDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(ArcaneBolt, castArcaneBoltTarget);
         return;
     end
 
-    if (castConcussiveShotDesire ~= nil)
+    if (castConcussiveShotDesire > 0)
     then
         npcBot:Action_UseAbility(ConcussiveShot);
         return;
     end
 
-    if (castAncientSealDesire ~= nil)
+    if (castAncientSealDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(AncientSeal, castAncientSealTarget);
         return;
     end
 
-    if (castMysticFlareDesire ~= nil)
+    if (castMysticFlareDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(MysticFlare, castMysticFlareLocation);
         return;
@@ -95,7 +95,7 @@ end
 function ConsiderArcaneBolt()
     local ability = ArcaneBolt;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -161,7 +161,7 @@ end
 function ConsiderConcussiveShot()
     local ability = ConcussiveShot;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local radiusAbility = ability:GetAOERadius();
@@ -197,12 +197,14 @@ function ConsiderConcussiveShot()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderAncientSeal()
     local ability = AncientSeal;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -247,12 +249,14 @@ function ConsiderAncientSeal()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderMysticFlare()
     local ability = MysticFlare;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -296,4 +300,6 @@ function ConsiderMysticFlare()
             return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end

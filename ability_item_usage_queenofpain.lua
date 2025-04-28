@@ -67,7 +67,7 @@ function AbilityUsageThink()
     local castScreamOfPainDesire = ConsiderScreamOfPain();
     local castSonicWaveDesire, castSonicWaveLocation = ConsiderSonicWave();
 
-    if (castShadowStrikeDesire ~= nil)
+    if (castShadowStrikeDesire > 0)
     then
         if (castShadowStrikeTargetType == "target")
         then
@@ -80,19 +80,19 @@ function AbilityUsageThink()
         end
     end
 
-    if (castBlinkDesire ~= nil)
+    if (castBlinkDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(Blink, castBlinkLocation);
         return;
     end
 
-    if (castScreamOfPainDesire ~= nil)
+    if (castScreamOfPainDesire > 0)
     then
         npcBot:Action_UseAbility(ScreamOfPain);
         return;
     end
 
-    if (castSonicWaveDesire ~= nil)
+    if (castSonicWaveDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(SonicWave, castSonicWaveLocation);
         return;
@@ -102,7 +102,7 @@ end
 function ConsiderShadowStrike()
     local ability = ShadowStrike;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -215,12 +215,14 @@ function ConsiderShadowStrike()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0, 0;
 end
 
 function ConsiderBlink()
     local ability = Blink;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local attackRange = npcBot:GetAttackRange();
@@ -234,7 +236,7 @@ function ConsiderBlink()
         for _, spell in pairs(incomingSpells)
         do
             if not utility.IsAlly(npcBot, spell.caster) and GetUnitToLocationDistance(npcBot, spell.location) <= 700 and spell.is_attack == false
-                and spell.is_dodgeable == true
+                and spell.is_dodgeable == true and not utility.HaveReflectSpell(npcBot)
             then
                 --npcBot:ActionImmediate_Chat("Использую Blink для уклонения от снарядов!",true);
                 return BOT_ACTION_DESIRE_HIGH, utility.GetEscapeLocation(npcBot, castRangeAbility);
@@ -267,12 +269,14 @@ function ConsiderBlink()
             return BOT_ACTION_DESIRE_ABSOLUTE, utility.GetEscapeLocation(npcBot, castRangeAbility);
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0, 0;
 end
 
 function ConsiderScreamOfPain()
     local ability = ScreamOfPain;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local radiusAbility = ability:GetAOERadius();
@@ -329,12 +333,14 @@ function ConsiderScreamOfPain()
         --npcBot:ActionImmediate_Chat("Использую ScreamOfPain против Рошана!", true);
         return BOT_ACTION_DESIRE_HIGH;
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderSonicWave()
     local ability = SonicWave;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -394,4 +400,6 @@ function ConsiderSonicWave()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end

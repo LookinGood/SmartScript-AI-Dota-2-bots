@@ -69,31 +69,31 @@ function AbilityUsageThink()
     local castBerserkPotionDesire, castBerserkPotionTarget = ConsiderBerserkPotion();
     local castChemicalRageDesire = ConsiderChemicalRage();
 
-    if (castAcidSprayDesire ~= nil)
+    if (castAcidSprayDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(AcidSpray, castAcidSprayLocation);
         return;
     end
 
-    if (castUnstableConcoctionDesire ~= nil)
+    if (castUnstableConcoctionDesire > 0)
     then
         npcBot:Action_UseAbility(UnstableConcoction);
         return;
     end
 
-    if (castUnstableConcoctionThrowDesire ~= nil)
+    if (castUnstableConcoctionThrowDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(UnstableConcoctionThrow, castUnstableConcoctionThrowTarget);
         return;
     end
 
-    if (castBerserkPotionDesire ~= nil)
+    if (castBerserkPotionDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(BerserkPotion, castBerserkPotionTarget);
         return;
     end
 
-    if (castChemicalRageDesire ~= nil)
+    if (castChemicalRageDesire > 0)
     then
         npcBot:Action_UseAbility(ChemicalRage);
         return;
@@ -103,7 +103,7 @@ end
 function ConsiderAcidSpray()
     local ability = AcidSpray;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -144,12 +144,14 @@ function ConsiderAcidSpray()
             return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderUnstableConcoction()
     local ability = UnstableConcoction;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -197,12 +199,14 @@ function ConsiderUnstableConcoction()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderUnstableConcoctionThrow()
     local ability = UnstableConcoctionThrow;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -281,12 +285,14 @@ function ConsiderUnstableConcoctionThrow()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderBerserkPotion()
     local ability = BerserkPotion;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -333,17 +339,19 @@ function ConsiderBerserkPotion()
             end
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderChemicalRage()
     local ability = ChemicalRage;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     if npcBot:HasModifier("modifier_alchemist_chemical_rage")
     then
-        return;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
     -- Attack use
@@ -366,4 +374,6 @@ function ConsiderChemicalRage()
             return BOT_ACTION_DESIRE_HIGH;
         end
     end
+
+    return BOT_ACTION_DESIRE_NONE;
 end

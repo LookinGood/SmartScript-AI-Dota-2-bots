@@ -1,4 +1,4 @@
----@diagnostic disable: undefined-global, missing-parameter, param-type-mismatch
+---@diagnostic disable: undefined-global, param-type-mismatch, missing-parameter
 require(GetScriptDirectory() .. "/utility")
 
 -- Режим для Терзателя
@@ -190,8 +190,8 @@ function GetDesire()
 					table.remove(tormentorPositions, i);
 				elseif HasTormentorInPosition(tormentorPositions[i]) and not IsPositionInTable(tormentorPositions, tormentorPositions[i])
 				then
-					npcBot:ActionImmediate_Ping(tormentorPositions[i].x, tormentorPositions[i].y, false);
-					npcBot:ActionImmediate_Chat("Добавляю позицию Терзателя - он на месте.", true);
+					--npcBot:ActionImmediate_Ping(tormentorPositions[i].x, tormentorPositions[i].y, false);
+					--npcBot:ActionImmediate_Chat("Добавляю позицию Терзателя - он на месте.", true);
 					table.insert(tormentorPositions, i);
 				end
 			end
@@ -259,7 +259,7 @@ function Think()
 					return;
 				end
 			else
-				npcBot:ActionImmediate_Chat("Жду союзников!", true);
+				--npcBot:ActionImmediate_Chat("Жду союзников!", true);
 				npcBot:Action_MoveToLocation(closestTormentorLocation + RandomVector(400));
 				return;
 			end

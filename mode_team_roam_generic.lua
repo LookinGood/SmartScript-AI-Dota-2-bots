@@ -61,8 +61,8 @@ function Think()
     then
         if npcBot:GetCurrentActionType() == BOT_ACTION_TYPE_IDLE or npcBot:GetCurrentActionType() == BOT_ACTION_TYPE_DELAY
         then
-            npcBot:ActionImmediate_Chat("Выхожу из застоя!", true);
-            npcBot:Action_MoveToLocation(npcBot:GetLocation() + RandomVector(400))
+            --npcBot:ActionImmediate_Chat("Выхожу из застоя!", true);
+            npcBot:Action_MoveToLocation(npcBot:GetLocation() + RandomVector(400));
             return;
         end
     end

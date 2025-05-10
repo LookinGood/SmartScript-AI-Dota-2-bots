@@ -147,7 +147,7 @@ function ItemPurchase(ItemsToBuy, realItemsToBuy)
                     end
                 end ]]
             else
-                if not utility.IsStashSlotsFull()
+                if utility.GetStashEmptySlotsCount() > utility.GetCourierItemSlotsCount()
                 then
                     PurchaseResult = npcBot:ActionImmediate_PurchaseItem(sNextItem);
                 end

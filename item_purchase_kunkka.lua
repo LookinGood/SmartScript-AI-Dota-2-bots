@@ -19,9 +19,10 @@ local ItemsToBuy =
 
 	"item_black_king_bar",
 
+	"item_lesser_crit",
+
 	"item_silver_edge",
 
-	"item_lesser_crit",
 	"item_greater_crit",
 
 	"item_aghanims_shard",

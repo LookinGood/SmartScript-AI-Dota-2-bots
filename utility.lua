@@ -468,6 +468,22 @@ function GetStashSlotsCount()
 	return itemCount;
 end
 
+function GetStashEmptySlotsCount()
+	local npcBot = GetBot();
+	local itemCount = 0;
+
+	for i = 9, 14
+	do
+		local sCurItem = npcBot:GetItemInSlot(i);
+		if (sCurItem == nil)
+		then
+			itemCount = itemCount + 1;
+		end
+	end
+
+	return itemCount;
+end
+
 function IsStashSlotsFull()
 	local itemCount = GetStashSlotsCount();
 	return itemCount >= 6;

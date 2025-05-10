@@ -174,6 +174,7 @@ function ConsiderSpinWeb()
 
     -- General use
     if utility.RetreatMode(npcBot) or utility.PvEMode(npcBot) or utility.WanderMode(npcBot)
+        or npcBot:GetCurrentActionType() == BOT_ACTION_TYPE_DELAY or npcBot:GetCurrentActionType() == BOT_ACTION_TYPE_IDLE
     then
         return BOT_ACTION_DESIRE_MODERATE, utility.GetTargetCastPosition(npcBot, npcBot, delayAbility, 0);
     end

@@ -23,7 +23,7 @@ function GetAllyCreepToRedirectTower(tower)
 end
 
 function GetEnemyTowerNearAttackBot()
-    local enemyTowers = npcBot:GetNearbyTowers(600, true);
+    local enemyTowers = npcBot:GetNearbyTowers(1600, true);
     if (#enemyTowers > 0)
     then
         for _, enemy in pairs(enemyTowers) do
@@ -86,7 +86,7 @@ function Think()
                 retreatDistance = 1000;
             end
             npcBot:Action_ClearActions(false);
-            npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -retreatDistance) + RandomVector(wanderRadius));
+            npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -3000) + RandomVector(wanderRadius));
             return;
         end
     elseif utility.BotWasRecentlyDamagedByEnemyHero(3.0) or
@@ -105,7 +105,7 @@ function Think()
         npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -retreatDistance) + RandomVector(wanderRadius));
         return;
     else
-        local frontlocation = GetLaneFrontLocation(team, lane, -200);
+        local frontlocation = GetLaneFrontLocation(team, lane, -500);
         if GetUnitToLocationDistance(npcBot, frontlocation) <= 1000 and GetUnitToLocationDistance(npcBot, frontlocation) > 500
         then
             local enemyTowers = npcBot:GetNearbyTowers(500, true);
@@ -193,7 +193,7 @@ function Think()
                 npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -1000) + RandomVector(wanderRadius));
                 return;
             else
-                if (#enemyCreeps > 0) or npcBot:WasRecentlyDamagedByCreep(2.0)
+                if (#enemyCreeps > 0)
                 then
                     if (#enemyCreeps == 1)
                     then

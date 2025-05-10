@@ -55,7 +55,26 @@ local TorrentStorm = AbilitiesReal[4]
 local TidalWave = AbilitiesReal[5]
 local Ghostship = AbilitiesReal[6]
 
+--[[ local combo1Time = 0.0;
+local combo2Time = 0.0;
+local combo3Time = 0.0;
+local combo1Running = false;
+local combo2Running = false;
+local combo3Running = false;
+ ]]
+
+local combo1Ready = false;
+local combo2Ready = false;
+local combo3Ready = false;
+
 function AbilityUsageThink()
+    --[[     if not npcBot:IsAlive()
+    then
+        combo1Time = 0.0;
+        combo2Time = 0.0;
+        combo3Time = 0.0;
+    end ]]
+
     if not utility.CanCast(npcBot) then
         return;
     end
@@ -64,6 +83,84 @@ function AbilityUsageThink()
     botTarget = npcBot:GetTarget();
     HealthPercentage = npcBot:GetHealth() / npcBot:GetMaxHealth();
     ManaPercentage = npcBot:GetMana() / npcBot:GetMaxMana();
+    botMana = npcBot:GetMana();
+
+    --[[     if (combo1Time > 0 and DotaTime() >= combo1Time + (combo1Delay - 0.6)) or
+        (combo2Time > 0 and DotaTime() >= combo2Time + (combo2Delay - 2.1)) or
+        (combo3Time > 0 and DotaTime() >= combo3Time + (combo3Delay - 0.6))
+    then
+        combo1Time = 0.0;
+        combo2Time = 0.0;
+        combo3Time = 0.0;
+        if utility.IsAbilityAvailable(Return)
+        then
+            npcBot:ActionImmediate_Chat("Юзаю Return!", true);
+            npcBot:Action_UseAbility(Return);
+            return;
+        end
+    end ]]
+
+    --[[   if (combo1Time > 0 and (GameTime() >= combo1Time + (0.6)))
+    then
+        npcBot:ActionImmediate_Chat(
+            "Юзаю Return Combo1: " .. combo1Time .. " + " .. 0.6 .. " = " .. combo1Time + 0.6, true);
+        combo1Time = 0.0;
+        combo1Running = false;
+        npcBot:Action_UseAbility(Return);
+        return;
+    end
+
+    if (combo2Time > 0 and (GameTime() >= combo2Time + (2.1)))
+    then
+        npcBot:ActionImmediate_Chat(
+            "Юзаю Return Combo2: " .. combo2Time .. " + " .. 2.1 .. " = " .. combo2Time + 2.1, true);
+        combo2Time = 0.0;
+        combo2Running = false;
+        npcBot:Action_UseAbility(Return);
+        return;
+    end
+
+    if (combo3Time > 0 and (GameTime() >= combo3Time + (0.6)))
+    then
+        npcBot:ActionImmediate_Chat(
+            "Юзаю Return Combo3: " .. combo3Time .. " + " .. 0.6 .. " = " .. combo3Time + 0.6, true);
+        combo3Time = 0.0;
+        combo3Running = false;
+        npcBot:Action_UseAbility(Return);
+        return;
+    end ]]
+
+    local combo1Desire, Combo1Target, Combo1Location = ConsiderCombo1();
+    local combo2Desire, Combo2Target, Combo2Location = ConsiderCombo2();
+    local combo3Desire, Combo3Target, Combo3Location = ConsiderCombo3();
+
+    if (combo1Desire > 0)
+    then
+        npcBot:Action_ClearActions(false);
+        npcBot:ActionQueue_UseAbilityOnEntity(XMarksTheSpot, Combo1Target);
+        npcBot:ActionQueue_UseAbilityOnLocation(Ghostship, Combo1Location);
+        npcBot:ActionQueue_UseAbilityOnLocation(Torrent, Combo1Location);
+        npcBot:ActionQueue_UseAbility(Return);
+        return;
+    end
+
+    if (combo2Desire > 0)
+    then
+        npcBot:Action_ClearActions(false);
+        npcBot:ActionQueue_UseAbilityOnEntity(XMarksTheSpot, Combo2Target);
+        npcBot:ActionQueue_UseAbilityOnLocation(Ghostship, Combo2Location);
+        npcBot:ActionQueue_UseAbility(Return);
+        return;
+    end
+
+    if (combo3Desire > 0)
+    then
+        npcBot:Action_ClearActions(false);
+        npcBot:ActionQueue_UseAbilityOnEntity(XMarksTheSpot, Combo3Target);
+        npcBot:ActionQueue_UseAbilityOnLocation(Torrent, Combo3Location);
+        npcBot:ActionQueue_UseAbility(Return);
+        return;
+    end
 
     local castTorrentDesire, castTorrentLocation = ConsiderTorrent();
     local castTidebringerDesire, castTidebringerTarget = ConsiderTidebringer();
@@ -73,7 +170,7 @@ function AbilityUsageThink()
     local castTidalWaveDesire, castTidalWaveLocation = ConsiderTidalWave();
     local castGhostshipDesire, castGhostshipLocation = ConsiderGhostship();
 
-    if (castTorrentDesire > 0)
+    if (castTorrentDesire > 0) and (combo1Ready == false and combo3Ready == false)
     then
         npcBot:Action_UseAbilityOnLocation(Torrent, castTorrentLocation);
         return;
@@ -85,7 +182,7 @@ function AbilityUsageThink()
         return;
     end
 
-    if (castXMarksTheSpotDesire > 0)
+    if (castXMarksTheSpotDesire > 0) and (combo1Ready == false and combo2Ready == false and combo3Ready == false)
     then
         npcBot:Action_UseAbilityOnEntity(XMarksTheSpot, castXMarksTheSpotTarget);
         return;
@@ -109,11 +206,114 @@ function AbilityUsageThink()
         return;
     end
 
-    if (castGhostshipDesire > 0)
+    if (castGhostshipDesire > 0) and (combo1Ready == false and combo2Ready == false)
     then
         npcBot:Action_UseAbilityOnLocation(Ghostship, castGhostshipLocation);
         return;
     end
+end
+
+function ConsiderCombo1()
+    if not utility.IsAbilityAvailable(Torrent) or
+        not utility.IsAbilityAvailable(XMarksTheSpot) or
+        not utility.IsAbilityAvailable(Ghostship)
+    then
+        combo1Ready = false;
+        return BOT_MODE_DESIRE_NONE, 0, 0;
+    end
+
+    local comboMana = Torrent:GetManaCost() + XMarksTheSpot:GetManaCost() + Ghostship:GetManaCost();
+
+    if botMana < comboMana
+    then
+        combo1Ready = false;
+        return BOT_MODE_DESIRE_NONE, 0, 0;
+    end
+
+    local comboCastRange = XMarksTheSpot:GetCastRange();
+    --local comboDelay = Torrent:GetSpecialValueInt("delay");
+
+    if utility.PvPMode(npcBot) and utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(Torrent, botTarget)
+    then
+        combo1Ready = true;
+        if GetUnitToUnitDistance(npcBot, botTarget) <= comboCastRange
+        then
+            --npcBot:ActionImmediate_Chat("Использую combo1!", true);
+            return BOT_ACTION_DESIRE_VERYHIGH, botTarget, botTarget:GetLocation();
+        end
+    else
+        combo1Ready = false;
+    end
+
+    return BOT_MODE_DESIRE_NONE, 0, 0;
+end
+
+function ConsiderCombo2()
+    if not utility.IsAbilityAvailable(XMarksTheSpot) or
+        not utility.IsAbilityAvailable(Ghostship)
+    then
+        combo2Ready = false;
+        return BOT_MODE_DESIRE_NONE, 0, 0;
+    end
+
+    local comboMana = XMarksTheSpot:GetManaCost() + Ghostship:GetManaCost();
+
+    if botMana < comboMana
+    then
+        combo2Ready = false;
+        return BOT_MODE_DESIRE_NONE, 0, 0;
+    end
+
+    local comboCastRange = XMarksTheSpot:GetCastRange();
+    --local comboDelay = Ghostship:GetSpecialValueInt("tooltip_delay");
+
+    if utility.PvPMode(npcBot) and utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(Ghostship, botTarget)
+    then
+        combo2Ready = true;
+        if GetUnitToUnitDistance(npcBot, botTarget) <= comboCastRange
+        then
+            --npcBot:ActionImmediate_Chat("Использую combo2!", true);
+            return BOT_ACTION_DESIRE_VERYHIGH, botTarget, botTarget:GetLocation();
+        end
+    else
+        combo2Ready = false;
+    end
+
+    return BOT_MODE_DESIRE_NONE, 0, 0;
+end
+
+function ConsiderCombo3()
+    if not utility.IsAbilityAvailable(Torrent) or
+        not utility.IsAbilityAvailable(XMarksTheSpot)
+    then
+        combo3Ready = false;
+        return BOT_MODE_DESIRE_NONE, 0, 0;
+    end
+
+    local comboMana = Torrent:GetManaCost() + XMarksTheSpot:GetManaCost();
+
+    if botMana < comboMana
+    then
+        combo3Ready = false;
+        return BOT_MODE_DESIRE_NONE, 0, 0;
+    end
+
+    local comboCastRange = XMarksTheSpot:GetCastRange();
+    --local comboDelay = Torrent:GetSpecialValueInt("delay");
+
+    if utility.PvPMode(npcBot) and utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(Torrent, botTarget)
+    then
+        combo3Ready = true;
+        if GetUnitToUnitDistance(npcBot, botTarget) <= comboCastRange
+        then
+            --npcBot:ActionImmediate_Chat("Использую combo3!", true);
+            return BOT_ACTION_DESIRE_VERYHIGH, botTarget, botTarget:GetLocation();
+        end
+    else
+        combo3Ready = false;
+    end
+
+    return BOT_MODE_DESIRE_NONE, 0, 0;
 end
 
 function ConsiderTorrent()

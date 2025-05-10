@@ -1,4 +1,4 @@
----@diagnostic disable: undefined-global, param-type-mismatch, missing-parameter
+---@diagnostic disable: undefined-global, param-type-mismatch, missing-parameter, need-check-nil
 require(GetScriptDirectory() .. "/utility")
 
 -- Режим для Терзателя
@@ -70,7 +70,8 @@ end
 	return closestUnit, distance;
 end ]]
 
-function GetTormentor(unitsList)
+function GetNearbyTormentor(distance)
+	local unitsList = npcBot:GetNearbyCreeps(distance, true);
 	if (#unitsList > 0)
 	then
 		for _, unit in pairs(unitsList)
@@ -183,16 +184,16 @@ function GetDesire()
 		for i = #tormentorPositions, 1, -1 do
 			if IsLocationVisible(tormentorPositions[i])
 			then
-				if not HasTormentorInPosition(tormentorPositions[i])
+				if HasTormentorInPosition(tormentorPositions[i]) and not IsPositionInTable(tormentorPositions, tormentorPositions[i])
+				then
+					npcBot:ActionImmediate_Ping(tormentorPositions[i].x, tormentorPositions[i].y, false);
+					npcBot:ActionImmediate_Chat("Добавляю позицию Терзателя - он на месте.", true);
+					table.insert(tormentorPositions, i);
+				elseif not HasTormentorInPosition(tormentorPositions[i])
 				then
 					--npcBot:ActionImmediate_Ping(tormentorPositions[i].x, tormentorPositions[i].y, false);
 					--npcBot:ActionImmediate_Chat("Удаляю позицию Терзателя - его там нет.", true);
 					table.remove(tormentorPositions, i);
-				elseif HasTormentorInPosition(tormentorPositions[i]) and not IsPositionInTable(tormentorPositions, tormentorPositions[i])
-				then
-					--npcBot:ActionImmediate_Ping(tormentorPositions[i].x, tormentorPositions[i].y, false);
-					--npcBot:ActionImmediate_Chat("Добавляю позицию Терзателя - он на месте.", true);
-					table.insert(tormentorPositions, i);
 				end
 			end
 		end
@@ -244,22 +245,22 @@ function Think()
 			npcBot:Action_MoveToLocation(closestTormentorLocation);
 			return;
 		else
-			if GetCountAllyHeroesAroundTormentorLocation(closestTormentorLocation, 1000) >= minAllyHeroes or IsAllyHeroAttackTormentor(closestTormentorLocation)
+			local tormentor = GetNearbyTormentor(1600);
+			if tormentor ~= nil and not tormentor:IsInvulnerable()
 			then
-				local neutralCreeps = npcBot:GetNearbyCreeps(1600, true);
-				local tormentor = GetTormentor(neutralCreeps);
-				if tormentor ~= nil and not tormentor:IsInvulnerable()
+				if GetCountAllyHeroesAroundTormentorLocation(closestTormentorLocation, 1000) >= minAllyHeroes or IsAllyHeroAttackTormentor(closestTormentorLocation)
 				then
 					--npcBot:ActionImmediate_Chat("Атакую " .. tormentor:GetUnitName(), true);
 					npcBot:SetTarget(tormentor);
 					npcBot:Action_AttackUnit(tormentor, false);
 					return;
 				else
+					npcBot:ActionImmediate_Chat("Жду союзников!", true);
 					npcBot:Action_MoveToLocation(closestTormentorLocation + RandomVector(400));
 					return;
 				end
 			else
-				--npcBot:ActionImmediate_Chat("Жду союзников!", true);
+				--npcBot:ActionImmediate_Chat("Терзатель недоступен для атаки, брожу рядом.", true);
 				npcBot:Action_MoveToLocation(closestTormentorLocation + RandomVector(400));
 				return;
 			end

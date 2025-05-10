@@ -4,7 +4,7 @@ require(GetScriptDirectory() .. "/utility")
 local npcBot = GetBot();
 
 function GetDesire()
---[[     local botMode = npcBot:GetActiveMode();
+    --[[     local botMode = npcBot:GetActiveMode();
 
     if botMode == BOT_MODE_SHRINE or npcBot:GetCurrentActionType() == BOT_ACTION_TYPE_SHRINE
     then
@@ -38,6 +38,14 @@ function GetDesire()
         return BOT_MODE_DESIRE_ABSOLUTE;
     end
 
+    if npcBot:HasModifier("modifier_fountain_aura_buff")
+    then
+        if npcBot:GetCurrentActionType() == BOT_ACTION_TYPE_IDLE or npcBot:GetCurrentActionType() == BOT_ACTION_TYPE_DELAY
+        then
+            return BOT_MODE_DESIRE_ABSOLUTE;
+        end
+    end
+
     return BOT_MODE_DESIRE_NONE;
 end
 
@@ -47,6 +55,16 @@ function Think()
     then
         --npcBot:ActionImmediate_Chat("Стою на месте кастуя!", true);
         return;
+    end
+
+    if npcBot:HasModifier("modifier_fountain_aura_buff")
+    then
+        if npcBot:GetCurrentActionType() == BOT_ACTION_TYPE_IDLE or npcBot:GetCurrentActionType() == BOT_ACTION_TYPE_DELAY
+        then
+            npcBot:ActionImmediate_Chat("Выхожу из застоя!", true);
+            npcBot:Action_MoveToLocation(npcBot:GetLocation() + RandomVector(400))
+            return;
+        end
     end
 end
 

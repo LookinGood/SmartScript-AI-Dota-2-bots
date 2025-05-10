@@ -2105,11 +2105,14 @@ function ItemUsageThink()
 	local silverEdge = IsItemAvailable("item_silver_edge");
 	if (shadowBlade ~= nil and shadowBlade:IsFullyCastable()) or (silverEdge ~= nil and silverEdge:IsFullyCastable()) and not npcBot:IsInvisible()
 	then
-		if utility.PvPMode(npcBot)
+		if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
 		then
-			if utility.IsHero(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= (attackRange * 2)
+			if (utility.IsHero(botTarget) or utility.IsBoss(botTarget)) and GetUnitToUnitDistance(npcBot, botTarget) <= (attackRange * 4)
 			then
-				if silverEdge ~= nil
+				if shadowBlade ~= nil
+				then
+					npcBot:Action_UseAbility(shadowBlade);
+				elseif silverEdge ~= nil
 				then
 					--npcBot:Action_ClearActions(false);
 					npcBot:Action_UseAbility(silverEdge);

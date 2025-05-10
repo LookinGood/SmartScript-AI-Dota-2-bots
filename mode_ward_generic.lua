@@ -176,7 +176,7 @@ function GetDesire()
         return BOT_ACTION_DESIRE_NONE;
     end
 
-    -- Перемещение лотусов у фонтана
+    -- Перемещение лотусов в инвентарь
     itemLotus = nil;
     itemLotusSlot = nil;
     emptySlot = utility.GetEmptyMainItemSlot();
@@ -249,7 +249,7 @@ function GetDesire()
         end
     end
 
-    local enemyCouriers = npcBot:GetNearbyCreeps(npcBot:GetAttackRange() + 200, true);
+    local enemyCouriers = npcBot:GetNearbyCreeps(npcBot:GetAttackRange() + 500, true);
     if (#enemyCouriers > 0)
     then
         for _, courier in pairs(enemyCouriers) do

@@ -4,14 +4,7 @@ require(GetScriptDirectory() .. "/utility")
 local npcBot = GetBot();
 
 function GetDesire()
-    --[[     local botMode = npcBot:GetActiveMode();
-
-    if botMode == BOT_MODE_SHRINE or npcBot:GetCurrentActionType() == BOT_ACTION_TYPE_SHRINE
-    then
-        return BOT_MODE_DESIRE_NONE;
-    end ]]
-
-    castAbility = nil;
+    local castAbility = nil;
 
     if castAbility == nil then castAbility = npcBot:GetAbilityByName("tinker_rearm") end;
     if castAbility == nil then castAbility = npcBot:GetAbilityByName("elder_titan_echo_stomp") end;
@@ -31,7 +24,7 @@ function GetDesire()
 
     --LaunchSnowball = npcBot:GetAbilityByName("tusk_launch_snowball");
 
-    if npcBot:IsChanneling() or (castAbility ~= nil and castAbility:IsInAbilityPhase()) or
+    if npcBot:IsChanneling() or npcBot:NumQueuedActions() > 0 or (castAbility ~= nil and castAbility:IsInAbilityPhase()) or
         npcBot:HasModifier("modifier_spirit_breaker_charge_of_darkness")
     then
         --npcBot:ActionImmediate_Chat("Решаю стоять на месте кастуя!", true);
@@ -50,12 +43,12 @@ function GetDesire()
 end
 
 function Think()
-    if (castAbility ~= nil and castAbility:IsInAbilityPhase()) or npcBot:IsChanneling() or
-        npcBot:HasModifier("modifier_spirit_breaker_charge_of_darkness")
+    --[[     if (castAbility ~= nil and castAbility:IsInAbilityPhase()) or npcBot:IsChanneling() or npcBot:NumQueuedActions() > 0
+        or npcBot:HasModifier("modifier_spirit_breaker_charge_of_darkness")
     then
         --npcBot:ActionImmediate_Chat("Стою на месте кастуя!", true);
         return;
-    end
+    end ]]
 
     if npcBot:HasModifier("modifier_fountain_aura_buff")
     then

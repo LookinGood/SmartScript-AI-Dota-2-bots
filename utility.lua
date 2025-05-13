@@ -884,12 +884,12 @@ function IsEnemiesAroundStronger()
 		end
 	end
 
-	if enemyPower > allyPower
+	if enemyPower >= (allyPower * 1.2)
 	then
 		return true;
-	else
-		return false;
 	end
+
+	return false;
 end
 
 function IsBusy(npcTarget)

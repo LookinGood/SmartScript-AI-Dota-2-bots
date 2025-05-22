@@ -9,13 +9,13 @@ local ItemsToBuy =
 
 	"item_enchanted_mango",
 
-    "item_magic_wand",
+	"item_magic_wand",
 
-    "item_soul_ring",
+	"item_soul_ring",
 
-    "item_bracer",
+	"item_bracer",
 
-    "item_phase_boots",
+	"item_phase_boots",
 
 	"item_echo_sabre",
 
@@ -24,22 +24,24 @@ local ItemsToBuy =
 	"item_blink",
 
 	"item_lesser_crit",
-    "item_greater_crit",
+	"item_greater_crit",
 
 	"item_aghanims_shard",
 
-	"item_ultimate_scepter",
-    "item_ultimate_scepter_2",
+	"item_harpoon",
 
 	"item_overwhelming_blink",
 
-    "item_moon_shard",
+	"item_ultimate_scepter",
+	"item_ultimate_scepter_2",
+
+	"item_moon_shard",
 
 	"item_buckler",
 	"item_assault",
 
-    "item_travel_boots",
-    "item_travel_boots_2",
+	"item_travel_boots",
+	"item_travel_boots_2",
 }
 
 local realItemsToBuy = {}

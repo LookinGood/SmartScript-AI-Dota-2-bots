@@ -21,21 +21,21 @@ local ItemsToBuy =
 
 	"item_blink",
 
+	"item_ultimate_scepter",
+
 	"item_ancient_janggo",
 	"item_boots_of_bearing",
 
 	"item_aghanims_shard",
 
 	"item_dagon",
-
-	"item_ethereal_blade",
-
 	"item_dagon_2",
 	"item_dagon_3",
 	"item_dagon_4",
 	"item_dagon_5",
 
-	"item_ultimate_scepter",
+	"item_ethereal_blade",
+
 	"item_ultimate_scepter_2",
 
 	"item_arcane_blink",

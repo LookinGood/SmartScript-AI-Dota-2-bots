@@ -21,13 +21,14 @@ local ItemsToBuy =
 
 	"item_dragon_lance",
 
+	"item_lesser_crit",
+
 	"item_silver_edge",
+
+	"item_greater_crit",
 
 	"item_force_staff",
 	"item_hurricane_pike",
-
-	"item_lesser_crit",
-	"item_greater_crit",
 
 	"item_aghanims_shard",
 

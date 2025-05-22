@@ -486,7 +486,7 @@ function ConsiderSupernova()
         return BOT_ACTION_DESIRE_NONE, 0, 0;
     end
 
-    local radiusAbility = ability:GetSpecialValueInt("cast_range_tooltip_scepter");
+    local radiusAbility = ability:GetSpecialValueInt("aura_radius") / 2;
     local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
 
     -- Use in teamfight

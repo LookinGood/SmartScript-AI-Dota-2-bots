@@ -1405,6 +1405,7 @@ end
 function PvPMode(npcBot)
 	local botMode = npcBot:GetActiveMode();
 	return (botMode == BOT_MODE_ATTACK or
+		botMode == BOT_MODE_RETREAT or
 		botMode == BOT_MODE_ROAM or
 		botMode == BOT_MODE_DEFEND_ALLY or
 		botMode == BOT_MODE_EVASIVE_MANEUVERS);

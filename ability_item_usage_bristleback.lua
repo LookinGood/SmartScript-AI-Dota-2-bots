@@ -149,6 +149,23 @@ function ConsiderQuillSpray()
     local radiusAbility = ability:GetAOERadius();
     local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
 
+    if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_AUTOCAST)
+    then
+        if utility.BossMode(npcBot) and utility.IsBoss(botTarget) and
+            utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= radiusAbility
+        then
+            if not ability:GetAutoCastState()
+            then
+                ability:ToggleAutoCast();
+            end
+        else
+            if ability:GetAutoCastState()
+            then
+                ability:ToggleAutoCast();
+            end
+        end
+    end
+
     -- General use
     if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
     then

@@ -6,7 +6,6 @@ local npcBot = GetBot();
 function GetDesire()
     if not npcBot:IsAlive() or utility.IsClone(npcBot) or
         --npcBot:HasModifier("modifier_skeleton_king_reincarnation_scepter") or
-        npcBot:HasModifier("modifier_skeleton_king_reincarnation_scepter_active") or
         string.find(npcBot:GetUnitName(), "npc_dota_lone_druid_bear")
     then
         return BOT_MODE_DESIRE_NONE;
@@ -24,7 +23,8 @@ function GetDesire()
 
     if not utility.CanMove(npcBot) or
         npcBot:HasModifier("modifier_fountain_invulnerability") or
-        npcBot:HasModifier("modifier_fountain_fury_swipes_damage_increase")
+        npcBot:HasModifier("modifier_fountain_fury_swipes_damage_increase") or
+        npcBot:HasModifier("modifier_skeleton_king_reincarnation_scepter_active")
     then
         return BOT_MODE_DESIRE_ABSOLUTE;
     end
@@ -88,16 +88,97 @@ function GetDesire()
 end
 
 function OnStart()
-    if RollPercentage(5)
+    if not npcBot:HasModifier("modifier_skeleton_king_reincarnation_scepter_active")
     then
-        npcBot:ActionImmediate_Chat("Отступаю!", false);
+        if RollPercentage(5)
+        then
+            npcBot:ActionImmediate_Chat("Отступаю!", false);
+        end
     end
+end
+
+function OnEnd()
     npcBot:SetTarget(nil);
 end
 
 function Think()
     if utility.IsBusy(npcBot)
     then
+        return;
+    end
+
+    if npcBot:HasModifier("modifier_skeleton_king_reincarnation_scepter_active")
+    then
+        local enemyHeroes = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
+        local enemyCreeps = npcBot:GetNearbyCreeps(1600, true);
+        local enemyTowers = npcBot:GetNearbyTowers(1600, true);
+        local enemyBarracks = npcBot:GetNearbyBarracks(1600, true);
+        local enemyAncient = GetAncient(GetOpposingTeam());
+        local enemyFillers = npcBot:GetNearbyFillers(1600, true);
+        if (#enemyHeroes > 0)
+        then
+            local enemy = utility.GetWeakest(enemyHeroes);
+            if not enemy:IsInvulnerable()
+            then
+                npcBot:SetTarget(enemy);
+                npcBot:Action_AttackUnit(enemy, false);
+                --npcBot:ActionImmediate_Chat("Атакую героя: " .. enemy:GetUnitName(), true);
+                return;
+            end
+        end
+        if (#enemyCreeps > 0)
+        then
+            local enemy = utility.GetWeakest(enemyCreeps);
+            if not enemy:IsInvulnerable()
+            then
+                npcBot:SetTarget(enemy);
+                npcBot:Action_AttackUnit(enemy, false);
+                --npcBot:ActionImmediate_Chat("Атакую крипа: " .. enemy:GetUnitName(), true);
+                return;
+            end
+        end
+        if (#enemyTowers > 0)
+        then
+            local enemy = utility.GetWeakest(enemyTowers);
+            if not enemy:IsInvulnerable()
+            then
+                npcBot:SetTarget(enemy);
+                npcBot:Action_AttackUnit(enemy, false);
+                --npcBot:ActionImmediate_Chat("Атакую башню: " .. enemy:GetUnitName(), true);
+                return;
+            end
+        end
+        if (#enemyBarracks > 0)
+        then
+            local enemy = utility.GetWeakest(enemyBarracks);
+            if not enemy:IsInvulnerable()
+            then
+                npcBot:SetTarget(enemy);
+                npcBot:Action_AttackUnit(enemy, false);
+                --npcBot:ActionImmediate_Chat("Атакую баррак: " .. enemy:GetUnitName(), true);
+                return;
+            end
+        end
+        if not enemyAncient:IsInvulnerable() and GetUnitToUnitDistance(npcBot, enemyAncient) <= 3000
+        then
+            npcBot:SetTarget(enemyAncient);
+            npcBot:Action_AttackUnit(enemyAncient, false);
+            --npcBot:ActionImmediate_Chat("Атакую древнего: " .. enemyAncient:GetUnitName(), true);
+            return;
+        end
+        if (#enemyFillers > 0)
+        then
+            local enemy = utility.GetWeakest(enemyFillers);
+            if not enemy:IsInvulnerable()
+            then
+                npcBot:SetTarget(enemy);
+                npcBot:Action_AttackUnit(enemy, false);
+                --npcBot:ActionImmediate_Chat("Атакую постройку: " .. enemy:GetUnitName(), true);
+                return;
+            end
+        end
+
+        npcBot:Action_MoveToLocation(npcBot:GetLocation() + RandomVector(1600));
         return;
     end
 
@@ -108,11 +189,9 @@ function Think()
         if GetUnitToLocationDistance(npcBot, fountainLocation) >= 600
         then
             --npcBot:ActionImmediate_Chat("ОТСТУПАЮ!", true);
-            npcBot:Action_ClearActions(false);
             npcBot:Action_MoveToLocation(fountainLocation);
             return;
         else
-            npcBot:Action_ClearActions(false);
             npcBot:Action_MoveToLocation(npcBot:GetLocation() + RandomVector(200));
             return;
         end
@@ -124,7 +203,6 @@ function Think()
             for _, enemy in pairs(enemyHeroAround) do
                 if utility.CanCastOnInvulnerableTarget(enemy) and not utility.IsNotAttackTarget(enemy)
                 then
-                    npcBot:Action_ClearActions(false);
                     npcBot:Action_AttackUnit(enemy, true);
                     return;
                 end
@@ -134,13 +212,11 @@ function Think()
             for _, enemy in pairs(enemyCreepsAround) do
                 if utility.CanCastOnInvulnerableTarget(enemy) and not utility.IsNotAttackTarget(enemy)
                 then
-                    npcBot:Action_ClearActions(false);
                     npcBot:Action_AttackUnit(enemy, true);
                     return;
                 end
             end
         else
-            npcBot:Action_ClearActions(false);
             npcBot:Action_AttackMove(npcBot:GetLocation());
             return;
         end

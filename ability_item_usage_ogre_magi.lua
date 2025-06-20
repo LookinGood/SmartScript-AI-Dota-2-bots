@@ -203,7 +203,7 @@ function ConsiderIgnite()
         end
     end
 
-        -- Retreat use
+    -- Retreat use
     if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
@@ -218,7 +218,7 @@ function ConsiderIgnite()
         end
     end
 
-        -- Cast if push/defend/farm
+    -- Cast if push/defend/farm
     if utility.PvEMode(npcBot)
     then
         local enemyCreeps = npcBot:GetNearbyCreeps(castRangeAbility, true);
@@ -234,7 +234,7 @@ function ConsiderIgnite()
         end
     end
 
-        -- Cast when laning
+    -- Cast when laning
     if botMode == BOT_MODE_LANING
     then
         local enemy = utility.GetWeakest(enemyAbility);
@@ -257,16 +257,19 @@ function ConsiderBloodlust()
     local castRangeAbility = ability:GetCastRange();
     local allyAbility = npcBot:GetNearbyHeroes(castRangeAbility, false, BOT_MODE_NONE);
 
-    if npcBot:HasModifier('modifier_fountain_aura_buff')
+    if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_AUTOCAST)
     then
-        if not ability:GetAutoCastState()
+        if npcBot:HasModifier('modifier_fountain_aura_buff')
         then
-            ability:ToggleAutoCast();
-        end
-    else
-        if ability:GetAutoCastState()
-        then
-            ability:ToggleAutoCast();
+            if not ability:GetAutoCastState()
+            then
+                ability:ToggleAutoCast();
+            end
+        else
+            if ability:GetAutoCastState()
+            then
+                ability:ToggleAutoCast();
+            end
         end
     end
 
@@ -373,7 +376,7 @@ function ConsiderUnrefinedFireblast()
         end
     end
 
-        -- Retreat use
+    -- Retreat use
     if utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)

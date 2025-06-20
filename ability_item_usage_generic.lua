@@ -33,7 +33,7 @@ function CourierUsageThink()
 	--local courierInDanger = false;
 	--local courierHealth = courier:GetHealth() / courier:GetMaxHealth();
 
-	if (state == COURIER_STATE_IDLE)
+	if (state == COURIER_STATE_IDLE) or (state ~= COURIER_STATE_DELIVERING_ITEMS and npcBot.secretShopMode ~= true and courier:DistanceFromSecretShop() < 200)
 	then
 		--npcBot:ActionImmediate_Chat("Курьер бездельничает!", true);
 		npcBot:ActionImmediate_Courier(courier, COURIER_ACTION_RETURN_STASH_ITEMS);
@@ -87,15 +87,14 @@ function CourierUsageThink()
 				then
 					npcBot:ActionImmediate_Courier(courier, COURIER_ACTION_TRANSFER_ITEMS);
 					return;
-				elseif (npcBot.secretShopMode == true) and (npcBot:DistanceFromSecretShop() >= 3000) and (courier:DistanceFromSecretShop() > 200)
-					and not utility.IsCourierItemSlotsFull()
+				elseif (npcBot.secretShopMode == true) and (npcBot:DistanceFromSecretShop() >= 3000) and (npcBot:GetCourierValue() <= 0)
+					and not utility.IsCourierItemSlotsFull() and (state == COURIER_STATE_AT_BASE)
 				then
 					npcBot:ActionImmediate_Courier(courier, COURIER_ACTION_SECRET_SHOP);
 					return;
 				end
 			else
-				if (npcBot.secretShopMode == true) and (courier:DistanceFromSecretShop() > 200) and not utility.IsCourierItemSlotsFull()
-					and npcBot:GetCourierValue() <= 0
+				if (npcBot.secretShopMode == true) and not utility.IsCourierItemSlotsFull() and (npcBot:GetCourierValue() <= 0) and (state == COURIER_STATE_AT_BASE)
 				then
 					npcBot:ActionImmediate_Courier(courier, COURIER_ACTION_SECRET_SHOP);
 					return;

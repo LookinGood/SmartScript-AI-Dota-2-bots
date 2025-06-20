@@ -133,7 +133,7 @@ function ConsiderArcaneBolt()
     --  Pushing/defending/Farm
     if utility.PvEMode(npcBot)
     then
-        local enemyCreeps = npcBot:GetNearbyCreeps(castRangeAbility, true)
+        local enemyCreeps = npcBot:GetNearbyCreeps(castRangeAbility, true);
         if (#enemyCreeps > 0) and (ManaPercentage >= 0.5)
         then
             local enemy = utility.GetWeakest(enemyCreeps);

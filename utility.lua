@@ -431,6 +431,19 @@ function GetEmptyMainItemSlot()
 	return nil;
 end
 
+function IsTargetItemSlotsFull(npcTarget)
+	for i = 0, 8
+	do
+		local sCurItem = npcTarget:GetItemInSlot(i);
+		if sCurItem == nil
+		then
+			return false;
+		end
+	end
+
+	return true;
+end
+
 function GetItemSlotsCount()
 	local npcBot = GetBot();
 	local itemCount = 0;

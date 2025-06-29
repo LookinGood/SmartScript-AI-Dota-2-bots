@@ -133,7 +133,8 @@ function ConsiderStaticRemnant()
                         return BOT_ACTION_DESIRE_ABSOLUTE,
                             utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility),
                             "location";
-                    elseif utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_NO_TARGET)
+                    end
+                    if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_NO_TARGET)
                     then
                         if GetUnitToUnitDistance(npcBot, enemy) <= radiusAbility
                         then
@@ -152,15 +153,19 @@ function ConsiderStaticRemnant()
     then
         if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
         then
-            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+            if utility.CanCastSpellOnTarget(ability, botTarget)
             then
                 if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_POINT)
                 then
-                    --npcBot:ActionImmediate_Chat("Использую StaticRemnant по точке атакуя " .. botTarget:GetUnitName(),true);
-                    return BOT_ACTION_DESIRE_ABSOLUTE,
-                        utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, speedAbility),
-                        "location";
-                elseif utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_NO_TARGET)
+                    if GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+                    then
+                        --npcBot:ActionImmediate_Chat("Использую StaticRemnant по точке атакуя " .. botTarget:GetUnitName(),true);
+                        return BOT_ACTION_DESIRE_ABSOLUTE,
+                            utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, speedAbility),
+                            "location";
+                    end
+                end
+                if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_NO_TARGET)
                 then
                     if GetUnitToUnitDistance(npcBot, botTarget) <= radiusAbility
                     then
@@ -186,7 +191,8 @@ function ConsiderStaticRemnant()
                         return BOT_ACTION_DESIRE_ABSOLUTE,
                             utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility),
                             "location";
-                    elseif utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_NO_TARGET)
+                    end
+                    if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_NO_TARGET)
                     then
                         if GetUnitToUnitDistance(npcBot, enemy) <= radiusAbility
                         then
@@ -211,7 +217,8 @@ function ConsiderStaticRemnant()
                 --npcBot:ActionImmediate_Chat("Использую StaticRemnant по точке против крипов", true);
                 return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc, "location";
             end
-        elseif utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_NO_TARGET)
+        end
+        if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_NO_TARGET)
         then
             local enemyCreeps = npcBot:GetNearbyCreeps(radiusAbility, true);
             if (#enemyCreeps > 2) and (ManaPercentage >= 0.6)
@@ -251,8 +258,8 @@ function ConsiderElectricVortex()
                     then
                         --npcBot:ActionImmediate_Chat("Использую ElectricVortex без аганима на " .. enemy:GetUnitName(),true);
                         return BOT_ACTION_DESIRE_VERYHIGH, enemy, "target";
-                    elseif
-                        utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_NO_TARGET)
+                    end
+                    if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_NO_TARGET)
                     then
                         --npcBot:ActionImmediate_Chat("Использую ElectricVortex с аганимом на " .. enemy:GetUnitName(), true);
                         return BOT_ACTION_DESIRE_VERYHIGH, nil, nil;
@@ -273,7 +280,8 @@ function ConsiderElectricVortex()
                 if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_UNIT_TARGET)
                 then
                     return BOT_ACTION_DESIRE_HIGH, botTarget, "target";
-                elseif utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_NO_TARGET)
+                end
+                if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_NO_TARGET)
                 then
                     return BOT_ACTION_DESIRE_HIGH, nil, nil;
                 end
@@ -292,7 +300,8 @@ function ConsiderElectricVortex()
                     if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_UNIT_TARGET)
                     then
                         return BOT_ACTION_DESIRE_HIGH, enemy, "target";
-                    elseif utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_NO_TARGET)
+                    end
+                    if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_NO_TARGET)
                     then
                         return BOT_ACTION_DESIRE_HIGH, nil, nil;
                     end

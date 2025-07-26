@@ -1616,7 +1616,8 @@ end
 end ]]
 
 function PurchaseWardObserver(npcBot)
-	if npcBot:GetGold() < GetItemCost("item_ward_observer") or IsItemSlotsFull() or IsStashSlotsFull() or GetItemStockCount("item_ward_observer") < 1
+	local itemName = "item_ward_observer";
+	if npcBot:GetGold() < GetItemCost(itemName) or IsItemSlotsFull() or IsStashSlotsFull() or GetItemStockCount(itemName) < 1
 		or (npcBot:GetNextItemPurchaseValue() > 0 and npcBot:GetGold() >= npcBot:GetNextItemPurchaseValue()) or not npcBot:IsAlive()
 	then
 		return;
@@ -1630,7 +1631,7 @@ function PurchaseWardObserver(npcBot)
 
 	for i = 0, 16 do
 		local item = npcBot:GetItemInSlot(i);
-		if item ~= nil and (item:GetName() == "item_ward_observer" or item:GetName() == "item_ward_sentry" or item:GetName() == "item_ward_dispenser")
+		if item ~= nil and (item:GetName() == itemName or item:GetName() == "item_ward_sentry" or item:GetName() == "item_ward_dispenser")
 		then
 			return;
 		end
@@ -1638,7 +1639,7 @@ function PurchaseWardObserver(npcBot)
 
 	for i = 0, 8 do
 		local item = courier:GetItemInSlot(i);
-		if item ~= nil and (item:GetName() == "item_ward_observer" or item:GetName() == "item_ward_sentry" or item:GetName() == "item_ward_dispenser")
+		if item ~= nil and (item:GetName() == itemName or item:GetName() == "item_ward_sentry" or item:GetName() == "item_ward_dispenser")
 		then
 			return;
 		end
@@ -1646,23 +1647,23 @@ function PurchaseWardObserver(npcBot)
 
 	if assignedLane == LANE_MID and botMode == BOT_MODE_LANING
 	then
-		npcBot:ActionImmediate_PurchaseItem("item_ward_observer");
+		npcBot:ActionImmediate_PurchaseItem(itemName);
 		--npcBot:ActionImmediate_Chat("Покупаю вард на мид!", true);
 		return;
 	else
 		if HaveHumanInTeam(npcBot)
 		then
-			if GetItemStockCount("item_ward_observer") > 1
+			if GetItemStockCount(itemName) > 1
 			then
 				if hero_role_generic.HaveSupportInTeam(npcBot)
 				then
 					if hero_role_generic.IsHeroSupport(npcBot)
 					then
-						npcBot:ActionImmediate_PurchaseItem("item_ward_observer");
+						npcBot:ActionImmediate_PurchaseItem(itemName);
 						return;
 					end
 				else
-					npcBot:ActionImmediate_PurchaseItem("item_ward_observer");
+					npcBot:ActionImmediate_PurchaseItem(itemName);
 					return;
 				end
 			end
@@ -1671,11 +1672,11 @@ function PurchaseWardObserver(npcBot)
 			then
 				if hero_role_generic.IsHeroSupport(npcBot)
 				then
-					npcBot:ActionImmediate_PurchaseItem("item_ward_observer");
+					npcBot:ActionImmediate_PurchaseItem(itemName);
 					return;
 				end
 			else
-				npcBot:ActionImmediate_PurchaseItem("item_ward_observer");
+				npcBot:ActionImmediate_PurchaseItem(itemName);
 				return;
 			end
 		end
@@ -1683,7 +1684,8 @@ function PurchaseWardObserver(npcBot)
 end
 
 function PurchaseWardSentry(npcBot)
-	if npcBot:GetGold() < GetItemCost("item_ward_sentry") * 2 or IsItemSlotsFull() or IsStashSlotsFull() or GetItemStockCount("item_ward_sentry") < 1
+	local itemName = "item_ward_sentry";
+	if npcBot:GetGold() < GetItemCost(itemName) * 2 or IsItemSlotsFull() or IsStashSlotsFull() or GetItemStockCount(itemName) < 1
 		or (npcBot:GetNextItemPurchaseValue() > 0 and npcBot:GetGold() >= npcBot:GetNextItemPurchaseValue()) or GetGameState() ~= GAME_STATE_GAME_IN_PROGRESS
 		or not npcBot:IsAlive()
 	then
@@ -1694,7 +1696,7 @@ function PurchaseWardSentry(npcBot)
 
 	for i = 0, 16 do
 		local item = npcBot:GetItemInSlot(i);
-		if item ~= nil and (item:GetName() == "item_ward_observer" or item:GetName() == "item_ward_sentry" or item:GetName() == "item_ward_dispenser")
+		if item ~= nil and (item:GetName() == "item_ward_observer" or item:GetName() == itemName or item:GetName() == "item_ward_dispenser")
 		then
 			return;
 		end
@@ -1702,7 +1704,7 @@ function PurchaseWardSentry(npcBot)
 
 	for i = 0, 8 do
 		local item = courier:GetItemInSlot(i);
-		if item ~= nil and (item:GetName() == "item_ward_observer" or item:GetName() == "item_ward_sentry" or item:GetName() == "item_ward_dispenser")
+		if item ~= nil and (item:GetName() == "item_ward_observer" or item:GetName() == itemName or item:GetName() == "item_ward_dispenser")
 		then
 			return;
 		end
@@ -1710,17 +1712,17 @@ function PurchaseWardSentry(npcBot)
 
 	if HaveHumanInTeam(npcBot)
 	then
-		if GetItemStockCount("item_ward_sentry") > 1
+		if GetItemStockCount(itemName) > 1
 		then
 			if hero_role_generic.HaveSupportInTeam(npcBot)
 			then
 				if hero_role_generic.IsHeroSupport(npcBot)
 				then
-					npcBot:ActionImmediate_PurchaseItem("item_ward_sentry");
+					npcBot:ActionImmediate_PurchaseItem(itemName);
 					return;
 				end
 			else
-				npcBot:ActionImmediate_PurchaseItem("item_ward_sentry");
+				npcBot:ActionImmediate_PurchaseItem(itemName);
 				return;
 			end
 		end
@@ -1729,18 +1731,19 @@ function PurchaseWardSentry(npcBot)
 		then
 			if hero_role_generic.IsHeroSupport(npcBot)
 			then
-				npcBot:ActionImmediate_PurchaseItem("item_ward_sentry");
+				npcBot:ActionImmediate_PurchaseItem(itemName);
 				return;
 			end
 		else
-			npcBot:ActionImmediate_PurchaseItem("item_ward_sentry");
+			npcBot:ActionImmediate_PurchaseItem(itemName);
 			return;
 		end
 	end
 end
 
 function PurchaseTP(npcBot)
-	if npcBot:GetGold() < GetItemCost("item_tpscroll") or IsStashSlotsFull() or
+	local itemName = "item_tpscroll";
+	if npcBot:GetGold() < GetItemCost(itemName) or IsStashSlotsFull() or
 		(npcBot:GetNextItemPurchaseValue() > 0 and npcBot:GetGold() >= npcBot:GetNextItemPurchaseValue()) or not npcBot:IsAlive()
 	then
 		return;
@@ -1750,7 +1753,7 @@ function PurchaseTP(npcBot)
 
 	for i = 0, 16 do
 		local item = npcBot:GetItemInSlot(i);
-		if item ~= nil and item:GetName() == "item_tpscroll"
+		if item ~= nil and item:GetName() == itemName
 		then
 			return;
 		end
@@ -1758,16 +1761,47 @@ function PurchaseTP(npcBot)
 
 	for i = 0, 8 do
 		local item = courier:GetItemInSlot(i);
-		if item ~= nil and item:GetName() == "item_tpscroll"
+		if item ~= nil and item:GetName() == itemName
 		then
 			return;
 		end
 	end
 
-	npcBot:ActionImmediate_PurchaseItem("item_tpscroll");
+	npcBot:ActionImmediate_PurchaseItem(itemName);
+end
+
+function PurchaseBloodGrenade(npcBot)
+	local itemName = "item_blood_grenade";
+	if npcBot:GetGold() < GetItemCost(itemName) or IsStashSlotsFull() or GetItemStockCount(itemName) < 1 or
+		(npcBot:GetNextItemPurchaseValue() > 0 and npcBot:GetGold() >= npcBot:GetNextItemPurchaseValue()) or not npcBot:IsAlive() or
+		not hero_role_generic.IsHeroSupport(npcBot) or GetGameState() ~= GAME_STATE_PRE_GAME
+	then
+		return;
+	end
+
+	local courier = GetBotCourier(npcBot);
+
+	for i = 0, 16 do
+		local item = npcBot:GetItemInSlot(i);
+		if item ~= nil and item:GetName() == itemName
+		then
+			return;
+		end
+	end
+
+	for i = 0, 8 do
+		local item = courier:GetItemInSlot(i);
+		if item ~= nil and item:GetName() == itemName
+		then
+			return;
+		end
+	end
+
+	npcBot:ActionImmediate_PurchaseItem(itemName);
 end
 
 function PurchaseBottle(npcBot)
+	local itemName = "item_bottle";
 	local assignedLane = npcBot:GetAssignedLane();
 
 	if assignedLane ~= LANE_MID
@@ -1775,7 +1809,7 @@ function PurchaseBottle(npcBot)
 		return;
 	end
 
-	if npcBot:GetGold() < GetItemCost("item_bottle") * 2 or IsItemSlotsFull() or IsStashSlotsFull() or DotaTime() > 20 * 60
+	if npcBot:GetGold() < GetItemCost(itemName) * 2 or IsItemSlotsFull() or IsStashSlotsFull() or DotaTime() > 20 * 60
 		or (npcBot:GetNextItemPurchaseValue() > 0 and npcBot:GetGold() >= npcBot:GetNextItemPurchaseValue()) or not npcBot:IsAlive()
 	then
 		return;
@@ -1785,7 +1819,7 @@ function PurchaseBottle(npcBot)
 
 	for i = 0, 16 do
 		local item = npcBot:GetItemInSlot(i);
-		if item ~= nil and item:GetName() == "item_bottle"
+		if item ~= nil and item:GetName() == itemName
 		then
 			return;
 		end
@@ -1793,13 +1827,13 @@ function PurchaseBottle(npcBot)
 
 	for i = 0, 8 do
 		local item = courier:GetItemInSlot(i);
-		if item ~= nil and item:GetName() == "item_bottle"
+		if item ~= nil and item:GetName() == itemName
 		then
 			return;
 		end
 	end
 
-	npcBot:ActionImmediate_PurchaseItem("item_bottle");
+	npcBot:ActionImmediate_PurchaseItem(itemName);
 end
 
 function HaveTravelBoots(npcBot)
@@ -1956,7 +1990,8 @@ function HaveMagesInEnemyTeam()
 end
 
 function PurchaseInfusedRaindrop(npcBot)
-	if npcBot:GetGold() < GetItemCost("item_infused_raindrop") * 2 or IsItemSlotsFull() or IsStashSlotsFull() or GetItemStockCount("item_infused_raindrop") < 1
+	local itemName = "item_infused_raindrop";
+	if npcBot:GetGold() < GetItemCost(itemName) * 2 or IsStashSlotsFull() or GetItemStockCount(itemName) < 1
 		or npcBot:GetLevel() > 10 or (npcBot:GetNextItemPurchaseValue() > 0 and npcBot:GetGold() >= npcBot:GetNextItemPurchaseValue()) or not npcBot:IsAlive()
 	then
 		return;
@@ -1966,7 +2001,7 @@ function PurchaseInfusedRaindrop(npcBot)
 
 	for i = 0, 16 do
 		local item = npcBot:GetItemInSlot(i);
-		if item ~= nil and item:GetName() == "item_infused_raindrop"
+		if item ~= nil and item:GetName() == itemName
 		then
 			return;
 		end
@@ -1974,7 +2009,7 @@ function PurchaseInfusedRaindrop(npcBot)
 
 	for i = 0, 8 do
 		local item = courier:GetItemInSlot(i);
-		if item ~= nil and item:GetName() == "item_infused_raindrop"
+		if item ~= nil and item:GetName() == itemName
 		then
 			return;
 		end
@@ -1983,7 +2018,7 @@ function PurchaseInfusedRaindrop(npcBot)
 	if HaveMagesInEnemyTeam()
 	then
 		--npcBot:ActionImmediate_Chat("Покупаю infused raindrop против врагов магов!", true);
-		npcBot:ActionImmediate_PurchaseItem("item_infused_raindrop");
+		npcBot:ActionImmediate_PurchaseItem(itemName);
 		return;
 	end
 end
@@ -2048,7 +2083,8 @@ function UpdateInvisEnemyStatus(bot)
 end
 
 function PurchaseDust(npcBot)
-	if npcBot:GetGold() < GetItemCost("item_dust") * 2 or IsItemSlotsFull() or IsStashSlotsFull() or DotaTime() < 5 * 60
+	local itemName = "item_dust";
+	if npcBot:GetGold() < GetItemCost(itemName) * 2 or IsItemSlotsFull() or IsStashSlotsFull() or DotaTime() < 5 * 60
 		or (npcBot:GetNextItemPurchaseValue() > 0 and npcBot:GetGold() >= npcBot:GetNextItemPurchaseValue()) or not npcBot:IsAlive()
 	then
 		return;
@@ -2058,7 +2094,7 @@ function PurchaseDust(npcBot)
 
 	for i = 0, 16 do
 		local item = npcBot:GetItemInSlot(i);
-		if item ~= nil and item:GetName() == "item_dust"
+		if item ~= nil and item:GetName() == itemName
 		then
 			return;
 		end
@@ -2066,7 +2102,7 @@ function PurchaseDust(npcBot)
 
 	for i = 0, 8 do
 		local item = courier:GetItemInSlot(i);
-		if item ~= nil and item:GetName() == "item_dust"
+		if item ~= nil and item:GetName() == itemName
 		then
 			return;
 		end
@@ -2077,7 +2113,7 @@ function PurchaseDust(npcBot)
 	if X['invisEnemyExist'] == true
 	then
 		--npcBot:ActionImmediate_Chat("Покупаю dust против невидимых врагов!", true);
-		npcBot:ActionImmediate_PurchaseItem("item_dust");
+		npcBot:ActionImmediate_PurchaseItem(itemName);
 		return;
 	end
 end

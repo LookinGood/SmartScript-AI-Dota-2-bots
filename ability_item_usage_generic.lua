@@ -634,6 +634,38 @@ function ItemUsageThink()
 		end
 	end
 
+	-- item_blood_grenade
+	local bloodGrenade = IsItemAvailable("item_blood_grenade");
+	if bloodGrenade ~= nil and bloodGrenade:IsFullyCastable()
+	then
+		local itemRange = bloodGrenade:GetCastRange();
+		if utility.PvPMode(npcBot)
+		then
+			if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(bloodGrenade, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= itemRange
+			then
+				--npcBot:ActionImmediate_Chat("Использую bloodGrenade по врагу!", true);
+				npcBot:Action_UseAbilityOnLocation(bloodGrenade, botTarget:GetLocation());
+				return;
+			end
+		end
+		if utility.RetreatMode(npcBot)
+		then
+			local enemyHeroes = npcBot:GetNearbyHeroes(itemRange, true, BOT_MODE_NONE);
+			if (#enemyHeroes > 0) and (healthPercent >= 0.2 and healthPercent <= 0.6)
+			then
+				for _, enemy in pairs(enemyHeroes)
+				do
+					if utility.CanCastSpellOnTarget(bloodGrenade, enemy) and not utility.IsDisabled(enemy)
+					then
+						--npcBot:ActionImmediate_Chat("Использую предмет bloodGrenade для оступления!", true);
+						npcBot:Action_UseAbilityOnLocation(bloodGrenade, enemy:GetLocation());
+						return;
+					end
+				end
+			end
+		end
+	end
+
 	-- item_healing_lotus/item_great_healing_lotus
 	local healingLotus = IsItemAvailable("item_famango");
 	local greatHealingLotus = IsItemAvailable("item_great_famango");

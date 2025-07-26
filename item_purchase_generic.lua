@@ -21,15 +21,16 @@ function ItemPurchase(ItemsToBuy, realItemsToBuy)
     end
 
     local courier = utility.GetBotCourier(npcBot);
-    local courierState = GetCourierState(courier);
+    --local courierState = GetCourierState(courier);
 
     SellExtraItem()
-    utility.PurchaseBottle(npcBot)
     utility.PurchaseTP(npcBot)
     utility.PurchaseWardObserver(npcBot)
     utility.PurchaseWardSentry(npcBot)
     utility.PurchaseDust(npcBot)
+    utility.PurchaseBloodGrenade(npcBot)
     utility.PurchaseInfusedRaindrop(npcBot)
+    utility.PurchaseBottle(npcBot)
     --utility.PurchaseTomeOfKnowledge(npcBot) -- Item deleted
 
     if (#ItemsToBuy == 0)

@@ -78,7 +78,7 @@ function CourierUsageThink()
 		then
 			npcBot:ActionImmediate_Courier(courier, COURIER_ACTION_BURST);
 		end
-		if canCastShield
+		if canCastShield and courier:GetHealth() < courier:GetMaxHealth()
 		then
 			npcBot:ActionImmediate_Courier(courier, COURIER_ACTION_SHIELD);
 			--courier:Action_UseAbility(shield);

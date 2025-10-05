@@ -2,6 +2,114 @@
 _G._savedEnv = getfenv()
 module("hero_role_generic", package.seeall)
 
+local T = {}
+T["tankHeroes"] = {
+    ["npc_dota_hero_axe"] = 1,
+    ["npc_dota_hero_bristleback"] = 1,
+    ["npc_dota_hero_centaur"] = 1,
+    ["npc_dota_hero_chaos_knight"] = 1,
+    ["npc_dota_hero_dragon_knight"] = 1,
+    ["npc_dota_hero_doom_bringer"] = 1,
+    ["npc_dota_hero_slardar"] = 1,
+    ["npc_dota_hero_sven"] = 1,
+    ["npc_dota_hero_skeleton_king"] = 1,
+    ["npc_dota_hero_tiny"] = 1,
+}
+
+local H = {}
+H["healerHeroes"] = {
+    ["npc_dota_hero_omniknight"] = 1,
+    ["npc_dota_hero_undying"] = 1,
+    ["npc_dota_hero_dazzle"] = 1,
+    ["npc_dota_hero_oracle"] = 1,
+    ["npc_dota_hero_treant"] = 1,
+    ["npc_dota_hero_witch_doctor"] = 1,
+    ["npc_dota_hero_enchantress"] = 1,
+    ["npc_dota_hero_winter_wyvern"] = 1,
+    ["npc_dota_hero_warlock"] = 1,
+    ["npc_dota_hero_wisp"] = 1,
+    ["npc_dota_hero_chen"] = 1,
+}
+
+local M = {}
+M["meleeDpsHeroes"] = {
+    ["npc_dota_hero_alchemist"] = 1,
+    ["npc_dota_hero_bristleback"] = 1,
+    ["npc_dota_hero_chaos_knight"] = 1,
+    ["npc_dota_hero_centaur"] = 1,
+    ["npc_dota_hero_dawnbreaker"] = 1,
+    ["npc_dota_hero_doom_bringer"] = 1,
+    ["npc_dota_hero_dragon_knight"] = 1,
+    ["npc_dota_hero_huskar"] = 1,
+    ["npc_dota_hero_kunkka"] = 1,
+    ["npc_dota_hero_legion_commander"] = 1,
+    ["npc_dota_hero_life_stealer"] = 1,
+    ["npc_dota_hero_lycan"] = 1,
+    ["npc_dota_hero_mars"] = 1,
+    ["npc_dota_hero_night_stalker"] = 1,
+    ["npc_dota_hero_slardar"] = 1,
+    ["npc_dota_hero_spirit_breaker"] = 1,
+    ["npc_dota_hero_sven"] = 1,
+    ["npc_dota_hero_tiny"] = 1,
+    ["npc_dota_hero_skeleton_king"] = 1,
+    ["npc_dota_hero_lone_druid"] = 1,
+    ["npc_dota_hero_marci"] = 1,
+
+    ["npc_dota_hero_antimage"] = 1,
+    ["npc_dota_hero_bounty_hunter"] = 1,
+    ["npc_dota_hero_bloodseeker"] = 1,
+    ["npc_dota_hero_broodmother"] = 1,
+    ["npc_dota_hero_ember_spirit"] = 1,
+    ["npc_dota_hero_faceless_void"] = 1,
+    ["npc_dota_hero_juggernaut"] = 1,
+    ["npc_dota_hero_meepo"] = 1,
+    ["npc_dota_hero_monkey_king"] = 1,
+    ["npc_dota_hero_naga_siren"] = 1,
+    ["npc_dota_hero_phantom_lancer"] = 1,
+    ["npc_dota_hero_phantom_assassin"] = 1,
+    ["npc_dota_hero_riki"] = 1,
+    ["npc_dota_hero_slark"] = 1,
+    ["npc_dota_hero_terrorblade"] = 1,
+    ["npc_dota_hero_troll_warlord"] = 1,
+    ["npc_dota_hero_ursa"] = 1,
+    ["npc_dota_hero_brewmaster"] = 1,
+    ["npc_dota_hero_pangolier"] = 1,
+    ["npc_dota_hero_spectre"] = 1,
+    ["npc_dota_hero_void_spirit"] = 1,
+    ["npc_dota_hero_kez"] = 1,
+}
+
+local R = {}
+R["rangedDpsHeroes"] = {
+    ["npc_dota_hero_clinkz"] = 1,
+    ["npc_dota_hero_drow_ranger"] = 1,
+    ["npc_dota_hero_gyrocopter"] = 1,
+    ["npc_dota_hero_luna"] = 1,
+    ["npc_dota_hero_medusa"] = 1,
+    ["npc_dota_hero_mirana"] = 1,
+    ["npc_dota_hero_morphling"] = 1,
+    ["npc_dota_hero_razor"] = 1,
+    ["npc_dota_hero_nevermore"] = 1,
+    ["npc_dota_hero_sniper"] = 1,
+    ["npc_dota_hero_templar_assassin"] = 1,
+    ["npc_dota_hero_viper"] = 1,
+    ["npc_dota_hero_weaver"] = 1,
+    ["npc_dota_hero_hoodwink"] = 1,
+
+    ["npc_dota_hero_invoker"] = 1,
+    ["npc_dota_hero_leshrac"] = 1,
+    ["npc_dota_hero_lina"] = 1,
+    ["npc_dota_hero_obsidian_destroyer"] = 1,
+    ["npc_dota_hero_puck"] = 1,
+    ["npc_dota_hero_queenofpain"] = 1,
+    ["npc_dota_hero_silencer"] = 1,
+    ["npc_dota_hero_storm_spirit"] = 1,
+    ["npc_dota_hero_tinker"] = 1,
+    ["npc_dota_hero_zuus"] = 1,
+    ["npc_dota_hero_muerta"] = 1,
+}
+
+
 local C = {}
 C["carryHeroes"] = {
     ["npc_dota_hero_centaur"] = 1,
@@ -80,7 +188,6 @@ C["carryHeroes"] = {
     ["npc_dota_hero_marci"] = 1,
     ["npc_dota_hero_meepo"] = 1,
     ["npc_dota_hero_kez"] = 1,
-
 }
 
 local S = {}
@@ -137,8 +244,8 @@ S["supportHeroes"] = {
     ["npc_dota_hero_wisp"] = 1,
 }
 
-local H = {}
-H["holyLocketHeroes"] = {
+local Hl = {}
+Hl["holyLocketHeroes"] = {
     ["npc_dota_hero_oracle"] = 1,
     ["npc_dota_hero_wisp"] = 1,
 }
@@ -152,7 +259,7 @@ function IsHeroSupport(npcBot)
 end
 
 function IsHeroBuyHolyLocket(npcBot)
-    return H["holyLocketHeroes"][npcBot:GetUnitName()] == 1;
+    return Hl["holyLocketHeroes"][npcBot:GetUnitName()] == 1;
 end
 
 function HaveSupportInTeam(npcBot)
@@ -186,6 +293,54 @@ function GetCountCarryHeroInTeam()
     local players = GetTeamPlayers(GetTeam());
     for i = 1, #players do
         if C["carryHeroes"][GetSelectedHeroName(players[i])] == 1
+        then
+            count = count + 1;
+        end
+    end
+    return count;
+end
+
+function GetCountTankHeroInTeam()
+    local count = 0;
+    local players = GetTeamPlayers(GetTeam());
+    for i = 1, #players do
+        if T["tankHeroes"][GetSelectedHeroName(players[i])] == 1
+        then
+            count = count + 1;
+        end
+    end
+    return count;
+end
+
+function GetCountHealerHeroInTeam()
+    local count = 0;
+    local players = GetTeamPlayers(GetTeam());
+    for i = 1, #players do
+        if H["healerHeroes"][GetSelectedHeroName(players[i])] == 1
+        then
+            count = count + 1;
+        end
+    end
+    return count;
+end
+
+function GetCountMeleeDpsHeroInTeam()
+    local count = 0;
+    local players = GetTeamPlayers(GetTeam());
+    for i = 1, #players do
+        if M["meleeDpsHeroes"][GetSelectedHeroName(players[i])] == 1
+        then
+            count = count + 1;
+        end
+    end
+    return count;
+end
+
+function GetCountRangedDpsHeroInTeam()
+    local count = 0;
+    local players = GetTeamPlayers(GetTeam());
+    for i = 1, #players do
+        if R["rangedDpsHeroes"][GetSelectedHeroName(players[i])] == 1
         then
             count = count + 1;
         end

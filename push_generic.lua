@@ -6,7 +6,7 @@ require(GetScriptDirectory() .. "/utility")
 local retreatDistance = 1000;
 
 function GetAllyCreepToRedirectTower(tower)
-    local allyCreeps = npcBot:GetNearbyCreeps(tower:GetAttackRange(), false);
+    local allyCreeps = npcBot:GetNearbyCreeps(tower:GetAttackRange() - 200, false);
     if (#allyCreeps > 0)
     then
         for _, ally in pairs(allyCreeps) do

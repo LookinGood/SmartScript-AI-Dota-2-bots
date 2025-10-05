@@ -73,21 +73,43 @@ function GetBuildingToProtect()
 
     if ancient ~= nil and not ancient:IsInvulnerable()
     then
-        if utility.IsTargetedByEnemy(ancient, true) or
+        local ancientHealth = ancient:GetHealth() / ancient:GetMaxHealth();
+        if (ancientHealth <= 0.7 and utility.CountEnemyCreepAroundUnit(ancient, radiusUnit) > 0 and utility.IsTargetedByEnemy(ancient, true)) or
+            (utility.CountEnemyHeroAroundUnit(ancient, radiusUnit) > 0) or
+            (utility.CountEnemyCreepAroundUnit(ancient, radiusUnit) > 0 and GetUnitToUnitDistance(npcBot, ancient) <= radiusUnit)
+        then
+            desire = BOT_MODE_DESIRE_VERYHIGH;
+            building = ancient;
+        end
+
+        --[[       if utility.IsTargetedByEnemy(ancient, true) or
             utility.CountEnemyCreepAroundUnit(ancient, radiusUnit) > 0 or
             utility.CountEnemyHeroAroundUnit(ancient, radiusUnit) > 0
         --and utility.CountAllyCreepAroundUnit(ancient, radiusUnit) < 5)
         then
             desire = BOT_MODE_DESIRE_VERYHIGH;
             building = ancient;
-        end
+        end ]]
 
         if ancient:GetHealth() < ancient:GetMaxHealth()
         then
             botDefender = GetDefenderBotHero();
             if npcBot == botDefender
             then
-                desire = BOT_MODE_DESIRE_ABSOLUTE;
+                if (ancient:GetHealthRegen() > 0)
+                then
+                    --npcBot:ActionImmediate_Chat("Древний восстанавливает ХП, защищаю.", true);
+                    desire = BOT_MODE_DESIRE_VERYHIGH;
+                else
+                    if utility.CountEnemyHeroAroundUnit(ancient, radiusUnit) > 0 or
+                        utility.CountEnemyCreepAroundUnit(ancient, radiusUnit) > 0
+                    then
+                        --npcBot:ActionImmediate_Chat("Древний НЕ восстанавливает ХП, вокруг есть враги, защищаю.", true);
+                        desire = BOT_MODE_DESIRE_VERYHIGH;
+                    else
+                        desire = BOT_MODE_DESIRE_MODERATE;
+                    end
+                end
                 building = ancient;
             end
         end

@@ -128,7 +128,7 @@ function GetClosestAvailableCreepCamp()
         do
             if camp.team == npcBot:GetTeam()
             then
-                if (botLevel >= 6 and botLevel < 12)
+                if (botLevel >= 4 and botLevel < 12)
                 then
                     if (camp.type == "small")
                     then
@@ -191,6 +191,7 @@ function GetDesire()
         return BOT_MODE_DESIRE_NONE;
     end
 
+    local botDesire = BOT_MODE_DESIRE_NONE;
     local botLevel = npcBot:GetLevel();
     local botGold = npcBot:GetGold();
     local botKills = GetHeroKills(npcBot:GetPlayerID());
@@ -200,7 +201,7 @@ function GetDesire()
 
     --npcBot:ActionImmediate_Chat("Выкуп мой: " .. npcBot:GetBuybackCost(), true);
 
-    if (botLevel < 6) or (botLevel >= 30) or (botGold > npcBot:GetBuybackCost()) or (HealthPercentage < 0.3) or (#enemyHeroes > 0)
+    if (botLevel < 4) or (botLevel >= 30) or (botGold > npcBot:GetBuybackCost()) or (HealthPercentage < 0.3) or (#enemyHeroes > 0)
     then
         return BOT_MODE_DESIRE_NONE;
     end
@@ -260,19 +261,28 @@ function GetDesire()
         return BOT_MODE_DESIRE_NONE;
     end
 
-    if campDistance <= 6000
+    botDesire = RemapValClamped(campDistance, 10000, 6000, BOT_MODE_DESIRE_NONE, BOT_MODE_DESIRE_VERYHIGH);
+    --npcBot:ActionImmediate_Chat("Желание фармить: " .. botDesire, true);
+
+    if botDeaths >= botKills
+    then
+        --npcBot:ActionImmediate_Chat("Желание фармить2: " .. botDesire .. " / " .. botDesire + BOT_MODE_DESIRE_MODERATE, true);
+        botDesire = botDesire + BOT_MODE_DESIRE_MODERATE;
+    end
+
+    --[[     if campDistance <= 6000
     then
         --npcBot:ActionImmediate_Chat("Рядом есть доступный лагерь крипов!", true);
         --npcBot:ActionImmediate_Chat("Доступных лагерей: " .. #realCamps, true);
         if botDeaths >= botKills
         then
-            return BOT_MODE_DESIRE_MODERATE;
+            return BOT_MODE_DESIRE_HIGH;
         else
-            return BOT_MODE_DESIRE_LOW;
+            return BOT_MODE_DESIRE_MODERATE;
         end
-    end
+    end ]]
 
-    return BOT_MODE_DESIRE_NONE;
+    return botDesire;
 end
 
 function OnStart()

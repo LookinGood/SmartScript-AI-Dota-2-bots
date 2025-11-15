@@ -48,7 +48,7 @@ end
 
 -- Abilities
 local WraithfireBlast = AbilitiesReal[1]
-local VampiricSpirit = AbilitiesReal[2]
+local BoneGuard = AbilitiesReal[2]
 local Reincarnation = AbilitiesReal[6]
 
 function AbilityUsageThink()
@@ -62,7 +62,7 @@ function AbilityUsageThink()
     ManaPercentage = npcBot:GetMana() / npcBot:GetMaxMana();
 
     local castWraithfireBlastDesire, castWraithfireBlastTarget = ConsiderWraithfireBlast();
-    local castVampiricSpiritDesire = ConsiderVampiricSpirit();
+    local castBoneGuardDesire = ConsiderBoneGuard();
     local castReincarnationDesire, castReincarnationTarget = ConsiderReincarnation();
 
     if (castWraithfireBlastDesire > 0)
@@ -71,9 +71,9 @@ function AbilityUsageThink()
         return;
     end
 
-    if (castVampiricSpiritDesire > 0)
+    if (castBoneGuardDesire > 0)
     then
-        npcBot:Action_UseAbility(VampiricSpirit);
+        npcBot:Action_UseAbility(BoneGuard);
         return;
     end
 
@@ -143,8 +143,8 @@ end
 
 -- utility.GetModifierCount(npcBot, "modifier_skeleton_king_vampiric_aura") >= abilityCount / 2
 
-function ConsiderVampiricSpirit()
-    local ability = VampiricSpirit;
+function ConsiderBoneGuard()
+    local ability = BoneGuard;
     if not utility.IsAbilityAvailable(ability) then
         return BOT_ACTION_DESIRE_NONE;
     end
@@ -156,30 +156,34 @@ function ConsiderVampiricSpirit()
         return BOT_ACTION_DESIRE_NONE;
     end
 
-    local enemyAbility = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
-
     -- Attack use
     if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
     then
         if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
         then
-            if utility.CanCastOnInvulnerableTarget(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= npcBot:GetAttackRange() * 2
+            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= (npcBot:GetAttackRange() * 4)
             then
-                --npcBot:ActionImmediate_Chat("Использую VampiricSpirit для атаки врага!", true);
+                --npcBot:ActionImmediate_Chat("Использую BoneGuard для атаки врага!", true);
                 return BOT_MODE_DESIRE_HIGH;
             end
         end
     end
 
+    if (Reincarnation:IsTrained() and Reincarnation:GetManaCost() > 0) and (npcBot:GetMana() <= ability:GetManaCost() + Reincarnation:GetManaCost())
+    then
+        return BOT_ACTION_DESIRE_NONE;
+    end
+
     -- Retreat use
     if utility.RetreatMode(npcBot)
     then
+        local enemyAbility = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
         if (#enemyAbility > 0)
         then
             for _, enemy in pairs(enemyAbility) do
-                if utility.CanCastOnInvulnerableTarget(enemy)
+                if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    -- npcBot:ActionImmediate_Chat("Использую VampiricSpirit что бы оторваться от врага", true);
+                    --npcBot:ActionImmediate_Chat("Использую BoneGuard что бы оторваться от врага", true);
                     return BOT_ACTION_DESIRE_VERYHIGH;
                 end
             end
@@ -189,25 +193,22 @@ function ConsiderVampiricSpirit()
     -- Cast if push/defend/farm
     if utility.PvEMode(npcBot)
     then
-        if npcBot:GetMana() > VampiricSpirit:GetManaCost() + Reincarnation:GetManaCost()
+        local enemyCreeps = npcBot:GetNearbyLaneCreeps(1600, true);
+        local enemyBuilding = GetUnitList(UNIT_LIST_ENEMY_BUILDINGS);
+        if (#enemyCreeps >= 5)
         then
-            local enemyCreeps = npcBot:GetNearbyLaneCreeps(1600, true);
-            local enemyBuilding = GetUnitList(UNIT_LIST_ENEMY_BUILDINGS);
-            if #enemyCreeps >= 5
-            then
-                --npcBot:ActionImmediate_Chat("Использую VampiricSpirit против КРИПОВ!", true);
-                return BOT_ACTION_DESIRE_MODERATE;
-            end
-            if #enemyBuilding > 0
-            then
-                for _, enemy in pairs(enemyBuilding) do
-                    if not enemy:IsInvulnerable() and GetUnitToUnitDistance(npcBot, enemy) <= 2000
+            --npcBot:ActionImmediate_Chat("Использую BoneGuard против КРИПОВ!", true);
+            return BOT_ACTION_DESIRE_MODERATE;
+        end
+        if (#enemyBuilding > 0)
+        then
+            for _, enemy in pairs(enemyBuilding) do
+                if utility.CanCastSpellOnTarget(ability, enemy) and GetUnitToUnitDistance(npcBot, enemy) <= 2000
+                then
+                    if enemy:IsTower() or enemy:IsBarracks() or enemy:IsAncient()
                     then
-                        if enemy:IsTower() or enemy:IsBarracks() or enemy:IsAncient()
-                        then
-                            --npcBot:ActionImmediate_Chat("Использую VampiricSpirit против зданий!", true);
-                            return BOT_ACTION_DESIRE_MODERATE;
-                        end
+                        --npcBot:ActionImmediate_Chat("Использую BoneGuard против зданий!", true);
+                        return BOT_ACTION_DESIRE_MODERATE;
                     end
                 end
             end

@@ -63,13 +63,13 @@ function GetUnitInfo(npcTarget)
 	timer = GameTime();
 end
 
-function NotCurrectHeroBot(npcTarget)
-	return npcTarget == nil or npcTarget:IsNull() or not npcTarget:IsHero() or IsIllusion(npcTarget)
+function IsValidTarget(npcTarget)
+	return npcTarget ~= nil and npcTarget:CanBeSeen() and npcTarget:IsAlive()
+		and not npcTarget:HasModifier("modifier_skeleton_king_reincarnation_scepter_active");
 end
 
-function IsValidTarget(npcTarget)
-	return npcTarget:CanBeSeen() and npcTarget ~= nil and not npcTarget:IsNull() and npcTarget:IsAlive()
-		and not npcTarget:HasModifier("modifier_skeleton_king_reincarnation_scepter");
+function NotCurrectHeroBot(npcTarget)
+	return npcTarget == nil or npcTarget:IsNull() or not npcTarget:IsHero() or IsIllusion(npcTarget)
 end
 
 function IsClone(npcTarget)
@@ -429,6 +429,10 @@ function GetEmptyMainItemSlot()
 	end
 
 	return nil;
+end
+
+function IsTargetTeleporting(npcTarget)
+	return npcTarget:HasModifier("modifier_teleporting")
 end
 
 function IsTargetItemSlotsFull(npcTarget)
@@ -907,10 +911,7 @@ end
 
 function IsBusy(npcTarget)
 	return IsValidTarget(npcTarget) and
-		(IsCantBeControlled(npcTarget) or
-			--npcTarget:IsUsingAbility() or
-			--npcTarget:IsCastingAbility() or
-			npcTarget:IsChanneling() or
+		(npcTarget:IsChanneling() or
 			npcTarget:IsUsingAbility() or
 			npcTarget:IsCastingAbility() or
 			npcTarget:NumQueuedActions() > 0)
@@ -1205,16 +1206,16 @@ function CanCast(npcTarget)
 		not npcTarget:IsUsingAbility() and
 		not npcTarget:IsCastingAbility() and
 		not npcTarget:IsChanneling() and
-		not npcTarget:IsSilenced() and
-		not IsCantBeControlled(npcTarget)
+		not npcTarget:IsSilenced()
+	--not IsCantBeControlled(npcTarget)
 end
 
 function CanCastWhenChanneling(npcTarget)
 	return npcTarget:IsAlive() and
 		npcTarget:NumQueuedActions() <= 0 and
 		not npcTarget:IsCastingAbility() and
-		not npcTarget:IsSilenced() and
-		not IsCantBeControlled(npcTarget)
+		not npcTarget:IsSilenced()
+	--not IsCantBeControlled(npcTarget)
 end
 
 function CanUseItems(npcTarget)
@@ -1224,8 +1225,8 @@ function CanUseItems(npcTarget)
 		--not npcTarget:IsUsingAbility() and
 		not npcTarget:IsCastingAbility() and
 		--not npcTarget:IsChanneling() and
-		not npcTarget:IsMuted() and
-		not IsCantBeControlled(npcTarget)
+		not npcTarget:IsMuted()
+	--not IsCantBeControlled(npcTarget)
 end
 
 function CheckFlag(bitfield, flag)
@@ -1335,7 +1336,7 @@ function CanCastOnMagicImmuneTarget(npcTarget)
 end
 
 function CanCastOnInvulnerableTarget(npcTarget)
-	return IsValidTarget(npcTarget) and not IsTargetInvulnerable(npcTarget);
+	return not IsTargetInvulnerable(npcTarget);
 end
 
 function CanCastOnMagicImmuneAndInvulnerableTarget(npcTarget)
@@ -1570,14 +1571,12 @@ function GetItemCount(npc, itemName)
 end
 
 function GetModifierCount(npcTarget, modifier)
-	if IsValidTarget(npcTarget)
+	local modifier = npcTarget:GetModifierByName(modifier);
+	if (modifier ~= nil)
 	then
-		local modifier = npcTarget:GetModifierByName(modifier)
-		if (modifier ~= nil)
-		then
-			return npcTarget:GetModifierStackCount(modifier);
-		end
+		return npcTarget:GetModifierStackCount(modifier);
 	end
+
 	return 0;
 end
 
@@ -1893,7 +1892,7 @@ function GetFountainLocation()
 	then
 		for _, ally in pairs(buildings)
 		do
-			if ally ~= nil and string.find(ally:GetUnitName(), "fountain")
+			if ally ~= nil and (string.find(ally:GetUnitName(), "fountain") or ally:DistanceFromFountain() <= 0)
 			then
 				return ally:GetLocation();
 			end

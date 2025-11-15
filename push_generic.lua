@@ -41,6 +41,7 @@ function Think()
     npcBot = GetBot();
     local botMode = npcBot:GetActiveMode();
     local team = npcBot:GetTeam();
+    local pushRadius = 300;
     local wanderRadius = 200;
     local lane = LANE_NONE;
     if botMode == BOT_MODE_PUSH_TOWER_TOP
@@ -86,7 +87,7 @@ function Think()
                 retreatDistance = 1000;
             end
             npcBot:Action_ClearActions(false);
-            npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -3000) + RandomVector(wanderRadius));
+            npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -retreatDistance) + RandomVector(wanderRadius));
             return;
         end
     elseif utility.BotWasRecentlyDamagedByEnemyHero(3.0) or
@@ -96,7 +97,7 @@ function Think()
     then
         if retreatDistance < 3000
         then
-            retreatDistance = retreatDistance + 500;
+            retreatDistance = retreatDistance + pushRadius;
         elseif retreatDistance >= 3000
         then
             retreatDistance = 1000;
@@ -105,11 +106,11 @@ function Think()
         npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -retreatDistance) + RandomVector(wanderRadius));
         return;
     else
-        local frontlocation = GetLaneFrontLocation(team, lane, -500);
-        if GetUnitToLocationDistance(npcBot, frontlocation) <= 1000 and GetUnitToLocationDistance(npcBot, frontlocation) > 500
+        local frontlocation = GetLaneFrontLocation(team, lane, -pushRadius);
+        if GetUnitToLocationDistance(npcBot, frontlocation) <= 1000 and GetUnitToLocationDistance(npcBot, frontlocation) > pushRadius
         then
-            local enemyTowers = npcBot:GetNearbyTowers(500, true);
-            local enemyBarracks = npcBot:GetNearbyBarracks(500, true);
+            local enemyTowers = npcBot:GetNearbyTowers(pushRadius, true);
+            local enemyBarracks = npcBot:GetNearbyBarracks(pushRadius, true);
             if (#enemyTowers > 0)
             then
                 if (#enemyTowers == 1)
@@ -129,7 +130,7 @@ function Think()
                 else
                     --npcBot:ActionImmediate_Chat("Брожу около башни на пути, она неуязвима.", true);
                     npcBot:Action_ClearActions(false);
-                    npcBot:Action_MoveToLocation(npcBot:GetLocation() + RandomVector(wanderRadius));
+                    npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -retreatDistance) + RandomVector(wanderRadius));
                     return;
                 end
             elseif (#enemyBarracks > 0)
@@ -151,10 +152,10 @@ function Think()
                 else
                     --npcBot:ActionImmediate_Chat("Брожу рядом с барраком на пути, он неуязвим.", true);
                     npcBot:Action_ClearActions(false);
-                    npcBot:Action_MoveToLocation(npcBot:GetLocation() + RandomVector(wanderRadius));
+                    npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -retreatDistance) + RandomVector(wanderRadius));
                     return;
                 end
-            elseif GetUnitToUnitDistance(npcBot, enemyAncient) <= 500
+            elseif GetUnitToUnitDistance(npcBot, enemyAncient) <= pushRadius
             then
                 mainBuilding = enemyAncient;
                 npcBot:SetTarget(mainBuilding);
@@ -168,18 +169,18 @@ function Think()
                 else
                     --npcBot:ActionImmediate_Chat("Брожу рядом с древним на пути, он неуязвим.", true);
                     npcBot:Action_ClearActions(false);
-                    npcBot:Action_MoveToLocation(npcBot:GetLocation() + RandomVector(wanderRadius));
+                    npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -retreatDistance) + RandomVector(wanderRadius));
                     return;
                 end
             else
                 npcBot:Action_ClearActions(false);
-                npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -500) + RandomVector(wanderRadius));
+                npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -pushRadius) + RandomVector(wanderRadius));
                 return;
             end
-        elseif GetUnitToLocationDistance(npcBot, frontlocation) > 500
+        elseif GetUnitToLocationDistance(npcBot, frontlocation) > pushRadius
         then
             npcBot:Action_ClearActions(false);
-            npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -500) + RandomVector(wanderRadius));
+            npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -pushRadius) + RandomVector(wanderRadius));
             return;
         else
             local enemyCreeps = npcBot:GetNearbyCreeps(1000, true);
@@ -190,7 +191,8 @@ function Think()
             if (#allyHeroes <= 1 and #enemyHeroes > 1) and utility.IsEnemiesAroundStronger()
             then
                 npcBot:Action_ClearActions(false);
-                npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -1000) + RandomVector(wanderRadius));
+                npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -retreatDistance) +
+                    RandomVector(wanderRadius));
                 return;
             else
                 if (#enemyCreeps > 0)
@@ -214,14 +216,14 @@ function Think()
                         else
                             --npcBot:ActionImmediate_Chat("Брожу на лайне пока рядом 2+ врагов.", true);
                             npcBot:Action_ClearActions(false);
-                            npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -500) +
+                            npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -pushRadius) +
                                 RandomVector(wanderRadius));
                             return;
                         end
                     else
                         --npcBot:ActionImmediate_Chat("Брожу на лайне, крипы неуязвимы.", true);
                         npcBot:Action_ClearActions(false);
-                        npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -500) + RandomVector(wanderRadius));
+                        npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -retreatDistance) + RandomVector(wanderRadius));
                         return;
                     end
                 elseif (#enemyTowers > 0)
@@ -245,14 +247,14 @@ function Think()
                         else
                             --npcBot:ActionImmediate_Chat("Брожу на лайне пока крипы не нападают на башню.", true);
                             npcBot:Action_ClearActions(false);
-                            npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -500) +
+                            npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -pushRadius) +
                                 RandomVector(wanderRadius));
                             return;
                         end
                     else
                         --npcBot:ActionImmediate_Chat("Брожу на лайне, башни неуязвимы.", true);
                         npcBot:Action_ClearActions(false);
-                        npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -500) + RandomVector(wanderRadius));
+                        npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -retreatDistance) + RandomVector(wanderRadius));
                         return;
                     end
                 elseif (#enemyBarracks > 0)
@@ -276,14 +278,14 @@ function Think()
                         else
                             --npcBot:ActionImmediate_Chat("Брожу на лайне пока крипы не нападают на баррак.", true);
                             npcBot:Action_ClearActions(false);
-                            npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -500) +
+                            npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -pushRadius) +
                                 RandomVector(wanderRadius));
                             return;
                         end
                     else
                         --npcBot:ActionImmediate_Chat("Брожу на лайне, барраки неуязвимы.", true);
                         npcBot:Action_ClearActions(false);
-                        npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -500) + RandomVector(wanderRadius));
+                        npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -retreatDistance) + RandomVector(wanderRadius));
                         return;
                     end
                 elseif GetUnitToUnitDistance(npcBot, enemyAncient) <= 1000
@@ -302,14 +304,14 @@ function Think()
                         else
                             --npcBot:ActionImmediate_Chat("Брожу на лайне, крипы не атакуют древнего.", true);
                             npcBot:Action_ClearActions(false);
-                            npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -500) +
+                            npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -pushRadius) +
                                 RandomVector(wanderRadius));
                             return;
                         end
                     else
                         --npcBot:ActionImmediate_Chat("Брожу на лайне, древний неуязвим.", true);
                         npcBot:Action_ClearActions(false);
-                        npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -500) + RandomVector(wanderRadius));
+                        npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -retreatDistance) + RandomVector(wanderRadius));
                         return;
                     end
                 elseif (#enemyFillers > 0)
@@ -327,14 +329,14 @@ function Think()
                         else
                             --npcBot:ActionImmediate_Chat("Брожу на лайне, крипы не атакуют постройку.", true);
                             npcBot:Action_ClearActions(false);
-                            npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -500) +
+                            npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -pushRadius) +
                                 RandomVector(wanderRadius));
                             return;
                         end
                     else
                         --npcBot:ActionImmediate_Chat("Брожу на лайне, постройка неуязвима.", true);
                         npcBot:Action_ClearActions(false);
-                        npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -500) +
+                        npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -pushRadius) +
                             RandomVector(wanderRadius));
                         return;
                     end
@@ -372,14 +374,15 @@ function Think()
                     end ]]
                 else
                     --npcBot:Action_ClearActions(false);
-                    npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -500) + RandomVector(wanderRadius));
+                    npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -pushRadius) +
+                        RandomVector(wanderRadius));
                     return;
                 end
             end
         end
     end
 
-    npcBot:ActionImmediate_Chat("Туплю.", true);
+    --npcBot:ActionImmediate_Chat("Туплю.", true);
 end
 
 ---------------------------------------------------------------------------------------------------

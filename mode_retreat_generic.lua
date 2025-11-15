@@ -15,6 +15,7 @@ function GetDesire()
     --local enemyHeroes = utility.CountEnemyHeroAroundUnit(npcBot, 2000);
     -- string.find(npcBot:GetUnitName(), "medusa")
 
+    local botDesire = BOT_MODE_DESIRE_NONE;
     local botMode = npcBot:GetActiveMode();
     local healthPercent = npcBot:GetHealth() / npcBot:GetMaxHealth();
     local manaPercent = npcBot:GetMana() / npcBot:GetMaxMana();
@@ -29,10 +30,19 @@ function GetDesire()
         return BOT_MODE_DESIRE_ABSOLUTE;
     end
 
-    if (healthPercent <= 0.4) or (healthPercent <= 0.6 and npcBot:DistanceFromFountain() <= 2000)
+    botDesire = RemapValClamped(healthPercent, 0.3, 0.6, BOT_MODE_DESIRE_VERYHIGH, BOT_MODE_DESIRE_NONE);
+
+    --[[     if botDesire > BOT_MODE_DESIRE_NONE
     then
-        return BOT_MODE_DESIRE_VERYHIGH;
-    end
+        npcBot:ActionImmediate_Chat("Желание отступить: " .. botDesire, true);
+    end ]]
+
+    --[[     if (healthPercent <= 0.4) or (healthPercent <= 0.6 and npcBot:DistanceFromFountain() <= 2000)
+    then
+        local botDesire = RemapValClamped(healthPercent, 0.1, 1.0, BOT_MODE_DESIRE_VERYHIGH, BOT_MODE_DESIRE_NONE);
+        --npcBot:ActionImmediate_Chat("Желание отступить: " .. botDesire, true);
+        return botDesire;
+    end ]]
 
     if npcBot:HasModifier("modifier_medusa_mana_shield")
     then
@@ -44,10 +54,10 @@ function GetDesire()
 
     if npcBot:HasModifier("modifier_fountain_aura_buff")
     then
-        if (healthPercent <= 0.8 or manaPercent <= 0.8)
+        --[[      if (healthPercent <= 0.8 or manaPercent <= 0.8)
         then
             return BOT_MODE_DESIRE_VERYHIGH;
-        end
+        end ]]
         if (#enemyHeroAround > #allyHeroAround + 1) and utility.IsEnemiesAroundStronger()
         then
             return BOT_MODE_DESIRE_HIGH;
@@ -79,12 +89,12 @@ function GetDesire()
             if utility.IsValidTarget(enemy) and utility.IsHero(enemy:GetAttackTarget())
                 and npcBot:GetCurrentActionType() ~= BOT_ACTION_TYPE_ATTACK
             then
-                return BOT_MODE_DESIRE_MODERATE;
+                return botDesire + BOT_MODE_DESIRE_MODERATE;
             end
         end
     end
 
-    return BOT_MODE_DESIRE_NONE;
+    return botDesire;
 end
 
 function OnStart()
@@ -109,6 +119,12 @@ function Think()
 
     if npcBot:HasModifier("modifier_skeleton_king_reincarnation_scepter_active")
     then
+        if utility.IsTargetTeleporting(npcBot)
+        then
+            --npcBot:ActionImmediate_Chat("Прерываю телепортацию.", true);
+            npcBot:Action_ClearActions(true);
+            return;
+        end
         local enemyHeroes = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
         local enemyCreeps = npcBot:GetNearbyCreeps(1600, true);
         local enemyTowers = npcBot:GetNearbyTowers(1600, true);

@@ -238,7 +238,8 @@ end
 local function HaveManaRegenBuff(npcTarget)
 	return npcTarget:HasModifier('modifier_fountain_aura_buff') or
 		npcTarget:HasModifier('modifier_bottle_regeneration') or
-		npcTarget:HasModifier('modifier_clarity_potion');
+		npcTarget:HasModifier('modifier_clarity_potion') or
+		npcTarget:HasModifier("modifier_mana_draught_regeneratio")
 end
 
 local function IsItemAvailable(item_name)
@@ -251,10 +252,9 @@ local function IsItemAvailable(item_name)
 	return nil;
 end
 
-function IsNeutralItemAvailable(item_name)
+local function IsNeutralItemAvailable(item_name)
 	local npcBot = GetBot();
 	local neutralItem = npcBot:GetItemInSlot(16);
-
 	if neutralItem ~= nil and neutralItem:GetName() == item_name and neutralItem:IsFullyCastable()
 	then
 		return neutralItem;
@@ -436,7 +436,7 @@ function ItemUsageThink()
 	-- item_shadow_amulet/item_glimmer_cape
 	local shadowAmulet = IsItemAvailable('item_shadow_amulet');
 	local glimmerCape = IsItemAvailable('item_glimmer_cape');
-	if shadowAmulet ~= nil and shadowAmulet:IsFullyCastable()
+	if shadowAmulet ~= nil
 	then
 		local itemRange = shadowAmulet:GetCastRange();
 		local allyHeroes = npcBot:GetNearbyHeroes(itemRange, false, BOT_MODE_NONE);
@@ -459,7 +459,7 @@ function ItemUsageThink()
 			end
 		end
 	end
-	if glimmerCape ~= nil and glimmerCape:IsFullyCastable()
+	if glimmerCape ~= nil
 	then
 		local itemRange = glimmerCape:GetCastRange();
 		local allyHeroes = npcBot:GetNearbyHeroes(itemRange, false, BOT_MODE_NONE);
@@ -491,7 +491,7 @@ function ItemUsageThink()
 
 	-- item_tpscroll
 	local tps = npcBot:GetItemInSlot(15);
-	if tps ~= nil and tps:IsFullyCastable()
+	if tps ~= nil
 	then
 		if botMode ~= BOT_MODE_EVASIVE_MANEUVERS
 		then
@@ -507,11 +507,11 @@ function ItemUsageThink()
 	-- item_tango/item_tango_single
 	local tango = IsItemAvailable("item_tango");
 	local tangoSingle = IsItemAvailable("item_tango_single");
-	if tango ~= nil and tango:IsFullyCastable()
+	if tango ~= nil
 	then
 		local itemRange = tango:GetCastRange();
 		local itemHeal = tango:GetSpecialValueInt("health_regen") * tango:GetSpecialValueInt("buff_duration");
-		local trees = npcBot:GetNearbyTrees(itemRange + botVisionRange);
+		local trees = npcBot:GetNearbyTrees(itemRange * 2);
 		local allyHeroes = npcBot:GetNearbyHeroes(itemRange + botVisionRange, false, BOT_MODE_NONE);
 		if npcBot:GetHealth() < npcBot:GetMaxHealth() - itemHeal and
 			(#trees > 0) and
@@ -542,7 +542,7 @@ function ItemUsageThink()
 			end
 		end
 	end
-	if tangoSingle ~= nil and tangoSingle:IsFullyCastable()
+	if tangoSingle ~= nil
 	then
 		local itemRange = tangoSingle:GetCastRange();
 		local itemHeal = tangoSingle:GetSpecialValueInt("health_regen") * tangoSingle:GetSpecialValueInt("buff_duration");
@@ -562,7 +562,7 @@ function ItemUsageThink()
 	-- item_flask/item_clarity
 	local flask = IsItemAvailable("item_flask");
 	local clarity = IsItemAvailable("item_clarity");
-	if flask ~= nil and flask:IsFullyCastable()
+	if flask ~= nil
 	then
 		local itemRange = flask:GetCastRange();
 		local itemHeal = flask:GetSpecialValueInt("health_regen") * flask:GetSpecialValueInt("buff_duration");
@@ -586,7 +586,7 @@ function ItemUsageThink()
 			end
 		end
 	end
-	if clarity ~= nil and clarity:IsFullyCastable()
+	if clarity ~= nil
 	then
 		local itemRange = clarity:GetCastRange();
 		local itemManaRegen = clarity:GetSpecialValueInt("mana_regen") * clarity:GetSpecialValueInt("buff_duration");
@@ -611,7 +611,7 @@ function ItemUsageThink()
 
 	-- item_faerie_fire
 	local faerieFire = IsItemAvailable("item_faerie_fire");
-	if faerieFire ~= nil and faerieFire:IsFullyCastable()
+	if faerieFire ~= nil
 	then
 		if npcBot:DistanceFromFountain() > 1000 and (healthPercent <= 0.2) and utility.CanBeHeal(npcBot) and
 			(npcBot:WasRecentlyDamagedByAnyHero(2.0) or npcBot:WasRecentlyDamagedByTower(2.0) or npcBot:WasRecentlyDamagedByCreep(2.0))
@@ -624,7 +624,7 @@ function ItemUsageThink()
 
 	-- item_enchanted_mango
 	local enchantedMango = IsItemAvailable("item_enchanted_mango");
-	if enchantedMango ~= nil and enchantedMango:IsFullyCastable()
+	if enchantedMango ~= nil
 	then
 		if utility.PvPMode(npcBot) and (manaPercent <= 0.3) and GetUnitToUnitDistance(npcBot, botTarget) <= 2000
 		then
@@ -636,7 +636,7 @@ function ItemUsageThink()
 
 	-- item_blood_grenade
 	local bloodGrenade = IsItemAvailable("item_blood_grenade");
-	if bloodGrenade ~= nil and bloodGrenade:IsFullyCastable()
+	if bloodGrenade ~= nil
 	then
 		local itemRange = bloodGrenade:GetCastRange();
 		if utility.PvPMode(npcBot)
@@ -670,8 +670,7 @@ function ItemUsageThink()
 	local healingLotus = IsItemAvailable("item_famango");
 	local greatHealingLotus = IsItemAvailable("item_great_famango");
 	local greaterHealingLotus = IsItemAvailable("item_greater_famango");
-	if (healingLotus ~= nil and healingLotus:IsFullyCastable()) or (greatHealingLotus ~= nil and greatHealingLotus:IsFullyCastable())
-		or (greaterHealingLotus ~= nil and greaterHealingLotus:IsFullyCastable())
+	if (healingLotus ~= nil) or (greatHealingLotus ~= nil) or (greaterHealingLotus ~= nil)
 	then
 		if healingLotus ~= nil and (healthPercent <= 0.8 or manaPercent <= 0.8)
 		then
@@ -695,7 +694,7 @@ function ItemUsageThink()
 
 	-- item_cheese
 	local cheese = IsItemAvailable("item_cheese");
-	if cheese ~= nil and cheese:IsFullyCastable()
+	if cheese ~= nil
 	then
 		if (healthPercent <= 0.3) and (npcBot:WasRecentlyDamagedByAnyHero(2.0) or npcBot:WasRecentlyDamagedByTower(2.0))
 			and utility.CanBeHeal(npcBot)
@@ -707,7 +706,7 @@ function ItemUsageThink()
 
 	-- item_soul_ring
 	local soulRing = IsItemAvailable("item_soul_ring");
-	if soulRing ~= nil and soulRing:IsFullyCastable()
+	if soulRing ~= nil
 	then
 		local itemHealthCost = soulRing:GetSpecialValueInt("AbilityHealthCost");
 		local itemMana = soulRing:GetSpecialValueInt("mana_gain");
@@ -749,7 +748,7 @@ function ItemUsageThink()
 	local magicStick = IsItemAvailable("item_magic_stick");
 	local magicWand = IsItemAvailable("item_magic_wand");
 	local holyLocket = IsItemAvailable("item_holy_locket");
-	if magicStick ~= nil and magicStick:IsFullyCastable()
+	if magicStick ~= nil
 	then
 		if (healthPercent <= 0.5) or (manaPercent <= 0.4) and utility.CanBeHeal(npcBot)
 			and magicStick:GetCurrentCharges() > 1
@@ -759,7 +758,7 @@ function ItemUsageThink()
 			return;
 		end
 	end
-	if magicWand ~= nil and magicWand:IsFullyCastable()
+	if magicWand ~= nil
 	then
 		if (healthPercent <= 0.5) or (manaPercent <= 0.4) and utility.CanBeHeal(npcBot)
 			and magicWand:GetCurrentCharges() > 1
@@ -769,7 +768,7 @@ function ItemUsageThink()
 			return;
 		end
 	end
-	if holyLocket ~= nil and holyLocket:IsFullyCastable()
+	if holyLocket ~= nil
 	then
 		local itemRange = holyLocket:GetCastRange();
 		local allyHeroes = npcBot:GetNearbyHeroes(itemRange, false, BOT_MODE_NONE);
@@ -795,7 +794,7 @@ function ItemUsageThink()
 
 	-- item_dust
 	local dust = IsItemAvailable("item_dust");
-	if dust ~= nil and dust:IsFullyCastable()
+	if dust ~= nil
 	then
 		local itemRange = dust:GetAOERadius();
 		local enemyHeroes = npcBot:GetNearbyHeroes(itemRange, true, BOT_MODE_NONE)
@@ -817,7 +816,7 @@ function ItemUsageThink()
 	-- item_quelling_blade/item_bfury
 	local quellingBlade = IsItemAvailable('item_quelling_blade');
 	local battleFury = IsItemAvailable('item_bfury');
-	if quellingBlade ~= nil and quellingBlade:IsFullyCastable()
+	if quellingBlade ~= nil
 	then
 		local itemRange = quellingBlade:GetCastRange();
 		local trees = npcBot:GetNearbyTrees(itemRange);
@@ -829,7 +828,7 @@ function ItemUsageThink()
 			return;
 		end
 	end
-	if battleFury ~= nil and battleFury:IsFullyCastable()
+	if battleFury ~= nil
 	then
 		local itemRange = battleFury:GetCastRange();
 		local trees = npcBot:GetNearbyTrees(itemRange);
@@ -844,7 +843,7 @@ function ItemUsageThink()
 
 	-- item_power_treads
 	local powerTreads = IsItemAvailable("item_power_treads");
-	if powerTreads ~= nil and powerTreads:IsFullyCastable()
+	if powerTreads ~= nil
 	then
 		if npcBot:GetLevel() <= 6
 		then
@@ -917,7 +916,7 @@ function ItemUsageThink()
 
 	-- item_arcane_boots
 	local arcaneBoots = IsItemAvailable("item_arcane_boots");
-	if arcaneBoots ~= nil and arcaneBoots:IsFullyCastable() and not npcBot:IsInvisible()
+	if arcaneBoots ~= nil and not utility.IsItemBreaksInvisibility(arcaneBoots)
 	then
 		local itemRange = arcaneBoots:GetAOERadius();
 		local itemMana = arcaneBoots:GetSpecialValueInt("replenish_amount");
@@ -938,7 +937,7 @@ function ItemUsageThink()
 
 	-- item_phase_boots
 	local phaseBoots = IsItemAvailable("item_phase_boots");
-	if phaseBoots ~= nil and phaseBoots:IsFullyCastable()
+	if phaseBoots ~= nil
 	then
 		if not utility.IsItemBreaksInvisibility(phaseBoots)
 		then
@@ -953,7 +952,7 @@ function ItemUsageThink()
 	-- item_pavise
 	local pavise = IsItemAvailable("item_pavise");
 	local solarCrest = IsItemAvailable("item_solar_crest");
-	if pavise ~= nil and pavise:IsFullyCastable()
+	if pavise ~= nil
 	then
 		local itemRange = pavise:GetCastRange();
 		local allyHeroes = npcBot:GetNearbyHeroes(itemRange, false, BOT_MODE_NONE);
@@ -976,7 +975,7 @@ function ItemUsageThink()
 			end
 		end
 	end
-	if solarCrest ~= nil and solarCrest:IsFullyCastable()
+	if solarCrest ~= nil
 	then
 		local itemRange = solarCrest:GetCastRange();
 		local allyHeroes = npcBot:GetNearbyHeroes(itemRange, false, BOT_MODE_NONE);
@@ -1013,7 +1012,7 @@ function ItemUsageThink()
 	-- item_ancient_janggo/item_boots_of_bearing
 	local drumOfEndurance = IsItemAvailable("item_ancient_janggo");
 	local bootsOfBearing = IsItemAvailable("item_boots_of_bearing");
-	if drumOfEndurance ~= nil and drumOfEndurance:IsFullyCastable()
+	if drumOfEndurance ~= nil
 	then
 		local itemRange = drumOfEndurance:GetAOERadius();
 		local allyHeroes = npcBot:GetNearbyHeroes(itemRange, false, BOT_MODE_NONE);
@@ -1044,7 +1043,7 @@ function ItemUsageThink()
 			end
 		end
 	end
-	if bootsOfBearing ~= nil and bootsOfBearing:IsFullyCastable()
+	if bootsOfBearing ~= nil
 	then
 		local itemRange = bootsOfBearing:GetAOERadius();
 		local allyHeroes = npcBot:GetNearbyHeroes(itemRange, false, BOT_MODE_NONE);
@@ -1079,7 +1078,7 @@ function ItemUsageThink()
 	-- item_mekansm/item_guardian_greaves
 	local mekansm = IsItemAvailable("item_mekansm");
 	local guardianGreaves = IsItemAvailable("item_guardian_greaves");
-	if mekansm ~= nil and mekansm:IsFullyCastable()
+	if mekansm ~= nil
 	then
 		local itemRange = mekansm:GetAOERadius();
 		local allyHeroes = npcBot:GetNearbyHeroes(itemRange, false, BOT_MODE_NONE);
@@ -1097,7 +1096,7 @@ function ItemUsageThink()
 			end
 		end
 	end
-	if guardianGreaves ~= nil and guardianGreaves:IsFullyCastable()
+	if guardianGreaves ~= nil
 	then
 		local itemRange = guardianGreaves:GetAOERadius();
 		local allyHeroes = npcBot:GetNearbyHeroes(itemRange, false, BOT_MODE_NONE);
@@ -1127,7 +1126,7 @@ function ItemUsageThink()
 
 	-- item_crimson_guard
 	local crimsonGuard = IsItemAvailable("item_crimson_guard");
-	if crimsonGuard ~= nil and crimsonGuard:IsFullyCastable()
+	if crimsonGuard ~= nil
 	then
 		local itemRange = crimsonGuard:GetAOERadius();
 		local allyHeroes = npcBot:GetNearbyHeroes(itemRange, false, BOT_MODE_NONE);
@@ -1152,7 +1151,7 @@ function ItemUsageThink()
 
 	-- item_shivas_guard
 	local shivasGuard = IsItemAvailable("item_shivas_guard");
-	if shivasGuard ~= nil and shivasGuard:IsFullyCastable()
+	if shivasGuard ~= nil
 	then
 		local itemRange = shivasGuard:GetAOERadius();
 		if utility.PvPMode(npcBot) or utility.RetreatMode(npcBot)
@@ -1174,7 +1173,7 @@ function ItemUsageThink()
 
 	-- item_pipe
 	local pipe = IsItemAvailable("item_pipe");
-	if pipe ~= nil and pipe:IsFullyCastable()
+	if pipe ~= nil
 	then
 		local itemRange = pipe:GetAOERadius();
 		local allyHeroes = npcBot:GetNearbyHeroes(itemRange, false, BOT_MODE_NONE);
@@ -1211,7 +1210,7 @@ function ItemUsageThink()
 
 	-- item_force_staff
 	local forceStaff = IsItemAvailable("item_force_staff");
-	if forceStaff ~= nil and forceStaff:IsFullyCastable()
+	if forceStaff ~= nil
 	then
 		local itemRange = forceStaff:GetCastRange();
 		local enemyHeroes = npcBot:GetNearbyHeroes(itemRange, true, BOT_MODE_NONE);
@@ -1265,7 +1264,7 @@ function ItemUsageThink()
 
 	-- item_hurricane_pike
 	local hurricanePike = IsItemAvailable("item_hurricane_pike");
-	if hurricanePike ~= nil and hurricanePike:IsFullyCastable()
+	if hurricanePike ~= nil
 	then
 		local pikeAllyRange = hurricanePike:GetCastRange();
 		local pikeEnemyRange = hurricanePike:GetSpecialValueInt("cast_range_enemy");
@@ -1333,7 +1332,7 @@ function ItemUsageThink()
 
 	-- item_abyssal_blade
 	local abyssalBlade = IsItemAvailable("item_abyssal_blade");
-	if abyssalBlade ~= nil and abyssalBlade:IsFullyCastable()
+	if abyssalBlade ~= nil
 	then
 		local itemRange = abyssalBlade:GetCastRange() * 2;
 		local enemyHeroes = npcBot:GetNearbyHeroes(itemRange, true, BOT_MODE_NONE);
@@ -1375,7 +1374,7 @@ function ItemUsageThink()
 
 	-- item_heavens_halberd
 	local heavensHalberd = IsItemAvailable("item_heavens_halberd");
-	if heavensHalberd ~= nil and heavensHalberd:IsFullyCastable()
+	if heavensHalberd ~= nil
 	then
 		local itemRange = heavensHalberd:GetCastRange();
 		local enemyHeroes = npcBot:GetNearbyHeroes(itemRange, true, BOT_MODE_NONE);
@@ -1399,7 +1398,7 @@ function ItemUsageThink()
 	-- item_orchid/item_bloodthorn
 	local orchid = IsItemAvailable("item_orchid");
 	local bloodthorn = IsItemAvailable("item_bloodthorn");
-	if orchid ~= nil and orchid:IsFullyCastable()
+	if orchid ~= nil
 	then
 		local itemRange = orchid:GetCastRange();
 		local enemyHeroes = npcBot:GetNearbyHeroes(itemRange, true, BOT_MODE_NONE);
@@ -1439,7 +1438,7 @@ function ItemUsageThink()
 		end
 	end
 
-	if bloodthorn ~= nil and bloodthorn:IsFullyCastable()
+	if bloodthorn ~= nil
 	then
 		local itemRange = bloodthorn:GetCastRange();
 		local enemyHeroes = npcBot:GetNearbyHeroes(itemRange, true, BOT_MODE_NONE);
@@ -1482,7 +1481,7 @@ function ItemUsageThink()
 	-- 	item_sphere/item_lotus_orb
 	local sphere = IsItemAvailable("item_sphere");
 	local lotusOrb = IsItemAvailable("item_lotus_orb");
-	if sphere ~= nil and sphere:IsFullyCastable()
+	if sphere ~= nil
 	then
 		local itemRange = sphere:GetCastRange();
 		local botIncomingSpells = npcBot:GetIncomingTrackingProjectiles();
@@ -1515,7 +1514,7 @@ function ItemUsageThink()
 			end
 		end
 	end
-	if lotusOrb ~= nil and lotusOrb:IsFullyCastable()
+	if lotusOrb ~= nil
 	then
 		local itemRange = lotusOrb:GetCastRange();
 		local allyHeroes = npcBot:GetNearbyHeroes(itemRange, false, BOT_MODE_NONE);
@@ -1550,7 +1549,7 @@ function ItemUsageThink()
 
 	-- item_veil_of_discord
 	local discord = IsItemAvailable("item_veil_of_discord");
-	if discord ~= nil and discord:IsFullyCastable()
+	if discord ~= nil
 	then
 		if utility.PvPMode(npcBot)
 		then
@@ -1573,7 +1572,7 @@ function ItemUsageThink()
 
 	-- item_mjollnir
 	local mjollnir = IsItemAvailable("item_mjollnir");
-	if (mjollnir ~= nil and mjollnir:IsFullyCastable())
+	if mjollnir ~= nil
 	then
 		local itemRange = mjollnir:GetCastRange();
 		local allyHeroes = npcBot:GetNearbyHeroes(itemRange, false, BOT_MODE_NONE);
@@ -1594,7 +1593,7 @@ function ItemUsageThink()
 
 	-- item_black_king_bar
 	local blackKingBar = IsItemAvailable("item_black_king_bar");
-	if blackKingBar ~= nil and blackKingBar:IsFullyCastable()
+	if blackKingBar ~= nil
 	then
 		if utility.CanCastOnMagicImmuneTarget(npcBot)
 		then
@@ -1635,7 +1634,7 @@ function ItemUsageThink()
 
 	-- item_manta
 	local manta = IsItemAvailable("item_manta");
-	if manta ~= nil and manta:IsFullyCastable()
+	if manta ~= nil
 	then
 		if utility.PvPMode(npcBot)
 		then
@@ -1672,7 +1671,7 @@ function ItemUsageThink()
 
 	-- item_blade_mail
 	local bladeMail = IsItemAvailable("item_blade_mail");
-	if bladeMail ~= nil and bladeMail:IsFullyCastable()
+	if bladeMail ~= nil
 	then
 		if not npcBot:HasModifier("modifier_item_blade_mail_reflect")
 		then
@@ -1699,7 +1698,7 @@ function ItemUsageThink()
 
 	-- item_bloodstone
 	local bloodstone = IsItemAvailable("item_bloodstone");
-	if bloodstone ~= nil and bloodstone:IsFullyCastable()
+	if bloodstone ~= nil
 	then
 		if not npcBot:HasModifier("modifier_item_bloodstone_active") and not npcBot:HasModifier("modifier_item_bloodstone_drained")
 		then
@@ -1724,7 +1723,7 @@ function ItemUsageThink()
 
 	-- item_satanic
 	local satanic = IsItemAvailable("item_satanic");
-	if satanic ~= nil and satanic:IsFullyCastable()
+	if satanic ~= nil
 	then
 		if not npcBot:HasModifier("modifier_item_satanic_unholy")
 		then
@@ -1752,25 +1751,25 @@ function ItemUsageThink()
 	then
 		if (utility.IsHero(botTarget) or utility.IsBoss(botTarget)) and GetUnitToUnitDistance(npcBot, botTarget) > (attackRange * 2) and utility.CanMove(npcBot)
 		then
-			if blink ~= nil and blink:IsFullyCastable()
+			if blink ~= nil
 			then
 				--npcBot:ActionImmediate_Chat("Использую предмет Blink для нападения!",true);
 				npcBot:Action_UseAbilityOnLocation(blink, botTarget:GetLocation());
 				return;
 			end
-			if overwhelmingBlink ~= nil and overwhelmingBlink:IsFullyCastable()
+			if overwhelmingBlink ~= nil
 			then
 				--npcBot:ActionImmediate_Chat("Использую предмет overwhelmingBlink для нападения!",true);
 				npcBot:Action_UseAbilityOnLocation(overwhelmingBlink, botTarget:GetLocation());
 				return;
 			end
-			if swiftBlink ~= nil and swiftBlink:IsFullyCastable()
+			if swiftBlink ~= nil
 			then
 				--npcBot:ActionImmediate_Chat("Использую предмет swiftBlink для нападения!",true);
 				npcBot:Action_UseAbilityOnLocation(swiftBlink, botTarget:GetLocation());
 				return;
 			end
-			if arcaneBlink ~= nil and arcaneBlink:IsFullyCastable()
+			if arcaneBlink ~= nil
 			then
 				--npcBot:ActionImmediate_Chat("Использую предмет arcaneBlink для нападения!",true);
 				npcBot:Action_UseAbilityOnLocation(arcaneBlink, botTarget:GetLocation());
@@ -1780,28 +1779,28 @@ function ItemUsageThink()
 	end
 	if utility.RetreatMode(npcBot) and npcBot:DistanceFromFountain() >= 1000
 	then
-		if blink ~= nil and blink:IsFullyCastable()
+		if blink ~= nil
 		then
 			local itemRange = blink:GetCastRange();
 			--npcBot:ActionImmediate_Chat("Использую предмет Blink для отступления!",true);
 			npcBot:Action_UseAbilityOnLocation(blink, utility.GetEscapeLocation(npcBot, itemRange));
 			return;
 		end
-		if overwhelmingBlink ~= nil and overwhelmingBlink:IsFullyCastable()
+		if overwhelmingBlink ~= nil
 		then
 			local itemRange = overwhelmingBlink:GetCastRange();
 			--npcBot:ActionImmediate_Chat("Использую предмет overwhelmingBlink для отступления!",true);
 			npcBot:Action_UseAbilityOnLocation(overwhelmingBlink, utility.GetEscapeLocation(npcBot, itemRange));
 			return;
 		end
-		if swiftBlink ~= nil and swiftBlink:IsFullyCastable()
+		if swiftBlink ~= nil
 		then
 			local itemRange = swiftBlink:GetCastRange();
 			--npcBot:ActionImmediate_Chat("Использую предмет swiftBlink для отступления!",true);
 			npcBot:Action_UseAbilityOnLocation(swiftBlink, utility.GetEscapeLocation(npcBot, itemRange));
 			return;
 		end
-		if arcaneBlink ~= nil and arcaneBlink:IsFullyCastable()
+		if arcaneBlink ~= nil
 		then
 			local itemRange = arcaneBlink:GetCastRange();
 			--npcBot:ActionImmediate_Chat("Использую предмет arcaneBlink для отступления!",true);
@@ -1813,7 +1812,7 @@ function ItemUsageThink()
 	-- item_urn_of_shadows/item_spirit_vessel
 	local urnOfShadows = IsItemAvailable('item_urn_of_shadows');
 	local spiritVessel = IsItemAvailable('item_spirit_vessel');
-	if urnOfShadows ~= nil and urnOfShadows:IsFullyCastable()
+	if urnOfShadows ~= nil
 	then
 		if urnOfShadows:GetCurrentCharges() > 0
 		then
@@ -1845,7 +1844,7 @@ function ItemUsageThink()
 			end
 		end
 	end
-	if spiritVessel ~= nil and spiritVessel:IsFullyCastable()
+	if spiritVessel ~= nil
 	then
 		if spiritVessel:GetCurrentCharges() > 0
 		then
@@ -1881,7 +1880,7 @@ function ItemUsageThink()
 	-- item_cyclone/item_wind_waker
 	local eulScepter = IsItemAvailable('item_cyclone');
 	local windWaker = IsItemAvailable('item_wind_waker');
-	if eulScepter ~= nil and eulScepter:IsFullyCastable()
+	if eulScepter ~= nil
 	then
 		local itemRange = eulScepter:GetCastRange();
 		if (#incomingSpells > 0) and not utility.HaveReflectSpell(npcBot)
@@ -1922,7 +1921,7 @@ function ItemUsageThink()
 			end
 		end
 	end
-	if windWaker ~= nil and windWaker:IsFullyCastable()
+	if windWaker ~= nil
 	then
 		local itemRange = windWaker:GetCastRange();
 		local allyHeroes = npcBot:GetNearbyHeroes(itemRange, false, BOT_MODE_NONE);
@@ -1977,7 +1976,7 @@ function ItemUsageThink()
 	local dagon3 = IsItemAvailable('item_dagon_3');
 	local dagon4 = IsItemAvailable('item_dagon_4');
 	local dagon5 = IsItemAvailable('item_dagon_5');
-	if dagon1 ~= nil and dagon1:IsFullyCastable()
+	if dagon1 ~= nil
 	then
 		local itemRange = dagon1:GetCastRange();
 		local itemDamage = dagon1:GetSpecialValueInt("damage");
@@ -2004,7 +2003,7 @@ function ItemUsageThink()
 			end
 		end
 	end
-	if dagon2 ~= nil and dagon2:IsFullyCastable()
+	if dagon2 ~= nil
 	then
 		local itemRange = dagon2:GetCastRange();
 		local itemDamage = dagon2:GetSpecialValueInt("damage");
@@ -2030,7 +2029,7 @@ function ItemUsageThink()
 			end
 		end
 	end
-	if dagon3 ~= nil and dagon3:IsFullyCastable()
+	if dagon3 ~= nil
 	then
 		local itemRange = dagon3:GetCastRange();
 		local itemDamage = dagon3:GetSpecialValueInt("damage");
@@ -2056,7 +2055,7 @@ function ItemUsageThink()
 			end
 		end
 	end
-	if dagon4 ~= nil and dagon4:IsFullyCastable()
+	if dagon4 ~= nil
 	then
 		local itemRange = dagon4:GetCastRange();
 		local itemDamage = dagon4:GetSpecialValueInt("damage");
@@ -2082,7 +2081,7 @@ function ItemUsageThink()
 			end
 		end
 	end
-	if dagon5 ~= nil and dagon5:IsFullyCastable()
+	if dagon5 ~= nil
 	then
 		local itemRange = dagon5:GetCastRange();
 		local itemDamage = dagon5:GetSpecialValueInt("damage");
@@ -2112,7 +2111,7 @@ function ItemUsageThink()
 	-- item_rod_of_atos/item_gungir
 	local rodOfAtos = IsItemAvailable('item_rod_of_atos');
 	local gleipnir = IsItemAvailable('item_gungir');
-	if rodOfAtos ~= nil and rodOfAtos:IsFullyCastable()
+	if rodOfAtos ~= nil
 	then
 		local itemRange = rodOfAtos:GetCastRange();
 		if utility.PvPMode(npcBot)
@@ -2141,7 +2140,7 @@ function ItemUsageThink()
 			end
 		end
 	end
-	if gleipnir ~= nil and gleipnir:IsFullyCastable()
+	if gleipnir ~= nil
 	then
 		local itemRange = gleipnir:GetCastRange();
 		if utility.PvPMode(npcBot)
@@ -2173,7 +2172,7 @@ function ItemUsageThink()
 
 	-- item_moon_shard
 	local moonShard = IsItemAvailable("item_moon_shard");
-	if moonShard ~= nil and moonShard:IsFullyCastable()
+	if moonShard ~= nil
 	then
 		if not npcBot:HasModifier("modifier_item_moon_shard_consumed")
 		then
@@ -2199,7 +2198,7 @@ function ItemUsageThink()
 	-- 	item_ghost/item_ethereal_blade
 	local ghost = IsItemAvailable("item_ghost");
 	local etherealBlade = IsItemAvailable("item_ethereal_blade");
-	if ghost ~= nil and ghost:IsFullyCastable()
+	if ghost ~= nil
 	then
 		if utility.RetreatMode(npcBot)
 		then
@@ -2218,7 +2217,7 @@ function ItemUsageThink()
 			end
 		end
 	end
-	if etherealBlade ~= nil and etherealBlade:IsFullyCastable()
+	if etherealBlade ~= nil
 	then
 		local itemRange = etherealBlade:GetCastRange();
 		if utility.PvPMode(npcBot)
@@ -2252,7 +2251,7 @@ function ItemUsageThink()
 	-- item_invis_sword/item_silver_edge
 	local shadowBlade = IsItemAvailable("item_invis_sword");
 	local silverEdge = IsItemAvailable("item_silver_edge");
-	if shadowBlade ~= nil and shadowBlade:IsFullyCastable()
+	if shadowBlade ~= nil
 	then
 		if not npcBot:IsInvisible()
 		then
@@ -2288,7 +2287,7 @@ function ItemUsageThink()
 			end
 		end
 	end
-	if silverEdge ~= nil and silverEdge:IsFullyCastable()
+	if silverEdge ~= nil
 	then
 		if not npcBot:IsInvisible()
 		then
@@ -2329,7 +2328,7 @@ function ItemUsageThink()
 	-- item_diffusal_blade/item_disperser
 	local diffusalBlade = IsItemAvailable("item_diffusal_blade");
 	local disperser = IsItemAvailable("item_disperser");
-	if diffusalBlade ~= nil and diffusalBlade:IsFullyCastable()
+	if diffusalBlade ~= nil
 	then
 		local itemRange = diffusalBlade:GetCastRange();
 		if utility.PvPMode(npcBot)
@@ -2358,7 +2357,7 @@ function ItemUsageThink()
 			end
 		end
 	end
-	if disperser ~= nil and disperser:IsFullyCastable()
+	if disperser ~= nil
 	then
 		local itemRange = disperser:GetCastRange();
 		if utility.PvPMode(npcBot)
@@ -2413,7 +2412,7 @@ function ItemUsageThink()
 
 	-- item_harpoon
 	local harpoon = IsItemAvailable("item_harpoon");
-	if harpoon ~= nil and harpoon:IsFullyCastable()
+	if harpoon ~= nil
 	then
 		local itemRange = harpoon:GetCastRange();
 		if utility.PvPMode(npcBot) and utility.CanMove(npcBot)
@@ -2429,7 +2428,7 @@ function ItemUsageThink()
 
 	-- item_hand_of_midas
 	local handOfMidas = IsItemAvailable("item_hand_of_midas");
-	if handOfMidas ~= nil and handOfMidas:IsFullyCastable()
+	if handOfMidas ~= nil
 	then
 		if not npcBot:IsInvisible()
 		then
@@ -2447,7 +2446,7 @@ function ItemUsageThink()
 
 	-- item_sheepstick
 	local scytheOfVyse = IsItemAvailable("item_sheepstick");
-	if scytheOfVyse ~= nil and scytheOfVyse:IsFullyCastable()
+	if scytheOfVyse ~= nil
 	then
 		local itemRange = scytheOfVyse:GetCastRange();
 		local enemyHeroes = npcBot:GetNearbyHeroes(itemRange, true, BOT_MODE_NONE);
@@ -2490,7 +2489,7 @@ function ItemUsageThink()
 
 	-- item_mask_of_madness
 	local maskOfMadness = IsItemAvailable("item_mask_of_madness");
-	if maskOfMadness ~= nil and maskOfMadness:IsFullyCastable()
+	if maskOfMadness ~= nil
 	then
 		if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
 		then
@@ -2519,7 +2518,7 @@ function ItemUsageThink()
 	-- item_helm_of_the_dominator/item_helm_of_the_overlord
 	local helmOfTheDominator = IsItemAvailable("item_helm_of_the_dominator");
 	local helmOfTheOverlord = IsItemAvailable("item_helm_of_the_overlord");
-	if helmOfTheDominator ~= nil and helmOfTheDominator:IsFullyCastable()
+	if helmOfTheDominator ~= nil
 	then
 		if not npcBot:IsInvisible()
 		then
@@ -2537,7 +2536,7 @@ function ItemUsageThink()
 			end
 		end
 	end
-	if helmOfTheOverlord ~= nil and helmOfTheOverlord:IsFullyCastable()
+	if helmOfTheOverlord ~= nil
 	then
 		if not npcBot:IsInvisible()
 		then
@@ -2557,9 +2556,9 @@ function ItemUsageThink()
 	end
 
 	--#Region Основной алгоритм
-	local refresher = IsItemAvailable("item_refresher");                                                               -- Получение item_refresher
-	local refresherShard = IsItemAvailable("item_refresher_shard");                                                    -- Получение item_refresher_shard
-	if (refresher ~= nil and refresher:IsFullyCastable()) or (refresherShard ~= nil and refresherShard:IsFullyCastable()) -- Проверка доступности item_refresher/shard
+	local refresher = IsItemAvailable("item_refresher");         -- Получение item_refresher
+	local refresherShard = IsItemAvailable("item_refresher_shard"); -- Получение item_refresher_shard
+	if (refresher ~= nil) or (refresherShard ~= nil)             -- Проверка доступности item_refresher/shard
 	then
 		if utility.CanCast(npcBot)
 		then
@@ -2621,7 +2620,7 @@ function ItemUsageThink()
 
 	-- item_meteor_hammer
 	local meteorHammer = IsItemAvailable("item_meteor_hammer");
-	if meteorHammer ~= nil and meteorHammer:IsFullyCastable()
+	if meteorHammer ~= nil
 	then
 		local itemRange = meteorHammer:GetCastRange();
 		local enemyHeroes = npcBot:GetNearbyHeroes(itemRange, true, BOT_MODE_NONE);
@@ -2668,7 +2667,7 @@ function ItemUsageThink()
 
 	-- item_bottle
 	local bottle = IsItemAvailable("item_bottle");
-	if bottle ~= nil and bottle:IsFullyCastable()
+	if bottle ~= nil
 	then
 		local itemCharges = bottle:GetCurrentCharges();
 		if (itemCharges > 0) and (npcBot:TimeSinceDamagedByAnyHero() >= 5.0 and npcBot:TimeSinceDamagedByCreep() >= 5.0)
@@ -2707,7 +2706,7 @@ function ItemUsageThink()
 
 	-- item_armlet
 	local armlet = IsItemAvailable("item_armlet");
-	if armlet ~= nil and armlet:IsFullyCastable()
+	if armlet ~= nil
 	then
 		if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
 		then
@@ -2739,7 +2738,7 @@ function ItemUsageThink()
 
 	-- item_nullifier
 	local nullifier = IsItemAvailable("item_nullifier");
-	if nullifier ~= nil and nullifier:IsFullyCastable()
+	if nullifier ~= nil
 	then
 		local itemRange = nullifier:GetCastRange();
 		local enemyHeroes = npcBot:GetNearbyHeroes(itemRange, true, BOT_MODE_NONE);
@@ -2806,9 +2805,10 @@ function ItemUsageThink()
 
 
 	------------NEUTRAL ITEMS
+
 	--[[ 	-- item_grisgris
 	local grisgris = IsNeutralItemAvailable("item_grisgris");
-	if grisgris ~= nil
+	if grisgris ~= nil and grisgris:IsFullyCastable()
 	then
 		if utility.GetModifierCount(npcBot, "modifier_item_grisgris_counter") >= (npcBot:GetGold() * 2)
 		then
@@ -2819,7 +2819,7 @@ function ItemUsageThink()
 
 	-- item_black_grimoire
 	local blackGrimoire = IsNeutralItemAvailable("item_black_grimoire");
-	if blackGrimoire ~= nil
+	if blackGrimoire ~= nil and blackGrimoire:IsFullyCastable()
 	then
 		if blackGrimoire:GetCurrentCharges() >= 10
 		then
@@ -2827,6 +2827,436 @@ function ItemUsageThink()
 			npcBot:Action_UseAbility(blackGrimoire);
 		end
 	end ]]
+
+	-- item_kobold_cup
+	local koboldCup = IsNeutralItemAvailable("item_kobold_cup");
+	if koboldCup ~= nil
+	then
+		local itemRange = koboldCup:GetAOERadius();
+		local allyHeroes = npcBot:GetNearbyHeroes(itemRange, false, BOT_MODE_NONE);
+		if (#allyHeroes > 0)
+		then
+			for _, ally in pairs(allyHeroes)
+			do
+				if not utility.IsIllusion(ally) and not ally:HasModifier("modifier_item_kobold_cup")
+				then
+					if utility.PvPMode(npcBot) and utility.IsHero(botTarget)
+					then
+						if GetUnitToUnitDistance(ally, botTarget) <= itemRange
+						then
+							--npcBot:ActionImmediate_Chat("Использую koboldCup для нападения!", true);
+							npcBot:Action_UseAbility(koboldCup);
+							return;
+						end
+					end
+					if (ally:GetHealth() / ally:GetMaxHealth() <= 0.6) and ally:WasRecentlyDamagedByAnyHero(2.0)
+					then
+						--npcBot:ActionImmediate_Chat("Использую koboldCup для отступления!", true);
+						npcBot:Action_UseAbility(koboldCup);
+						return;
+					end
+				end
+			end
+		end
+	end
+
+	-- item_polliwog_charm
+	local polliwogCharm = IsNeutralItemAvailable("item_polliwog_charm");
+	if polliwogCharm ~= nil
+	then
+		local itemRange = polliwogCharm:GetCastRange();
+		local allyHeroes = npcBot:GetNearbyHeroes(itemRange, false, BOT_MODE_NONE);
+		if (#allyHeroes > 0)
+		then
+			for _, ally in pairs(allyHeroes)
+			do
+				if not utility.IsIllusion(ally) and not ally:HasModifier("modifier_item_polliwog_charm_buff")
+				then
+					if (ally:GetHealth() / ally:GetMaxHealth() <= 0.7)
+					then
+						--npcBot:ActionImmediate_Chat("Использую polliwogCharm на " .. ally:GetUnitName(), true);
+						npcBot:Action_UseAbilityOnEntity(polliwogCharm, ally);
+						return;
+					end
+				end
+			end
+		end
+	end
+
+	-- item_rippers_lash
+	local rippersLash = IsNeutralItemAvailable("item_rippers_lash");
+	if rippersLash ~= nil
+	then
+		local itemRange = rippersLash:GetCastRange();
+		if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
+		then
+			if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
+			then
+				if utility.CanCastSpellOnTarget(rippersLash, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= itemRange
+					and not botTarget:HasModifier("modifier_item_rippers_lash")
+				then
+					--npcBot:ActionImmediate_Chat("Использую rippersLash на " .. botTarget:GetUnitName(), true);
+					npcBot:Action_UseAbilityOnLocation(rippersLash, botTarget:GetLocation());
+					return;
+				end
+			end
+		end
+	end
+
+	-- item_essence_ring
+	local essenceRing = IsNeutralItemAvailable("item_essence_ring");
+	if essenceRing ~= nil
+	then
+		if not npcBot:HasModifier("modifier_item_essence_ring_active")
+		then
+			if (healthPercent <= 0.7) and (npcBot:WasRecentlyDamagedByAnyHero(2.0) or
+					npcBot:WasRecentlyDamagedByCreep(2.0) or
+					npcBot:WasRecentlyDamagedByTower(2.0))
+			then
+				--npcBot:ActionImmediate_Chat("Использую предмет essenceRing!", true);
+				npcBot:Action_UseAbility(essenceRing);
+				return;
+			end
+		end
+	end
+
+	-- item_mana_draught
+	local manaDraught = IsNeutralItemAvailable("item_mana_draught");
+	if manaDraught ~= nil
+	then
+		local itemRange = manaDraught:GetCastRange();
+		local allyHeroes = npcBot:GetNearbyHeroes(itemRange, false, BOT_MODE_NONE);
+		if (#allyHeroes > 0)
+		then
+			for _, ally in pairs(allyHeroes)
+			do
+				if utility.IsHero(ally) and
+					ally:GetMana() / ally:GetMaxMana() <= 0.7 and
+					ally:TimeSinceDamagedByAnyHero() >= 5.0 and
+					ally:TimeSinceDamagedByCreep() >= 5.0 and
+					ally:DistanceFromFountain() > 3000 and
+					not HaveManaRegenBuff(ally) and
+					not ally:HasModifier("modifier_mana_draught_regeneratio")
+				then
+					--npcBot:ActionImmediate_Chat("Использую manaDraught на " .. ally:GetUnitName(), true);
+					npcBot:Action_UseAbilityOnEntity(manaDraught, ally);
+					return;
+				end
+			end
+		end
+	end
+
+	-- item_pogo_stick (Tumbler's Toy)
+	local pogoStick = IsNeutralItemAvailable("item_pogo_stick");
+	if pogoStick ~= nil
+	then
+		local itemRange = pogoStick:GetSpecialValueInt("leap_distance");
+		if utility.PvPMode(npcBot)
+		then
+			if utility.IsHero(botTarget)
+			then
+				if GetUnitToUnitDistance(npcBot, botTarget) <= itemRange * 2 and GetUnitToUnitDistance(npcBot, botTarget) > attackRange
+					and npcBot:IsFacingLocation(botTarget:GetLocation(), 10) and utility.CanMove(npcBot)
+				then
+					--npcBot:ActionImmediate_Chat("Использую pogoStick для атаки!", true);
+					npcBot:Action_UseAbility(pogoStick);
+					return;
+				end
+			end
+		end
+		if utility.RetreatMode(npcBot)
+		then
+			if npcBot:IsFacingLocation(utility.GetFountainLocation(), 40) and utility.CanMove(npcBot)
+			then
+				--npcBot:ActionImmediate_Chat("Использую pogoStick для отхода!", true);
+				npcBot:Action_UseAbility(pogoStick);
+				return;
+			end
+		end
+	end
+
+	-- item_gale_guard
+	local galeGuard = IsNeutralItemAvailable("item_gale_guard");
+	if galeGuard ~= nil
+	then
+		if not npcBot:HasModifier("modifier_item_gale_guard")
+		then
+			if (healthPercent <= 0.7) and (npcBot:WasRecentlyDamagedByAnyHero(2.0) or
+					npcBot:WasRecentlyDamagedByCreep(2.0) or
+					npcBot:WasRecentlyDamagedByTower(2.0))
+			then
+				--npcBot:ActionImmediate_Chat("Использую предмет galeGuard!", true);
+				npcBot:Action_UseAbility(galeGuard);
+				return;
+			end
+		end
+	end
+
+	-- item_jidi_pollen_bag
+	local jidiPollenBag = IsNeutralItemAvailable("item_jidi_pollen_bag");
+	if jidiPollenBag ~= nil
+	then
+		local itemRange = jidiPollenBag:GetAOERadius();
+		if utility.PvPMode(npcBot) or utility.RetreatMode(npcBot)
+		then
+			local enemyHeroes = npcBot:GetNearbyHeroes(itemRange, true, BOT_MODE_NONE);
+			if (#enemyHeroes > 0)
+			then
+				for _, enemy in pairs(enemyHeroes) do
+					if not enemy:HasModifier("modifier_item_jidi_pollen_bag")
+					then
+						--npcBot:ActionImmediate_Chat("Использую jidiPollenBag для нападения/отступления!", true);
+						npcBot:Action_UseAbility(jidiPollenBag);
+						return;
+					end
+				end
+			end
+		end
+	end
+
+	-- item_psychic_headband
+	local psychicHeadband = IsNeutralItemAvailable("item_psychic_headband");
+	if psychicHeadband ~= nil
+	then
+		local itemRange = psychicHeadband:GetSpecialValueInt("push_length");
+		local enemyHeroes = npcBot:GetNearbyHeroes(itemRange, true, BOT_MODE_NONE);
+		if (#enemyHeroes > 0)
+		then
+			for _, enemy in pairs(enemyHeroes) do
+				if not utility.CanMove(enemy)
+				then
+					--npcBot:ActionImmediate_Chat("Использую psychicHeadband на неподвижного " .. enemy:GetUnitName(), true);
+					npcBot:Action_UseAbilityOnEntity(psychicHeadband, enemy);
+					return;
+				end
+				if enemy:GetAttackTarget() == npcBot and enemy ~= botTarget
+				then
+					npcBot:Action_UseAbilityOnEntity(psychicHeadband, enemy);
+					return;
+				end
+				if utility.RetreatMode(npcBot)
+				then
+					local fountainLocation = utility.SafeLocation(npcBot);
+					if GetUnitToLocationDistance(enemy, fountainLocation) > GetUnitToLocationDistance(npcBot, fountainLocation)
+					then
+						--npcBot:ActionImmediate_Chat("Использую psychicHeadband на " .. enemy:GetUnitName(), true);
+						npcBot:Action_UseAbilityOnEntity(psychicHeadband, enemy);
+						return;
+					end
+				end
+			end
+		end
+	end
+
+	-- item_pyrrhic_cloak
+	local pyrrhicCloak = IsNeutralItemAvailable("item_pyrrhic_cloak");
+	if pyrrhicCloak ~= nil
+	then
+		local itemRange = pyrrhicCloak:GetCastRange();
+		local enemyHeroes = npcBot:GetNearbyHeroes(itemRange, true, BOT_MODE_NONE);
+		local enemyCreeps = npcBot:GetNearbyCreeps(itemRange, true);
+		if (healthPercent <= 0.8 and not npcBot:HasModifier("modifier_item_pyrrhic_cloak")) and
+			(npcBot:WasRecentlyDamagedByAnyHero(2.0) or
+				npcBot:WasRecentlyDamagedByTower(2.0) or
+				npcBot:WasRecentlyDamagedByCreep(2.0))
+		then
+			if (#enemyHeroes > 0)
+			then
+				for _, enemy in pairs(enemyHeroes)
+				do
+					if utility.SafeCast(enemy)
+					then
+						--npcBot:ActionImmediate_Chat("Использую pyrrhicCloak на " .. enemy:GetUnitName(), true);
+						npcBot:Action_UseAbilityOnEntity(pyrrhicCloak, enemy);
+						return;
+					end
+				end
+			end
+			if (#enemyCreeps > 0)
+			then
+				for _, enemy in pairs(enemyCreeps) do
+					if utility.SafeCast(enemy)
+					then
+						--npcBot:ActionImmediate_Chat("Использую pyrrhicCloak на крипа: " .. enemy:GetUnitName(), true);
+						npcBot:Action_UseAbilityOnEntity(pyrrhicCloak, enemy);
+						return;
+					end
+				end
+			end
+		end
+	end
+
+	-- item_crippling_crossbow
+	local cripplingCrossbow = IsNeutralItemAvailable("item_crippling_crossbow");
+	if cripplingCrossbow ~= nil
+	then
+		local itemRange = cripplingCrossbow:GetCastRange();
+		if utility.PvPMode(npcBot)
+		then
+			if utility.IsHero(botTarget) and not utility.IsDisabled(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= itemRange
+			then
+				--npcBot:ActionImmediate_Chat("Использую предмет cripplingCrossbow на враге!", true);
+				npcBot:Action_UseAbilityOnEntity(cripplingCrossbow, botTarget);
+				return;
+			end
+		end
+		if utility.RetreatMode(npcBot)
+		then
+			local enemyHeroes = npcBot:GetNearbyHeroes(itemRange, true, BOT_MODE_NONE);
+			if (#enemyHeroes > 0)
+			then
+				for _, enemy in pairs(enemyHeroes)
+				do
+					if not utility.IsDisabled(enemy)
+					then
+						--npcBot:ActionImmediate_Chat("Использую предмет cripplingCrossbow для оступления!", true);
+						npcBot:Action_UseAbilityOnEntity(cripplingCrossbow, enemy);
+						return;
+					end
+				end
+			end
+		end
+	end
+
+	-- item_outworld_staff
+	local outworldStaff = IsNeutralItemAvailable("item_outworld_staff");
+	if outworldStaff ~= nil
+	then
+		if (#incomingSpells > 0)
+		then
+			for _, spell in pairs(incomingSpells)
+			do
+				if not utility.IsAlly(npcBot, spell.caster) and GetUnitToLocationDistance(npcBot, spell.location) < 100 and spell.is_attack == false
+					and not utility.HaveReflectSpell(npcBot)
+				then
+					--npcBot:ActionImmediate_Chat("Использую предмет outworldStaff для блока заклинания!", true);
+					npcBot:Action_UseAbility(outworldStaff);
+					return;
+				end
+			end
+		end
+	end
+
+	-- item_fallen_sky
+	local fallenSky = IsNeutralItemAvailable("item_fallen_sky");
+	if fallenSky ~= nil
+	then
+		local itemRange = fallenSky:GetCastRange();
+		local attackTarget = npcBot:GetAttackTarget();
+		if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
+		then
+			if (utility.IsHero(botTarget) or utility.IsBoss(botTarget)) and GetUnitToUnitDistance(npcBot, botTarget) <= itemRange and utility.CanMove(npcBot)
+			then
+				--npcBot:ActionImmediate_Chat("Использую предмет fallenSky для нападения!", true);
+				npcBot:Action_UseAbilityOnLocation(fallenSky, botTarget:GetLocation());
+				return;
+			end
+		end
+		if utility.RetreatMode(npcBot) and npcBot:DistanceFromFountain() >= 1000
+		then
+			npcBot:ActionImmediate_Chat("Использую предмет fallenSky для отступления!", true);
+			npcBot:Action_UseAbilityOnLocation(fallenSky, utility.GetEscapeLocation(npcBot, itemRange));
+			return;
+		end
+		if attackTarget:IsTower() or attackTarget:IsBarracks() or attackTarget:IsFort()
+		then
+			npcBot:Action_UseAbilityOnLocation(fallenSky, attackTarget:GetLocation());
+			return;
+		end
+	end
+
+	-- item_demonicon
+	local demonicon = IsNeutralItemAvailable("item_demonicon");
+	if demonicon ~= nil
+	then
+		if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
+		then
+			if (utility.IsHero(botTarget) or utility.IsBoss(botTarget)) and GetUnitToUnitDistance(npcBot, botTarget) <= 1600
+			then
+				--npcBot:ActionImmediate_Chat("Использую предмет demonicon для нападения!", true);
+				npcBot:Action_UseAbility(demonicon);
+				return;
+			end
+		end
+		if utility.RetreatMode(npcBot)
+		then
+			local enemyHeroes = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
+			if (#enemyHeroes > 0) and (healthPercent <= 0.8)
+			then
+				--npcBot:ActionImmediate_Chat("Использую предмет demonicon для оступления!", true);
+				npcBot:Action_UseAbility(demonicon);
+				return;
+			end
+		end
+		if utility.PvEMode(npcBot)
+		then
+			local enemyCreeps = npcBot:GetNearbyCreeps(1600, true);
+			local enemyTowers = npcBot:GetNearbyTowers(1600, true);
+			local enemyBarracks = npcBot:GetNearbyBarracks(1600, true);
+			local enemyAncient = GetAncient(GetOpposingTeam());
+			if ((#enemyCreeps > 0) or
+					(#enemyTowers > 0) or
+					(#enemyBarracks > 0) or
+					npcBot:GetAttackTarget() == enemyAncient)
+			then
+				--npcBot:ActionImmediate_Chat("Использую предмет demonicon против крипов/зданий!", true);
+				npcBot:Action_UseAbility(demonicon);
+				return;
+			end
+		end
+	end
+
+	-- item_minotaur_horn
+	local minotaurHorn = IsNeutralItemAvailable("item_minotaur_horn");
+	if minotaurHorn ~= nil
+	then
+		if not npcBot:HasModifier("modifier_minotaur_horn_immune")
+		then
+			if (healthPercent <= 0.5) and (npcBot:WasRecentlyDamagedByAnyHero(2.0) or
+					npcBot:WasRecentlyDamagedByCreep(2.0) or
+					npcBot:WasRecentlyDamagedByTower(2.0))
+			then
+				--npcBot:ActionImmediate_Chat("Использую предмет minotaurHorn!", true);
+				npcBot:Action_UseAbility(minotaurHorn);
+				return;
+			end
+			if npcBot:GetAttackTarget():HasModifier("modifier_item_blade_mail_reflect")
+			then
+				--npcBot:ActionImmediate_Chat("Использую предмет minotaurHorn против врага под BladeMail!", true);
+				npcBot:Action_UseAbility(minotaurHorn);
+				return;
+			end
+		end
+	end
+
+	-- item_spider_legs
+	local spiderLegs = IsNeutralItemAvailable("item_spider_legs");
+	if spiderLegs ~= nil
+	then
+		if not npcBot:HasModifier("modifier_item_spider_legs_active")
+		then
+			if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
+			then
+				if (utility.IsHero(botTarget) or utility.IsBoss(botTarget)) and (GetUnitToUnitDistance(npcBot, botTarget) <= 2000
+						and GetUnitToUnitDistance(npcBot, botTarget) > attackRange)
+				then
+					--npcBot:ActionImmediate_Chat("Использую предмет spiderLegs для нападения!", true);
+					npcBot:Action_UseAbility(spiderLegs);
+					return;
+				end
+			end
+			if utility.RetreatMode(npcBot)
+			then
+				local enemyHeroes = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
+				if (#enemyHeroes > 0)
+				then
+					--npcBot:ActionImmediate_Chat("Использую предмет spiderLegs для отхода!", true);
+					npcBot:Action_UseAbility(spiderLegs);
+					return;
+				end
+			end
+		end
+	end
 
 
 

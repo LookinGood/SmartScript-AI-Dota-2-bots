@@ -709,7 +709,7 @@ end
 
 -- Insert here hero hame and set "testmode = true" if you want the bot to choose a specific hero (Work only in Radiant team)
 local testmode = false;
-local testHero = "npc_dota_hero_storm_spirit"
+local testHero = "npc_dota_hero_skeleton_king"
 
 local botPlayers = {};
 local testPlayer = nil;

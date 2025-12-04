@@ -1869,22 +1869,21 @@ function GetFountain(npcTarget)
 			then
 				for _, ally in pairs(buildings)
 				do
-					if ally ~= nil and (string.find(ally:GetUnitName(), "fountain") or ally:DistanceFromFountain() == 0 or ally:HasModifier('modifier_fountain_aura_buff'))
+					if ally ~= nil and (string.find(ally:GetUnitName(), "fountain") and ally:DistanceFromFountain() == 0)
 					then
 						return ally;
 					end
 				end
 			end
-		else
-			return nil;
 		end
-	else
-		return nil;
 	end
+
+	return nil;
 end
 
 -- or ally:HasModifier('modifier_fountain_aura_buff')
 -- or ally:DistanceFromFountain() == 0
+-- if ally ~= nil and (string.find(ally:GetUnitName(), "fountain") or ally:HasModifier("modifier_fountain_aura_buff"))
 
 function GetFountainLocation()
 	local buildings = GetUnitList(UNIT_LIST_ALLIED_BUILDINGS);
@@ -1892,13 +1891,14 @@ function GetFountainLocation()
 	then
 		for _, ally in pairs(buildings)
 		do
-			if ally ~= nil and (string.find(ally:GetUnitName(), "fountain") or ally:DistanceFromFountain() <= 0)
+			if ally ~= nil and (string.find(ally:GetUnitName(), "fountain") and ally:DistanceFromFountain() <= 0)
 			then
+				--GetBot():ActionImmediate_Chat("Фонтан опознан: " .. ally:GetUnitName(), true);
+				--GetBot():ActionImmediate_Ping(ally:GetLocation().x, ally:GetLocation().y, true);
 				return ally:GetLocation();
 			end
 		end
 	end
-
 	return Vector(0, 0, 0);
 end
 

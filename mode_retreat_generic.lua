@@ -30,7 +30,15 @@ function GetDesire()
         return BOT_MODE_DESIRE_ABSOLUTE;
     end
 
-    botDesire = RemapValClamped(healthPercent, 0.3, 0.6, BOT_MODE_DESIRE_VERYHIGH, BOT_MODE_DESIRE_NONE);
+    botDesire = RemapValClamped(healthPercent, 0.3, 0.6, BOT_MODE_DESIRE_VERYHIGH, BOT_MODE_DESIRE_VERYLOW);
+
+    if npcBot:HasModifier("modifier_fountain_aura_buff")
+    then
+        if (healthPercent <= 0.8 or manaPercent <= 0.8) or ((#enemyHeroAround > #allyHeroAround + 1) and utility.IsEnemiesAroundStronger())
+        then
+            botDesire = botDesire + BOT_MODE_DESIRE_MODERATE;
+        end
+    end
 
     --[[     if botDesire > BOT_MODE_DESIRE_NONE
     then
@@ -49,18 +57,6 @@ function GetDesire()
         if (manaPercent <= 0.3) and (#enemyHeroAround > 0) and npcBot:WasRecentlyDamagedByAnyHero(5.0)
         then
             return BOT_MODE_DESIRE_VERYHIGH;
-        end
-    end
-
-    if npcBot:HasModifier("modifier_fountain_aura_buff")
-    then
-        --[[      if (healthPercent <= 0.8 or manaPercent <= 0.8)
-        then
-            return BOT_MODE_DESIRE_VERYHIGH;
-        end ]]
-        if (#enemyHeroAround > #allyHeroAround + 1) and utility.IsEnemiesAroundStronger()
-        then
-            return BOT_MODE_DESIRE_HIGH;
         end
     end
 

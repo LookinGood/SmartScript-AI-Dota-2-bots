@@ -8,7 +8,7 @@ local updateInterval = 60;
 local lastUpdateTime = 0;
 
 -- Debugg
---[[ local function printObjectFields(object)
+local function printObjectFields(object)
     for key, value in pairs(object) do
         if type(value) == "table" then
             print(key .. ":")
@@ -17,7 +17,7 @@ local lastUpdateTime = 0;
             print(key .. ": " .. tostring(value)) -- Преобразование значения в строку
         end
     end
-end ]]
+end
 
 function GetCountAllDeadHeroes()
     local countAllyHeroes = 0;
@@ -42,10 +42,13 @@ function GetCountAllDeadHeroes()
         end
     end
 
+    --npcBot:ActionImmediate_Chat("" .. countAllyHeroes .. " " .. countEnemyHeroes .. " " .. #allyPlayers .. " " .. #enemyPlayers, true);
+
     return countAllyHeroes, countEnemyHeroes, #allyPlayers, #enemyPlayers;
 end
 
 function UpdateCreepCamps()
+    realCamps = {}
     local camps = GetNeutralSpawners();
 
     if (#camps > 0)
@@ -57,19 +60,6 @@ function UpdateCreepCamps()
             end
         end
     end
-
-    --[[     if (#camps > 0)
-    then
-        for _, camp in ipairs(camps) do
-            if IsRadiusVisible(camp.location, 300)
-            then
-                if HasNeutralCreepsInCamp(camp.location)
-                then
-                    table.insert(realCamps, camp);
-                end
-            end
-        end
-    end ]]
 end
 
 function HasNeutralCreepsInCamp(campLocation)
@@ -121,6 +111,21 @@ function GetClosestAvailableCreepCamp()
 
     --print(#camps);
     --printObjectFields(camps)
+    --print(tostring(npcBot:GetTeam()))
+
+    --npcBot:ActionImmediate_Chat("Команда: " .. npcBot:GetTeam(), true);
+    --npcBot:ActionImmediate_Chat("Значения: " .. printObjectFields(camps), true);
+
+    --[[     if (#camps > 0)
+    then
+        for _, camp in pairs(camps)
+        do
+            --npcBot:ActionImmediate_Chat("Лагерей: " .. #camps, true);
+            --print(camp.team)
+        end
+    else
+        npcBot:ActionImmediate_Chat("Лагерей нет.", true);
+    end ]]
 
     if (#camps > 0)
     then
@@ -137,8 +142,8 @@ function GetClosestAvailableCreepCamp()
                         then
                             closestCampLocation = camp.location;
                             distance = unitDistance;
-                            --npcBot:ActionImmediate_Chat("Рядом есть доступный малый лагерь крипов!", true);
-                            --npcBot:ActionImmediate_Ping(closestCampLocation.x, closestCampLocation.y, true);
+                            npcBot:ActionImmediate_Chat("Рядом есть доступный малый лагерь крипов!", true);
+                            npcBot:ActionImmediate_Ping(closestCampLocation.x, closestCampLocation.y, true);
                         end
                     end
                 elseif (botLevel >= 12 and botLevel <= 18)
@@ -150,20 +155,21 @@ function GetClosestAvailableCreepCamp()
                         then
                             closestCampLocation = camp.location;
                             distance = unitDistance;
-                            --npcBot:ActionImmediate_Chat("Рядом есть доступный средний лагерь крипов!", true);
-                            --npcBot:ActionImmediate_Ping(closestCampLocation.x, closestCampLocation.y, true);
+                            npcBot:ActionImmediate_Chat("Рядом есть доступный средний лагерь крипов!", true);
+                            npcBot:ActionImmediate_Ping(closestCampLocation.x, closestCampLocation.y, true);
                         end
                     end
                 else
-                    if (camp.type == "large" or camp.type == "ancient")
+                    if (camp.type == "medium" or camp.type == "large" or camp.type == "ancient")
                     then
                         local unitDistance = GetUnitToLocationDistance(npcBot, camp.location)
                         if unitDistance < distance
                         then
                             closestCampLocation = camp.location;
                             distance = unitDistance;
-                            --npcBot:ActionImmediate_Chat("Рядом есть доступный большой/древний лагерь крипов!", true);
-                            --npcBot:ActionImmediate_Ping(closestCampLocation.x, closestCampLocation.y, true);
+                            npcBot:ActionImmediate_Chat("Рядом есть доступный средний/большой/древний лагерь крипов!",
+                                true);
+                            npcBot:ActionImmediate_Ping(closestCampLocation.x, closestCampLocation.y, true);
                         end
                     end
                 end
@@ -173,9 +179,6 @@ function GetClosestAvailableCreepCamp()
 
     return closestCampLocation, distance;
 end
-
---or DotaTime() < 1 * 60
--- (botLevel >= 30) or
 
 function GetDesire()
     if utility.NotCurrectHeroBot(npcBot) or utility.IsBaseUnderAttack() or utility.IsEnemyBaseUnderAttack() or DotaTime() < 1 * 60
@@ -187,11 +190,12 @@ function GetDesire()
 
     if (countEnemyDeadHeroes >= math.floor(countEnemyPlayers / 2) + 1)
     then
-        --npcBot:ActionImmediate_Chat(tostring(countEnemyDeadHeroes) .. " героев из " .. tostring(countEnemyPlayers) .. " игроков - мертвы.", true);
+        npcBot:ActionImmediate_Chat(
+            tostring(countEnemyDeadHeroes) .. " героев из " .. tostring(countEnemyPlayers) .. " игроков - мертвы.", true);
         return BOT_MODE_DESIRE_NONE;
     end
 
-    local botDesire = BOT_MODE_DESIRE_NONE;
+    --local botDesire = BOT_MODE_DESIRE_NONE;
     local botLevel = npcBot:GetLevel();
     local botGold = npcBot:GetGold();
     local botKills = GetHeroKills(npcBot:GetPlayerID());
@@ -200,6 +204,8 @@ function GetDesire()
     local enemyHeroes = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
 
     --npcBot:ActionImmediate_Chat("Выкуп мой: " .. npcBot:GetBuybackCost(), true);
+    --npcBot:ActionImmediate_Chat("Убийств: " .. tostring(botKills), true);
+    --npcBot:ActionImmediate_Chat("Смертей: " .. tostring(botDeaths), true);
 
     if (botLevel < 4) or (botLevel >= 30) or (botGold > npcBot:GetBuybackCost()) or (HealthPercentage < 0.3) or (#enemyHeroes > 0)
     then
@@ -214,15 +220,13 @@ function GetDesire()
         end
     end
 
-    --npcBot:ActionImmediate_Chat("Убийств: " .. tostring(botKills), true);
-    --npcBot:ActionImmediate_Chat("Смертей: " .. tostring(botDeaths), true);
-
     local currentTime = DotaTime();
     if currentTime - lastUpdateTime >= updateInterval
     then
         UpdateCreepCamps()
         lastUpdateTime = currentTime;
         --npcBot:ActionImmediate_Chat("Обновляю список доступных лагерей!", true);
+        --npcBot:ActionImmediate_Chat("Доступных лагерей: " .. #realCamps, true);
     end
 
     --and IsRadiusVisible(realCamps[i].location, 500)
@@ -233,56 +237,32 @@ function GetDesire()
         for i = #realCamps, 1, -1 do
             if IsLocationVisible(realCamps[i].location) and not HasNeutralCreepsInCamp(realCamps[i].location)
             then
-                --npcBot:ActionImmediate_Ping(realCamps[i].location.x, realCamps[i].location.y, true);
-                --npcBot:ActionImmediate_Chat("Удаляю лагерь - Есть вижен и нет крипов.", true);
+                npcBot:ActionImmediate_Ping(realCamps[i].location.x, realCamps[i].location.y, true);
+                npcBot:ActionImmediate_Chat("Удаляю лагерь - Есть вижен и нет крипов.", true);
                 table.remove(realCamps, i);
             end
-
-            --[[        if GetUnitToLocationDistance(npcBot, realCamps[i].location) <= 300 and not HasNeutralCreepsInCamp(realCamps[i].location)
-            then
-                npcBot:ActionImmediate_Chat("Удаляю лагерь - Нет вижена, проверил - нет крипов.", true);
-                table.remove(realCamps, i);
-            end ]]
-
-
-            --[[             (GetUnitToLocationDistance(npcBot, realCamps[i].location) <= 300 and not HasNeutralCreepsInCamp(realCamps[i].location)
-                    and IsRadiusVisible(realCamps[i].location, 400)) or (HasAllyHeroInCamp(realCamps[i].location))
-            then
-                --npcBot:ActionImmediate_Chat("В лагере нет крипов, удаляю его из списка.", true);
-                table.remove(realCamps, i);
-            end ]]
         end
     end
 
     closestCampLocation, campDistance = GetClosestAvailableCreepCamp();
 
-    if HasAllyHeroInCamp(closestCampLocation)
+    if closestCampLocation == nil or (closestCampLocation ~= nil and HasAllyHeroInCamp(closestCampLocation))
     then
         return BOT_MODE_DESIRE_NONE;
     end
 
-    botDesire = RemapValClamped(campDistance, 10000, 6000, BOT_MODE_DESIRE_NONE, BOT_MODE_DESIRE_VERYHIGH);
-    --npcBot:ActionImmediate_Chat("Желание фармить: " .. botDesire, true);
-
-    if botDeaths >= botKills
+    if closestCampLocation ~= nil and campDistance <= 6000
     then
-        --npcBot:ActionImmediate_Chat("Желание фармить2: " .. botDesire .. " / " .. botDesire + BOT_MODE_DESIRE_MODERATE, true);
-        botDesire = botDesire + BOT_MODE_DESIRE_MODERATE;
-    end
-
-    --[[     if campDistance <= 6000
-    then
-        --npcBot:ActionImmediate_Chat("Рядом есть доступный лагерь крипов!", true);
-        --npcBot:ActionImmediate_Chat("Доступных лагерей: " .. #realCamps, true);
+        npcBot:ActionImmediate_Chat("Рядом есть доступный лагерь крипов!", true);
         if botDeaths >= botKills
         then
             return BOT_MODE_DESIRE_HIGH;
         else
             return BOT_MODE_DESIRE_MODERATE;
         end
-    end ]]
+    end
 
-    return botDesire;
+    return BOT_MODE_DESIRE_NONE;
 end
 
 function OnStart()
@@ -340,6 +320,20 @@ function Think()
         end
     end
 end
+
+--[[        if GetUnitToLocationDistance(npcBot, realCamps[i].location) <= 300 and not HasNeutralCreepsInCamp(realCamps[i].location)
+            then
+                npcBot:ActionImmediate_Chat("Удаляю лагерь - Нет вижена, проверил - нет крипов.", true);
+                table.remove(realCamps, i);
+            end ]]
+
+
+--[[             (GetUnitToLocationDistance(npcBot, realCamps[i].location) <= 300 and not HasNeutralCreepsInCamp(realCamps[i].location)
+                    and IsRadiusVisible(realCamps[i].location, 400)) or (HasAllyHeroInCamp(realCamps[i].location))
+            then
+                --npcBot:ActionImmediate_Chat("В лагере нет крипов, удаляю его из списка.", true);
+                table.remove(realCamps, i);
+            end ]]
 
 --[[ function GetDesire()
     if utility.NotCurrectHeroBot(npcBot) or utility.IsBaseUnderAttack()

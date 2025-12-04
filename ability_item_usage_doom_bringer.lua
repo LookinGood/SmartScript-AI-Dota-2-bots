@@ -112,13 +112,21 @@ function ConsiderDevour()
 
     local castRangeAbility = ability:GetCastRange();
     local creepMaxLevel = ability:GetSpecialValueInt("creep_level");
+    local enemyCreeps = npcBot:GetNearbyCreeps(castRangeAbility, true);
 
-    --[[     if not ability:GetAutoCastState()
+    if (#enemyCreeps > 0)
     then
-        ability:ToggleAutoCast();
-    end ]]
+        for _, enemy in pairs(enemyCreeps) do
+            if (utility.CanCastSpellOnTarget(ability, enemy) and (enemy:GetHealth() / enemy:GetMaxHealth() >= 0.7))
+                and not enemy:IsAncientCreep() and enemy:GetLevel() <= creepMaxLevel
+            then
+                --npcBot:ActionImmediate_Chat("Использую devour на обычного/древнего крипа!", true);
+                return BOT_ACTION_DESIRE_HIGH, enemy;
+            end
+        end
+    end
 
-    if utility.PvPMode(npcBot) or utility.RetreatMode(npcBot) or botMode == BOT_MODE_LANING
+    --[[     if utility.PvPMode(npcBot) or utility.RetreatMode(npcBot) or botMode == BOT_MODE_LANING
     then
         local enemyCreeps = npcBot:GetNearbyCreeps(castRangeAbility, true);
         if (#enemyCreeps > 0)
@@ -145,7 +153,7 @@ function ConsiderDevour()
                 end
             end
         end
-    end
+    end ]]
 
     return BOT_ACTION_DESIRE_NONE, 0;
 end

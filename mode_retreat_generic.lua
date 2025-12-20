@@ -30,7 +30,7 @@ function GetDesire()
         return BOT_MODE_DESIRE_ABSOLUTE;
     end
 
-    botDesire = RemapValClamped(healthPercent, 0.3, 0.6, BOT_MODE_DESIRE_VERYHIGH, BOT_MODE_DESIRE_VERYLOW);
+    botDesire = RemapValClamped(healthPercent, 0.3, 0.6, BOT_MODE_DESIRE_VERYHIGH, BOT_MODE_DESIRE_NONE);
 
     if npcBot:HasModifier("modifier_fountain_aura_buff")
     then
@@ -113,6 +113,8 @@ function Think()
         return;
     end
 
+    local fountainLocation = utility.GetFountainLocation();
+
     if npcBot:HasModifier("modifier_skeleton_king_reincarnation_scepter_active")
     then
         if utility.IsTargetTeleporting(npcBot)
@@ -193,8 +195,6 @@ function Think()
         npcBot:Action_MoveToLocation(npcBot:GetLocation() + RandomVector(1600));
         return;
     end
-
-    local fountainLocation = utility.GetFountainLocation();
 
     if utility.CanMove(npcBot)
     then

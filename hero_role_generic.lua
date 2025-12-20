@@ -35,6 +35,7 @@ local M = {}
 M["meleeDpsHeroes"] = {
     ["npc_dota_hero_alchemist"] = 1,
     ["npc_dota_hero_bristleback"] = 1,
+    ["npc_dota_hero_beastmaster"] = 1,
     ["npc_dota_hero_chaos_knight"] = 1,
     ["npc_dota_hero_centaur"] = 1,
     ["npc_dota_hero_dawnbreaker"] = 1,
@@ -96,6 +97,7 @@ R["rangedDpsHeroes"] = {
     ["npc_dota_hero_weaver"] = 1,
     ["npc_dota_hero_hoodwink"] = 1,
 
+    ["npc_dota_hero_furion"] = 1,
     ["npc_dota_hero_invoker"] = 1,
     ["npc_dota_hero_leshrac"] = 1,
     ["npc_dota_hero_lina"] = 1,
@@ -242,6 +244,7 @@ S["supportHeroes"] = {
     ["npc_dota_hero_ringmaster"] = 1,
     ["npc_dota_hero_earth_spirit"] = 1,
     ["npc_dota_hero_wisp"] = 1,
+    ["npc_dota_hero_largo"] = 1,
 }
 
 local Hl = {}

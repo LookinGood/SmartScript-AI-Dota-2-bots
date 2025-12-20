@@ -614,7 +614,7 @@ function ItemUsageThink()
 	if faerieFire ~= nil
 	then
 		if npcBot:DistanceFromFountain() > 1000 and (healthPercent <= 0.2) and utility.CanBeHeal(npcBot) and
-			(npcBot:WasRecentlyDamagedByAnyHero(2.0) or npcBot:WasRecentlyDamagedByTower(2.0) or npcBot:WasRecentlyDamagedByCreep(2.0))
+			(utility.BotWasRecentlyDamagedByEnemyHero(2.0) or npcBot:WasRecentlyDamagedByTower(2.0) or npcBot:WasRecentlyDamagedByCreep(2.0))
 		then
 			--npcBot:ActionImmediate_Chat("Использую предмет Faerie Fire что бы подлечить себя!",true);
 			npcBot:Action_UseAbility(faerieFire);
@@ -696,7 +696,7 @@ function ItemUsageThink()
 	local cheese = IsItemAvailable("item_cheese");
 	if cheese ~= nil
 	then
-		if (healthPercent <= 0.3) and (npcBot:WasRecentlyDamagedByAnyHero(2.0) or npcBot:WasRecentlyDamagedByTower(2.0))
+		if (healthPercent <= 0.3) and (utility.BotWasRecentlyDamagedByEnemyHero(2.0) or npcBot:WasRecentlyDamagedByTower(2.0))
 			and utility.CanBeHeal(npcBot)
 		then
 			npcBot:Action_UseAbility(cheese);
@@ -733,7 +733,7 @@ function ItemUsageThink()
 		then
 			local reincarnation = npcBot:GetAbilityByName("skeleton_king_reincarnation");
 			if reincarnation ~= nil and not reincarnation:IsHidden() and reincarnation:IsCooldownReady() and npcBot:GetMana() < reincarnation:GetManaCost()
-				and (healthPercent <= 0.2) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
+				and (healthPercent <= 0.2) and utility.BotWasRecentlyDamagedByEnemyHero(2.0)
 			then
 				if npcBot:GetMana() + itemMana >= reincarnation:GetManaCost()
 				then
@@ -1600,7 +1600,7 @@ function ItemUsageThink()
 			if utility.PvPMode(npcBot)
 			then
 				if utility.IsHero(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= (attackRange * 2)
-					and npcBot:WasRecentlyDamagedByAnyHero(2.0)
+					and utility.BotWasRecentlyDamagedByEnemyHero(2.0)
 				then
 					--npcBot:ActionImmediate_Chat("Использую предмет black King Bar для нападения!",true);
 					npcBot:Action_UseAbility(blackKingBar);
@@ -1609,7 +1609,7 @@ function ItemUsageThink()
 			end
 			if utility.RetreatMode(npcBot)
 			then
-				if (healthPercent <= 0.8) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
+				if (healthPercent <= 0.8) and utility.BotWasRecentlyDamagedByEnemyHero(2.0)
 				then
 					--npcBot:ActionImmediate_Chat("Использую предмет black King Bar для отступления!",true);
 					npcBot:Action_UseAbility(blackKingBar);
@@ -1647,7 +1647,7 @@ function ItemUsageThink()
 		end
 		if utility.RetreatMode(npcBot)
 		then
-			if (healthPercent <= 0.8) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
+			if (healthPercent <= 0.8) and utility.BotWasRecentlyDamagedByEnemyHero(2.0)
 			then
 				--npcBot:ActionImmediate_Chat("Использую предмет manta style для отступления!",true);
 				npcBot:Action_UseAbility(manta);
@@ -1677,7 +1677,7 @@ function ItemUsageThink()
 		then
 			if utility.PvPMode(npcBot)
 			then
-				if npcBot:WasRecentlyDamagedByAnyHero(2.0)
+				if utility.BotWasRecentlyDamagedByEnemyHero(2.0)
 				then
 					--npcBot:ActionImmediate_Chat("Использую предмет blade Mail для нападения!",true);
 					npcBot:Action_UseAbility(bladeMail);
@@ -1686,7 +1686,7 @@ function ItemUsageThink()
 			end
 			if utility.RetreatMode(npcBot)
 			then
-				if (healthPercent <= 0.8) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
+				if (healthPercent <= 0.8) and utility.BotWasRecentlyDamagedByEnemyHero(2.0)
 				then
 					--npcBot:ActionImmediate_Chat("Использую предмет blade Mail для отступления!",true);
 					npcBot:Action_UseAbility(bladeMail);
@@ -1712,7 +1712,7 @@ function ItemUsageThink()
 			end
 			if utility.RetreatMode(npcBot)
 			then
-				if (healthPercent <= 0.5) and npcBot:WasRecentlyDamagedByAnyHero(5.0)
+				if (healthPercent <= 0.5) and utility.BotWasRecentlyDamagedByEnemyHero(5.0)
 				then
 					npcBot:Action_UseAbility(bloodstone);
 					return;
@@ -1913,7 +1913,7 @@ function ItemUsageThink()
 		end
 		if utility.RetreatMode(npcBot)
 		then
-			if (healthPercent <= 0.6) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
+			if (healthPercent <= 0.6) and utility.BotWasRecentlyDamagedByEnemyHero(2.0)
 			then
 				--npcBot:ActionImmediate_Chat("Использую eulScepter для отступления!",true);
 				npcBot:Action_UseAbilityOnEntity(eulScepter, npcBot);
@@ -2506,7 +2506,7 @@ function ItemUsageThink()
 		end
 		if utility.RetreatMode(npcBot)
 		then
-			if (healthPercent <= 0.5) and npcBot:WasRecentlyDamagedByAnyHero(2.0) and npcBot:DistanceFromFountain() > 1000
+			if (healthPercent <= 0.5) and utility.BotWasRecentlyDamagedByEnemyHero(2.0) and npcBot:DistanceFromFountain() > 1000
 			then
 				--npcBot:ActionImmediate_Chat("Использую предмет maskOfMadness для отхода!", true);
 				npcBot:Action_UseAbility(maskOfMadness);
@@ -2860,6 +2860,31 @@ function ItemUsageThink()
 		end
 	end
 
+	-- item_ash_legion_shield
+	local ashLegionShield = IsNeutralItemAvailable("item_ash_legion_shield");
+	if ashLegionShield ~= nil
+	then
+		local itemRange = ashLegionShield:GetAOERadius();
+		local allyHeroes = npcBot:GetNearbyHeroes(itemRange, false, BOT_MODE_NONE);
+		if (#allyHeroes > 0)
+		then
+			for _, ally in pairs(allyHeroes)
+			do
+				if not utility.IsIllusion(ally) and not ally:HasModifier("modifier_item_ash_legion_shield")
+				then
+					if (ally:GetHealth() / ally:GetMaxHealth() <= 0.6) and (ally:WasRecentlyDamagedByAnyHero(2.0) or
+							ally:WasRecentlyDamagedByCreep(2.0) or
+							ally:WasRecentlyDamagedByTower(2.0))
+					then
+						--npcBot:ActionImmediate_Chat("Использую ashLegionShield для защиты!", true);
+						npcBot:Action_UseAbility(ashLegionShield);
+						return;
+					end
+				end
+			end
+		end
+	end
+
 	-- item_polliwog_charm
 	local polliwogCharm = IsNeutralItemAvailable("item_polliwog_charm");
 	if polliwogCharm ~= nil
@@ -2909,12 +2934,29 @@ function ItemUsageThink()
 	then
 		if not npcBot:HasModifier("modifier_item_essence_ring_active")
 		then
-			if (healthPercent <= 0.7) and (npcBot:WasRecentlyDamagedByAnyHero(2.0) or
+			if (healthPercent <= 0.7) and (utility.BotWasRecentlyDamagedByEnemyHero(2.0) or
 					npcBot:WasRecentlyDamagedByCreep(2.0) or
 					npcBot:WasRecentlyDamagedByTower(2.0))
 			then
 				--npcBot:ActionImmediate_Chat("Использую предмет essenceRing!", true);
 				npcBot:Action_UseAbility(essenceRing);
+				return;
+			end
+		end
+	end
+
+	-- item_idol_of_screeauk
+	local idolOfScreeauk = IsNeutralItemAvailable("item_idol_of_screeauk");
+	if idolOfScreeauk ~= nil
+	then
+		if not npcBot:HasModifier("modifier_idol_of_screeauk")
+		then
+			if (healthPercent <= 0.6) and (utility.BotWasRecentlyDamagedByEnemyHero(2.0) or
+					npcBot:WasRecentlyDamagedByCreep(2.0) or
+					npcBot:WasRecentlyDamagedByTower(2.0))
+			then
+				--npcBot:ActionImmediate_Chat("Использую предмет idolOfScreeauk!", true);
+				npcBot:Action_UseAbility(idolOfScreeauk);
 				return;
 			end
 		end
@@ -2981,7 +3023,7 @@ function ItemUsageThink()
 	then
 		if not npcBot:HasModifier("modifier_item_gale_guard")
 		then
-			if (healthPercent <= 0.7) and (npcBot:WasRecentlyDamagedByAnyHero(2.0) or
+			if (healthPercent <= 0.7) and (utility.BotWasRecentlyDamagedByEnemyHero(2.0) or
 					npcBot:WasRecentlyDamagedByCreep(2.0) or
 					npcBot:WasRecentlyDamagedByTower(2.0))
 			then
@@ -3056,7 +3098,7 @@ function ItemUsageThink()
 		local enemyHeroes = npcBot:GetNearbyHeroes(itemRange, true, BOT_MODE_NONE);
 		local enemyCreeps = npcBot:GetNearbyCreeps(itemRange, true);
 		if (healthPercent <= 0.8 and not npcBot:HasModifier("modifier_item_pyrrhic_cloak")) and
-			(npcBot:WasRecentlyDamagedByAnyHero(2.0) or
+			(utility.BotWasRecentlyDamagedByEnemyHero(2.0) or
 				npcBot:WasRecentlyDamagedByTower(2.0) or
 				npcBot:WasRecentlyDamagedByCreep(2.0))
 		then
@@ -3118,6 +3160,36 @@ function ItemUsageThink()
 		end
 	end
 
+	-- item_metamorphic_mandible
+	local metamorphicMandible = IsNeutralItemAvailable("item_metamorphic_mandible");
+	if metamorphicMandible ~= nil
+	then
+		if not npcBot:HasModifier("modifier_metamorphic_mandible_active")
+		then
+			local enemyHeroes = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
+			local counEnemyHeroAttackingBot = 0;
+			if (#enemyHeroes > 0)
+			then
+				for _, enemy in pairs(enemyHeroes)
+				do
+					if enemy:GetAttackTarget() == npcBot
+					then
+						counEnemyHeroAttackingBot = counEnemyHeroAttackingBot + 1;
+					end
+				end
+			end
+			if (counEnemyHeroAttackingBot <= 0)
+			then
+				if (healthPercent <= 0.5) and (utility.BotWasRecentlyDamagedByEnemyHero(2.0))
+				then
+					--npcBot:ActionImmediate_Chat("Использую предмет metamorphicMandible!", true);
+					npcBot:Action_UseAbility(metamorphicMandible);
+					return;
+				end
+			end
+		end
+	end
+
 	-- item_outworld_staff
 	local outworldStaff = IsNeutralItemAvailable("item_outworld_staff");
 	if outworldStaff ~= nil
@@ -3133,6 +3205,30 @@ function ItemUsageThink()
 					npcBot:Action_UseAbility(outworldStaff);
 					return;
 				end
+			end
+		end
+	end
+
+	-- item_riftshadow_prism
+	local riftshadowPrism = IsNeutralItemAvailable("item_riftshadow_prism");
+	if riftshadowPrism ~= nil
+	then
+		if utility.PvPMode(npcBot)
+		then
+			if utility.IsHero(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= (attackRange * 2)
+			then
+				--npcBot:ActionImmediate_Chat("Использую riftshadowPrism для атаки!", true);
+				npcBot:Action_UseAbility(riftshadowPrism);
+				return;
+			end
+		end
+		if utility.RetreatMode(npcBot)
+		then
+			if (healthPercent >= 0.4)
+			then
+				--npcBot:ActionImmediate_Chat("Использую riftshadowPrism для отхода!", true);
+				npcBot:Action_UseAbility(riftshadowPrism);
+				return;
 			end
 		end
 	end
@@ -3212,7 +3308,7 @@ function ItemUsageThink()
 	then
 		if not npcBot:HasModifier("modifier_minotaur_horn_immune")
 		then
-			if (healthPercent <= 0.5) and (npcBot:WasRecentlyDamagedByAnyHero(2.0) or
+			if (healthPercent <= 0.5) and (utility.BotWasRecentlyDamagedByEnemyHero(2.0) or
 					npcBot:WasRecentlyDamagedByCreep(2.0) or
 					npcBot:WasRecentlyDamagedByTower(2.0))
 			then

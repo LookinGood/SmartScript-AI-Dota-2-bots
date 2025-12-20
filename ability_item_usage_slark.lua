@@ -47,10 +47,11 @@ function AbilityLevelUpThink()
 end
 
 -- Abilities
-local DarkPact = AbilitiesReal[1]
-local Pounce = AbilitiesReal[2]
-local DepthShroud = AbilitiesReal[4]
-local ShadowDance = AbilitiesReal[6]
+local DarkPact = npcBot:GetAbilityByName("slark_dark_pact");
+local Pounce = npcBot:GetAbilityByName("slark_pounce");
+local SaltwaterShiv = npcBot:GetAbilityByName("slark_saltwater_shiv");
+local DepthShroud = npcBot:GetAbilityByName("slark_depth_shroud");
+local ShadowDance = npcBot:GetAbilityByName("slark_shadow_dance");
 
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
@@ -63,6 +64,7 @@ function AbilityUsageThink()
     ManaPercentage = npcBot:GetMana() / npcBot:GetMaxMana();
 
     local castDarkPactDesire = ConsiderDarkPact();
+    ConsiderSaltwaterShiv();
     local castPounceDesire = ConsiderPounce();
     local castDepthShroudDesire, castDepthShroudLocation = ConsiderDepthShroud();
     local castShadowDanceDesire = ConsiderShadowDance();
@@ -179,6 +181,26 @@ function ConsiderPounce()
     end
 
     return BOT_ACTION_DESIRE_NONE;
+end
+
+function ConsiderSaltwaterShiv()
+    local ability = SaltwaterShiv;
+    if not utility.IsAbilityAvailable(ability) then
+        return;
+    end
+
+    local attackTarget = npcBot:GetAttackTarget();
+
+    if utility.CanCastSpellOnTarget(ability, attackTarget) and utility.IsHero(attackTarget)
+    then
+        if not ability:GetAutoCastState() then
+            ability:ToggleAutoCast()
+        end
+    else
+        if ability:GetAutoCastState() then
+            ability:ToggleAutoCast()
+        end
+    end
 end
 
 function ConsiderDepthShroud()

@@ -47,12 +47,13 @@ function AbilityLevelUpThink()
 end
 
 -- Abilities
-local Strafe = AbilitiesReal[1]
-local TarBomb = AbilitiesReal[2]
-local DeathPact = AbilitiesReal[3]
+local Strafe = npcBot:GetAbilityByName("clinkz_strafe");
+local SearingArrows = npcBot:GetAbilityByName("clinkz_searing_arrows");
+local TarBomb = npcBot:GetAbilityByName("clinkz_tar_bomb");
+local DeathPact = npcBot:GetAbilityByName("clinkz_death_pact");
 local BurningBarrage = npcBot:GetAbilityByName("clinkz_burning_barrage");
 local BurningArmy = npcBot:GetAbilityByName("clinkz_burning_army");
-local SkeletonWalk = AbilitiesReal[6]
+local SkeletonWalk = npcBot:GetAbilityByName("clinkz_wind_walk");
 
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
@@ -65,6 +66,7 @@ function AbilityUsageThink()
     ManaPercentage = npcBot:GetMana() / npcBot:GetMaxMana();
 
     local castStrafeDesire = ConsiderStrafe();
+    ConsiderSearingArrows();
     local castTarBombDesire, castTarBombTarget = ConsiderTarBomb();
     local castDeathPactDesire, castDeathPactTarget = ConsiderDeathPact();
     local castBurningArmyDesire, castBurningArmyLocation = ConsiderBurningArmy();
@@ -142,6 +144,27 @@ function ConsiderStrafe()
     end
 
     return BOT_ACTION_DESIRE_NONE;
+end
+
+function ConsiderSearingArrows()
+    local ability = SearingArrows;
+    if not utility.IsAbilityAvailable(ability) then
+        return;
+    end
+
+    local attackTarget = npcBot:GetAttackTarget();
+
+    if utility.CanCastSpellOnTarget(ability, attackTarget) and
+        (utility.IsHero(attackTarget) or utility.IsBoss(attackTarget))
+    then
+        if not ability:GetAutoCastState() then
+            ability:ToggleAutoCast()
+        end
+    else
+        if ability:GetAutoCastState() then
+            ability:ToggleAutoCast()
+        end
+    end
 end
 
 function ConsiderTarBomb()

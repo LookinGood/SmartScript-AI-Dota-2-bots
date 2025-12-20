@@ -218,7 +218,7 @@ function ConsiderNetherSwap()
     local attackRange = npcBot:GetAttackRange();
     local allyAbility = npcBot:GetNearbyHeroes(castRangeAbility, false, BOT_MODE_NONE);
     local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
-    local fountainLocation = utility.SafeLocation(npcBot);
+    local fountainLocation = utility.GetFountainLocation();
 
     -- Attack use
     if utility.PvPMode(npcBot)
@@ -262,7 +262,7 @@ function ConsiderNetherSwap()
     end
 
     -- Try to safe ally
-    if not utility.RetreatMode(npcBot) and (#allyAbility > 0)
+    if not utility.RetreatMode(npcBot) and (#allyAbility > 1)
     then
         for _, ally in pairs(allyAbility)
         do

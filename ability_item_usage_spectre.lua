@@ -47,11 +47,11 @@ function AbilityLevelUpThink()
 end
 
 -- Abilities
-local SpectralDagger = AbilitiesReal[1]
-local Dispersion = AbilitiesReal[3]
-local Reality = AbilitiesReal[4]
-local Haunt = AbilitiesReal[5]
-local ShadowStep = AbilitiesReal[6]
+local SpectralDagger = npcBot:GetAbilityByName("spectre_spectral_dagger");
+local Dispersion = npcBot:GetAbilityByName("spectre_dispersion");
+local Reality = npcBot:GetAbilityByName("spectre_reality");
+local Haunt = npcBot:GetAbilityByName("spectre_haunt");
+local ShadowStep = npcBot:GetAbilityByName("spectre_shadow_step");
 
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
@@ -211,15 +211,18 @@ function ConsiderReality()
         if utility.IsHero(botTarget) and utility.CanCastOnInvulnerableTarget(botTarget)
             and GetUnitToUnitDistance(npcBot, botTarget) > (attackRange * 2)
         then
-            for _, ally in pairs(allyAbility) do
-                if ally:IsIllusion()
-                    and string.find(ally:GetUnitName(), "spectre")
-                    and ally:GetPlayerID() == npcBot:GetPlayerID()
-                    and GetUnitToUnitDistance(ally, botTarget) < GetUnitToUnitDistance(npcBot, botTarget)
-                    and GetUnitToUnitDistance(ally, botTarget) < 2000
-                then
-                    --npcBot:ActionImmediate_Chat("Использую Reality на свою иллюзию!", true);
-                    return BOT_MODE_DESIRE_ABSOLUTE, ally:GetLocation();
+            if (#allyAbility > 1)
+            then
+                for _, ally in pairs(allyAbility) do
+                    if ally:IsIllusion()
+                        and string.find(ally:GetUnitName(), "spectre")
+                        and ally:GetPlayerID() == npcBot:GetPlayerID()
+                        and GetUnitToUnitDistance(ally, botTarget) < GetUnitToUnitDistance(npcBot, botTarget)
+                        and GetUnitToUnitDistance(ally, botTarget) < 2000
+                    then
+                        --npcBot:ActionImmediate_Chat("Использую Reality на свою иллюзию!", true);
+                        return BOT_MODE_DESIRE_ABSOLUTE, ally:GetLocation();
+                    end
                 end
             end
         end
@@ -256,36 +259,28 @@ function ConsiderShadowStep()
         return BOT_ACTION_DESIRE_NONE, 0;
     end
 
-    --local damageAbility = SpectralDagger:GetSpecialValueInt("damage");
-    --local enemyAbility = GetUnitList(UNIT_LIST_ENEMY_HEROES);
-
-    -- Cast if can kill somebody
-    --[[     for i = 1, #enemyAbility do
-        if utility.CanAbilityKillTarget(enemyAbility[i], damageAbility, SpectralDagger:GetDamageType())
-            and utility.CanCastSpellOnTarget(SpectralDagger, enemyAbility[i])
-        then
-            --npcBot:ActionImmediate_Chat("Использую ShadowStep что бы добить врага!", true);
-            return BOT_MODE_DESIRE_ABSOLUTE, enemyAbility[i];
-        end
-    end ]]
+    local castRangeAbility = ability:GetCastRange();
 
     -- Attack use
-    if utility.PvPMode(npcBot)
+    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
     then
-        if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget)
+        if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
         then
-            --npcBot:ActionImmediate_Chat("Использую ShadowStep по врагу в радиусе действия!",true);
-            return BOT_MODE_DESIRE_HIGH, botTarget;
+            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+            then
+                --npcBot:ActionImmediate_Chat("Использую SpectralDagger по врагу в радиусе действия!",true);
+                return BOT_MODE_DESIRE_HIGH, botTarget, "target";
+            end
         end
     end
 
     -- Retreat use
     if utility.RetreatMode(npcBot)
     then
-        local closeEnemyAbility = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
-        if (#closeEnemyAbility > 0)
+        local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
+        if (#enemyAbility > 0)
         then
-            for _, enemy in pairs(closeEnemyAbility) do
+            for _, enemy in pairs(enemyAbility) do
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую ShadowStep что бы оторваться от врага",true);

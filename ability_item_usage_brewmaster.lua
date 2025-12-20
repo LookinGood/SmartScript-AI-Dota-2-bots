@@ -47,11 +47,12 @@ function AbilityLevelUpThink()
 end
 
 -- Abilities
-local ThunderClap = AbilitiesReal[1]
-local CinderBrew = AbilitiesReal[2]
-local DrunkenBrawler = AbilitiesReal[3]
-local PrimalCompanion = AbilitiesReal[4]
-local PrimalSplit = AbilitiesReal[6]
+local ThunderClap = npcBot:GetAbilityByName("brewmaster_thunder_clap");
+local CinderBrew = npcBot:GetAbilityByName("brewmaster_cinder_brew");
+local DrunkenBrawler = npcBot:GetAbilityByName("brewmaster_drunken_brawler");
+local LiquidCourage = npcBot:GetAbilityByName("brewmaster_liquid_courage");
+local PrimalCompanion = npcBot:GetAbilityByName("brewmaster_primal_companion");
+local PrimalSplit = npcBot:GetAbilityByName("brewmaster_primal_split");
 
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
@@ -66,6 +67,7 @@ function AbilityUsageThink()
     local castThunderClapDesire = ConsiderThunderClap();
     local castCinderBrewDesire, castCinderBrewLocation = ConsiderCinderBrew();
     local castDrunkenBrawlerDesire = ConsiderDrunkenBrawler();
+    local castLiquidCourageDesire, castLiquidCourageTarget = ConsiderLiquidCourage();
     local castPrimalCompanionDesire = ConsiderPrimalCompanion();
     local castPrimalSplitDesire = ConsiderPrimalSplit();
 
@@ -84,6 +86,12 @@ function AbilityUsageThink()
     if (castDrunkenBrawlerDesire > 0)
     then
         npcBot:Action_UseAbility(DrunkenBrawler);
+        return;
+    end
+
+    if (castLiquidCourageDesire > 0)
+    then
+        npcBot:Action_UseAbilityOnEntity(LiquidCourage, castLiquidCourageTarget);
         return;
     end
 
@@ -209,6 +217,37 @@ function ConsiderDrunkenBrawler()
     end
 
     return BOT_ACTION_DESIRE_NONE;
+end
+
+function ConsiderLiquidCourage()
+    local ability = LiquidCourage;
+    if not utility.IsAbilityAvailable(ability) then
+        return BOT_ACTION_DESIRE_NONE, 0;
+    end
+
+    local castRangeAbility = ability:GetCastRange();
+    local allyAbility = npcBot:GetNearbyHeroes(castRangeAbility, false, BOT_MODE_NONE);
+
+    -- Cast to buff allies
+    if (#allyAbility > 0)
+    then
+        for _, ally in pairs(allyAbility)
+        do
+            if utility.IsHero(ally) and ally:GetHealth() / ally:GetMaxHealth() <= 0.6 and not ally:HasModifier("modifier_brewmaster_liquid_courage_passive")
+            then
+                if ally:WasRecentlyDamagedByAnyHero(2.0) or
+                    ally:WasRecentlyDamagedByCreep(5.0) or
+                    ally:WasRecentlyDamagedByTower(2.0) or
+                    utility.IsHero(ally:GetAttackTarget())
+                then
+                    --npcBot:ActionImmediate_Chat("Использую LiquidCourage на раненого союзника: " .. ally:GetUnitName(), true);
+                    return BOT_MODE_DESIRE_HIGH, ally;
+                end
+            end
+        end
+    end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderPrimalCompanion()

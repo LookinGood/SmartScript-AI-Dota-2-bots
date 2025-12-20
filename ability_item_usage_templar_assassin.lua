@@ -47,11 +47,11 @@ function AbilityLevelUpThink()
 end
 
 -- Abilities
-local Refraction = AbilitiesReal[1]
-local Meld = AbilitiesReal[2]
-local Trap = AbilitiesReal[4]
-local PsionicProjection = AbilitiesReal[5]
-local PsionicTrap = AbilitiesReal[6]
+local Refraction = npcBot:GetAbilityByName("templar_assassin_refraction");
+local Meld = npcBot:GetAbilityByName("templar_assassin_meld");
+local Trap = npcBot:GetAbilityByName("templar_assassin_trap");
+local PsionicProjection = npcBot:GetAbilityByName("templar_assassin_trap_teleport");
+local PsionicTrap = npcBot:GetAbilityByName("templar_assassin_psionic_trap");
 
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
@@ -78,19 +78,19 @@ function AbilityUsageThink()
     if (castMeldDesire > 0)
     then
         npcBot:Action_ClearAction(true);
-        npcBot:Action_UseAbility(Meld);
+        npcBot:ActionQueue_UseAbility(Meld);
         return;
     end
 
     if (castTrapDesire > 0)
     then
-        npcBot:ActionPush_UseAbility(Trap);
+        npcBot:Action_UseAbility(Trap);
+        npcBot:Action_UseAbility(Trap);
         return;
     end
 
     if (castPsionicProjectionDesire > 0)
     then
-        npcBot:Action_ClearAction(true);
         npcBot:Action_UseAbilityOnLocation(PsionicProjection, castPsionicProjectionLocation);
         return;
     end
@@ -141,7 +141,7 @@ function ConsiderRefraction()
     end
 
     -- General use
-    if (HealthPercentage <= 0.8) and (npcBot:WasRecentlyDamagedByAnyHero(2.0) or
+    if (HealthPercentage <= 0.8) and (utility.BotWasRecentlyDamagedByEnemyHero(2.0) or
             npcBot:WasRecentlyDamagedByCreep(2.0) or
             npcBot:WasRecentlyDamagedByTower(2.0))
     then
@@ -169,7 +169,7 @@ function ConsiderMeld()
     then
         if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
         then
-            if utility.CanCastOnInvulnerableTarget(botTarget) and attackTarget == botTarget
+            if utility.CanCastSpellOnTarget(ability, botTarget) and attackTarget == botTarget
             then
                 return BOT_ACTION_DESIRE_HIGH;
             end
@@ -180,7 +180,7 @@ function ConsiderMeld()
     if utility.RetreatMode(npcBot)
     then
         local enemyAbility = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
-        if (#enemyAbility > 0) and (HealthPercentage <= 0.8) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
+        if (#enemyAbility > 0) and (HealthPercentage <= 0.8) and utility.BotWasRecentlyDamagedByEnemyHero(2.0)
         then
             --npcBot:ActionImmediate_Chat("Использую Meld для отхода!", true);
             return BOT_MODE_DESIRE_VERYHIGH;
@@ -236,15 +236,63 @@ end
 function ConsiderPsionicProjection()
     local ability = PsionicProjection;
     if not utility.IsAbilityAvailable(ability) then
-        return BOT_ACTION_DESIRE_NONE;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
-    if npcBot:IsAlive()
+    if utility.GetModifierCount(npcBot, "modifier_templar_assassin_psionic_trap_counter") < 1
     then
-        return BOT_ACTION_DESIRE_NONE;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
-    return BOT_ACTION_DESIRE_NONE;
+    local attackRange = npcBot:GetAttackRange();
+    local radiusAbility = PsionicTrap:GetSpecialValueInt("trap_radius");
+    local allyUnits = GetUnitList(UNIT_LIST_ALLIES);
+    local fountainLocation = utility.GetFountainLocation();
+
+    -- Attack use
+    if utility.PvPMode(npcBot)
+    then
+        if utility.IsHero(botTarget)
+        then
+            if (#allyUnits > 0)
+            then
+                for _, ally in pairs(allyUnits) do
+                    if ally:GetUnitName() == "npc_dota_templar_assassin_psionic_trap"
+                    then
+                        if GetUnitToUnitDistance(ally, botTarget) <= radiusAbility and GetUnitToUnitDistance(npcBot, botTarget) >= (attackRange * 2)
+                        then
+                            --npcBot:ActionImmediate_Chat("Использую PsionicProjection для атаки!", true);
+                            return BOT_ACTION_DESIRE_HIGH, ally:GetLocation();
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    -- Use if need retreat
+    if utility.RetreatMode(npcBot)
+    then
+        if (HealthPercentage <= 0.6) and utility.BotWasRecentlyDamagedByEnemyHero(2.0)
+        then
+            if (#allyUnits > 0)
+            then
+                for _, ally in pairs(allyUnits) do
+                    if ally:GetUnitName() == "npc_dota_templar_assassin_psionic_trap"
+                    then
+                        if GetUnitToLocationDistance(ally, fountainLocation) < GetUnitToLocationDistance(npcBot, fountainLocation) and
+                            (GetUnitToUnitDistance(ally, npcBot) > attackRange * 3)
+                        then
+                            --npcBot:ActionImmediate_Chat("Использую PsionicProjection что бы оторваться от врага!", true);
+                            return BOT_ACTION_DESIRE_HIGH, ally:GetLocation();
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderPsionicTrap()

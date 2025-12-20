@@ -1886,6 +1886,7 @@ end
 -- if ally ~= nil and (string.find(ally:GetUnitName(), "fountain") or ally:HasModifier("modifier_fountain_aura_buff"))
 
 function GetFountainLocation()
+	local location = Vector(0, 0, 0);
 	local buildings = GetUnitList(UNIT_LIST_ALLIED_BUILDINGS);
 	if (#buildings > 0)
 	then
@@ -1895,11 +1896,19 @@ function GetFountainLocation()
 			then
 				--GetBot():ActionImmediate_Chat("Фонтан опознан: " .. ally:GetUnitName(), true);
 				--GetBot():ActionImmediate_Ping(ally:GetLocation().x, ally:GetLocation().y, true);
-				return ally:GetLocation();
+				location = ally:GetLocation();
 			end
 		end
 	end
-	return Vector(0, 0, 0);
+
+	if location == nil or location == Vector(0, 0, 0)
+	then
+		location = GetAncient(GetTeam()):GetLocation();
+		GetBot():ActionImmediate_Chat("Древний опознан: " .. GetAncient(GetTeam()):GetUnitName(), true);
+		GetBot():ActionImmediate_Ping(GetAncient(GetTeam()):GetLocation().x, GetAncient(GetTeam()):GetLocation().y, true);
+	end
+
+	return location;
 end
 
 function SafeLocation(npcBot)

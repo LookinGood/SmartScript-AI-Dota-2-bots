@@ -47,13 +47,12 @@ function AbilityLevelUpThink()
 end
 
 -- Abilities
-local NaturesGrasp = AbilitiesReal[1]
-local LeechSeed = AbilitiesReal[2]
-local LivingArmor = AbilitiesReal[3]
-local EyesInTheForest = AbilitiesReal[4]
-local Overgrowth = AbilitiesReal[6]
-
-local castEyesInTheForestTimer = 0.0;
+local NaturesGrasp = npcBot:GetAbilityByName("treant_natures_grasp");
+local LeechSeed = npcBot:GetAbilityByName("treant_leech_seed");
+local LivingArmor = npcBot:GetAbilityByName("treant_living_armor");
+local NaturesGuise = npcBot:GetAbilityByName("treant_natures_guise");
+local EyesInTheForest = npcBot:GetAbilityByName("treant_eyes_in_the_forest");
+local Overgrowth = npcBot:GetAbilityByName("treant_overgrowth");
 
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
@@ -68,6 +67,7 @@ function AbilityUsageThink()
     local castNaturesGraspDesire, castNaturesGraspLocation = ConsiderNaturesGrasp();
     local castLeechSeedDesire, castLeechSeedTarget = ConsiderLeechSeed();
     local castLivingArmorDesire, castLivingArmorTarget = ConsiderLivingArmor();
+    local castNaturesGuiseDesire = ConsiderNaturesGuise();
     local castEyesInTheForestDesire, castEyesInTheForestTarget = ConsiderEyesInTheForest();
     local castOvergrowthDesire = ConsiderOvergrowth();
 
@@ -89,10 +89,15 @@ function AbilityUsageThink()
         return;
     end
 
-    if (castEyesInTheForestDesire > 0) and (GameTime() >= castEyesInTheForestTimer + 10.0)
+    if (castNaturesGuiseDesire > 0)
+    then
+        npcBot:Action_UseAbility(NaturesGuise);
+        return;
+    end
+
+    if (castEyesInTheForestDesire > 0)
     then
         npcBot:Action_UseAbilityOnTree(EyesInTheForest, castEyesInTheForestTarget);
-        castEyesInTheForestTimer = GameTime();
         return;
     end
 
@@ -172,34 +177,38 @@ function ConsiderLeechSeed()
         return BOT_ACTION_DESIRE_NONE, 0;
     end
 
-    local castRangeAbility = ability:GetCastRange();
-    local damageAbility = ability:GetSpecialValueInt("leech_damage") * ability:GetSpecialValueInt("duration");
+    if npcBot:IsDisarmed()
+    then
+        return BOT_ACTION_DESIRE_NONE, 0;
+    end
+
+    local castRangeAbility = npcBot:GetAttackRange();
     local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility + 200, true, BOT_MODE_NONE);
 
-    -- Cast if can kill somebody
-    if (#enemyAbility > 0)
+    if (utility.IsHero(botTarget) or utility.IsBoss(botTarget)) and utility.CanCastSpellOnTarget(ability, botTarget)
+        and not utility.IsDisabled(botTarget)
     then
-        for _, enemy in pairs(enemyAbility) do
-            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType())
-            then
-                if utility.CanCastSpellOnTarget(ability, enemy)
-                then
-                    --npcBot:ActionImmediate_Chat("Использую LeechSeed что бы убить цель!", true);
-                    return BOT_ACTION_DESIRE_VERYHIGH, enemy;
-                end
-            end
+        if not ability:GetAutoCastState() then
+            ability:ToggleAutoCast()
+        end
+    else
+        if ability:GetAutoCastState() then
+            ability:ToggleAutoCast()
         end
     end
 
-    -- Attack use
-    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
+    -- Cast if can interrupt cast
+    if (#enemyAbility > 0)
     then
-        if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
-        then
-            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
-                and not botTarget:HasModifier("modifier_treant_leech_seed")
+        for _, enemy in pairs(enemyAbility) do
+            if enemy:IsChanneling()
             then
-                return BOT_MODE_DESIRE_HIGH, botTarget;
+                if utility.CanCastSpellOnTarget(ability, enemy)
+                then
+                    npcBot:ActionImmediate_Chat("Использую LeechSeed что бы сбить заклинание: " .. enemy:GetUnitName(),
+                        true);
+                    return BOT_ACTION_DESIRE_VERYHIGH, enemy;
+                end
             end
         end
     end
@@ -209,39 +218,9 @@ function ConsiderLeechSeed()
     then
         if (#enemyAbility > 0)
         then
-            for _, enemy in pairs(enemyAbility) do
-                if utility.CanCastSpellOnTarget(ability, enemy) and not enemy:HasModifier("modifier_treant_leech_seed")
-                then
-                    return BOT_ACTION_DESIRE_VERYHIGH, enemy;
-                end
-            end
-        end
-    end
-
-    -- Cast if push/defend/farm
-    if utility.PvEMode(npcBot)
-    then
-        local enemyCreeps = npcBot:GetNearbyCreeps(castRangeAbility, true);
-        if (#enemyCreeps > 3) and (ManaPercentage >= 0.7)
-        then
-            for _, enemy in pairs(enemyCreeps) do
-                if utility.CanCastSpellOnTarget(ability, enemy) and not enemy:HasModifier("modifier_treant_leech_seed")
-                then
-                    return BOT_ACTION_DESIRE_VERYHIGH, enemy;
-                end
-            end
-        end
-    end
-
-    -- Cast when laning
-    if botMode == BOT_MODE_LANING
-    then
-        if (ManaPercentage >= 0.7)
-        then
-            local enemy = utility.GetWeakest(enemyAbility);
-            if utility.CanCastSpellOnTarget(ability, enemy) and not enemy:HasModifier("modifier_treant_leech_seed")
+            if utility.CanCastSpellOnTarget(ability, enemy) and not utility.IsDisabled(enemy)
             then
-                return BOT_ACTION_DESIRE_HIGH, enemy;
+                return BOT_ACTION_DESIRE_VERYHIGH, enemy;
             end
         end
     end
@@ -300,6 +279,39 @@ function ConsiderLivingArmor()
     return BOT_ACTION_DESIRE_NONE, 0;
 end
 
+function ConsiderNaturesGuise()
+    local ability = NaturesGuise;
+    if not utility.IsAbilityAvailable(ability) then
+        return BOT_ACTION_DESIRE_NONE;
+    end
+
+    if npcBot:IsInvisible()
+    then
+        return BOT_ACTION_DESIRE_NONE;
+    end
+
+    local attackRange = npcBot:GetAttackRange();
+
+    -- Attack use
+    if utility.PvPMode(npcBot)
+    then
+        if utility.IsHero(botTarget) and (GetUnitToUnitDistance(npcBot, botTarget) > attackRange and GetUnitToUnitDistance(npcBot, botTarget) <= 3000)
+        then
+            --npcBot:ActionImmediate_Chat("Использую NaturesGuise для нападения!", true);
+            return BOT_ACTION_DESIRE_VERYHIGH;
+        end
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
+    then
+        --npcBot:ActionImmediate_Chat("Использую NaturesGuise для отхода!", true);
+        return BOT_MODE_DESIRE_VERYHIGH;
+    end
+
+    return BOT_ACTION_DESIRE_NONE;
+end
+
 function ConsiderEyesInTheForest()
     local ability = EyesInTheForest;
     if not utility.IsAbilityAvailable(ability) then
@@ -307,17 +319,20 @@ function ConsiderEyesInTheForest()
     end
 
     local castRangeAbility = ability:GetCastRange();
-    local trees = npcBot:GetNearbyTrees(castRangeAbility * 2);
+    local radiusAbility = ability:GetSpecialValueInt("vision_aoe");
+    local allyTowers = npcBot:GetNearbyTowers(radiusAbility, false);
+    local enemyTowers = npcBot:GetNearbyTowers(radiusAbility, true);
+    local treantWards = utility.CountUnitAroundTarget(npcBot, "npc_dota_treant_eyes", false, radiusAbility);
+    local trees = npcBot:GetNearbyTrees(castRangeAbility);
 
-    if (#trees > 0) and not utility.PvPMode(npcBot) and not utility.RetreatMode(npcBot)
-        and (ManaPercentage >= 0.7)
+    if (#trees > 0 and treantWards <= 0 and #allyTowers <= 0 and #enemyTowers <= 0) and not utility.PvPMode(npcBot) and not utility.RetreatMode(npcBot)
+        and (ManaPercentage >= 0.7) and npcBot:DistanceFromFountain() >= 2000
     then
         for _, tree in pairs(trees)
         do
-            if (IsLocationVisible(GetTreeLocation(tree)) or IsLocationPassable(GetTreeLocation(tree))) and
-                GetUnitToLocationDistance(botTarget, GetTreeLocation(tree)) <= castRangeAbility
+            if (IsLocationVisible(GetTreeLocation(tree)) or IsLocationPassable(GetTreeLocation(tree)))
             then
-                --npcBot:ActionImmediate_Chat("Использую EyesInTheForest!", true);
+                --npcBot:ActionImmediate_Chat("Использую EyesInTheForest, количество моих вардов рядом: " .. treantWards, true);
                 return BOT_ACTION_DESIRE_VERYHIGH, tree;
             end
         end

@@ -34,8 +34,6 @@ local ItemsToBuy =
 	"item_dagon_4",
 	"item_dagon_5",
 
-	"item_ethereal_blade",
-
 	"item_ultimate_scepter_2",
 
 	"item_arcane_blink",

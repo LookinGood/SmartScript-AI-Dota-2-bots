@@ -29,7 +29,6 @@ local ItemsToBuy =
     "item_headdress",
     "item_mekansm",
 
-    "item_buckler",
     "item_guardian_greaves",
 
     "item_black_king_bar",

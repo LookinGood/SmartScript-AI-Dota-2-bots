@@ -24,18 +24,19 @@ local ItemsToBuy =
 
     "item_aghanims_shard",
 
-    "item_buckler",
     "item_guardian_greaves",
+
+    "item_headdress",
+    "item_pipe",
 
     "item_pers",
     "item_lotus_orb",
 
-    "item_blink",
+    "item_ultimate_scepter",
+    "item_ultimate_scepter_2",
 
     "item_veil_of_discord",
     "item_shivas_guard",
-
-    "item_overwhelming_blink",
 
     "item_soul_booster",
     "item_octarine_core",

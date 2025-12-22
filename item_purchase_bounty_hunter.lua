@@ -15,7 +15,9 @@ local ItemsToBuy =
 
 	"item_phase_boots",
 
+	"item_pers",
 	"item_phylactery",
+	"item_soul_booster",
 	"item_angels_demise",
 
 	"item_pers",

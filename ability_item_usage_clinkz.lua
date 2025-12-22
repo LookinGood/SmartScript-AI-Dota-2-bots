@@ -155,7 +155,7 @@ function ConsiderSearingArrows()
     local attackTarget = npcBot:GetAttackTarget();
 
     if utility.CanCastSpellOnTarget(ability, attackTarget) and
-        (utility.IsHero(attackTarget) or utility.IsBoss(attackTarget))
+        (utility.IsHero(attackTarget) or utility.IsBoss(attackTarget) or utility.IsBuilding(attackTarget))
     then
         if not ability:GetAutoCastState() then
             ability:ToggleAutoCast()

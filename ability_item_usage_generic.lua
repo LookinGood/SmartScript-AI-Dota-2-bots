@@ -3160,6 +3160,24 @@ function ItemUsageThink()
 		end
 	end
 
+	-- item_flayers_bota
+	local flayersBota = IsNeutralItemAvailable("item_flayers_bota");
+	if flayersBota ~= nil
+	then
+		if not npcBot:HasModifier("modifier_flayers_bota_active")
+		then
+			if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
+			then
+				if (utility.IsHero(botTarget) or utility.IsBoss(botTarget)) and npcBot:GetAttackTarget() == botTarget
+				then
+					--npcBot:ActionImmediate_Chat("Использую предмет flayersBota!", true);
+					npcBot:Action_UseAbility(flayersBota);
+					return;
+				end
+			end
+		end
+	end
+
 	-- item_metamorphic_mandible
 	local metamorphicMandible = IsNeutralItemAvailable("item_metamorphic_mandible");
 	if metamorphicMandible ~= nil

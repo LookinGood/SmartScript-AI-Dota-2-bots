@@ -21,15 +21,15 @@ local ItemsToBuy =
 
 	"item_aether_lens",
 
+	"item_pers",
 	"item_phylactery",
 
 	"item_ultimate_scepter",
 
 	"item_dagon",
 
+	"item_soul_booster",
 	"item_angels_demise",
-
-	"item_ethereal_blade",
 
 	"item_pers",
 	"item_sphere",

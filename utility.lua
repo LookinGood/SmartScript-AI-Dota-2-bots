@@ -1904,14 +1904,14 @@ function GetFountainLocation()
 	if location == nil or location == Vector(0, 0, 0)
 	then
 		location = GetAncient(GetTeam()):GetLocation();
-		GetBot():ActionImmediate_Chat("Древний опознан: " .. GetAncient(GetTeam()):GetUnitName(), true);
-		GetBot():ActionImmediate_Ping(GetAncient(GetTeam()):GetLocation().x, GetAncient(GetTeam()):GetLocation().y, true);
+		--GetBot():ActionImmediate_Chat("Древний опознан: " .. GetAncient(GetTeam()):GetUnitName(), true);
+		--GetBot():ActionImmediate_Ping(GetAncient(GetTeam()):GetLocation().x, GetAncient(GetTeam()):GetLocation().y, true);
 	end
 
 	return location;
 end
 
-function SafeLocation(npcBot)
+local function SafeLocation(npcBot)
 	local BotTeam = npcBot:GetTeam();
 	if BotTeam == TEAM_RADIANT
 	then
@@ -1924,7 +1924,7 @@ end
 
 function GetEscapeLocation(bot, maxAbilityRadius)
 	local botLocation = bot:GetLocation()
-	local direction = (SafeLocation(bot) - botLocation):Normalized();
+	local direction = (GetFountainLocation() - botLocation):Normalized();
 	return botLocation + (direction * maxAbilityRadius)
 end
 

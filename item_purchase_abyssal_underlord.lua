@@ -27,7 +27,6 @@ local ItemsToBuy =
 
     "item_crimson_guard",
 
-    "item_buckler",
     "item_guardian_greaves",
 
     "item_aghanims_shard",

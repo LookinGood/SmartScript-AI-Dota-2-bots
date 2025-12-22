@@ -22,7 +22,6 @@ local ItemsToBuy =
 	"item_dagon",
 
 	"item_aether_lens",
-	"item_ethereal_blade",
 
 	"item_dagon_2",
 	"item_dagon_3",

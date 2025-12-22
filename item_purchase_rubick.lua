@@ -18,12 +18,14 @@ local ItemsToBuy =
 	"item_ring_of_basilius",
 	"item_arcane_boots",
 
+	"item_pers",
 	"item_phylactery",
 
 	"item_kaya",
 
 	"item_cyclone",
 
+	"item_soul_booster",
 	"item_angels_demise",
 
 	"item_pers",

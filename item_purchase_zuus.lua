@@ -20,6 +20,7 @@ local ItemsToBuy =
 	"item_oblivion_staff",
 	"item_witch_blade",
 
+	"item_pers",
 	"item_phylactery",
 
 	"item_force_staff",
@@ -30,6 +31,7 @@ local ItemsToBuy =
 
 	"item_devastator",
 
+	"item_soul_booster",
 	"item_angels_demise",
 
 	"item_kaya",

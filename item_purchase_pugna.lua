@@ -38,8 +38,6 @@ local ItemsToBuy =
 
 	"item_ultimate_scepter_2",
 
-	"item_ethereal_blade",
-
 	"item_soul_booster",
 	"item_octarine_core",
 

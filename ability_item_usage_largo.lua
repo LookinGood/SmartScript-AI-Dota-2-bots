@@ -58,6 +58,7 @@ local IslandElixir = npcBot:GetAbilityByName("largo_song_good_vibrations");
 local battleSong = false;
 local speedSong = false;
 local healSong = false;
+local doubleSong = 0;
 
 local castBattleSongTimer = 0.0;
 local castSpeedSongTimer = 0.0;
@@ -102,26 +103,53 @@ function AbilityUsageThink()
 
     if (castBullbellyBlitzDesire > 0) and (GameTime() >= castBattleSongTimer + rhythmInterval)
     then
-        --npcBot:ActionImmediate_Chat("Жму BullbellyBlitz!", true);
-        npcBot:Action_UseAbility(BullbellyBlitz);
-        castBattleSongTimer = GameTime();
-        return;
+        if doubleSong > 0
+        then
+            --npcBot:ActionImmediate_Chat("Жму BullbellyBlitz с аганимом!", true);
+            npcBot:ActionQueue_UseAbility(BullbellyBlitz);
+            npcBot:ActionQueue_UseAbility(HotfeetHustle);
+            castBattleSongTimer = GameTime();
+            return;
+        else
+            --npcBot:ActionImmediate_Chat("Жму BullbellyBlitz без аганима!", true);
+            npcBot:Action_UseAbility(BullbellyBlitz);
+            castBattleSongTimer = GameTime();
+            return;
+        end
     end
 
     if (castHotfeetHustleDesire > 0) and (GameTime() >= castSpeedSongTimer + rhythmInterval)
     then
-        npcBot:ActionImmediate_Chat("Жму HotfeetHustle!", true);
-        npcBot:Action_UseAbility(HotfeetHustle);
-        castSpeedSongTimer = GameTime();
-        return;
+        if doubleSong > 0
+        then
+            --npcBot:ActionImmediate_Chat("Жму HotfeetHustle с аганимом!", true);
+            npcBot:ActionQueue_UseAbility(HotfeetHustle);
+            npcBot:ActionQueue_UseAbility(IslandElixir);
+            castSpeedSongTimer = GameTime();
+            return;
+        else
+            --npcBot:ActionImmediate_Chat("Жму HotfeetHustle без аганима!", true);
+            npcBot:Action_UseAbility(HotfeetHustle);
+            castSpeedSongTimer = GameTime();
+            return;
+        end
     end
 
     if (castIslandElixirDesire > 0) and (GameTime() >= castHealSongTimer + rhythmInterval)
     then
-        --npcBot:ActionImmediate_Chat("Жму IslandElixir!", true);
-        npcBot:Action_UseAbility(IslandElixir);
-        castHealSongTimer = GameTime();
-        return;
+        if doubleSong > 0
+        then
+            --npcBot:ActionImmediate_Chat("Жму IslandElixir с аганимом!", true);
+            npcBot:ActionQueue_UseAbility(IslandElixir);
+            npcBot:ActionQueue_UseAbility(HotfeetHustle);
+            castHealSongTimer = GameTime();
+            return;
+        else
+            --npcBot:ActionImmediate_Chat("Жму IslandElixir без аганима!", true);
+            npcBot:Action_UseAbility(IslandElixir);
+            castHealSongTimer = GameTime();
+            return;
+        end
     end
 
     if (castAmphibianRhapsodyDesire > 0)
@@ -306,8 +334,7 @@ function ConsiderCroakOfGenius()
 
                 if ally:GetAttackTarget() ~= nil and utility.IsBoss(ally:GetAttackTarget())
                 then
-                    npcBot:ActionImmediate_Chat("Использую CroakOfGenius на атакующего босса " .. ally:GetUnitName(),
-                        true);
+                    --npcBot:ActionImmediate_Chat("Использую CroakOfGenius на атакующего босса " .. ally:GetUnitName(),true);
                     return BOT_MODE_DESIRE_HIGH, ally;
                 end
             end
@@ -371,7 +398,10 @@ function ConsiderAmphibianRhapsody()
     local radiusAbility = ability:GetAOERadius();
     local abilityCount = ability:GetSpecialValueInt("max_stacks");
     local allyAbility = npcBot:GetNearbyHeroes(radiusAbility, false, BOT_MODE_NONE);
+    doubleSong = ability:GetSpecialValueInt("double_song");
     rhythmInterval = ability:GetSpecialValueInt("rhythm_interval");
+
+    print("Функция Скила: " .. doubleSong)
 
     if (battleSong == false and speedSong == false and healSong == false) or
         ((npcBot:GetMana() < BullbellyBlitz:GetManaCost() and

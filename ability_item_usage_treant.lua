@@ -205,8 +205,7 @@ function ConsiderLeechSeed()
             then
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    npcBot:ActionImmediate_Chat("Использую LeechSeed что бы сбить заклинание: " .. enemy:GetUnitName(),
-                        true);
+                    --npcBot:ActionImmediate_Chat("Использую LeechSeed что бы сбить заклинание: " .. enemy:GetUnitName(), true);
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy;
                 end
             end

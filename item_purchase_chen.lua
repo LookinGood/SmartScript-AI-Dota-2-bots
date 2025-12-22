@@ -23,7 +23,6 @@ local ItemsToBuy =
 	"item_headdress",
 	"item_mekansm",
 
-	"item_buckler",
 	"item_guardian_greaves",
 
 	"item_pavise",

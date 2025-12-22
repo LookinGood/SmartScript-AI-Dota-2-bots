@@ -23,8 +23,9 @@ local ItemsToBuy =
 
     "item_blink",
 
-    "item_buckler",
     "item_guardian_greaves",
+
+    "item_vanguard",
 
     "item_soul_booster",
     "item_bloodstone",
@@ -33,7 +34,6 @@ local ItemsToBuy =
 
     "item_aghanims_shard",
 
-    "item_vanguard",
     "item_heavens_halberd",
 
     "item_pers",

@@ -31,8 +31,6 @@ local ItemsToBuy =
 
 	"item_wind_waker",
 
-	"item_ethereal_blade",
-
 	"item_ultimate_scepter",
 	"item_ultimate_scepter_2",
 

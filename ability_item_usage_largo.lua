@@ -314,15 +314,15 @@ function ConsiderCroakOfGenius()
     local castRangeAbility = ability:GetCastRange();
     local allyAbility = npcBot:GetNearbyHeroes(castRangeAbility, false, BOT_MODE_NONE);
 
-    if (#allyAbility > 0)
+    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
     then
-        for _, ally in pairs(allyAbility)
-        do
-            if utility.IsHero(ally) and not ally:HasModifier("modifier_largo_croak_of_genius_buff")
+        if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
+        then
+            if (#allyAbility > 0)
             then
-                if utility.PvPMode(npcBot)
-                then
-                    if utility.IsHero(botTarget)
+                for _, ally in pairs(allyAbility)
+                do
+                    if utility.IsHero(ally) and not ally:HasModifier("modifier_largo_croak_of_genius_buff")
                     then
                         if GetUnitToUnitDistance(ally, botTarget) <= (ally:GetAttackRange() * 2)
                         then
@@ -330,12 +330,6 @@ function ConsiderCroakOfGenius()
                             return BOT_MODE_DESIRE_HIGH, ally;
                         end
                     end
-                end
-
-                if ally:GetAttackTarget() ~= nil and utility.IsBoss(ally:GetAttackTarget())
-                then
-                    --npcBot:ActionImmediate_Chat("Использую CroakOfGenius на атакующего босса " .. ally:GetUnitName(),true);
-                    return BOT_MODE_DESIRE_HIGH, ally;
                 end
             end
         end

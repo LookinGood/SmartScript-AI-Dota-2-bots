@@ -996,8 +996,8 @@ function ItemUsageThink()
 					end
 					if utility.IsHero(botTarget) and ally ~= npcBot
 					then
-						if GetUnitToUnitDistance(ally, botTarget) <= ally:GetAttackRange() * 2 or
-							GetUnitToUnitDistance(ally, botTarget) > (ally:GetAttackRange() * 2)
+						if (GetUnitToUnitDistance(ally, botTarget) <= ally:GetAttackRange() * 2) or
+							(GetUnitToUnitDistance(ally, botTarget) > ally:GetAttackRange() * 2 and GetUnitToUnitDistance(ally, botTarget) <= ally:GetCurrentVisionRange())
 						then
 							--npcBot:ActionImmediate_Chat("Использую предмет solarCrest на союзника для атаки!", true);
 							npcBot:Action_UseAbilityOnEntity(solarCrest, ally);
@@ -1781,28 +1781,28 @@ function ItemUsageThink()
 	then
 		if blink ~= nil
 		then
-			local itemRange = blink:GetCastRange();
+			local itemRange = blink:GetSpecialValueInt("blink_range");
 			--npcBot:ActionImmediate_Chat("Использую предмет Blink для отступления!",true);
 			npcBot:Action_UseAbilityOnLocation(blink, utility.GetEscapeLocation(npcBot, itemRange));
 			return;
 		end
 		if overwhelmingBlink ~= nil
 		then
-			local itemRange = overwhelmingBlink:GetCastRange();
+			local itemRange = overwhelmingBlink:GetSpecialValueInt("blink_range");
 			--npcBot:ActionImmediate_Chat("Использую предмет overwhelmingBlink для отступления!",true);
 			npcBot:Action_UseAbilityOnLocation(overwhelmingBlink, utility.GetEscapeLocation(npcBot, itemRange));
 			return;
 		end
 		if swiftBlink ~= nil
 		then
-			local itemRange = swiftBlink:GetCastRange();
+			local itemRange = swiftBlink:GetSpecialValueInt("blink_range");
 			--npcBot:ActionImmediate_Chat("Использую предмет swiftBlink для отступления!",true);
 			npcBot:Action_UseAbilityOnLocation(swiftBlink, utility.GetEscapeLocation(npcBot, itemRange));
 			return;
 		end
 		if arcaneBlink ~= nil
 		then
-			local itemRange = arcaneBlink:GetCastRange();
+			local itemRange = arcaneBlink:GetSpecialValueInt("blink_range");
 			--npcBot:ActionImmediate_Chat("Использую предмет arcaneBlink для отступления!",true);
 			npcBot:Action_UseAbilityOnLocation(arcaneBlink, utility.GetEscapeLocation(npcBot, itemRange));
 			return;

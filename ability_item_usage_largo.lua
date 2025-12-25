@@ -401,12 +401,16 @@ function ConsiderAmphibianRhapsody()
     doubleSong = ability:GetSpecialValueInt("double_song");
     rhythmInterval = ability:GetSpecialValueInt("rhythm_interval");
 
-    print("Функция Скила: " .. doubleSong)
+    if (npcBot:GetMana() < BullbellyBlitz:GetManaCost() * 4 and
+            npcBot:GetMana() < HotfeetHustle:GetManaCost() * 4 and
+            npcBot:GetMana() < IslandElixir:GetManaCost() * 4)
+    then
+        battleSong = false;
+        speedSong = false;
+        healSong = false;
+    end
 
-    if (battleSong == false and speedSong == false and healSong == false) or
-        ((npcBot:GetMana() < BullbellyBlitz:GetManaCost() and
-            npcBot:GetMana() < HotfeetHustle:GetManaCost() and
-            npcBot:GetMana() < IslandElixir:GetManaCost()))
+    if (battleSong == false and speedSong == false and healSong == false)
     then
         if ability:GetToggleState() == true
         then
@@ -448,8 +452,10 @@ function ConsiderAmphibianRhapsody()
         then
             for _, ally in pairs(allyAbility)
             do
-                if (utility.IsHero(ally) and (ally:GetHealth() / ally:GetMaxHealth() < 0.9 and ally:GetHealth() / ally:GetMaxHealth() > 0.8)) and
-                    (ally:WasRecentlyDamagedByAnyHero(2.0) or ally:WasRecentlyDamagedByTower(2.0))
+                if ((utility.IsHero(ally) and (ally:GetHealth() / ally:GetMaxHealth() < 0.9 and ally:GetHealth() / ally:GetMaxHealth() > 0.8)) and
+                        (ally:WasRecentlyDamagedByAnyHero(2.0) or ally:WasRecentlyDamagedByTower(2.0))) or
+                    ((utility.PvPMode(npcBot) or utility.BossMode(npcBot)) and (utility.IsHero(botTarget) or utility.IsBoss(botTarget)) and
+                        GetUnitToUnitDistance(ally, botTarget) >= (ally:GetAttackRange() * 2))
                 then
                     --npcBot:ActionImmediate_Chat("Включаю AmphibianRhapsody для SpeedSong!", true);
                     speedSong = true;

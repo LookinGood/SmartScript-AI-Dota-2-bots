@@ -26,13 +26,14 @@ local ItemsToBuy =
 
     "item_guardian_greaves",
 
+    "item_ultimate_scepter",
+
     "item_headdress",
     "item_pipe",
 
     "item_pers",
     "item_lotus_orb",
 
-    "item_ultimate_scepter",
     "item_ultimate_scepter_2",
 
     "item_veil_of_discord",

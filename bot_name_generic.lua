@@ -5,7 +5,7 @@ module("bot_name_generic", package.seeall)
 _used_bot_names = _used_bot_names or {}
 _generated_names_table = {}
 _name_components = {
-    prefixes = { "Pro228", "Meme", "Cursed", "Easy", "Nice", "Legendary", "Mega" },
+    prefixes = { "Pro228", "Meme", "Cursed", "Easy", "Nice", "Mega", "Poor", "Common", "Uncommon", "Rare", "Epic", "Mythical", "Legendary", "Immortal" },
     suffixes = { "GPT-4", "Acc Buyer", "FireFrog", "Admin", "Lord", "Kek", "Account", "DevoDeAL", "Murdage", "Vilverin", "Barracuda", "Sezam", "Gwinblade" },
     separators = { "", "-", "_", ".", " " }
 }

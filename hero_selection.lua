@@ -5,8 +5,8 @@ require(GetScriptDirectory() .. "/hero_role_generic")
 local hero_pool_my, heroesTank, heroesHealers, heroesDpsMelee, heroesDpsRanged, heroesCarry, heroesSupport = hero_role_generic.GetHeroesList();
 
 -- Insert here hero hame and set "testmode = true" if you want the bot to choose a specific hero (Work only in Radiant team)
-local testmode = true;
-local testHero = "npc_dota_hero_largo"
+local testmode = false;
+local testHero = "npc_dota_hero_slark"
 
 local testTeam =
 {

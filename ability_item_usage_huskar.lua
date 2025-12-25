@@ -47,9 +47,10 @@ function AbilityLevelUpThink()
 end
 
 -- Abilities
-local InnerFire = AbilitiesReal[1]
-local BurningSpear = AbilitiesReal[2]
-local LifeBreak = AbilitiesReal[6]
+local InnerFire = npcBot:GetAbilityByName("huskar_inner_fire");
+local BurningSpear = npcBot:GetAbilityByName("huskar_burning_spear");
+local BerserkersBlood = npcBot:GetAbilityByName("huskar_berserkers_blood");
+local LifeBreak = npcBot:GetAbilityByName("huskar_life_break");
 
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
@@ -63,11 +64,18 @@ function AbilityUsageThink()
 
     local castInnerFireDesire = ConsiderInnerFire();
     ConsiderBurningSpear();
+    local castBerserkersBloodDesire = ConsiderBerserkersBlood();
     local castLifeBreakDesire, castLifeBreakTarget = ConsiderLifeBreak();
 
     if (castInnerFireDesire > 0)
     then
         npcBot:Action_UseAbility(InnerFire);
+        return;
+    end
+
+    if (castBerserkersBloodDesire > 0)
+    then
+        npcBot:Action_UseAbility(BerserkersBlood);
         return;
     end
 
@@ -154,6 +162,26 @@ function ConsiderBurningSpear()
             ability:ToggleAutoCast()
         end
     end
+end
+
+function ConsiderBerserkersBlood()
+    local ability = BerserkersBlood;
+    if not utility.IsAbilityAvailable(ability) then
+        return BOT_ACTION_DESIRE_NONE;
+    end
+
+    if npcBot:HasModifier("modifier_huskar_cauterize_delay")
+    then
+        return BOT_ACTION_DESIRE_NONE;
+    end
+
+    -- General use
+    if utility.IsDisabled(npcBot)
+    then
+        return BOT_ACTION_DESIRE_HIGH;
+    end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderLifeBreak()

@@ -189,9 +189,7 @@ function ConsiderSaltwaterShiv()
         return;
     end
 
-    local attackTarget = npcBot:GetAttackTarget();
-
-    if utility.CanCastSpellOnTarget(ability, attackTarget) and utility.IsHero(attackTarget)
+    if utility.CanCastSpellOnTarget(ability, botTarget) and utility.IsHero(botTarget)
     then
         if not ability:GetAutoCastState() then
             ability:ToggleAutoCast()

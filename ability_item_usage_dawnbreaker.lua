@@ -47,11 +47,11 @@ function AbilityLevelUpThink()
 end
 
 -- Abilities
-local Starbreaker = AbilitiesReal[1]
-local CelestialHammer = AbilitiesReal[2]
+local Starbreaker = npcBot:GetAbilityByName("dawnbreaker_fire_wreath");
+local CelestialHammer = npcBot:GetAbilityByName("dawnbreaker_celestial_hammer");
 local Converge = npcBot:GetAbilityByName("dawnbreaker_converge");
 local SolarGuardianLand = npcBot:GetAbilityByName("dawnbreaker_land");
-local SolarGuardian = AbilitiesReal[6]
+local SolarGuardian = npcBot:GetAbilityByName("dawnbreaker_solar_guardian");
 
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
@@ -336,38 +336,31 @@ function ConsiderSolarGuardian()
     then
         if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget)
         then
-            if (#allyAbility > 0)
+            if (#allyAbility > 1)
             then
                 for _, ally in pairs(allyAbility)
                 do
-                    if utility.IsValidTarget(ally) and GetUnitToUnitDistance(ally, botTarget) < castRangeAbility
+                    if GetUnitToUnitDistance(ally, botTarget) < castRangeAbility
                     then
                         --npcBot:ActionImmediate_Chat("Использую SolarGuardian на союзника рядом с врагом!", true);
                         return BOT_ACTION_DESIRE_HIGH, botTarget:GetLocation();
                     end
                 end
             end
-            --[[             for i = 1, #allyAbility do
-                if utility.IsValidTarget(allyAbility[i]) and GetUnitToUnitDistance(allyAbility[i], botTarget) <= castRangeAbility
-                then
-                    --npcBot:ActionImmediate_Chat("Использую SolarGuardian на союзника рядом с врагом!",true);
-                    return BOT_MODE_DESIRE_ABSOLUTE, allyAbility[i]:GetLocation();
-                end
-            end ]]
         end
     end
 
     -- Use if need retreat
     if utility.RetreatMode(npcBot)
     then
-        if (HealthPercentage <= 0.7) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
+        if (HealthPercentage <= 0.7) and utility.BotWasRecentlyDamagedByEnemyHero(2.0)
         then
-            local fountainLocation = utility.SafeLocation(npcBot);
-            if (#allyAbility > 0)
+            local fountainLocation = utility.GetFountainLocation();
+            if (#allyAbility > 1)
             then
                 for _, ally in pairs(allyAbility)
                 do
-                    if utility.IsValidTarget(ally) and ally ~= npcBot and (GetUnitToLocationDistance(ally, fountainLocation) < GetUnitToLocationDistance(npcBot, fountainLocation)
+                    if ally ~= npcBot and (GetUnitToLocationDistance(ally, fountainLocation) < GetUnitToLocationDistance(npcBot, fountainLocation)
                             and (GetUnitToUnitDistance(ally, npcBot) > radiusAbility))
                     then
                         --npcBot:ActionImmediate_Chat("Использую SolarGuardian для отхода!", true);
@@ -375,14 +368,6 @@ function ConsiderSolarGuardian()
                     end
                 end
             end
-            --[[             for i = 1, #allyAbility do
-                if utility.IsValidTarget(allyAbility[i]) and allyAbility[i] ~= npcBot and GetUnitToLocationDistance(allyAbility[i], fountainLocation) < GetUnitToLocationDistance(npcBot, fountainLocation)
-                    and (GetUnitToUnitDistance(allyAbility[i], npcBot) > radiusAbility)
-                then
-                    --npcBot:ActionImmediate_Chat("Использую SolarGuardian на союзника ближе к фонтану!",true);
-                    return BOT_MODE_DESIRE_ABSOLUTE, allyAbility[i]:GetLocation() + RandomVector(castRangeAbility);
-                end
-            end ]]
         end
     end
 

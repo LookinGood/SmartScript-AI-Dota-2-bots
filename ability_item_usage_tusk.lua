@@ -47,13 +47,13 @@ function AbilityLevelUpThink()
 end
 
 -- Abilities
-local IceShards = AbilitiesReal[1]
-local Snowball = AbilitiesReal[2]
+local IceShards = npcBot:GetAbilityByName("tusk_ice_shards");
+local Snowball = npcBot:GetAbilityByName("tusk_snowball");
 local LaunchSnowball = npcBot:GetAbilityByName("tusk_launch_snowball");
 local TagTeam = npcBot:GetAbilityByName("tusk_tag_team");
 local DrinkingBuddies = npcBot:GetAbilityByName("tusk_drinking_buddies");
-local WalrusKick = AbilitiesReal[4]
-local WalrusPunch = AbilitiesReal[6]
+local WalrusKick = npcBot:GetAbilityByName("tusk_walrus_kick");
+local WalrusPunch = npcBot:GetAbilityByName("tusk_walrus_punch");
 
 function AbilityUsageThink()
     local castLaunchSnowballDesire = ConsiderLaunchSnowball();
@@ -193,7 +193,7 @@ function ConsiderSnowball()
     local castRangeAbility = ability:GetCastRange();
     local damageAbility = ability:GetSpecialValueInt("snowball_damage");
     local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
-    local fountainLocation = utility.SafeLocation(npcBot);
+    local fountainLocation = utility.GetFountainLocation();
 
     -- Cast if can kill somebody/interrupt cast
     if (#enemyAbility > 0)
@@ -298,7 +298,7 @@ function ConsiderTagTeam()
             return BOT_ACTION_DESIRE_HIGH;
         end ]]
 
-        return BOT_ACTION_DESIRE_NONE;
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderDrinkingBuddies()
@@ -434,6 +434,19 @@ function ConsiderWalrusPunch()
     local damageAbility = math.floor(npcBot:GetAttackDamage()) / 100 * ability:GetSpecialValueInt("crit_multiplier");
     local enemyAbility = npcBot:GetNearbyHeroes((castRangeAbility * 2), true, BOT_MODE_NONE);
 
+    if (utility.IsHero(botTarget) or utility.IsBoss(botTarget)) and utility.CanCastSpellOnTarget(ability, botTarget)
+    then
+        if not ability:GetAutoCastState()
+        then
+            ability:ToggleAutoCast()
+        end
+    else
+        if ability:GetAutoCastState()
+        then
+            ability:ToggleAutoCast()
+        end
+    end
+
     -- Cast if can kill somebody/interrupt cast
     if (#enemyAbility > 0)
     then
@@ -446,19 +459,6 @@ function ConsiderWalrusPunch()
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy;
                 end
             end
-        end
-    end
-
-    if (utility.IsHero(botTarget) or utility.IsBoss(botTarget)) and utility.CanCastSpellOnTarget(ability, botTarget)
-    then
-        if not ability:GetAutoCastState()
-        then
-            ability:ToggleAutoCast()
-        end
-    else
-        if ability:GetAutoCastState()
-        then
-            ability:ToggleAutoCast()
         end
     end
 

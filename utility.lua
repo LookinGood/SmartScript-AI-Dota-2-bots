@@ -1911,7 +1911,7 @@ function GetFountainLocation()
 	return location;
 end
 
-local function SafeLocation(npcBot)
+local function SafeLocation(npcBot) -- Old
 	local BotTeam = npcBot:GetTeam();
 	if BotTeam == TEAM_RADIANT
 	then

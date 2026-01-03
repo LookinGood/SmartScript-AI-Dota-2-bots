@@ -34,6 +34,8 @@ local ItemsToBuy =
 
 	"item_travel_boots",
 	"item_travel_boots_2",
+
+	"item_aghanims_shard",
 }
 
 local realItemsToBuy = {}

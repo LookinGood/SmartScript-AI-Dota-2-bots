@@ -20,22 +20,22 @@ local ItemsToBuy =
 	"item_ring_of_basilius",
 	"item_arcane_boots",
 
+	"item_blink",
+
+	"item_ultimate_scepter",
+
 	"item_pavise",
 	"item_solar_crest",
 
 	"item_kaya",
 	"item_meteor_hammer",
 
-	"item_blink",
-
-	"item_ultimate_scepter",
-
-	"item_veil_of_discord",
-	"item_shivas_guard",
-
 	"item_aghanims_shard",
 
 	"item_ultimate_scepter_2",
+
+	"item_veil_of_discord",
+	"item_shivas_guard",
 
 	"item_overwhelming_blink",
 

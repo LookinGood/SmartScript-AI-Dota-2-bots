@@ -821,7 +821,7 @@ function ItemUsageThink()
 		local visibilityRadius = smokeOfDeceit:GetSpecialValueInt("visibility_radius");
 		local allyHeroes = npcBot:GetNearbyHeroes(itemRange, false, BOT_MODE_NONE);
 		local enemyHeroes = npcBot:GetNearbyHeroes(visibilityRadius, true, BOT_MODE_NONE);
-		local enemyTowers = npc:GetNearbyTowers(visibilityRadius, true);
+		local enemyTowers = npcBot:GetNearbyTowers(visibilityRadius, true);
 		-- Attack use
 		if (#enemyHeroes <= 0 and #enemyTowers <= 0)
 		then

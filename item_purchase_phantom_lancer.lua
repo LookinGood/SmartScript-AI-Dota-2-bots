@@ -15,28 +15,27 @@ local ItemsToBuy =
 
 	"item_power_treads",
 
-	"item_diffusal_blade",
+	"item_lesser_crit",
+	"item_revenants_brooch",
 
-	"item_ultimate_scepter",
+	"item_basher",
 
 	"item_yasha",
 	"item_manta",
 
-	"item_aghanims_shard",
-
 	"item_sange",
-	"item_basher",
 	"item_abyssal_blade",
 
-	"item_heart",
+	"item_aghanims_shard",
 
+	"item_butterfly",
+
+	"item_ultimate_scepter",
 	"item_ultimate_scepter_2",
-
-	"item_disperser",
 
 	"item_moon_shard",
 
-	"item_butterfly",
+	"item_heart",
 
 	"item_travel_boots",
 	"item_travel_boots_2",

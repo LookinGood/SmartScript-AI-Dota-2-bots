@@ -28,12 +28,13 @@ local ItemsToBuy =
 
 	"item_blink",
 
+	"item_ultimate_scepter",
+
 	"item_veil_of_discord",
 	"item_shivas_guard",
 
 	"item_aghanims_shard",
 
-	"item_ultimate_scepter",
 	"item_ultimate_scepter_2",
 
 	"item_overwhelming_blink",
@@ -42,7 +43,7 @@ local ItemsToBuy =
 	"item_octarine_core",
 
 	"item_travel_boots",
-    "item_travel_boots_2",
+	"item_travel_boots_2",
 }
 
 local realItemsToBuy = {}

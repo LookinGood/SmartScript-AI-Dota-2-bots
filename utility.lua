@@ -1740,6 +1740,64 @@ function PurchaseWardSentry(npcBot)
 	end
 end
 
+function PurchaseSmokeOfDeceit(npcBot)
+	local itemName = "item_smoke_of_deceit";
+	if npcBot:GetGold() < GetItemCost(itemName) * 2 or IsItemSlotsFull() or IsStashSlotsFull() or GetItemStockCount(itemName) < 1
+		or (npcBot:GetNextItemPurchaseValue() > 0 and npcBot:GetGold() >= npcBot:GetNextItemPurchaseValue()) or GetGameState() ~= GAME_STATE_PRE_GAME
+		or not npcBot:IsAlive()
+	then
+		return;
+	end
+
+	local courier = GetBotCourier(npcBot);
+
+	for i = 0, 16 do
+		local item = npcBot:GetItemInSlot(i);
+		if item ~= nil and (item:GetName() == itemName)
+		then
+			return;
+		end
+	end
+
+	for i = 0, 8 do
+		local item = courier:GetItemInSlot(i);
+		if item ~= nil and (item:GetName() == itemName)
+		then
+			return;
+		end
+	end
+
+	if HaveHumanInTeam(npcBot)
+	then
+		if GetItemStockCount(itemName) > 1
+		then
+			if hero_role_generic.HaveSupportInTeam(npcBot)
+			then
+				if hero_role_generic.IsHeroSupport(npcBot)
+				then
+					npcBot:ActionImmediate_PurchaseItem(itemName);
+					return;
+				end
+			else
+				npcBot:ActionImmediate_PurchaseItem(itemName);
+				return;
+			end
+		end
+	else
+		if hero_role_generic.HaveSupportInTeam(npcBot)
+		then
+			if hero_role_generic.IsHeroSupport(npcBot)
+			then
+				npcBot:ActionImmediate_PurchaseItem(itemName);
+				return;
+			end
+		else
+			npcBot:ActionImmediate_PurchaseItem(itemName);
+			return;
+		end
+	end
+end
+
 function PurchaseTP(npcBot)
 	local itemName = "item_tpscroll";
 	if npcBot:GetGold() < GetItemCost(itemName) or IsStashSlotsFull() or

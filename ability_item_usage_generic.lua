@@ -797,7 +797,7 @@ function ItemUsageThink()
 	if dust ~= nil
 	then
 		local itemRange = dust:GetAOERadius();
-		local enemyHeroes = npcBot:GetNearbyHeroes(itemRange, true, BOT_MODE_NONE)
+		local enemyHeroes = npcBot:GetNearbyHeroes(itemRange, true, BOT_MODE_NONE);
 		if (#enemyHeroes > 0)
 		then
 			for _, enemy in pairs(enemyHeroes)
@@ -808,6 +808,72 @@ function ItemUsageThink()
 					npcBot:Action_UseAbility(dust);
 					npcBot:ActionImmediate_Ping(enemy:GetLocation().x, enemy:GetLocation().y, true);
 					return;
+				end
+			end
+		end
+	end
+
+	-- item_smoke_of_deceit
+	local smokeOfDeceit = IsItemAvailable("item_smoke_of_deceit");
+	if smokeOfDeceit ~= nil
+	then
+		local itemRange = smokeOfDeceit:GetAOERadius();
+		local visibilityRadius = smokeOfDeceit:GetSpecialValueInt("visibility_radius");
+		local allyHeroes = npcBot:GetNearbyHeroes(itemRange, false, BOT_MODE_NONE);
+		local enemyHeroes = npcBot:GetNearbyHeroes(visibilityRadius, true, BOT_MODE_NONE);
+		local enemyTowers = npc:GetNearbyTowers(visibilityRadius, true);
+		-- Attack use
+		if (#enemyHeroes <= 0 and #enemyTowers <= 0)
+		then
+			if utility.PvPMode(npcBot) and utility.IsHero(botTarget) and (GetUnitToUnitDistance(npcBot, botTarget) > visibilityRadius
+					and GetUnitToUnitDistance(npcBot, botTarget) <= visibilityRadius * 2)
+			then
+				--npcBot:ActionImmediate_Chat("Использую предмет smokeOfDeceit для атаки!", true);
+				npcBot:Action_UseAbility(smokeOfDeceit);
+				return;
+			end
+			-- Boss use
+			if utility.BossMode(npcBot) and utility.IsBoss(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) > visibilityRadius
+			then
+				--npcBot:ActionImmediate_Chat("Использую предмет smokeOfDeceit для рошана!", true);
+				npcBot:Action_UseAbility(smokeOfDeceit);
+				return;
+			end
+		end
+		if (#allyHeroes > 0)
+		then
+			for _, ally in pairs(allyHeroes)
+			do
+				local enemyHeroes = ally:GetNearbyHeroes(visibilityRadius, true, BOT_MODE_NONE);
+				local enemyTowers = ally:GetNearbyTowers(visibilityRadius, true);
+				if (#enemyHeroes <= 0 and #enemyTowers <= 0)
+				then
+					if utility.IsHero(ally) and not ally:IsInvisible() and
+						ally:GetCurrentActionType() ~= BOT_ACTION_TYPE_ATTACK and ally:GetCurrentActionType() ~= BOT_ACTION_TYPE_ATTACKMOVE
+					then
+						-- Pre game use
+						if GetGameState() == GAME_STATE_PRE_GAME
+						then
+							if (ally:GetCurrentActionType() ~= BOT_ACTION_TYPE_NONE and
+									ally:GetCurrentActionType() ~= BOT_ACTION_TYPE_IDLE and
+									ally:GetCurrentActionType() ~= BOT_ACTION_TYPE_DELAY)
+							then
+								--npcBot:ActionImmediate_Chat("Использую предмет smokeOfDeceit в начале игры!",true);
+								npcBot:Action_UseAbility(smokeOfDeceit);
+								return;
+							end
+						end
+						-- Try to safe ally use
+						if ally:GetHealth() / ally:GetMaxHealth() <= 0.6 and
+							(ally:WasRecentlyDamagedByAnyHero(2.0) or
+								ally:WasRecentlyDamagedByTower(2.0) or
+								ally:WasRecentlyDamagedByCreep(2.0))
+						then
+							--npcBot:ActionImmediate_Chat("Использую предмет smokeOfDeceit для защиты!", true);
+							npcBot:Action_UseAbility(smokeOfDeceit);
+							return;
+						end
+					end
 				end
 			end
 		end

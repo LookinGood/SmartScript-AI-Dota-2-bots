@@ -341,7 +341,7 @@ function ConsiderDrinkingBuddies()
         then
             local allyAbility = npcBot:GetNearbyHeroes(castRangeAbility, false, BOT_MODE_NONE);
             local allyCreeps = npcBot:GetNearbyCreeps(castRangeAbility, false);
-            local fountainLocation = utility.SafeLocation(npcBot);
+            local fountainLocation = utility.GetFountainLocation();
             if (#allyAbility > 1)
             then
                 for _, ally in pairs(allyAbility) do

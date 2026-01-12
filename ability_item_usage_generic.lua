@@ -245,9 +245,22 @@ end
 local function IsItemAvailable(item_name)
 	local npcBot = GetBot();
 	local slot = npcBot:FindItemSlot(item_name);
-	if npcBot:GetItemSlotType(slot) == ITEM_SLOT_TYPE_MAIN and npcBot:GetItemInSlot(slot):IsFullyCastable()
+	local item = npcBot:GetItemInSlot(slot);
+	if item ~= nil and item:GetName() == item_name and item:IsFullyCastable()
 	then
-		return npcBot:GetItemInSlot(slot);
+		if item_name == "item_smoke_of_deceit"
+		then
+			if npcBot:GetItemSlotType(slot) == ITEM_SLOT_TYPE_MAIN or
+				npcBot:GetItemSlotType(slot) == ITEM_SLOT_TYPE_BACKPACK
+			then
+				return item;
+			end
+		else
+			if npcBot:GetItemSlotType(slot) == ITEM_SLOT_TYPE_MAIN
+			then
+				return item;
+			end
+		end
 	end
 	return nil;
 end
@@ -489,18 +502,26 @@ function ItemUsageThink()
 		return;
 	end
 
-	-- item_tpscroll
-	local tps = npcBot:GetItemInSlot(15);
-	if tps ~= nil
+	--[[ 	local slotTP = npcBot:FindItemSlot("item_tpscroll");
+	local kek = npcBot:GetItemSlotType(slotTP);
+	--local tp = npcBot:GetItemInSlot(15);
+	if slotTP ~= nil and kek ~= nil
 	then
-		if botMode ~= BOT_MODE_EVASIVE_MANEUVERS
+		npcBot:ActionImmediate_Chat("Слот тп: " .. slotTP .. " Тип слота: " .. kek, true);
+	end ]]
+
+
+	-- item_tpscroll
+	-- tp_scroll slot type -1
+	local tpScroll = npcBot:GetItemInSlot(15);
+	if tpScroll ~= nil and tpScroll:IsFullyCastable()
+	then
+		local shouldTP, tpLocation = teleportation_usage_generic.ShouldTP();
+		if shouldTP and tpLocation ~= nil
 		then
-			local shouldTP, tpLocation = teleportation_usage_generic.ShouldTP()
-			if shouldTP and tpLocation ~= nil
-			then
-				npcBot:Action_UseAbilityOnLocation(tps, tpLocation);
-				return;
-			end
+			--npcBot:ActionImmediate_Chat("Телепортируюсь", true);
+			npcBot:Action_UseAbilityOnLocation(tpScroll, tpLocation);
+			return;
 		end
 	end
 

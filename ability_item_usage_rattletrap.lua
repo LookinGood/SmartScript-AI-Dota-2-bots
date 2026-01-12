@@ -121,7 +121,7 @@ end
 function IsCogNeedsToBeBroken()
     local mainCog = nil;
     local cogs = GetUnitList(UNIT_LIST_ALLIED_CREEPS);
-    local fountainLocation = utility.SafeLocation(npcBot);
+    local fountainLocation = utility.GetFountainLocation();
     if (#cogs > 0)
     then
         for _, cog in pairs(cogs) do
@@ -221,7 +221,7 @@ function ConsiderPowerCogs()
 
     local radiusAbility = ability:GetAOERadius();
     local triggerRadius = ability:GetSpecialValueInt("trigger_distance");
-    local fountainLocation = utility.SafeLocation(npcBot);
+    local fountainLocation = utility.GetFountainLocation();
 
     -- Attack use
     if utility.PvPMode(npcBot)
@@ -473,7 +473,7 @@ function ConsiderHookshot()
     then
         if (#enemyAbility > 0) and (HealthPercentage <= 0.7) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
         then
-            local fountainLocation = utility.SafeLocation(npcBot);
+            local fountainLocation = utility.GetFountainLocation();
             local allyAbility = npcBot:GetNearbyHeroes(utility.GetCurretCastDistance(castRangeAbility), false,
                 BOT_MODE_NONE);
             local allyCreeps = npcBot:GetNearbyCreeps(utility.GetCurretCastDistance(castRangeAbility), false);

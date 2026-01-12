@@ -6,7 +6,7 @@ local hero_pool_my, heroesTank, heroesHealers, heroesDpsMelee, heroesDpsRanged, 
 
 -- Insert here hero hame and set "testmode = true" if you want the bot to choose a specific hero (Work only in Radiant team)
 local testmode = false;
-local testHero = "npc_dota_hero_phantom_lancer"
+local testHero = "npc_dota_hero_furion"
 
 local testTeam =
 {

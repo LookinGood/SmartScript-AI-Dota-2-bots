@@ -17,9 +17,9 @@ local Abilities, Talents, AbilitiesReal = ability_levelup_generic.GetHeroAbiliti
 
 local AbilityToLevelUp =
 {
-    Abilities[3],
     Abilities[1],
     Abilities[2],
+    Abilities[3],
     Abilities[1],
     Abilities[1],
     Abilities[6],
@@ -47,11 +47,11 @@ function AbilityLevelUpThink()
 end
 
 -- Abilities
-local InsatiableHunger = AbilitiesReal[1]
-local SpinWeb = AbilitiesReal[2]
-local SilkenBola = AbilitiesReal[3]
-local SpinnersSnare = AbilitiesReal[4]
-local SpawnSpiderlings = AbilitiesReal[6]
+local InsatiableHunger = npcBot:GetAbilityByName("broodmother_insatiable_hunger");
+local SpinWeb = npcBot:GetAbilityByName("broodmother_spin_web");
+local SilkenBola = npcBot:GetAbilityByName("broodmother_silken_bola");
+local SpinnersSnare = npcBot:GetAbilityByName("broodmother_sticky_snare");
+local SpawnSpiderlings = npcBot:GetAbilityByName("broodmother_spawn_spiderlings");
 
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
@@ -174,7 +174,7 @@ function ConsiderSpinWeb()
 
     -- General use
     if utility.RetreatMode(npcBot) or utility.PvEMode(npcBot) or utility.WanderMode(npcBot)
-        or npcBot:GetCurrentActionType() == BOT_ACTION_TYPE_DELAY or npcBot:GetCurrentActionType() == BOT_ACTION_TYPE_IDLE
+        --or npcBot:GetCurrentActionType() == BOT_ACTION_TYPE_DELAY or npcBot:GetCurrentActionType() == BOT_ACTION_TYPE_IDLE
     then
         return BOT_ACTION_DESIRE_MODERATE, utility.GetTargetCastPosition(npcBot, npcBot, delayAbility, 0);
     end

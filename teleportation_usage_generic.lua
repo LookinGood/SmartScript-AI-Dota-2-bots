@@ -153,7 +153,7 @@ function ShouldTP()
     local modDesire = npcBot:GetActiveModeDesire();
     local enemyTower = npcBot:GetNearbyTowers(1000, true);
 
-    if utility.IsHaveMaxSpeed(npcBot) or (#enemyTower > 0) or utility.IsHaveStunEffect(npcBot) or modDesire <= BOT_MODE_DESIRE_LOW or
+    if utility.IsHaveMaxSpeed(npcBot) or (#enemyTower > 0) or utility.IsHaveStunEffect(npcBot) or modDesire <= BOT_MODE_DESIRE_VERYLOW or
         npcBot:HasModifier("modifier_fountain_fury_swipes_damage_increase") or
         npcBot:HasModifier("modifier_skeleton_king_reincarnation_scepter_active") or
         npcBot:HasModifier("modifier_teleporting") or
@@ -197,12 +197,12 @@ function ShouldTP()
                 (not utility.CanMove(npcBot) and (#allyHeroes < 2) and (npcBot:GetHealth() / npcBot:GetMaxHealth() <= 0.6))
             then
                 --npcBot:ActionImmediate_Chat("Использую tpscroll для отступления!", true);
-                return true, utility.SafeLocation(npcBot);
+                return true, utility.GetFountainLocation();
             end
         end
     end
 
-    if botMode == BOT_MODE_ATTACK
+    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
     then
         local botTarget = npcBot:GetTarget();
         local allyBuildings = GetUnitList(UNIT_LIST_ALLIED_BUILDINGS);

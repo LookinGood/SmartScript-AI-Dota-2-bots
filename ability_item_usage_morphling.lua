@@ -50,7 +50,7 @@ end
 -- Abilities
 local Waveform = npcBot:GetAbilityByName("morphling_waveform");
 local AdaptiveStrikeAgility = npcBot:GetAbilityByName("morphling_adaptive_strike_agi");
---local AdaptiveStrikeStrength = npcBot:GetAbilityByName("morphling_adaptive_strike_str");
+local AdaptiveStrikeStrength = npcBot:GetAbilityByName("morphling_adaptive_strike_str");
 local AttributeShiftAgility = npcBot:GetAbilityByName("morphling_morph_agi");
 local AttributeShiftStrength = npcBot:GetAbilityByName("morphling_morph_str");
 local Morph = npcBot:GetAbilityByName("morphling_replicate");
@@ -72,7 +72,7 @@ function AbilityUsageThink()
 
     local castWaveformDesire, castWaveformLocation = ConsiderWaveform();
     local castAdaptiveStrikeAgilityDesire, castAdaptiveStrikeAgilityTarget = ConsiderAdaptiveStrikeAgility();
-    --local castAdaptiveStrikeStrengthDesire, castAdaptiveStrikeStrengthTarget = ConsiderAdaptiveStrikeStrength();
+    local castAdaptiveStrikeStrengthDesire, castAdaptiveStrikeStrengthTarget = ConsiderAdaptiveStrikeStrength();
     local castAttributeShiftAgilityDesire = ConsiderAttributeShiftAgility();
     local castAttributeShiftStrengthDesire = ConsiderAttributeShiftStrength();
     --local castMorphDesire, castMorphTarget = ConsiderMorph();
@@ -89,11 +89,11 @@ function AbilityUsageThink()
         return;
     end
 
-    --[[     if (castAdaptiveStrikeStrengthDesire > 0)
+     if (castAdaptiveStrikeStrengthDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(AdaptiveStrikeStrength, castAdaptiveStrikeStrengthTarget);
         return;
-    end ]]
+    end
 
     if (castAttributeShiftAgilityDesire > 0)
     then
@@ -266,7 +266,7 @@ function ConsiderAdaptiveStrikeAgility()
     return BOT_ACTION_DESIRE_NONE, 0;
 end
 
---[[ function ConsiderAdaptiveStrikeStrength()
+function ConsiderAdaptiveStrikeStrength()
     local ability = AdaptiveStrikeStrength;
     if not utility.IsAbilityAvailable(ability) then
         return BOT_ACTION_DESIRE_NONE, 0;
@@ -318,7 +318,7 @@ end
     end
 
     return BOT_ACTION_DESIRE_NONE, 0;
-end ]]
+end
 
 function ConsiderAttributeShiftAgility()
     local ability = AttributeShiftAgility;
@@ -374,7 +374,7 @@ function ConsiderAttributeShiftStrength()
 
     local abilityRate = ability:GetSpecialValueInt("morph_rate_tooltip");
 
-    if (ManaPercentage < 0.1) or botAgility <= abilityRate / 2
+    if (ManaPercentage <= 0.2) or botAgility <= abilityRate / 2
     then
         if ability:GetToggleState() == true
         then
@@ -389,7 +389,7 @@ function ConsiderAttributeShiftStrength()
     -- Retreat use
     if utility.RetreatMode(npcBot)
     then
-        if (#enemyAbility > 0) and HealthPercentage <= 0.5 and npcBot:WasRecentlyDamagedByAnyHero(2.0)
+        if (#enemyAbility > 0) and HealthPercentage <= 0.5 and utility.BotWasRecentlyDamagedByEnemyHero(2.0)
         then
             if ability:GetToggleState() == false
             then

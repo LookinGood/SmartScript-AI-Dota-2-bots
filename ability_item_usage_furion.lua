@@ -47,11 +47,11 @@ function AbilityLevelUpThink()
 end
 
 -- Abilities
-local Sprout = AbilitiesReal[1]
-local Teleportation = AbilitiesReal[2]
-local NaturesCall = AbilitiesReal[3]
-local CurseOfTheOldgrowth = AbilitiesReal[4]
-local WrathOfNature = AbilitiesReal[6]
+local Sprout = npcBot:GetAbilityByName("furion_sprout");
+local Teleportation = npcBot:GetAbilityByName("furion_teleportation");
+local NaturesCall = npcBot:GetAbilityByName("furion_force_of_nature");
+local CurseOfTheOldgrowth = npcBot:GetAbilityByName("furion_curse_of_the_forest");
+local WrathOfNature = npcBot:GetAbilityByName("furion_wrath_of_nature");
 
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
@@ -75,7 +75,7 @@ function AbilityUsageThink()
         then
             npcBot:Action_ClearActions(true);
             npcBot:ActionQueue_UseAbilityOnLocation(Sprout, castSproutTarget);
-            npcBot:ActionQueue_UseAbilityOnLocation(Teleportation, utility.SafeLocation(npcBot));
+            npcBot:ActionQueue_UseAbilityOnLocation(Teleportation, utility.GetFountainLocation());
             return;
         else
             npcBot:Action_UseAbilityOnLocation(Sprout, castSproutTarget);
@@ -187,7 +187,7 @@ function ConsiderTeleportation()
     end
 
     local shouldTP, tpLocation = teleportation_usage_generic.ShouldTP();
-    
+
     if shouldTP
     then
         --npcBot:ActionImmediate_Chat("Использую Teleportation!", true);

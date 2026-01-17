@@ -25,6 +25,7 @@ local ignoredAbility = {
     "kunkka_return",
     "night_stalker_darkness",
     "nyx_assassin_burrow",
+    "largo_amphibian_rhapsody",
 }
 
 local interruptAbility = {

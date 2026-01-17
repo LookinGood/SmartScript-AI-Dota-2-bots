@@ -6,8 +6,8 @@ require(GetScriptDirectory() .. "/utility")
 local npcBot = GetBot();
 local minAllyHeroes = 3;
 local checkRadius = 8000;
-local radiantTormentorLocation = Vector(7488.0, -7856.7, 351.6);
-local direTormentorLocation = Vector(-7201.8, 7947.3, 328.1);
+local radiantTormentorLocation = Vector(7487.2, -7837.4, 272.0);
+local direTormentorLocation = Vector(-7246.2 , 7885.7, 313.9);
 local updateInterval = 300;
 local lastUpdateTime = 0;
 local tormentorPositions = {}
@@ -186,8 +186,8 @@ function GetDesire()
 			then
 				if HasTormentorInPosition(tormentorPositions[i]) and not IsPositionInTable(tormentorPositions, tormentorPositions[i])
 				then
-					npcBot:ActionImmediate_Ping(tormentorPositions[i].x, tormentorPositions[i].y, false);
-					npcBot:ActionImmediate_Chat("Добавляю позицию Терзателя - он на месте.", true);
+					--npcBot:ActionImmediate_Ping(tormentorPositions[i].x, tormentorPositions[i].y, false);
+					--npcBot:ActionImmediate_Chat("Добавляю позицию Терзателя - он на месте.", true);
 					table.insert(tormentorPositions, i);
 				elseif not HasTormentorInPosition(tormentorPositions[i])
 				then
@@ -255,7 +255,7 @@ function Think()
 					npcBot:Action_AttackUnit(tormentor, false);
 					return;
 				else
-					npcBot:ActionImmediate_Chat("Жду союзников!", true);
+					--npcBot:ActionImmediate_Chat("Жду союзников!", true);
 					npcBot:Action_MoveToLocation(closestTormentorLocation + RandomVector(400));
 					return;
 				end

@@ -843,22 +843,21 @@ function ItemUsageThink()
 		local allyHeroes = npcBot:GetNearbyHeroes(itemRange, false, BOT_MODE_NONE);
 		local enemyHeroes = npcBot:GetNearbyHeroes(visibilityRadius, true, BOT_MODE_NONE);
 		local enemyTowers = npcBot:GetNearbyTowers(visibilityRadius, true);
-		-- Attack use
+		-- Attack/Boss use
 		if (#enemyHeroes <= 0 and #enemyTowers <= 0)
 		then
-			if utility.PvPMode(npcBot) and utility.IsHero(botTarget) and (GetUnitToUnitDistance(npcBot, botTarget) > visibilityRadius
-					and GetUnitToUnitDistance(npcBot, botTarget) <= visibilityRadius * 2)
+			if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
 			then
-				--npcBot:ActionImmediate_Chat("Использую предмет smokeOfDeceit для атаки!", true);
-				npcBot:Action_UseAbility(smokeOfDeceit);
-				return;
-			end
-			-- Boss use
-			if utility.BossMode(npcBot) and utility.IsBoss(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) > visibilityRadius
-			then
-				--npcBot:ActionImmediate_Chat("Использую предмет smokeOfDeceit для рошана!", true);
-				npcBot:Action_UseAbility(smokeOfDeceit);
-				return;
+				if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
+				then
+					if (GetUnitToUnitDistance(npcBot, botTarget) > visibilityRadius and GetUnitToUnitDistance(npcBot, botTarget) <= visibilityRadius * 2) and
+						not npcBot:IsInvisible() and not npcBot:HasModifier("modifier_smoke_of_deceit")
+					then
+						--npcBot:ActionImmediate_Chat("Использую предмет smokeOfDeceit для атаки!", true);
+						npcBot:Action_UseAbility(smokeOfDeceit);
+						return;
+					end
+				end
 			end
 		end
 		if (#allyHeroes > 0)
@@ -869,7 +868,7 @@ function ItemUsageThink()
 				local enemyTowers = ally:GetNearbyTowers(visibilityRadius, true);
 				if (#enemyHeroes <= 0 and #enemyTowers <= 0)
 				then
-					if utility.IsHero(ally) and not ally:IsInvisible() and
+					if utility.IsHero(ally) and not ally:IsInvisible() and not ally:HasModifier("modifier_smoke_of_deceit") and
 						ally:GetCurrentActionType() ~= BOT_ACTION_TYPE_ATTACK and ally:GetCurrentActionType() ~= BOT_ACTION_TYPE_ATTACKMOVE
 					then
 						-- Pre game use

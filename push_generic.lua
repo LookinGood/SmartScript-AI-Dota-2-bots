@@ -37,13 +37,40 @@ function GetEnemyTowerNearAttackBot()
     return nil;
 end
 
+function GetCurrentAttackTarget(radius)
+    local enemyCreeps = npcBot:GetNearbyCreeps(radius, true);
+    local enemyTowers = npcBot:GetNearbyTowers(radius, true);
+    local enemyBarracks = npcBot:GetNearbyBarracks(radius, true);
+    local enemyFillers = npcBot:GetNearbyFillers(radius, true);
+    local enemyAncient = GetAncient(GetOpposingTeam());
+    local attackTarget = nil;
+
+    if (#enemyCreeps > 0)
+    then
+        attackTarget = utility.GetWeakest(enemyCreeps);
+    elseif (#enemyTowers > 0)
+    then
+        attackTarget = utility.GetWeakest(enemyTowers);
+    elseif (#enemyBarracks > 0)
+    then
+        attackTarget = utility.GetWeakest(enemyBarracks);
+    elseif GetUnitToUnitDistance(npcBot, enemyAncient) <= radius
+    then
+        attackTarget = enemyAncient;
+    elseif (#enemyFillers > 0)
+    then
+        attackTarget = utility.GetWeakest(enemyFillers);
+    end
+
+    return attackTarget;
+end
+
 function Think()
     npcBot = GetBot();
     local botMode = npcBot:GetActiveMode();
     local team = npcBot:GetTeam();
-    local pushRadius = 300;
-    local wanderRadius = 200;
     local lane = LANE_NONE;
+
     if botMode == BOT_MODE_PUSH_TOWER_TOP
     then
         lane = LANE_TOP;
@@ -55,45 +82,22 @@ function Think()
         lane = LANE_BOT;
     end
 
+    local pushRadius = 300;
+    local wanderRadius = 200;
     local allyHeroes = npcBot:GetNearbyHeroes(1600, false, BOT_MODE_NONE);
     local enemyHeroes = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
-    local enemyAncient = GetAncient(GetOpposingTeam());
-    local mainCreep = nil;
-    local mainBuilding = nil;
-
-    --[[     (npcBot:IsInvisible() and #allyHeroes < #enemyHeroes) or
-    npcBot:IsDisarmed() or
-    npcBot:IsAttackImmune() ]]
+    --local enemyAncient = GetAncient(GetOpposingTeam());
+    --local mainCreep = nil;
+    --local mainBuilding = nil;
 
     --npcBot:WasRecentlyDamagedByAnyHero(3.0) or
     --utility.BotWasRecentlyDamagedByEnemyHero(3.0) or
+    --npcBot:ActionImmediate_Chat("Отхожу от башни!", true);
+    --npcBot:ActionImmediate_Ping(escapeLocation.x, escapeLocation.y, true);
 
-    local enemyTower = GetEnemyTowerNearAttackBot();
-    if enemyTower ~= nil
-    then
-        local creepToRedirect = GetAllyCreepToRedirectTower(enemyTower);
-        if creepToRedirect ~= nil
-        then
-            --npcBot:ActionImmediate_Chat("Переагриваю башню на " .. creepToRedirect:GetUnitName(), true);
-            npcBot:Action_ClearActions(false);
-            npcBot:Action_AttackUnit(creepToRedirect, true);
-            return;
-        else
-            if retreatDistance < 3000
-            then
-                retreatDistance = retreatDistance + 500;
-            elseif retreatDistance >= 3000
-            then
-                retreatDistance = 1000;
-            end
-            npcBot:Action_ClearActions(false);
-            npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -retreatDistance) + RandomVector(wanderRadius));
-            return;
-        end
-    elseif utility.BotWasRecentlyDamagedByEnemyHero(3.0) or
+    if utility.BotWasRecentlyDamagedByEnemyHero(3.0) or
         (npcBot:IsInvisible() and #allyHeroes < #enemyHeroes) or
         npcBot:IsDisarmed()
-    --npcBot:IsAttackImmune()
     then
         if retreatDistance < 3000
         then
@@ -106,283 +110,73 @@ function Think()
         npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -retreatDistance) + RandomVector(wanderRadius));
         return;
     else
-        local frontlocation = GetLaneFrontLocation(team, lane, -pushRadius);
-        if GetUnitToLocationDistance(npcBot, frontlocation) <= 1000 and GetUnitToLocationDistance(npcBot, frontlocation) > pushRadius
+        local enemyTower = GetEnemyTowerNearAttackBot();
+        if enemyTower ~= nil
         then
-            local enemyTowers = npcBot:GetNearbyTowers(pushRadius, true);
-            local enemyBarracks = npcBot:GetNearbyBarracks(pushRadius, true);
-            if (#enemyTowers > 0)
+            local creepToRedirect = GetAllyCreepToRedirectTower(enemyTower);
+            if creepToRedirect ~= nil
             then
-                if (#enemyTowers == 1)
-                then
-                    mainBuilding = enemyTowers[1];
-                else
-                    mainBuilding = utility.GetWeakest(enemyTowers);
-                end
-                npcBot:SetTarget(mainBuilding);
-                --print(tostring(npcBot:GetTarget():GetUnitName()));
-                if utility.CanCastOnInvulnerableTarget(mainBuilding)
-                then
-                    --npcBot:ActionImmediate_Chat("Атакую башню на моем пути.", true);
-                    npcBot:Action_ClearActions(false);
-                    npcBot:Action_AttackUnit(mainBuilding, false);
-                    return;
-                else
-                    --npcBot:ActionImmediate_Chat("Брожу около башни на пути, она неуязвима.", true);
-                    npcBot:Action_ClearActions(false);
-                    npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -retreatDistance) + RandomVector(wanderRadius));
-                    return;
-                end
-            elseif (#enemyBarracks > 0)
-            then
-                if (#enemyBarracks == 1)
-                then
-                    mainBuilding = enemyBarracks[1];
-                else
-                    mainBuilding = utility.GetWeakest(enemyBarracks);
-                end
-                npcBot:SetTarget(mainBuilding);
-                --print(tostring(npcBot:GetTarget():GetUnitName()));
-                if utility.CanCastOnInvulnerableTarget(mainBuilding)
-                then
-                    --npcBot:ActionImmediate_Chat("Атакую баррак на пути.", true);
-                    npcBot:Action_ClearActions(false);
-                    npcBot:Action_AttackUnit(mainBuilding, false);
-                    return;
-                else
-                    --npcBot:ActionImmediate_Chat("Брожу рядом с барраком на пути, он неуязвим.", true);
-                    npcBot:Action_ClearActions(false);
-                    npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -retreatDistance) + RandomVector(wanderRadius));
-                    return;
-                end
-            elseif GetUnitToUnitDistance(npcBot, enemyAncient) <= pushRadius
-            then
-                mainBuilding = enemyAncient;
-                npcBot:SetTarget(mainBuilding);
-                --print(tostring(npcBot:GetTarget():GetUnitName()));
-                if utility.CanCastOnInvulnerableTarget(mainBuilding)
-                then
-                    --npcBot:ActionImmediate_Chat("Атакую древнего на пути.", true);
-                    npcBot:Action_ClearActions(false);
-                    npcBot:Action_AttackUnit(mainBuilding, false);
-                    return;
-                else
-                    --npcBot:ActionImmediate_Chat("Брожу рядом с древним на пути, он неуязвим.", true);
-                    npcBot:Action_ClearActions(false);
-                    npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -retreatDistance) + RandomVector(wanderRadius));
-                    return;
-                end
+                --npcBot:ActionImmediate_Chat("Переагриваю башню на " .. creepToRedirect:GetUnitName(), true);
+                npcBot:Action_ClearActions(false);
+                npcBot:Action_AttackUnit(creepToRedirect, true);
+                return;
             else
+                local escapeLocation = utility.GetEscapeLocation(npcBot, enemyTower:GetAttackRange() + wanderRadius);
+                if GetUnitToLocationDistance(npcBot, escapeLocation) > 300
+                then
+                    --npcBot:ActionImmediate_Chat("Отхожу от башни!", true);
+                    --npcBot:ActionImmediate_Ping(escapeLocation.x, escapeLocation.y, false);
+                    npcBot:Action_ClearActions(false);
+                    npcBot:Action_MoveToLocation(escapeLocation);
+                    return;
+                else
+                    npcBot:Action_ClearActions(false);
+                    npcBot:Action_MoveToLocation(npcBot:GetLocation() + RandomVector(wanderRadius));
+                    return;
+                end
+            end
+        else
+            local frontlocation = GetLaneFrontLocation(team, lane, -pushRadius);
+            local attackTarget = GetCurrentAttackTarget(1000);
+            if GetUnitToLocationDistance(npcBot, frontlocation) > pushRadius and attackTarget == nil
+            then
                 npcBot:Action_ClearActions(false);
                 npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -pushRadius) + RandomVector(wanderRadius));
                 return;
-            end
-        elseif GetUnitToLocationDistance(npcBot, frontlocation) > pushRadius
-        then
-            npcBot:Action_ClearActions(false);
-            npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -pushRadius) + RandomVector(wanderRadius));
-            return;
-        else
-            local enemyCreeps = npcBot:GetNearbyCreeps(1000, true);
-            local enemyTowers = npcBot:GetNearbyTowers(1000, true);
-            local enemyBarracks = npcBot:GetNearbyBarracks(1000, true);
-            local enemyFillers = npcBot:GetNearbyFillers(1000, true);
-            --local enemyBuildings = GetUnitList(UNIT_LIST_ENEMY_BUILDINGS);
-            if (#allyHeroes <= 1 and #enemyHeroes > 1) and utility.IsEnemiesAroundStronger()
-            then
-                npcBot:Action_ClearActions(false);
-                npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -retreatDistance) +
-                    RandomVector(wanderRadius));
-                return;
             else
-                if (#enemyCreeps > 0)
+                if utility.IsEnemiesAroundStronger()
                 then
-                    if (#enemyCreeps == 1)
+                    npcBot:Action_ClearActions(false);
+                    npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -retreatDistance) +
+                        RandomVector(wanderRadius));
+                    return;
+                else
+                    if attackTarget ~= nil and GetUnitToLocationDistance(attackTarget, frontlocation) < 1000
                     then
-                        mainCreep = enemyCreeps[1];
-                    else
-                        mainCreep = utility.GetWeakest(enemyCreeps);
-                    end
-                    npcBot:SetTarget(mainCreep);
-                    --print(tostring(npcBot:GetTarget():GetUnitName()));
-                    if utility.CanCastOnInvulnerableTarget(mainCreep)
-                    then
-                        if mainCreep ~= nil and (#enemyHeroes <= 1)
+                        if utility.CanCastOnInvulnerableTarget(attackTarget)
                         then
-                            --npcBot:ActionImmediate_Chat("Атакую крипов на лайне.", true);
+                            npcBot:SetTarget(attackTarget);
                             npcBot:Action_ClearActions(false);
-                            npcBot:Action_AttackUnit(mainCreep, false);
+                            npcBot:Action_AttackUnit(attackTarget, false);
+                            --npcBot:ActionImmediate_Chat("Атакую цель: " .. attackTarget:GetUnitName(), true);
                             return;
                         else
-                            --npcBot:ActionImmediate_Chat("Брожу на лайне пока рядом 2+ врагов.", true);
+                            --npcBot:ActionImmediate_Chat("Брожу на лайне, цель неуязвима: " .. attackTarget:GetUnitName(),true);
                             npcBot:Action_ClearActions(false);
-                            npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -pushRadius) +
+                            npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -retreatDistance) +
                                 RandomVector(wanderRadius));
                             return;
                         end
                     else
-                        --npcBot:ActionImmediate_Chat("Брожу на лайне, крипы неуязвимы.", true);
-                        npcBot:Action_ClearActions(false);
-                        npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -retreatDistance) + RandomVector(wanderRadius));
-                        return;
-                    end
-                elseif (#enemyTowers > 0)
-                then
-                    if (#enemyTowers == 1)
-                    then
-                        mainBuilding = enemyTowers[1];
-                    else
-                        mainBuilding = utility.GetWeakest(enemyTowers);
-                    end
-                    npcBot:SetTarget(mainBuilding);
-                    --print(tostring(npcBot:GetTarget():GetUnitName()));
-                    if utility.CanCastOnInvulnerableTarget(mainBuilding)
-                    then
-                        if utility.CountAllyCreepAroundUnit(mainBuilding, 700) > 0
-                        then
-                            --npcBot:ActionImmediate_Chat("Атакую башню.", true);
-                            npcBot:Action_ClearActions(false);
-                            npcBot:Action_AttackUnit(mainBuilding, false);
-                            return;
-                        else
-                            --npcBot:ActionImmediate_Chat("Брожу на лайне пока крипы не нападают на башню.", true);
-                            npcBot:Action_ClearActions(false);
-                            npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -pushRadius) +
-                                RandomVector(wanderRadius));
-                            return;
-                        end
-                    else
-                        --npcBot:ActionImmediate_Chat("Брожу на лайне, башни неуязвимы.", true);
-                        npcBot:Action_ClearActions(false);
-                        npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -retreatDistance) + RandomVector(wanderRadius));
-                        return;
-                    end
-                elseif (#enemyBarracks > 0)
-                then
-                    if (#enemyBarracks == 1)
-                    then
-                        mainBuilding = enemyBarracks[1];
-                    else
-                        mainBuilding = utility.GetWeakest(enemyBarracks);
-                    end
-                    npcBot:SetTarget(mainBuilding);
-                    --print(tostring(npcBot:GetTarget():GetUnitName()));
-                    if utility.CanCastOnInvulnerableTarget(mainBuilding)
-                    then
-                        if utility.CountAllyCreepAroundUnit(mainBuilding, 700) > 0
-                        then
-                            --npcBot:ActionImmediate_Chat("Атакую баррак.", true);
-                            npcBot:Action_ClearActions(false);
-                            npcBot:Action_AttackUnit(mainBuilding, false);
-                            return;
-                        else
-                            --npcBot:ActionImmediate_Chat("Брожу на лайне пока крипы не нападают на баррак.", true);
-                            npcBot:Action_ClearActions(false);
-                            npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -pushRadius) +
-                                RandomVector(wanderRadius));
-                            return;
-                        end
-                    else
-                        --npcBot:ActionImmediate_Chat("Брожу на лайне, барраки неуязвимы.", true);
-                        npcBot:Action_ClearActions(false);
-                        npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -retreatDistance) + RandomVector(wanderRadius));
-                        return;
-                    end
-                elseif GetUnitToUnitDistance(npcBot, enemyAncient) <= 1000
-                then
-                    mainBuilding = enemyAncient;
-                    npcBot:SetTarget(mainBuilding);
-                    --print(tostring(npcBot:GetTarget():GetUnitName()));
-                    if utility.CanCastOnInvulnerableTarget(mainBuilding)
-                    then
-                        if utility.CountAllyCreepAroundUnit(mainBuilding, 700) > 0
-                        then
-                            --npcBot:ActionImmediate_Chat("Атакую древнего.", true);
-                            npcBot:Action_ClearActions(false);
-                            npcBot:Action_AttackUnit(mainBuilding, false);
-                            return;
-                        else
-                            --npcBot:ActionImmediate_Chat("Брожу на лайне, крипы не атакуют древнего.", true);
-                            npcBot:Action_ClearActions(false);
-                            npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -pushRadius) +
-                                RandomVector(wanderRadius));
-                            return;
-                        end
-                    else
-                        --npcBot:ActionImmediate_Chat("Брожу на лайне, древний неуязвим.", true);
-                        npcBot:Action_ClearActions(false);
-                        npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -retreatDistance) + RandomVector(wanderRadius));
-                        return;
-                    end
-                elseif (#enemyFillers > 0)
-                then
-                    mainBuilding = utility.GetWeakest(enemyFillers);
-                    npcBot:SetTarget(mainBuilding);
-                    if utility.CanCastOnInvulnerableTarget(mainBuilding)
-                    then
-                        if utility.CountAllyCreepAroundUnit(mainBuilding, 700) > 0
-                        then
-                            --npcBot:ActionImmediate_Chat("Атакую постройку.", true);
-                            npcBot:Action_ClearActions(false);
-                            npcBot:Action_AttackUnit(mainBuilding, false);
-                            return;
-                        else
-                            --npcBot:ActionImmediate_Chat("Брожу на лайне, крипы не атакуют постройку.", true);
-                            npcBot:Action_ClearActions(false);
-                            npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -pushRadius) +
-                                RandomVector(wanderRadius));
-                            return;
-                        end
-                    else
-                        --npcBot:ActionImmediate_Chat("Брожу на лайне, постройка неуязвима.", true);
-                        npcBot:Action_ClearActions(false);
+                        --npcBot:Action_ClearActions(false);
                         npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -pushRadius) +
                             RandomVector(wanderRadius));
                         return;
                     end
-                    --[[           elseif (#enemyBuildings > 0)
-                then
-                    for _, enemy in pairs(enemyBuildings) do
-                        if GetUnitToUnitDistance(npcBot, enemy) <= 1000 and string.find(enemy:GetUnitName(), "fillers")
-                        then
-                            mainBuilding = enemy;
-                            npcBot:SetTarget(mainBuilding);
-                        end
-                    end
-                    --print(tostring(npcBot:GetTarget():GetUnitName()));
-                    if utility.CanCastOnInvulnerableTarget(mainBuilding)
-                    then
-                        if utility.CountAllyCreepAroundUnit(mainBuilding, 700) > 0
-                        then
-                            --npcBot:ActionImmediate_Chat("Атакую постройку.", true);
-                            npcBot:Action_ClearActions(false);
-                            npcBot:Action_AttackUnit(mainBuilding, false);
-                            return;
-                        else
-                            --npcBot:ActionImmediate_Chat("Брожу на лайне, крипы не атакуют постройку.", true);
-                            npcBot:Action_ClearActions(false);
-                            npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -500) +
-                                RandomVector(wanderRadius));
-                            return;
-                        end
-                    else
-                        --npcBot:ActionImmediate_Chat("Брожу на лайне, постройка неуязвима.", true);
-                        npcBot:Action_ClearActions(false);
-                        npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -500) +
-                            RandomVector(wanderRadius));
-                        return;
-                    end ]]
-                else
-                    --npcBot:Action_ClearActions(false);
-                    npcBot:Action_MoveToLocation(GetLaneFrontLocation(team, lane, -pushRadius) +
-                        RandomVector(wanderRadius));
-                    return;
                 end
             end
         end
     end
-
-    --npcBot:ActionImmediate_Chat("Туплю.", true);
 end
 
 ---------------------------------------------------------------------------------------------------

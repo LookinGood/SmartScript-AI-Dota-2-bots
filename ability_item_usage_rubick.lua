@@ -178,20 +178,13 @@ function ConsiderTelekinesisLand()
     if utility.PvPMode(npcBot)
     then
         --npcBot:ActionImmediate_Chat("Использую TelekinesisLand при атаке на " .. botTarget:GetUnitName(), true);
-        return BOT_MODE_DESIRE_MODERATE, utility.SafeLocation(npcBot);
+        return BOT_MODE_DESIRE_MODERATE, utility.GetFountainLocation();
     end
 
     -- Retreat use
     if utility.RetreatMode(npcBot)
     then
-        local enemyAbility = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
-        if (#enemyAbility > 0)
-        then
-            for _, enemy in pairs(enemyAbility) do
-                --npcBot:ActionImmediate_Chat("Использую TelekinesisLand при отходе на " .. enemy:GetUnitName(), true);
-                return BOT_MODE_DESIRE_MODERATE, utility.SafeLocation(enemy);
-            end
-        end
+        return BOT_MODE_DESIRE_MODERATE, GetAncient(GetOpposingTeam()):GetLocation();
     end
 
     return BOT_ACTION_DESIRE_NONE, 0;
@@ -206,7 +199,7 @@ function ConsiderTelekinesisLandSelf()
     if utility.RetreatMode(npcBot)
     then
         --npcBot:ActionImmediate_Chat("Использую TelekinesisLandSelf при отходе", true);
-        return BOT_MODE_DESIRE_MODERATE, utility.SafeLocation(npcBot);
+        return BOT_MODE_DESIRE_MODERATE, utility.GetFountainLocation();
     end
 
     return BOT_ACTION_DESIRE_NONE, 0;

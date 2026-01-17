@@ -1428,7 +1428,7 @@ end
 function BossMode(npcBot)
 	local botMode = npcBot:GetActiveMode();
 	return (botMode == BOT_MODE_ROSHAN or
-		botMode == BOT_MODE_SIDE_SHOP);
+		botMode == BOT_MODE_ASSEMBLE);
 end
 
 function PvEMode(npcBot)
@@ -1917,7 +1917,7 @@ function HasAganimShard(npcBot)
 	end
 end
 
-function GetFountain(npcTarget)
+--[[ function GetFountain(npcTarget)
 	if IsValidTarget(npcTarget)
 	then
 		if npcTarget:GetTeam() == TEAM_RADIANT or npcTarget:GetTeam() == TEAM_DIRE
@@ -1937,7 +1937,7 @@ function GetFountain(npcTarget)
 	end
 
 	return nil;
-end
+end ]]
 
 -- or ally:HasModifier('modifier_fountain_aura_buff')
 -- or ally:DistanceFromFountain() == 0
@@ -1969,7 +1969,7 @@ function GetFountainLocation()
 	return location;
 end
 
-local function SafeLocation(npcBot) -- Old
+--[[ function SafeLocation(npcBot) -- Old
 	local BotTeam = npcBot:GetTeam();
 	if BotTeam == TEAM_RADIANT
 	then
@@ -1978,7 +1978,7 @@ local function SafeLocation(npcBot) -- Old
 	then
 		return Vector(7168.0, 6836.4, 423.6);
 	end
-end
+end ]]
 
 function GetEscapeLocation(bot, maxAbilityRadius)
 	local botLocation = bot:GetLocation()

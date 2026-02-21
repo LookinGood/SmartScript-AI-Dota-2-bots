@@ -1403,10 +1403,11 @@ function GetTargetCastPosition(npcCaster, npcTarget, fDelay, fSpellSpeed)
 		fDelay = 0.1;
 	end
 
-	local targetDistance = GetUnitToUnitDistance(npcCaster, npcTarget)
+	local targetDistance = GetUnitToUnitDistance(npcCaster, npcTarget);
 	local moveDirection = npcTarget:GetMovementDirectionStability();
 	local targetLocation = npcTarget:GetExtrapolatedLocation(fDelay +
 		(targetDistance / fSpellSpeed));
+
 	if moveDirection < 0.95
 	then
 		targetLocation = npcTarget:GetLocation();
@@ -1416,7 +1417,7 @@ function GetTargetCastPosition(npcCaster, npcTarget, fDelay, fSpellSpeed)
 end
 
 function CanAbilityKillTarget(npcTarget, damage, damagetype)
-	return IsValidTarget(npcTarget) and npcTarget:GetActualIncomingDamage(damage, damagetype) >= npcTarget:GetHealth()
+	return IsValidTarget(npcTarget) and npcTarget:GetActualIncomingDamage(damage, damagetype) >= npcTarget:GetHealth();
 end
 
 function TargetCantDie(npcTarget)
@@ -1450,16 +1451,13 @@ end
 function CanMove(npcTarget)
 	if IsValidTarget(npcTarget) and npcTarget:GetHealth() / npcTarget:GetMaxHealth() < 0.6
 	then
-		if not npcTarget:HasModifier("modifier_bloodseeker_rupture") and
-			not npcTarget:HasModifier("modifier_techies_minefield_sign_scepter_aura")
+		if npcTarget:HasModifier("modifier_bloodseeker_rupture") or
+			npcTarget:HasModifier("modifier_techies_minefield_sign_scepter_aura")
 		then
-			return true;
-		else
 			return false;
 		end
-	else
-		return true;
 	end
+	return true;
 end
 
 function IsBotStuck()

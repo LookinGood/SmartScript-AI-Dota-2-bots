@@ -177,7 +177,7 @@ function GetDesire()
     -- Освобождение места в инвентаре
     if npcBot:DistanceFromFountain() <= 500
     then
-        local expensiveStashItem = utility.GetMostExpensiveStashItem();
+    --[[     local expensiveStashItem = utility.GetMostExpensiveStashItem();
 
         if trashItemSlot ~= nil and (npcBot:GetItemSlotType(trashItemSlot) == ITEM_SLOT_TYPE_MAIN or npcBot:GetItemSlotType(trashItemSlot) == ITEM_SLOT_TYPE_BACKPACK)
         then
@@ -189,17 +189,17 @@ function GetDesire()
                 npcBot:ActionImmediate_Chat("Хочу переложить мусор и стеш-вещь: " .. index1 .. " и " .. index2, true);
                 return BOT_MODE_DESIRE_ABSOLUTE;
             end
-        end
+        end ]]
 
         if recipeItemSlot ~= nil and (npcBot:GetItemSlotType(recipeItemSlot) == ITEM_SLOT_TYPE_MAIN or npcBot:GetItemSlotType(recipeItemSlot) == ITEM_SLOT_TYPE_BACKPACK)
         then
-            if expensiveStashItem ~= nil and not utility.IsItemRecipe(expensiveStashItem:GetName())
+       --[[      if expensiveStashItem ~= nil and not utility.IsItemRecipe(expensiveStashItem:GetName())
             then
                 index1 = recipeItemSlot;
                 index2 = npcBot:FindItemSlot(expensiveStashItem:GetName());
                 npcBot:ActionImmediate_Chat("Хочу переложить рецепт и вещь: " .. index1 .. " и " .. index2, true);
                 return BOT_MODE_DESIRE_ABSOLUTE;
-            end
+            end ]]
 
             if emptyStashItemSlot ~= nil
             then

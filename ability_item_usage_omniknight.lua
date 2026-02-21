@@ -47,10 +47,10 @@ function AbilityLevelUpThink()
 end
 
 -- Abilities
-local Purification = AbilitiesReal[1]
-local Repel = AbilitiesReal[2]
-local HammerOfPurity = AbilitiesReal[3]
-local GuardianAngel = AbilitiesReal[6]
+local Purification = npcBot:GetAbilityByName("omniknight_purification");
+local Repel = npcBot:GetAbilityByName("omniknight_martyr");
+local HammerOfPurity = npcBot:GetAbilityByName("omniknight_hammer_of_purity");
+local GuardianAngel = npcBot:GetAbilityByName("omniknight_guardian_angel");
 
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
@@ -92,6 +92,35 @@ function AbilityUsageThink()
     end
 end
 
+local function GetNearbyAllyUnit(npcTarget, radius)
+    local allyHeroes = GetUnitList(UNIT_LIST_ALLIED_HEROES);
+    local allyCreeps = GetUnitList(UNIT_LIST_ALLIED_CREEPS);
+
+    if (#allyHeroes > 0)
+    then
+        for _, ally in pairs(allyHeroes)
+        do
+            if not utility.IsTargetInvulnerable(npcTarget) and GetUnitToUnitDistance(ally, npcTarget) <= radius
+            then
+                return ally;
+            end
+        end
+    end
+
+    if (#allyCreeps > 0)
+    then
+        for _, ally in pairs(allyCreeps)
+        do
+            if not utility.IsTargetInvulnerable(npcTarget) and GetUnitToUnitDistance(ally, npcTarget) <= radius
+            then
+                return ally;
+            end
+        end
+    end
+
+    return nil;
+end
+
 function ConsiderPurification()
     local ability = Purification;
     if not utility.IsAbilityAvailable(ability) then
@@ -102,7 +131,7 @@ function ConsiderPurification()
     local damageAbility = ability:GetSpecialValueInt("heal");
     local radiusAbility = ability:GetSpecialValueInt("radius");
     local allyAbility = npcBot:GetNearbyHeroes(castRangeAbility + 200, false, BOT_MODE_NONE);
-    local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility + 200, true, BOT_MODE_NONE);
+    local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
 
     -- Cast if can kill somebody
     if (#enemyAbility > 0)
@@ -110,29 +139,12 @@ function ConsiderPurification()
         for _, enemy in pairs(enemyAbility) do
             if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and utility.CanCastSpellOnTarget(ability, enemy)
             then
-                local allyHeroAround = enemy:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
-                local allyCreepsAround = enemy:GetNearbyCreeps(radiusAbility, true);
-                if (#allyHeroAround > 0)
+                local nearbyAlly = GetNearbyAllyUnit(enemy, radiusAbility);
+                if nearbyAlly ~= nil
                 then
-                    for _, ally in pairs(allyHeroAround) do
-                        if utility.IsValidTarget(ally) and GetUnitToUnitDistance(npcBot, ally) <= castRangeAbility
-                        then
-                            npcBot:ActionImmediate_Chat("Использую Purification на героя что бы добить врага!",
-                                true);
-                            return BOT_ACTION_DESIRE_HIGH, ally;
-                        end
-                    end
-                end
-                if (#allyCreepsAround > 0)
-                then
-                    for _, ally in pairs(allyCreepsAround) do
-                        if utility.IsValidTarget(ally) and GetUnitToUnitDistance(npcBot, ally) <= castRangeAbility
-                        then
-                            npcBot:ActionImmediate_Chat("Использую Purification на крипа что бы добить врага!",
-                                true);
-                            return BOT_ACTION_DESIRE_HIGH, ally;
-                        end
-                    end
+                    npcBot:ActionImmediate_Chat(
+                        "Использую Purification на героя для убийства: " .. nearbyAlly:GetUnitName(), true);
+                    return BOT_ACTION_DESIRE_ABSOLUTE, nearbyAlly;
                 end
             end
         end
@@ -143,7 +155,7 @@ function ConsiderPurification()
     then
         for _, ally in pairs(allyAbility)
         do
-            if utility.IsHero(ally) and utility.CanBeHeal(ally) and (ally:GetHealth() < ally:GetMaxHealth() - damageAbility)
+            if utility.IsHero(ally) and utility.CanBeHeal(ally) and (ally:GetHealth() < ally:GetMaxHealth() - (damageAbility * 2))
             then
                 --npcBot:ActionImmediate_Chat("Использую Purification для лечения!", true);
                 return BOT_ACTION_DESIRE_HIGH, ally;
@@ -154,29 +166,13 @@ function ConsiderPurification()
     -- Attack use
     if utility.PvPMode(npcBot)
     then
-        if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget)
+        if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
         then
-            local allyHeroAround = botTarget:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
-            local allyCreepsAround = botTarget:GetNearbyCreeps(radiusAbility, true);
-            if (#allyHeroAround > 0)
+            local nearbyAlly = GetNearbyAllyUnit(botTarget, radiusAbility);
+            if nearbyAlly ~= nil
             then
-                for _, ally in pairs(allyHeroAround) do
-                    if utility.IsValidTarget(ally) and GetUnitToUnitDistance(npcBot, ally) <= castRangeAbility
-                    then
-                        --npcBot:ActionImmediate_Chat("Использую Purification на союзного героя рядом с целью!", true);
-                        return BOT_ACTION_DESIRE_HIGH, ally;
-                    end
-                end
-            end
-            if (#allyCreepsAround > 0)
-            then
-                for _, ally in pairs(allyCreepsAround) do
-                    if utility.IsValidTarget(ally) and GetUnitToUnitDistance(npcBot, ally) <= castRangeAbility
-                    then
-                        --npcBot:ActionImmediate_Chat("Использую Purification на союзного крипа рядом с целью!", true);
-                        return BOT_ACTION_DESIRE_HIGH, ally;
-                    end
-                end
+                --npcBot:ActionImmediate_Chat( "Использую Purification на героя для атаки: " .. nearbyAlly:GetUnitName(), true);
+                return BOT_ACTION_DESIRE_HIGH, nearbyAlly;
             end
         end
     end
@@ -241,7 +237,6 @@ function ConsiderHammerOfPurity()
         return BOT_ACTION_DESIRE_NONE, 0;
     end
 
-    local attackTarget = npcBot:GetAttackTarget();
     local castRangeAbility = ability:GetCastRange();
     local damageAbility = (npcBot:GetBaseDamage() / 100 * ability:GetSpecialValueInt("base_damage")) +
         ability:GetSpecialValueInt("bonus_damage");
@@ -265,7 +260,7 @@ function ConsiderHammerOfPurity()
 
     if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_AUTOCAST)
     then
-        if (utility.IsHero(attackTarget) or utility.IsBoss(attackTarget) or npcBot:GetAttackTarget():IsAncientCreep()) and utility.CanCastSpellOnTarget(ability, attackTarget)
+        if utility.IsNeedTurnOnAttackModifier()
         then
             if not ability:GetAutoCastState()
             then

@@ -67,35 +67,33 @@ function GetDesire()
     then
         if runeStatus == RUNE_STATUS_AVAILABLE
         then
-            if runeStatus == RUNE_STATUS_UNKNOWN
-            then
-                if (DotaTime() >= checkRuneTimer + 2 * 60)
-                then
-                    npcBot:ActionImmediate_Chat("Иду проверять руну!", true);
-                    return BOT_MODE_DESIRE_HIGH;
-                end
-            elseif runeStatus == RUNE_STATUS_MISSING
-            then
-                npcBot:ActionImmediate_Chat("Руна пропала!", true);
-                return BOT_MODE_DESIRE_NONE;
-            else
-                --npcBot:ActionImmediate_Chat("Иду за доступной руной!", true);
-                checkRuneTimer = DotaTime();
-                return BOT_MODE_DESIRE_HIGH;
-            end
+            --npcBot:ActionImmediate_Chat("Иду за доступной руной!", true);
+            checkRuneTimer = DotaTime();
+            return BOT_MODE_DESIRE_HIGH;
+        elseif runeStatus == RUNE_STATUS_UNKNOWN and (DotaTime() >= checkRuneTimer + 2 * 60)
+        then
+            npcBot:ActionImmediate_Chat("Иду проверять руну!", true);
+            return BOT_MODE_DESIRE_HIGH;
+        elseif runeStatus == RUNE_STATUS_MISSING
+        then
+            checkRuneTimer = DotaTime();
+            npcBot:ActionImmediate_Chat("Руна пропала!", true);
+            return BOT_MODE_DESIRE_NONE;
+        else
+            return BOT_MODE_DESIRE_NONE;
         end
     end
 
     return BOT_MODE_DESIRE_NONE;
 end
 
---[[ function OnStart()
-    --npcBot:ActionImmediate_Ping(runeLocation.x, runeLocation.y, true);
-    if RollPercentage(15) and GetGameState() ~= GAME_STATE_PRE_GAME
+function OnStart()
+    --[[     if RollPercentage(15) and GetGameState() ~= GAME_STATE_PRE_GAME
     then
-        npcBot:ActionImmediate_Chat("Иду за руной.", false);
-    end
-end ]]
+        --npcBot:ActionImmediate_Chat("Иду за руной.", false);
+        npcBot:ActionImmediate_Ping(runeLocation.x, runeLocation.y, true);
+    end ]]
+end
 
 function OnEnd()
     closestAlly = nil;
@@ -103,12 +101,10 @@ function OnEnd()
 end
 
 function Think()
-    if utility.IsBusy(npcBot)
+    if utility.IsBusy(npcBot) or npcBot:GetCurrentActionType() == BOT_ACTION_TYPE_PICK_UP_RUNE
     then
         return;
     end
-
-    --print(DotaTime())
 
     -- Message at the beginning of the game
     if GetGameState() == GAME_STATE_PRE_GAME
@@ -161,9 +157,9 @@ function Think()
             npcBot:Action_MoveToLocation(runeLocation + RandomVector(10));
             return;
         else
-            npcBot:ActionImmediate_Ping(runeLocation.x, runeLocation.y, true);
+            --npcBot:ActionImmediate_Ping(runeLocation.x, runeLocation.y, true);
             npcBot:Action_ClearActions(false);
-            npcBot:ActionQueue_MoveToLocation(runeLocation + RandomVector(10));
+            npcBot:ActionQueue_MoveToLocation(runeLocation + RandomVector(100));
             npcBot:ActionQueue_PickUpRune(closestRune);
             return;
         end

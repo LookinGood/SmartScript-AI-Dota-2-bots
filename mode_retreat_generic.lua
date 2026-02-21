@@ -17,6 +17,7 @@ function GetDesire()
 
     local botDesire = BOT_MODE_DESIRE_NONE;
     local botMode = npcBot:GetActiveMode();
+    local botHPGegen = npcBot:GetHealthRegen();
     local healthPercent = npcBot:GetHealth() / npcBot:GetMaxHealth();
     local manaPercent = npcBot:GetMana() / npcBot:GetMaxMana();
     local allyHeroAround = npcBot:GetNearbyHeroes(1600, false, BOT_MODE_NONE);
@@ -30,7 +31,14 @@ function GetDesire()
         return BOT_MODE_DESIRE_ABSOLUTE;
     end
 
-    botDesire = RemapValClamped(healthPercent, 0.3, 0.6, BOT_MODE_DESIRE_VERYHIGH, BOT_MODE_DESIRE_NONE);
+    botDesire = RemapValClamped(healthPercent, 0.3, 0.6, BOT_MODE_DESIRE_VERYHIGH, BOT_MODE_DESIRE_VERYLOW);
+
+    if not npcBot:HasModifier("modifier_fountain_aura_buff") and (#enemyHeroAround <= 0) and not utility.BotWasRecentlyDamagedByEnemyHero(3.0)
+        and botHPGegen >= 20 and healthPercent <= 0.6
+    then
+        botDesire = botDesire - BOT_MODE_DESIRE_HIGH;
+        --npcBot:ActionImmediate_Chat("Желание отступить: " .. botDesire, true);
+    end
 
     if npcBot:HasModifier("modifier_fountain_aura_buff")
     then
@@ -54,7 +62,7 @@ function GetDesire()
 
     if npcBot:HasModifier("modifier_medusa_mana_shield")
     then
-        if (manaPercent <= 0.3) and (#enemyHeroAround > 0) and npcBot:WasRecentlyDamagedByAnyHero(5.0)
+        if (manaPercent <= 0.3) and (#enemyHeroAround > 0) and utility.BotWasRecentlyDamagedByEnemyHero(5.0)
         then
             return BOT_MODE_DESIRE_VERYHIGH;
         end

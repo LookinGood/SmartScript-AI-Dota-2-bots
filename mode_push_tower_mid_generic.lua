@@ -4,6 +4,14 @@ require(GetScriptDirectory() .. "/push_generic")
 
 local npcBot = GetBot();
 
+function OnStart()
+
+end
+
+function OnEnd()
+    npcBot:SetTarget(nil);
+end
+
 function Think()
     if utility.IsBusy(npcBot)
     then
@@ -35,15 +43,4 @@ end
 
     return BOT_ACTION_DESIRE_NONE;
 end
-
-function OnStart()
-    npcBot:ActionImmediate_Chat("Пушу мид!", true);
-    if RollPercentage(15)
-    then
-        npcBot:ActionImmediate_Chat("Пушу мид!", false);
-    end
-end
-
-function OnEnd()
-    npcBot:SetTarget(nil);
-end ]]
+ ]]

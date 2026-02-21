@@ -434,7 +434,7 @@ function ConsiderWalrusPunch()
     local damageAbility = math.floor(npcBot:GetAttackDamage()) / 100 * ability:GetSpecialValueInt("crit_multiplier");
     local enemyAbility = npcBot:GetNearbyHeroes((castRangeAbility * 2), true, BOT_MODE_NONE);
 
-    if (utility.IsHero(botTarget) or utility.IsBoss(botTarget)) and utility.CanCastSpellOnTarget(ability, botTarget)
+    if utility.IsNeedTurnOnAttackModifier()
     then
         if not ability:GetAutoCastState()
         then

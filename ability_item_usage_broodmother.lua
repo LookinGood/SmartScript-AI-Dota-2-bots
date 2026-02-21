@@ -53,6 +53,8 @@ local SilkenBola = npcBot:GetAbilityByName("broodmother_silken_bola");
 local SpinnersSnare = npcBot:GetAbilityByName("broodmother_sticky_snare");
 local SpawnSpiderlings = npcBot:GetAbilityByName("broodmother_spawn_spiderlings");
 
+local castSpinnersSnareTimer = 0.0;
+
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
         return
@@ -94,9 +96,10 @@ function AbilityUsageThink()
         end
     end
 
-    if (castSpinnersSnareDesire > 0)
+    if (castSpinnersSnareDesire > 0) and (GameTime() >= castSpinnersSnareTimer + 2.0)
     then
         npcBot:Action_UseAbilityOnLocation(SpinnersSnare, castSpinnersSnareLocation);
+        castSpinnersSnareTimer = GameTime();
         return;
     end
 
@@ -153,7 +156,7 @@ function ConsiderSpinWeb()
     -- Attack use
     if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
     then
-        if utility.IsHero(botTarget) or utility.IsBoss(attackTarget)
+        if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
         then
             if GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
             then
@@ -174,9 +177,11 @@ function ConsiderSpinWeb()
 
     -- General use
     if utility.RetreatMode(npcBot) or utility.PvEMode(npcBot) or utility.WanderMode(npcBot)
-        --or npcBot:GetCurrentActionType() == BOT_ACTION_TYPE_DELAY or npcBot:GetCurrentActionType() == BOT_ACTION_TYPE_IDLE
     then
-        return BOT_ACTION_DESIRE_MODERATE, utility.GetTargetCastPosition(npcBot, npcBot, delayAbility, 0);
+        if (ManaPercentage >= 0.5)
+        then
+            return BOT_ACTION_DESIRE_MODERATE, utility.GetTargetCastPosition(npcBot, npcBot, delayAbility, 0);
+        end
     end
 
     return BOT_ACTION_DESIRE_NONE, 0;
@@ -266,9 +271,49 @@ function ConsiderSpinnersSnare()
         return BOT_ACTION_DESIRE_NONE, 0;
     end
 
-    if npcBot:IsAlive()
+    local castRangeAbility = ability:GetCastRange();
+    local delayAbility = ability:GetSpecialValueInt("formation_delay");
+
+    if utility.CountUnitAroundTarget(npcBot, "npc_dota_broodmother_sticky_web", false, castRangeAbility) > 0
     then
+        npcBot:ActionImmediate_Chat("Рядом есть sticky_web.", true);
         return BOT_ACTION_DESIRE_NONE, 0;
+    end
+
+    -- Cast if attack enemy
+    if utility.PvPMode(npcBot)
+    then
+        if utility.IsHero(botTarget)
+        then
+            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+            then
+                --npcBot:ActionImmediate_Chat("Использую SpinnersSnare на врага при атаке.", true);
+                return BOT_ACTION_DESIRE_HIGH,
+                    utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
+            end
+        end
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
+    then
+        local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
+        if (#enemyAbility > 0)
+        then
+            for _, enemy in pairs(enemyAbility) do
+                if utility.CanCastSpellOnTarget(ability, enemy)
+                then
+                    --npcBot:ActionImmediate_Chat("Использую SpinnersSnare при отсутплении.", true);
+                    return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
+                end
+            end
+        end
+    end
+
+    if npcBot:GetCurrentActionType() == BOT_ACTION_TYPE_PICK_UP_RUNE
+    then
+        npcBot:ActionImmediate_Chat("Использую SpinnersSnare при подборе руны.", true);
+        return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, npcBot, delayAbility, 0);
     end
 
     return BOT_ACTION_DESIRE_NONE, 0;

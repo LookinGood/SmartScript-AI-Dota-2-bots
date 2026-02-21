@@ -1,4 +1,4 @@
----@diagnostic disable: undefined-global
+---@diagnostic disable: undefined-global, redefined-local
 require(GetScriptDirectory() .. "/utility")
 
 local npcBot = GetBot();
@@ -40,6 +40,14 @@ function GetDesire()
     end
 
     return BOT_MODE_DESIRE_NONE;
+end
+
+function OnStart()
+
+end
+
+function OnEnd()
+    npcBot:SetTarget(nil);
 end
 
 function Think()

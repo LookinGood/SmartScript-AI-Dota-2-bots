@@ -92,12 +92,7 @@ function ConsiderPoisonAttack()
         return;
     end
 
-    local attackTarget = npcBot:GetAttackTarget();
-
-    if utility.CanCastSpellOnTarget(ability, attackTarget) and
-        (utility.IsHero(attackTarget) or
-            utility.IsBoss(attackTarget) or
-            utility.IsBuilding(attackTarget))
+    if utility.IsNeedTurnOnAttackModifier() or utility.IsBuilding(npcBot:GetAttackTarget()) or utility.IsBuilding(botTarget)
     then
         if not ability:GetAutoCastState() then
             ability:ToggleAutoCast()

@@ -7,7 +7,7 @@ local npcBot = GetBot();
 local minAllyHeroes = 3;
 local checkRadius = 8000;
 local radiantTormentorLocation = Vector(7487.2, -7837.4, 272.0);
-local direTormentorLocation = Vector(-7246.2 , 7885.7, 313.9);
+local direTormentorLocation = Vector(-7246.2, 7885.7, 313.9);
 local updateInterval = 300;
 local lastUpdateTime = 0;
 local tormentorPositions = {}
@@ -24,6 +24,41 @@ function IsPositionInTable(table, pos)
 			return true;
 		end
 	end
+	return false;
+end
+
+function IsTormentorPingedByHumanPlayer(tormentorLocation)
+	local neutralCreeps = GetUnitList(UNIT_LIST_NEUTRAL_CREEPS);
+	local allyHeroes = GetUnitList(UNIT_LIST_ALLIED_HEROES);
+	local tormentor = nil;
+
+	if (#neutralCreeps > 0)
+	then
+		for _, creep in pairs(neutralCreeps)
+		do
+			if creep:CanBeSeen() and utility.IsTormentor(creep) and GetUnitToLocationDistance(creep, tormentorLocation) <= 1600
+			then
+				tormentor = creep;
+			end
+		end
+	end
+
+	if (#allyHeroes > 0) and tormentor ~= nil
+	then
+		for _, ally in pairs(allyHeroes)
+		do
+			if ally ~= nil and not ally:IsIllusion() and not IsPlayerBot(ally:GetPlayerID())
+			then
+				local ping = ally:GetMostRecentPing();
+				if ping ~= nil and GetUnitToLocationDistance(tormentor, ping.location) < 500 and GameTime() - ping.time < 15
+				then
+					npcBot:ActionImmediate_Chat("Игрок пингует рядом с Терзателем: " .. tormentor:GetUnitName(), true);
+					return true;
+				end
+			end
+		end
+	end
+
 	return false;
 end
 
@@ -189,7 +224,7 @@ function GetDesire()
 					--npcBot:ActionImmediate_Ping(tormentorPositions[i].x, tormentorPositions[i].y, false);
 					--npcBot:ActionImmediate_Chat("Добавляю позицию Терзателя - он на месте.", true);
 					table.insert(tormentorPositions, i);
-				elseif not HasTormentorInPosition(tormentorPositions[i])
+				elseif not HasTormentorInPosition(tormentorPositions[i]) and IsPositionInTable(tormentorPositions, tormentorPositions[i])
 				then
 					--npcBot:ActionImmediate_Ping(tormentorPositions[i].x, tormentorPositions[i].y, false);
 					--npcBot:ActionImmediate_Chat("Удаляю позицию Терзателя - его там нет.", true);
@@ -208,7 +243,9 @@ function GetDesire()
 		utility.GetUnitInfo(closestTormentor)
 	end ]]
 
-	if tormentorDistance <= checkRadius and (countAllyHeroesNear >= minAllyHeroes or IsAllyHeroAttackTormentor(closestTormentorLocation))
+	if tormentorDistance <= checkRadius and (countAllyHeroesNear >= minAllyHeroes or
+			IsAllyHeroAttackTormentor(closestTormentorLocation) or
+			IsTormentorPingedByHumanPlayer(closestTormentorLocation))
 	then
 		--npcBot:ActionImmediate_Chat("Рядом есть доступный Терзатель.", true);
 		return BOT_MODE_DESIRE_VERYHIGH;
@@ -218,7 +255,7 @@ function GetDesire()
 end
 
 function OnStart()
-	if RollPercentage(5)
+	if RollPercentage(15)
 	then
 		npcBot:ActionImmediate_Chat("Атакую Терзателя!", false);
 		npcBot:ActionImmediate_Ping(closestTormentorLocation.x, closestTormentorLocation.y, true);
@@ -235,7 +272,8 @@ function Think()
 		return;
 	end
 
-	local attackRange = 500;
+	local attackRange = npcBot:GetAttackRange();
+	local boundRadius = npcBot:GetBoundingRadius();
 
 	if closestTormentorLocation ~= nil
 	then
@@ -256,12 +294,12 @@ function Think()
 					return;
 				else
 					--npcBot:ActionImmediate_Chat("Жду союзников!", true);
-					npcBot:Action_MoveToLocation(closestTormentorLocation + RandomVector(400));
+					npcBot:Action_MoveToLocation(closestTormentorLocation + RandomVector(boundRadius * 2));
 					return;
 				end
 			else
 				--npcBot:ActionImmediate_Chat("Терзатель недоступен для атаки, брожу рядом.", true);
-				npcBot:Action_MoveToLocation(closestTormentorLocation + RandomVector(400));
+				npcBot:Action_MoveToLocation(closestTormentorLocation + RandomVector(boundRadius * 2));
 				return;
 			end
 		end

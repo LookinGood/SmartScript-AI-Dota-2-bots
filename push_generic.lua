@@ -39,6 +39,8 @@ end
 
 function GetCurrentAttackTarget(radius)
     local enemyCreeps = npcBot:GetNearbyCreeps(radius, true);
+    local enemyOther = GetUnitList(UNIT_LIST_ENEMY_OTHER);
+    local enemyOtherTarget = utility.GetWeakest(enemyOther);
     local enemyTowers = npcBot:GetNearbyTowers(radius, true);
     local enemyBarracks = npcBot:GetNearbyBarracks(radius, true);
     local enemyFillers = npcBot:GetNearbyFillers(radius, true);
@@ -48,18 +50,28 @@ function GetCurrentAttackTarget(radius)
     if (#enemyCreeps > 0)
     then
         attackTarget = utility.GetWeakest(enemyCreeps);
+        return attackTarget;
     elseif (#enemyTowers > 0)
     then
         attackTarget = utility.GetWeakest(enemyTowers);
+        return attackTarget;
     elseif (#enemyBarracks > 0)
     then
         attackTarget = utility.GetWeakest(enemyBarracks);
+        return attackTarget;
     elseif GetUnitToUnitDistance(npcBot, enemyAncient) <= radius
     then
         attackTarget = enemyAncient;
+        return attackTarget;
+    elseif (#enemyOther > 0) and enemyOtherTarget ~= nil and GetUnitToUnitDistance(npcBot, enemyOtherTarget) <= radius
+    then
+        attackTarget = enemyOtherTarget;
+        --npcBot:ActionImmediate_Chat("Моя цель: " .. attackTarget:GetUnitName(), true);
+        return attackTarget;
     elseif (#enemyFillers > 0)
     then
         attackTarget = utility.GetWeakest(enemyFillers);
+        return attackTarget;
     end
 
     return attackTarget;
@@ -90,8 +102,6 @@ function Think()
     --local mainCreep = nil;
     --local mainBuilding = nil;
 
-    --npcBot:WasRecentlyDamagedByAnyHero(3.0) or
-    --utility.BotWasRecentlyDamagedByEnemyHero(3.0) or
     --npcBot:ActionImmediate_Chat("Отхожу от башни!", true);
     --npcBot:ActionImmediate_Ping(escapeLocation.x, escapeLocation.y, true);
 

@@ -257,11 +257,7 @@ function ConsiderChillingTouch()
         return;
     end
 
-    local attackRange = npcBot:GetAttackRange() + (ability:GetSpecialValueInt("attack_range_bonus"));
-    local attackTarget = npcBot:GetAttackTarget();
-
-    if (utility.IsHero(botTarget) or utility.IsBoss(botTarget)) and utility.CanCastSpellOnTarget(ability, botTarget)
-        and GetUnitToUnitDistance(npcBot, botTarget) <= attackRange
+    if utility.IsNeedTurnOnAttackModifier()
     then
         if not ability:GetAutoCastState()
         then
@@ -271,22 +267,6 @@ function ConsiderChillingTouch()
         if ability:GetAutoCastState()
         then
             ability:ToggleAutoCast()
-        end
-    end
-
-    if attackTarget ~= nil
-    then
-        if (utility.IsHero(attackTarget) or utility.IsBoss(attackTarget)) and utility.CanCastSpellOnTarget(ability, attackTarget)
-        then
-            if not ability:GetAutoCastState()
-            then
-                ability:ToggleAutoCast()
-            end
-        else
-            if ability:GetAutoCastState()
-            then
-                ability:ToggleAutoCast()
-            end
         end
     end
 end

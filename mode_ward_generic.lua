@@ -1,6 +1,4 @@
 ---@diagnostic disable: undefined-global
-_G._savedEnv = getfenv()
-module("mode_retreat_generic", package.seeall)
 require(GetScriptDirectory() .. "/utility")
 
 local npcBot = GetBot();
@@ -49,7 +47,6 @@ local DIRE_BOTSPOT3 = Vector(7681.0, -1523.6, 240.7);
 local DIRE_BOTSPOTNOTOWER = Vector(6321.9, 2595.6, 201.8);
 
 function GetWardSpot()
-    local npcBot = GetBot();
     local RadiantWardSpotEarlyGame = {
         RADIANT_TOPSPOT2,
         RADIANT_TOPSPOT3,
@@ -124,18 +121,7 @@ function GetWardSpot()
     end
 end
 
---[[ function IsObserverWardAvailable()
-    local npcBot = GetBot();
-    local slot = npcBot:FindItemSlot("item_ward_observer");
-    if npcBot:GetItemSlotType(slot) == ITEM_SLOT_TYPE_MAIN
-    then
-        return npcBot:GetItemInSlot(slot);
-    end
-    return nil;
-end ]]
-
 function IsWardAvailable(sWardType)
-    local npcBot = GetBot();
     local slot = npcBot:FindItemSlot(sWardType);
     if npcBot:GetItemSlotType(slot) == ITEM_SLOT_TYPE_MAIN
     then
@@ -144,42 +130,22 @@ function IsWardAvailable(sWardType)
     return nil;
 end
 
-function CloseToAvailableWard(sWardType, wardLoc)
-    local WardList = GetUnitList(UNIT_LIST_ALLIED_WARDS);
-    local visionRad = 1600;
-
-    for _, ward in pairs(WardList) do
-        if ward:GetUnitName() == sWardType and GetUnitToLocationDistance(ward, wardLoc) <= visionRad
-        then
-            return true;
-        end
-    end
-    return false;
-end
-
---[[ function CloseToAvailableWard(wardLoc)
-    local WardList = GetUnitList(UNIT_LIST_ALLIED_WARDS);
-    local visionRad = 1600;
-
-    for _, ward in pairs(WardList) do
-        if ward:GetUnitName() == "npc_dota_observer_wards" and GetUnitToLocationDistance(ward, wardLoc) <= visionRad
-        then
-            return true;
-        end
-    end
-    return false;
-end ]]
-
 function GetDesire()
-    if not utility.IsHero(npcBot) or not npcBot:IsAlive() or npcBot:HasModifier("modifier_skeleton_king_reincarnation_scepter_active")
+    if not utility.IsHero(npcBot) or utility.IsCloneMeepo(npcBot) or npcBot:HasModifier("modifier_skeleton_king_reincarnation_scepter_active")
     then
         return BOT_ACTION_DESIRE_NONE;
     end
 
+    index1 = nil;
+    index2 = nil;
+    emptySlot = utility.GetEmptyMainItemSlot();
+    emptyStashItemSlot = utility.GetEmptyStashItemSlot();
+    local trashItemSlot = utility.GetBotTrashItemSlot();
+    local recipeItemSlot = utility.GetBotRecipeItemSlot();
+
     -- Перемещение лотусов в инвентарь
     itemLotus = nil;
     itemLotusSlot = nil;
-    emptySlot = utility.GetEmptyMainItemSlot();
 
     if itemLotus == nil and emptySlot ~= nil
     then
@@ -192,39 +158,114 @@ function GetDesire()
             --npcBot:ActionImmediate_Chat("Хочу переложить healingLotus!", true);
             itemLotus = npcBot:GetItemInSlot(lotusSlot1);
             itemLotusSlot = lotusSlot1;
-            return BOT_MODE_DESIRE_VERYHIGH;
+            return BOT_MODE_DESIRE_ABSOLUTE;
         elseif npcBot:GetItemSlotType(lotusSlot2) == ITEM_SLOT_TYPE_BACKPACK
         then
             --npcBot:ActionImmediate_Chat("Хочу переложить greatHealingLotus!", true);
             itemLotus = npcBot:GetItemInSlot(lotusSlot2);
             itemLotusSlot = lotusSlot2;
-            return BOT_MODE_DESIRE_VERYHIGH;
+            return BOT_MODE_DESIRE_ABSOLUTE;
         elseif npcBot:GetItemSlotType(lotusSlot3) == ITEM_SLOT_TYPE_BACKPACK
         then
             --npcBot:ActionImmediate_Chat("Хочу переложить greaterHealingLotus!", true);
             itemLotus = npcBot:GetItemInSlot(lotusSlot3);
             itemLotusSlot = lotusSlot3;
-            return BOT_MODE_DESIRE_VERYHIGH;
+            return BOT_MODE_DESIRE_ABSOLUTE;
+        end
+    end
+
+    -- Освобождение места в инвентаре
+    if npcBot:DistanceFromFountain() <= 500
+    then
+        local expensiveStashItem = utility.GetMostExpensiveStashItem();
+
+        if trashItemSlot ~= nil and (npcBot:GetItemSlotType(trashItemSlot) == ITEM_SLOT_TYPE_MAIN or npcBot:GetItemSlotType(trashItemSlot) == ITEM_SLOT_TYPE_BACKPACK)
+        then
+            if expensiveStashItem ~= nil and not utility.IsItemRecipe(expensiveStashItem:GetName()) and
+                not utility.IsItemTrash(expensiveStashItem:GetName())
+            then
+                index1 = trashItemSlot;
+                index2 = npcBot:FindItemSlot(expensiveStashItem:GetName());
+                npcBot:ActionImmediate_Chat("Хочу переложить мусор и стеш-вещь: " .. index1 .. " и " .. index2, true);
+                return BOT_MODE_DESIRE_ABSOLUTE;
+            end
+        end
+
+        if recipeItemSlot ~= nil and (npcBot:GetItemSlotType(recipeItemSlot) == ITEM_SLOT_TYPE_MAIN or npcBot:GetItemSlotType(recipeItemSlot) == ITEM_SLOT_TYPE_BACKPACK)
+        then
+            if expensiveStashItem ~= nil and not utility.IsItemRecipe(expensiveStashItem:GetName())
+            then
+                index1 = recipeItemSlot;
+                index2 = npcBot:FindItemSlot(expensiveStashItem:GetName());
+                npcBot:ActionImmediate_Chat("Хочу переложить рецепт и вещь: " .. index1 .. " и " .. index2, true);
+                return BOT_MODE_DESIRE_ABSOLUTE;
+            end
+
+            if emptyStashItemSlot ~= nil
+            then
+                index1 = recipeItemSlot;
+                index2 = emptyStashItemSlot;
+                npcBot:ActionImmediate_Chat("Хочу переложить рецепт в пустой стеш-слот: " .. index1 .. " и " .. index2,
+                    true);
+                return BOT_MODE_DESIRE_ABSOLUTE;
+            end
         end
     end
 
     local enemyHeroes = npcBot:GetNearbyHeroes(1000, true, BOT_MODE_NONE);
 
-    if (#enemyHeroes > 0) or utility.IsBaseUnderAttack()
+    if not npcBot:IsAlive() or (#enemyHeroes > 0) or utility.IsBaseUnderAttack()
     then
         return BOT_ACTION_DESIRE_NONE;
     end
 
+    -- Подбор предметов
+    local itemList = GetDroppedItemList();
+    pickUpItem = nil;
+    pickUpItemLocation = nil;
+
+    if (#itemList > 0) and not utility.IsItemSlotsFull()
+    then
+        for _, droppedItem in pairs(itemList) do
+            if droppedItem ~= nil and GetUnitToLocationDistance(npcBot, droppedItem.location) <= 1600 and IsLocationPassable(droppedItem.location)
+            then
+                if droppedItem.owner == npcBot or
+                    (droppedItem.item:GetName() == "item_cheese" or
+                        droppedItem.item:GetName() == "item_roshans_banner" or
+                        droppedItem.item:GetName() == "item_refresher_shard") or
+                    (droppedItem.item:GetName() == "item_gem" or droppedItem.item:GetName() == "item_rapier"
+                        and utility.GetEmptyMainItemSlot() ~= nil)
+                then
+                    pickUpItem = droppedItem.item;
+                    pickUpItemLocation = droppedItem.location;
+                    --npcBot:ActionImmediate_Chat("Нужно поднять: " .. pickUpItem:GetName(), true);
+                    return BOT_MODE_DESIRE_ABSOLUTE;
+                end
+            end
+        end
+    end
+
+    dropItem = nil;
     courier = utility.GetBotCourier(npcBot);
-    local state = GetCourierState(courier);
     isCourierNearAndDeliver = false;
 
-    if (state == COURIER_STATE_DELIVERING_ITEMS) and GetUnitToUnitDistance(courier, npcBot) <= 1000 and not utility.IsItemSlotsFull()
-        and not utility.IsCloneMeepo(npcBot)
+    if (GetCourierState(courier) == COURIER_STATE_DELIVERING_ITEMS) and GetUnitToUnitDistance(courier, npcBot) <= 1600
     then
-        isCourierNearAndDeliver = true;
-        --npcBot:ActionImmediate_Chat("Нужно встретить курьера!", true);
-        return BOT_MODE_DESIRE_VERYHIGH;
+        if not utility.IsItemSlotsFull()
+        then
+            isCourierNearAndDeliver = true;
+            return BOT_MODE_DESIRE_ABSOLUTE;
+        end
+        if utility.IsItemSlotsFull() and trashItemSlot ~= nil and (DotaTime() > 5 * 60)
+        then
+            dropItem = npcBot:GetItemInSlot(trashItemSlot);
+            if dropItem ~= nil and npcBot:GetCourierValue() > GetItemCost(dropItem:GetName())
+            then
+                --npcBot:ActionImmediate_Chat("Нужно встретить курьера: " .. dropItem:GetName(), true);
+                isCourierNearAndDeliver = true;
+                return BOT_MODE_DESIRE_ABSOLUTE;
+            end
+        end
     end
 
     local enemyTowers = npcBot:GetNearbyTowers(1000, true);
@@ -236,20 +277,22 @@ function GetDesire()
 
     enemyWard = nil;
     enemyCourier = nil;
+    -- (npcBot:GetAttackRange() + 150 * 2)
 
     local enemyWards = GetUnitList(UNIT_LIST_ENEMY_WARDS);
     if (#enemyWards > 0)
     then
         for _, ward in pairs(enemyWards) do
-            if ward:CanBeSeen() and GetUnitToUnitDistance(npcBot, ward) <= (npcBot:GetAttackRange() + 150 * 2)
+            if ward:CanBeSeen() and not ward:IsInvulnerable() and GetUnitToUnitDistance(npcBot, ward) <= 1600
+                and IsLocationPassable(ward:GetLocation())
             then
                 enemyWard = ward;
-                return BOT_ACTION_DESIRE_VERYHIGH;
+                return BOT_ACTION_DESIRE_ABSOLUTE;
             end
         end
     end
 
-    local enemyCouriers = npcBot:GetNearbyCreeps(npcBot:GetAttackRange() + 500, true);
+    local enemyCouriers = npcBot:GetNearbyCreeps(1600, true);
     if (#enemyCouriers > 0)
     then
         for _, courier in pairs(enemyCouriers) do
@@ -257,7 +300,7 @@ function GetDesire()
                 and IsLocationPassable(courier:GetLocation())
             then
                 enemyCourier = courier;
-                return BOT_ACTION_DESIRE_VERYHIGH;
+                return BOT_ACTION_DESIRE_ABSOLUTE;
             end
         end
     end
@@ -281,21 +324,26 @@ function GetDesire()
             then
                 if wardObserver ~= nil
                 then
-                    if not CloseToAvailableWard("npc_dota_observer_wards", s)
+                    local wardObserverRadius = wardObserver:GetSpecialValueInt("vision_range_tooltip");
+                    if not utility.CloseToAvailableWard("npc_dota_observer_wards", s, wardObserverRadius)
                     then
                         wardSpot = s;
                         return BOT_ACTION_DESIRE_HIGH;
                     end
                 elseif wardSentry ~= nil
                 then
-                    if not CloseToAvailableWard("npc_dota_sentry_wards", s)
+                    local wardSentryRadius = wardSentry:GetSpecialValueInt("true_sight_range");
+                    if not utility.CloseToAvailableWard("npc_dota_sentry_wards", s, wardSentryRadius)
                     then
                         wardSpot = s;
                         return BOT_ACTION_DESIRE_HIGH;
                     end
                 elseif wardDispenser ~= nil
                 then
-                    if not CloseToAvailableWard("npc_dota_observer_wards", s) and not CloseToAvailableWard("npc_dota_sentry_wards", s)
+                    local wardObserverRadius = wardDispenser:GetSpecialValueInt("observer_vision_range_tooltip");
+                    local wardSentryRadius = wardDispenser:GetSpecialValueInt("true_sight_range");
+                    if not utility.CloseToAvailableWard("npc_dota_observer_wards", s, wardObserverRadius) and
+                        not utility.CloseToAvailableWard("npc_dota_sentry_wards", s, wardSentryRadius)
                     then
                         wardSpot = s;
                         return BOT_ACTION_DESIRE_HIGH;
@@ -308,13 +356,12 @@ function GetDesire()
     return BOT_ACTION_DESIRE_NONE;
 end
 
---[[ function OnStart()
-    if RollPercentage(5)
+function OnStart()
+    --[[     if RollPercentage(5)
     then
         npcBot:ActionImmediate_Chat("Иду ставить вард.", false);
-    end
+    end ]]
 end
- ]]
 
 function OnEnd()
     enemyWard = nil;
@@ -328,6 +375,28 @@ function Think()
         return;
     end
 
+    if index1 ~= nil and index2 ~= nil
+    then
+        npcBot:ActionImmediate_Chat("Перекладываю вещи.", true);
+        npcBot:ActionImmediate_SwapItems(index1, index2);
+        return;
+    end
+
+    if pickUpItem ~= nil and pickUpItemLocation ~= nil
+    then
+        if GetUnitToLocationDistance(npcBot, pickUpItemLocation) > 100
+        then
+            --npcBot:ActionImmediate_Chat("Иду к предмету: " .. pickUpItem:GetName(), true);
+            --npcBot:ActionImmediate_Ping(pickUpItemLocation.x, pickUpItemLocation.y, true);
+            npcBot:Action_MoveToLocation(pickUpItemLocation + RandomVector(100));
+            return;
+        else
+            --npcBot:ActionImmediate_Chat("Поднимаю предмет: " .. pickUpItem:GetName(), true);
+            npcBot:Action_PickUpItem(pickUpItem);
+            return;
+        end
+    end
+
     if (itemLotus ~= nil)
     then
         npcBot:ActionImmediate_SwapItems(itemLotusSlot, emptySlot);
@@ -339,10 +408,29 @@ function Think()
 
     if (isCourierNearAndDeliver == true)
     then
-        --npcBot:ActionImmediate_Chat("Встречаю курьера!", true);
-        npcBot:Action_MoveToLocation(courier:GetLocation());
-        return;
-    elseif enemyWard ~= nil
+        local boundRadius = npcBot:GetBoundingRadius();
+        if GetUnitToUnitDistance(npcBot, courier) > boundRadius * 2
+        then
+            if dropItem ~= nil
+            then
+                if GetItemCost(dropItem:GetName()) > 0 and (npcBot:DistanceFromFountain() <= 500 or npcBot:DistanceFromSecretShop() <= 500)
+                then
+                    npcBot:ActionImmediate_Chat("Продаю предмет: " .. dropItem:GetName(), true);
+                    npcBot:ActionImmediate_SellItem(dropItem);
+                    return;
+                else
+                    --npcBot:ActionImmediate_Chat("Выкидываю предмет: " .. dropItem:GetName(), true);
+                    npcBot:Action_DropItem(dropItem, npcBot:GetLocation());
+                    return;
+                end
+            end
+            --npcBot:ActionImmediate_Chat("Встречаю курьера!", true);
+            npcBot:Action_MoveToUnit(courier);
+            return;
+        end
+    end
+
+    if enemyWard ~= nil
     then
         npcBot:SetTarget(enemyWard);
         npcBot:Action_AttackUnit(enemyWard, false);
@@ -356,13 +444,15 @@ function Think()
             npcBot:Action_AttackUnit(enemyWard, false);
             return;
         end ]]
-    elseif enemyCourier ~= nil
+    end
+
+    if enemyCourier ~= nil
     then
         npcBot:SetTarget(enemyCourier);
         npcBot:Action_AttackUnit(enemyCourier, false);
         return;
 
-        --[[         if GetUnitToUnitDistance(npcBot, enemyCourier) > (npcBot:GetAttackRange() + 200)
+        --[[ if GetUnitToUnitDistance(npcBot, enemyCourier) > (npcBot:GetAttackRange() + 200)
         then
             npcBot:Action_MoveToLocation(enemyCourier:GetLocation());
             return;
@@ -371,7 +461,9 @@ function Think()
             npcBot:Action_AttackUnit(enemyCourier, false);
             return;
         end ]]
-    elseif wardSpot ~= nil
+    end
+
+    if wardSpot ~= nil
     then
         if GetUnitToLocationDistance(npcBot, wardSpot) > 500
         then
@@ -397,6 +489,3 @@ function Think()
         end
     end
 end
-
----------------------------------------------------------------------------------------------------
-for k, v in pairs(mode_retreat_generic) do _G._savedEnv[k] = v end

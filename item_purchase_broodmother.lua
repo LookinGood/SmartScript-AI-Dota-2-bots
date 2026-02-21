@@ -17,21 +17,22 @@ local ItemsToBuy =
 
 	"item_power_treads",
 
-	"item_echo_sabre",
-
-	"item_oblivion_staff",
-	"item_orchid",
+	"item_diffusal_blade",
 
 	"item_yasha",
 	"item_manta",
 
 	"item_black_king_bar",
 
+	"item_lesser_crit",
+	"item_greater_crit",
+
 	"item_aghanims_shard",
 
-	"item_bloodthorn",
+	"item_ultimate_scepter",
+	"item_ultimate_scepter_2",
 
-	"item_harpoon",
+	"item_disperser",
 
 	"item_moon_shard",
 

@@ -63,8 +63,56 @@ function GetUnitInfo(npcTarget)
 	timer = GameTime();
 end
 
+function FixDelayBot()
+	local npcBot = GetBot();
+
+	local HighFive = npcBot:GetAbilityByName("high_five");
+	if HighFive ~= nil
+	then
+		print("HighFive обнаружен!")
+	end
+
+	if not npcBot:IsAlive() or npcBot:IsIllusion()
+	then
+		return;
+	end
+
+	local botMode = npcBot:GetActiveMode();
+	local botModeDesire = npcBot:GetActiveModeDesire();
+
+	if botMode == nil or botMode == BOT_MODE_NONE or
+		botModeDesire == nil or botModeDesire <= BOT_MODE_DESIRE_NONE or
+		npcBot:HasModifier("modifier_fountain_invulnerability")
+	then
+		npcBot:Action_MoveToLocation(GetFountainLocation());
+		return;
+	end
+
+
+	--[[ 	local allyHeroes = GetUnitList(UNIT_LIST_ALLIED_HEROES);
+	if (#allyHeroes > 0)
+	then
+		for _, ally in pairs(allyHeroes)
+		do
+			if ally ~= npcBot and IsPlayerBot(ally:GetPlayerID()) and not utility.IsIllusion(ally) and ally:DistanceFromFountain() <= 1000
+			then
+				if ally:HasModifier("modifier_fountain_invulnerability") or
+					(utility.IsTargetInvulnerable(ally) and
+						(ally:GetCurrentActionType() == BOT_ACTION_TYPE_IDLE or
+							ally:GetCurrentActionType() == BOT_ACTION_TYPE_DELAY or
+							ally:GetCurrentActionType() == BOT_ACTION_TYPE_NONE))
+				then
+					npcBot:ActionImmediate_Chat("Цель AFK: " .. ally:GetUnitName(), true);
+					npcBot:ActionImmediate_Ping(ally:GetLocation().x, ally:GetLocation().y, true);
+					return;
+				end
+			end
+		end
+	end ]]
+end
+
 function IsValidTarget(npcTarget)
-	return npcTarget ~= nil and npcTarget:CanBeSeen() and npcTarget:IsAlive()
+	return npcTarget ~= nil and not IsIgnoredUnit(npcTarget) and npcTarget:CanBeSeen() and npcTarget:IsAlive()
 		and not npcTarget:HasModifier("modifier_skeleton_king_reincarnation_scepter_active");
 end
 
@@ -207,13 +255,30 @@ function IsNotAttackTarget(npcTarget)
 			npcTarget:HasModifier("modifier_skeleton_king_reincarnation_scepter_active"));
 end
 
+function IsIgnoredUnit(npcTarget)
+	local ignoredUnits = {
+		"npc_dota_unit_undying_zombie",
+		"npc_dota_unit_undying_zombie_torso",
+		"npc_dota_techies_land_mine",
+		"npc_dota_techies_stasis_trap",
+	}
+	for _, unitName in pairs(ignoredUnits)
+	do
+		if unitName == npcTarget:GetUnitName()
+		then
+			return true;
+		end
+	end
+	return false;
+end
+
 function GetWeakest(units)
 	local target = nil;
 	local minHP = 10000;
 	if #units > 0
 	then
 		for i = 1, #units do
-			if IsValidTarget(units[i])
+			if IsValidTarget(units[i]) and CanCastOnInvulnerableTarget(units[i])
 			then
 				local hp = units[i]:GetHealth();
 				if hp < minHP
@@ -233,7 +298,7 @@ function GetStrongest(units)
 	if #units > 0
 	then
 		for i = 1, #units do
-			if IsValidTarget(units[i])
+			if IsValidTarget(units[i]) and CanCastOnInvulnerableTarget(units[i])
 			then
 				local hp = units[i]:GetHealth();
 				if hp > maxHP
@@ -244,6 +309,28 @@ function GetStrongest(units)
 			end
 		end
 	end
+	return target;
+end
+
+function GetStrongestAllyBotHero()
+	local target = nil;
+	local allyHeroes = GetUnitList(UNIT_LIST_ALLIED_HEROES);
+	local maxPower = 0;
+	if (#allyHeroes > 0)
+	then
+		for _, ally in pairs(allyHeroes) do
+			if IsPlayerBot(ally:GetPlayerID()) and not ally:IsIllusion() and not utility.IsClone(ally)
+			then
+				local allyOffensivePower = ally:GetOffensivePower();
+				if allyOffensivePower > maxPower
+				then
+					target = ally;
+					maxPower = allyOffensivePower;
+				end
+			end
+		end
+	end
+
 	return target;
 end
 
@@ -337,30 +424,25 @@ function GetRandomBotPlayer()
 	return selectedBotHero;
 end
 
---[[ function GetNearbyHeroes(target, nRadius, bEnemies)
-	local unitList = {}
-	if bEnemies == false
-	then
-		local enemyHeroes = target:GetUnitList(UNIT_LIST_ENEMY_HEROES)
-		for _, enemy in pairs(enemyHeroes) do
-			if IsValidTarget(enemy) and GetUnitToUnitDistance(target, enemy) <= nRadius
+function GetRandomBotSupport()
+	local selectedBotHero = nil;
+	local goldMin = 100000;
+	local allyHeroes = GetUnitList(UNIT_LIST_ALLIED_HEROES);
+
+	for _, ally in pairs(allyHeroes) do
+		if IsPlayerBot(ally:GetPlayerID()) and hero_role_generic.IsHeroSupport(ally)
+		then
+			local playerGold = ally:GetGold();
+			if playerGold < goldMin
 			then
-				table.insert(unitList, enemy);
-			end
-		end
-	elseif bEnemies == true
-	then
-		local allyHeroes = target:GetUnitList(UNIT_LIST_ALLIED_HEROES)
-		for _, ally in pairs(allyHeroes) do
-			if IsValidTarget(ally) and GetUnitToUnitDistance(target, ally) <= nRadius
-			then
-				table.insert(unitList, ally);
+				goldMin = playerGold;
+				selectedBotHero = ally;
 			end
 		end
 	end
 
-	return unitList;
-end ]]
+	return selectedBotHero;
+end
 
 function GetBiggerAttribute(npcTarget)
 	if not IsHero(npcTarget)
@@ -413,8 +495,11 @@ function GetCurrentCastDistance(castRangeAbility)
 	then
 		distance = 1600
 		return distance;
-	else
+	elseif distance > 0
+	then
 		return distance;
+	else
+		return 0;
 	end
 end
 
@@ -422,6 +507,32 @@ function GetEmptyMainItemSlot()
 	local npcBot = GetBot();
 
 	for i = 0, 5 do
+		if npcBot:GetItemInSlot(i) == nil
+		then
+			return i;
+		end
+	end
+
+	return nil;
+end
+
+function GetEmptyBackpackItemSlot()
+	local npcBot = GetBot();
+
+	for i = 6, 8 do
+		if npcBot:GetItemInSlot(i) == nil
+		then
+			return i;
+		end
+	end
+
+	return nil;
+end
+
+function GetEmptyStashItemSlot()
+	local npcBot = GetBot();
+
+	for i = 9, 14 do
 		if npcBot:GetItemInSlot(i) == nil
 		then
 			return i;
@@ -581,9 +692,7 @@ function IsIllusion(npcTarget)
 		return false;
 	end
 
-	local npcBot = GetBot();
-
-	if IsAlly(npcBot, npcTarget)
+	if IsAlly(GetBot(), npcTarget)
 	then
 		if npcTarget:IsIllusion()
 		then
@@ -600,7 +709,16 @@ function IsIllusion(npcTarget)
 				end
 			end
 		end
+
+		local playerId = npcTarget:GetPlayerID();
+		if (not IsHeroAlive(playerId)) or (GetHeroLevel(playerId) > npcTarget:GetLevel())
+		then
+			npcBot:ActionImmediate_Chat("Цель иллюзия: " .. npcTarget:GetUnitName(), true);
+			return true;
+		end
 	end
+
+	return false;
 end
 
 --[[ 	npcTarget:HasModifier("modifier_illusion") or
@@ -644,6 +762,24 @@ end
 
 function IsBoss(npcTarget)
 	return IsRoshan(npcTarget) or IsTormentor(npcTarget);
+end
+
+function IsNeedTurnOnAttackModifier()
+	local npcBot = GetBot();
+	local botTarget = npcBot:GetTarget();
+	local botAttackTarget = npcBot:GetAttackTarget();
+
+	if botTarget ~= nil and (IsHero(botTarget) or IsBoss(botTarget) or botTarget:IsAncientCreep() or IsTeamPlayer(botTarget:GetPlayerID()))
+	then
+		return true;
+	end
+
+	if botAttackTarget ~= nil and (IsHero(botAttackTarget) or IsBoss(botAttackTarget) or botAttackTarget:IsAncientCreep() or IsTeamPlayer(botAttackTarget:GetPlayerID()))
+	then
+		return true;
+	end
+
+	return false;
 end
 
 function IsRealMeepo(npcTarget)
@@ -942,6 +1078,20 @@ function IsTargetedByEnemy(unit, bcreeps)
 		for _, enemy in pairs(enemyCreeps)
 		do
 			if enemy:GetAttackTarget() == unit
+			then
+				return true;
+			end
+		end
+	end
+	return false;
+end
+
+function CloseToAvailableWard(sWardType, wardLoc, radius)
+	local wardList = GetUnitList(UNIT_LIST_ALLIED_WARDS);
+	if (#wardList > 0)
+	then
+		for _, ward in pairs(wardList) do
+			if ward:GetUnitName() == sWardType and GetUnitToLocationDistance(ward, wardLoc) <= radius
 			then
 				return true;
 			end
@@ -1290,7 +1440,8 @@ function IsTargetInvulnerable(npcTarget)
 end
 
 function CanBeHeal(npcTarget)
-	return IsValidTarget(npcTarget) and not npcTarget:HasModifier("modifier_ice_blast") and
+	return IsValidTarget(npcTarget) and
+		not npcTarget:HasModifier("modifier_ice_blast") and
 		not npcTarget:HasModifier("modifier_skeleton_king_reincarnation_scepter_active") and
 		not npcTarget:HasModifier("modifier_doom_bringer_doom_enemy") and
 		not npcTarget:HasModifier("modifier_doom_bringer_doom")
@@ -1344,7 +1495,7 @@ function CanCastOnMagicImmuneAndInvulnerableTarget(npcTarget)
 end
 
 function CanCastSpellOnTarget(spell, npcTarget)
-	if spell == nil or npcTarget == nil
+	if spell == nil or not IsValidTarget(npcTarget)
 	then
 		return false;
 	end
@@ -1352,7 +1503,7 @@ function CanCastSpellOnTarget(spell, npcTarget)
 	local npcBot = GetBot();
 	local damageType = spell:GetDamageType();
 
-	if spell ~= nil and IsValidTarget(npcTarget)
+	if spell ~= nil
 	then
 		if SafeCast(npcTarget)
 		then
@@ -1441,7 +1592,6 @@ function PvEMode(npcBot)
 		botMode == BOT_MODE_DEFEND_TOWER_BOT or
 		botMode == BOT_MODE_FARM or
 		botMode == BOT_MODE_SECRET_SHOP or
-		botMode == BOT_MODE_SIDE_SHOP or
 		botMode == BOT_MODE_ITEM or
 		botMode == BOT_MODE_ASSEMBLE or
 		botMode == BOT_MODE_SHRINE or
@@ -1492,23 +1642,6 @@ function GetItemByName(target, itemName, bBackpack, bStash)
 	end
 end
 
---[[ function HaveItem(npc, itemName)
-	for i = 0, 8 do
-		local item = npc:GetItemInSlot(i)
-		if item ~= nil
-		then
-			if item:GetName() == itemName
-			then
-				return true;
-			else
-				return false;
-			end
-		else
-			return false;
-		end
-	end
-end ]]
-
 function IsBotHaveItem(itemName)
 	local npcBot = GetBot();
 	local courier = GetBotCourier(npcBot);
@@ -1555,6 +1688,103 @@ function IsBotHaveItem(itemName)
 	return false;
 end
 
+function IsTargetHaveItem(npcTarget, itemName)
+	if npcTarget == nil or itemName == nil
+	then
+		return false;
+	end
+
+	if IsAlly(GetBot(), npcTarget)
+	then
+		if npcTarget:IsHero() and not npcTarget:IsIllusion()
+		then
+			local courier = GetBotCourier(npcTarget);
+			for i = 0, 8 do
+				local item = courier:GetItemInSlot(i);
+				if item ~= nil and item:GetName() == itemName
+				then
+					--GetBot():ActionImmediate_Chat("Предмет у курьера.", true);
+					return true;
+				end
+			end
+		end
+	end
+
+	local slot = npcTarget:FindItemSlot(itemName);
+
+	if (slot >= 0)
+	then
+		--GetBot():ActionImmediate_Chat("Предмет есть у цели.", true);
+		return true;
+	end
+
+	--[[ 	if npcTarget:GetItemSlotType(slot) == ITEM_SLOT_TYPE_INVALID
+	then
+		return false;
+	end
+
+	if IsAlly(GetBot(), npcTarget)
+	then
+		if npcTarget:IsHero() and not npcTarget:IsIllusion()
+		then
+			local courier = GetBotCourier(npcTarget);
+			for i = 0, 8 do
+				local item = courier:GetItemInSlot(i);
+				if item ~= nil and item:GetName() == itemName
+				then
+					GetBot():ActionImmediate_Chat("Предмет у курьера.", true);
+					return true;
+				end
+			end
+
+			if npcTarget:GetItemSlotType(slot) == ITEM_SLOT_TYPE_MAIN or
+				npcTarget:GetItemSlotType(slot) == ITEM_SLOT_TYPE_BACKPACK or
+				npcTarget:GetItemSlotType(slot) == ITEM_SLOT_TYPE_STASH or
+				slot == 15 or slot == 16
+			then
+				GetBot():ActionImmediate_Chat("Предмет у героя.", true);
+				return true;
+			end
+		end
+
+		if npcTarget:GetItemSlotType(slot) == ITEM_SLOT_TYPE_MAIN or
+			npcTarget:GetItemSlotType(slot) == ITEM_SLOT_TYPE_BACKPACK or
+			slot == 15 or slot == 16
+		then
+			GetBot():ActionImmediate_Chat("Предмет у юнита.", true);
+			return true;
+		end
+	else
+		if npcTarget:GetItemSlotType(slot) == ITEM_SLOT_TYPE_MAIN or
+			npcTarget:GetItemSlotType(slot) == ITEM_SLOT_TYPE_BACKPACK or
+			slot == 15 or slot == 16
+		then
+			GetBot():ActionImmediate_Chat("Предмет у вражеского юнита.", true);
+			return true;
+		end
+	end ]]
+
+	return false;
+end
+
+function IsAllyTeamHaveItem(itemName)
+	local allyHeroes = GetUnitList(UNIT_LIST_ALLIED_HEROES);
+	if (#allyHeroes > 0)
+	then
+		for _, ally in pairs(allyHeroes) do
+			if not ally:IsIllusion() and not IsClone(ally)
+			then
+				if IsTargetHaveItem(ally, itemName)
+				then
+					return true;
+				end
+			end
+		end
+	end
+
+	return false;
+end
+
 function GetItemCount(npc, itemName)
 	local count = 0;
 
@@ -1582,8 +1812,19 @@ end
 
 function BotWasRecentlyDamagedByEnemyHero(fInterval)
 	local npcBot = GetBot();
-	local enemyHeroes = GetUnitList(UNIT_LIST_ENEMY_HEROES);
+	local enemyPlayers = GetTeamPlayers(GetOpposingTeam());
+	if (#enemyPlayers > 0)
+	then
+		for _, playerId in pairs(enemyPlayers) do
+			if npcBot:WasRecentlyDamagedByPlayer(playerId, fInterval)
+			then
+				--npcBot:ActionImmediate_Chat("Получаю урон от ID игрока: " .. playerId, true);
+				return true;
+			end
+		end
+	end
 
+	--[[ 	local enemyHeroes = GetUnitList(UNIT_LIST_ENEMY_HEROES);
 	if (#enemyHeroes > 0)
 	then
 		for _, enemy in pairs(enemyHeroes) do
@@ -1593,7 +1834,7 @@ function BotWasRecentlyDamagedByEnemyHero(fInterval)
 				return true;
 			end
 		end
-	end
+	end ]]
 
 	return false;
 end
@@ -1622,27 +1863,14 @@ function PurchaseWardObserver(npcBot)
 		return;
 	end
 
-	--print(tostring(npcBot:GetNextItemPurchaseValue()))
+	if IsTargetHaveItem(npcBot, itemName) or
+		IsTargetHaveItem(npcBot, "item_ward_dispenser")
+	then
+		return;
+	end
 
-	local courier = GetBotCourier(npcBot);
 	local assignedLane = npcBot:GetAssignedLane();
 	local botMode = npcBot:GetActiveMode();
-
-	for i = 0, 16 do
-		local item = npcBot:GetItemInSlot(i);
-		if item ~= nil and (item:GetName() == itemName or item:GetName() == "item_ward_sentry" or item:GetName() == "item_ward_dispenser")
-		then
-			return;
-		end
-	end
-
-	for i = 0, 8 do
-		local item = courier:GetItemInSlot(i);
-		if item ~= nil and (item:GetName() == itemName or item:GetName() == "item_ward_sentry" or item:GetName() == "item_ward_dispenser")
-		then
-			return;
-		end
-	end
 
 	if assignedLane == LANE_MID and botMode == BOT_MODE_LANING
 	then
@@ -1691,22 +1919,10 @@ function PurchaseWardSentry(npcBot)
 		return;
 	end
 
-	local courier = GetBotCourier(npcBot);
-
-	for i = 0, 16 do
-		local item = npcBot:GetItemInSlot(i);
-		if item ~= nil and (item:GetName() == "item_ward_observer" or item:GetName() == itemName or item:GetName() == "item_ward_dispenser")
-		then
-			return;
-		end
-	end
-
-	for i = 0, 8 do
-		local item = courier:GetItemInSlot(i);
-		if item ~= nil and (item:GetName() == "item_ward_observer" or item:GetName() == itemName or item:GetName() == "item_ward_dispenser")
-		then
-			return;
-		end
+	if IsTargetHaveItem(npcBot, itemName) or
+		IsTargetHaveItem(npcBot, "item_ward_dispenser")
+	then
+		return;
 	end
 
 	if HaveHumanInTeam(npcBot)
@@ -1742,35 +1958,37 @@ end
 
 function PurchaseSmokeOfDeceit(npcBot)
 	local itemName = "item_smoke_of_deceit";
-	if npcBot:GetGold() < GetItemCost(itemName) * 2 or IsItemSlotsFull() or IsStashSlotsFull() or GetItemStockCount(itemName) < 1
-		or (npcBot:GetNextItemPurchaseValue() > 0 and npcBot:GetGold() >= npcBot:GetNextItemPurchaseValue()) or GetGameState() ~= GAME_STATE_PRE_GAME
-		or not npcBot:IsAlive()
+	if npcBot:GetGold() < GetItemCost(itemName) or IsItemSlotsFull() or IsStashSlotsFull() or GetItemStockCount(itemName) < 1
+		or (npcBot:GetNextItemPurchaseValue() > 0 and npcBot:GetGold() >= npcBot:GetNextItemPurchaseValue())
+		or not npcBot:IsAlive() or GetGameState() ~= GAME_STATE_PRE_GAME
 	then
 		return;
 	end
 
-	local courier = GetBotCourier(npcBot);
-
-	for i = 0, 16 do
-		local item = npcBot:GetItemInSlot(i);
-		if item ~= nil and (item:GetName() == itemName)
-		then
-			return;
-		end
-	end
-
-	for i = 0, 8 do
-		local item = courier:GetItemInSlot(i);
-		if item ~= nil and (item:GetName() == itemName)
-		then
-			return;
-		end
-	end
-
-	if HaveHumanInTeam(npcBot)
+	if IsTargetHaveItem(npcBot, itemName)
 	then
-		if GetItemStockCount(itemName) > 1
+		return;
+	end
+
+	if GetRandomBotSupport() == npcBot
+	then
+		if HaveHumanInTeam(npcBot)
 		then
+			if GetItemStockCount(itemName) > 1
+			then
+				if hero_role_generic.HaveSupportInTeam(npcBot)
+				then
+					if hero_role_generic.IsHeroSupport(npcBot)
+					then
+						npcBot:ActionImmediate_PurchaseItem(itemName);
+						return;
+					end
+				else
+					npcBot:ActionImmediate_PurchaseItem(itemName);
+					return;
+				end
+			end
+		else
 			if hero_role_generic.HaveSupportInTeam(npcBot)
 			then
 				if hero_role_generic.IsHeroSupport(npcBot)
@@ -1783,18 +2001,6 @@ function PurchaseSmokeOfDeceit(npcBot)
 				return;
 			end
 		end
-	else
-		if hero_role_generic.HaveSupportInTeam(npcBot)
-		then
-			if hero_role_generic.IsHeroSupport(npcBot)
-			then
-				npcBot:ActionImmediate_PurchaseItem(itemName);
-				return;
-			end
-		else
-			npcBot:ActionImmediate_PurchaseItem(itemName);
-			return;
-		end
 	end
 end
 
@@ -1806,22 +2012,9 @@ function PurchaseTP(npcBot)
 		return;
 	end
 
-	local courier = GetBotCourier(npcBot);
-
-	for i = 0, 16 do
-		local item = npcBot:GetItemInSlot(i);
-		if item ~= nil and item:GetName() == itemName
-		then
-			return;
-		end
-	end
-
-	for i = 0, 8 do
-		local item = courier:GetItemInSlot(i);
-		if item ~= nil and item:GetName() == itemName
-		then
-			return;
-		end
+	if IsTargetHaveItem(npcBot, itemName)
+	then
+		return;
 	end
 
 	npcBot:ActionImmediate_PurchaseItem(itemName);
@@ -1836,22 +2029,9 @@ function PurchaseBloodGrenade(npcBot)
 		return;
 	end
 
-	local courier = GetBotCourier(npcBot);
-
-	for i = 0, 16 do
-		local item = npcBot:GetItemInSlot(i);
-		if item ~= nil and item:GetName() == itemName
-		then
-			return;
-		end
-	end
-
-	for i = 0, 8 do
-		local item = courier:GetItemInSlot(i);
-		if item ~= nil and item:GetName() == itemName
-		then
-			return;
-		end
+	if IsTargetHaveItem(npcBot, itemName)
+	then
+		return;
 	end
 
 	npcBot:ActionImmediate_PurchaseItem(itemName);
@@ -1860,8 +2040,9 @@ end
 function PurchaseBottle(npcBot)
 	local itemName = "item_bottle";
 	local assignedLane = npcBot:GetAssignedLane();
+	local botMode = npcBot:GetActiveMode();
 
-	if assignedLane ~= LANE_MID
+	if IsTargetHaveItem(npcBot, itemName) or assignedLane ~= LANE_MID or botMode ~= BOT_MODE_LANING
 	then
 		return;
 	end
@@ -1872,125 +2053,23 @@ function PurchaseBottle(npcBot)
 		return;
 	end
 
-	local courier = GetBotCourier(npcBot);
-
-	for i = 0, 16 do
-		local item = npcBot:GetItemInSlot(i);
-		if item ~= nil and item:GetName() == itemName
-		then
-			return;
-		end
-	end
-
-	for i = 0, 8 do
-		local item = courier:GetItemInSlot(i);
-		if item ~= nil and item:GetName() == itemName
-		then
-			return;
-		end
-	end
-
 	npcBot:ActionImmediate_PurchaseItem(itemName);
 end
 
 function HaveTravelBoots(npcBot)
-	for i = 0, 16 do
-		local item = npcBot:GetItemInSlot(i);
-		if item ~= nil and (item:GetName() == "item_travel_boots" or item:GetName() == "item_travel_boots_2" or item:GetName() == "item_force_boots")
-		then
-			return true;
-		end
-	end
-
-	return false;
+	return IsTargetHaveItem(npcBot, "item_travel_boots") or
+		IsTargetHaveItem(npcBot, "item_travel_boots_2") or
+		IsTargetHaveItem(npcBot, "item_force_boots");
 end
 
 function HasAganimShard(npcBot)
-	for i = 0, 16 do
-		local item = npcBot:GetItemInSlot(i);
-		if item ~= nil and item:GetName() == "item_aghanims_shard"
-		then
-			return true;
-		else
-			return false
-		end
-	end
-end
-
---[[ function GetFountain(npcTarget)
-	if IsValidTarget(npcTarget)
+	local itemName = "item_aghanims_shard";
+	if IsTargetHaveItem(npcBot, itemName)
 	then
-		if npcTarget:GetTeam() == TEAM_RADIANT or npcTarget:GetTeam() == TEAM_DIRE
-		then
-			local buildings = GetUnitList(UNIT_LIST_ALLIED_BUILDINGS);
-			if (#buildings > 0)
-			then
-				for _, ally in pairs(buildings)
-				do
-					if ally ~= nil and (string.find(ally:GetUnitName(), "fountain") and ally:DistanceFromFountain() == 0)
-					then
-						return ally;
-					end
-				end
-			end
-		end
+		return true;
 	end
 
-	return nil;
-end ]]
-
--- or ally:HasModifier('modifier_fountain_aura_buff')
--- or ally:DistanceFromFountain() == 0
--- if ally ~= nil and (string.find(ally:GetUnitName(), "fountain") or ally:HasModifier("modifier_fountain_aura_buff"))
-
-function GetFountainLocation()
-	local location = Vector(0, 0, 0);
-	local buildings = GetUnitList(UNIT_LIST_ALLIED_BUILDINGS);
-	if (#buildings > 0)
-	then
-		for _, ally in pairs(buildings)
-		do
-			if ally ~= nil and (string.find(ally:GetUnitName(), "fountain") and ally:DistanceFromFountain() <= 0)
-			then
-				--GetBot():ActionImmediate_Chat("Фонтан опознан: " .. ally:GetUnitName(), true);
-				--GetBot():ActionImmediate_Ping(ally:GetLocation().x, ally:GetLocation().y, true);
-				location = ally:GetLocation();
-			end
-		end
-	end
-
-	if location == nil or location == Vector(0, 0, 0)
-	then
-		location = GetAncient(GetTeam()):GetLocation();
-		--GetBot():ActionImmediate_Chat("Древний опознан: " .. GetAncient(GetTeam()):GetUnitName(), true);
-		--GetBot():ActionImmediate_Ping(GetAncient(GetTeam()):GetLocation().x, GetAncient(GetTeam()):GetLocation().y, true);
-	end
-
-	return location;
-end
-
---[[ function SafeLocation(npcBot) -- Old
-	local BotTeam = npcBot:GetTeam();
-	if BotTeam == TEAM_RADIANT
-	then
-		return Vector(-7232.0, -6888.0, 364.5);
-	elseif BotTeam == TEAM_DIRE
-	then
-		return Vector(7168.0, 6836.4, 423.6);
-	end
-end ]]
-
-function GetEscapeLocation(bot, maxAbilityRadius)
-	local botLocation = bot:GetLocation()
-	local direction = (GetFountainLocation() - botLocation):Normalized();
-	return botLocation + (direction * maxAbilityRadius)
-end
-
-function GetMaxRangeCastLocation(npcBot, npcTarget, maxAbilityRange)
-	local botLocation = npcBot:GetLocation();
-	local targetLocation = npcTarget:GetLocation();
-	local direction = (targetLocation - botLocation):Normalized();
-	return botLocation + (direction * maxAbilityRange)
+	return false;
 end
 
 -- Mage enemy check
@@ -2063,22 +2142,9 @@ function PurchaseInfusedRaindrop(npcBot)
 		return;
 	end
 
-	local courier = GetBotCourier(npcBot);
-
-	for i = 0, 16 do
-		local item = npcBot:GetItemInSlot(i);
-		if item ~= nil and item:GetName() == itemName
-		then
-			return;
-		end
-	end
-
-	for i = 0, 8 do
-		local item = courier:GetItemInSlot(i);
-		if item ~= nil and item:GetName() == itemName
-		then
-			return;
-		end
+	if IsTargetHaveItem(npcBot, itemName)
+	then
+		return;
 	end
 
 	if HaveMagesInEnemyTeam()
@@ -2109,6 +2175,7 @@ X['invisHeroes'] = {
 	--['npc_dota_hero_broodmother'] = 1,
 	['npc_dota_hero_weaver'] = 1,
 	['npc_dota_hero_hoodwink'] = 1,
+	['npc_dota_hero_windrunner'] = 1,
 }
 
 function UpdateInvisEnemyStatus(bot)
@@ -2126,11 +2193,11 @@ function UpdateInvisEnemyStatus(bot)
 	elseif globalEnemyCheck == true and DotaTime() >= 5 * 60 and DotaTime() > lastCheck + 3.0
 	then
 		local enemies = bot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
-		if #enemies > 0
+		if (#enemies > 0)
 		then
 			for i = 1, #enemies
 			do
-				if enemies[i] ~= nil and enemies[i]:IsNull() == false and enemies[i]:CanBeSeen() == true
+				if enemies[i] ~= nil and enemies[i]:CanBeSeen()
 				then
 					local SASlot = enemies[i]:FindItemSlot("item_shadow_amulet");
 					local GCSlot = enemies[i]:FindItemSlot("item_glimmer_cape");
@@ -2148,6 +2215,31 @@ function UpdateInvisEnemyStatus(bot)
 	end
 end
 
+function PurchaseGemOfTrueSight(npcBot)
+	local itemName = "item_gem";
+	if npcBot:GetGold() < GetItemCost(itemName) or GetEmptyMainItemSlot() == nil or IsStashSlotsFull() or GetItemStockCount(itemName) < 1 or
+		(npcBot:GetNextItemPurchaseValue() > 0 and npcBot:GetGold() >= npcBot:GetNextItemPurchaseValue()) or not npcBot:IsAlive() or
+		IsAllyTeamHaveItem(itemName)
+	then
+		return;
+	end
+
+	if IsTargetHaveItem(npcBot, itemName) or IsTargetHaveItem(npcBot, "item_dust") or
+		npcBot ~= GetStrongestAllyBotHero()
+	then
+		return;
+	end
+
+	UpdateInvisEnemyStatus(npcBot)
+
+	if X['invisEnemyExist'] == true
+	then
+		npcBot:ActionImmediate_PurchaseItem(itemName);
+		--npcBot:ActionImmediate_Chat("Покупаю " .. itemName, true);
+		return;
+	end
+end
+
 function PurchaseDust(npcBot)
 	local itemName = "item_dust";
 	if npcBot:GetGold() < GetItemCost(itemName) * 2 or IsItemSlotsFull() or IsStashSlotsFull() or DotaTime() < 5 * 60
@@ -2156,22 +2248,9 @@ function PurchaseDust(npcBot)
 		return;
 	end
 
-	local courier = GetBotCourier(npcBot);
-
-	for i = 0, 16 do
-		local item = npcBot:GetItemInSlot(i);
-		if item ~= nil and item:GetName() == itemName
-		then
-			return;
-		end
-	end
-
-	for i = 0, 8 do
-		local item = courier:GetItemInSlot(i);
-		if item ~= nil and item:GetName() == itemName
-		then
-			return;
-		end
+	if IsTargetHaveItem(npcBot, itemName) or IsTargetHaveItem(npcBot, "item_gem")
+	then
+		return;
 	end
 
 	UpdateInvisEnemyStatus(npcBot)
@@ -2182,6 +2261,175 @@ function PurchaseDust(npcBot)
 		npcBot:ActionImmediate_PurchaseItem(itemName);
 		return;
 	end
+end
+
+-- or ally:HasModifier('modifier_fountain_aura_buff')
+-- or ally:DistanceFromFountain() == 0
+-- if ally ~= nil and (string.find(ally:GetUnitName(), "fountain") or ally:HasModifier("modifier_fountain_aura_buff"))
+
+function GetMostExpensiveMainItem()
+	local expensiveItem = nil;
+	local maxCost = 0;
+
+	for i = 0, 5 do
+		local item = npcBot:GetItemInSlot(i);
+		local cost = GetItemCost(item:GetName());
+		if cost > maxCost
+		then
+			expensiveItem = item;
+			maxCost = cost;
+		end
+	end
+
+	return expensiveItem;
+end
+
+function GetMostExpensiveStashItem()
+	local expensiveItem = nil;
+	local maxCost = 0;
+
+	for i = 9, 14 do
+		local item = npcBot:GetItemInSlot(i);
+		local cost = GetItemCost(item:GetName());
+		if cost > maxCost
+		then
+			expensiveItem = item;
+			maxCost = cost;
+		end
+	end
+
+	return expensiveItem;
+end
+
+function GetItemSlotInStash()
+	local itemSlot = nil;
+	for i = 9, 14 do
+		local item = npcBot:GetItemInSlot(i);
+		if item ~= nil
+		then
+			itemSlot = npcBot:FindItemSlot(item:GetName());
+			return itemSlot;
+		end
+	end
+
+	return itemSlot;
+end
+
+function IsItemRecipe(itemName)
+	return (string.find(itemName, "recipe"));
+end
+
+function GetBotRecipeItemSlot()
+	local npcBot = GetBot();
+	local itemSlot = nil;
+
+	for i = 0, 16 do
+		local item = npcBot:GetItemInSlot(i);
+		if item ~= nil and IsItemRecipe(item:GetName())
+		then
+			itemSlot = npcBot:FindItemSlot(item:GetName())
+			return itemSlot;
+		end
+	end
+
+	return itemSlot;
+end
+
+local trashItemList = {
+	"item_tango",
+	"item_tango_single",
+	"item_flask",
+	"item_clarity",
+	"item_faerie_fire",
+	"item_enchanted_mango",
+	"item_blood_grenade",
+	"item_famango",
+	"item_great_famango",
+	"item_greater_famango",
+	"item_infused_raindrop",
+	"item_smoke_of_deceit",
+}
+
+function IsItemTrash(itemName)
+	for _, name in ipairs(trashItemList) do
+		if name == itemName
+		then
+			return true;
+		end
+	end
+
+	return false;
+end
+
+function GetBotTrashItemSlot()
+	local itemSlot = nil;
+	local minCost = 10000;
+
+	for i = 0, 15 do
+		local item = GetBot():GetItemInSlot(i)
+		if item ~= nil and IsItemTrash(item:GetName())
+		then
+			local cost = GetItemCost(item:GetName());
+			if cost < minCost
+			then
+				minCost = cost;
+				itemSlot = i;
+			end
+		end
+	end
+
+	--GetBot():ActionImmediate_Chat("Слот: " .. itemSlot, true);
+	return itemSlot;
+end
+
+function GetFountainLocation()
+	local location = Vector(0, 0, 0);
+	local buildings = GetUnitList(UNIT_LIST_ALLIED_BUILDINGS);
+	if (#buildings > 0)
+	then
+		for _, ally in pairs(buildings)
+		do
+			if ally ~= nil and (string.find(ally:GetUnitName(), "fountain") and ally:DistanceFromFountain() <= 0)
+			then
+				--GetBot():ActionImmediate_Chat("Фонтан опознан: " .. ally:GetUnitName(), true);
+				--GetBot():ActionImmediate_Ping(ally:GetLocation().x, ally:GetLocation().y, true);
+				location = ally:GetLocation();
+			end
+		end
+	end
+
+	if location == nil or location == Vector(0, 0, 0)
+	then
+		location = GetAncient(GetTeam()):GetLocation();
+		--GetBot():ActionImmediate_Chat("Древний опознан: " .. GetAncient(GetTeam()):GetUnitName(), true);
+		--GetBot():ActionImmediate_Ping(GetAncient(GetTeam()):GetLocation().x, GetAncient(GetTeam()):GetLocation().y, true);
+	end
+
+	return location;
+end
+
+--[[ function SafeLocation(npcBot) -- Old
+	local BotTeam = npcBot:GetTeam();
+	if BotTeam == TEAM_RADIANT
+	then
+		return Vector(-7232.0, -6888.0, 364.5);
+	elseif BotTeam == TEAM_DIRE
+	then
+		return Vector(7168.0, 6836.4, 423.6);
+	end
+end ]]
+
+function GetEscapeLocation(bot, maxAbilityRadius)
+	local botLocation = bot:GetLocation()
+	local direction = (GetFountainLocation() - botLocation):Normalized();
+	return botLocation + (direction * maxAbilityRadius)
+end
+
+function GetMaxRangeCastLocation(npcBot, npcTarget, maxAbilityRange)
+	local botLocation = npcBot:GetLocation();
+	local targetLocation = npcTarget:GetLocation();
+	local direction = (targetLocation - botLocation):Normalized();
+	return botLocation + (direction * maxAbilityRange)
 end
 
 function GetLineForPush()

@@ -189,7 +189,7 @@ function ConsiderSaltwaterShiv()
         return;
     end
 
-    if utility.CanCastSpellOnTarget(ability, botTarget) and utility.IsHero(botTarget)
+    if utility.IsNeedTurnOnAttackModifier()
     then
         if not ability:GetAutoCastState() then
             ability:ToggleAutoCast()

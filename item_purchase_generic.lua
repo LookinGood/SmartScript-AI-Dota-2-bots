@@ -25,12 +25,13 @@ function ItemPurchase(ItemsToBuy, realItemsToBuy)
 
     SellExtraItem()
     utility.PurchaseTP(npcBot)
-    utility.PurchaseSmokeOfDeceit(npcBot)
+    utility.PurchaseGemOfTrueSight(npcBot)
     utility.PurchaseDust(npcBot)
     utility.PurchaseWardObserver(npcBot)
     utility.PurchaseWardSentry(npcBot)
-    utility.PurchaseBloodGrenade(npcBot)
     utility.PurchaseInfusedRaindrop(npcBot)
+    utility.PurchaseSmokeOfDeceit(npcBot)
+    utility.PurchaseBloodGrenade(npcBot)
     utility.PurchaseBottle(npcBot)
     --utility.PurchaseTomeOfKnowledge(npcBot) -- Item deleted
 
@@ -76,10 +77,10 @@ function ItemPurchase(ItemsToBuy, realItemsToBuy)
                     realItemsToBuy[i] == "item_lifesteal" or
                     realItemsToBuy[i] == "item_boots" or
                     realItemsToBuy[i] == "item_wind_lace")
-                and utility.IsBotHaveItem(realItemsToBuy[i])
+                and utility.IsTargetHaveItem(npcBot, realItemsToBuy[i])
             then
                 --npcBot:ActionImmediate_Chat("Удаляю предмет из списка т.к он уже есть.", true);
-                table.remove(realItemsToBuy, i)
+                table.remove(realItemsToBuy, i);
             end
         end
     end
@@ -318,6 +319,7 @@ function SellExtraItem()
             SellSpecifiedItem("item_faerie_fire")
             SellSpecifiedItem("item_enchanted_mango")
             SellSpecifiedItem("item_blood_grenade")
+            SellSpecifiedItem("item_smoke_of_deceit")
         end
         if (DotaTime() > 10 * 60)
         then
@@ -345,8 +347,6 @@ function SellExtraItem()
             SellSpecifiedItem("item_hand_of_midas")
             SellSpecifiedItem("item_mask_of_madness")
             SellSpecifiedItem("item_armlet")
-            --SellSpecifiedItem("item_pavise")
-            --SellSpecifiedItem("item_veil_of_discord")
         end
     end
     if utility.HaveTravelBoots(npcBot)
@@ -358,6 +358,10 @@ function SellExtraItem()
         SellSpecifiedItem("item_tranquil_boots")
         SellSpecifiedItem("item_boots_of_bearing")
         SellSpecifiedItem("item_guardian_greaves")
+    end
+    if utility.IsTargetHaveItem(npcBot, "item_gem")
+    then
+        SellSpecifiedItem("item_dust")
     end
 end
 

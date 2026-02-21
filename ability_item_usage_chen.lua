@@ -176,7 +176,7 @@ local function CreepUnderControlCount()
     if (#allyCreeps > 0)
     then
         for _, ally in pairs(allyCreeps) do
-            if ally:GetTeam() == npcBot:GetTeam() and ally:HasModifier("modifier_chen_holy_persuasion")
+            if ally:GetPlayerID() == npcBot:GetPlayerID() and ally:HasModifier("modifier_chen_holy_persuasion")
             then
                 count = count + 1;
             end
@@ -253,7 +253,7 @@ function ConsiderDivineFavor()
     if (#allyCreeps > 0)
     then
         for _, ally in pairs(allyCreeps) do
-            if ally:HasModifier("modifier_chen_holy_persuasion") and GetUnitToUnitDistance(npcBot, ally) >= 3000
+            if ally:GetPlayerID() == npcBot:GetPlayerID() and ally:HasModifier("modifier_chen_holy_persuasion") and GetUnitToUnitDistance(npcBot, ally) >= 3000
                 and (ally:TimeSinceDamagedByAnyHero() >= 5.0 and ally:TimeSinceDamagedByCreep() >= 5.0)
             then
                 --npcBot:ActionImmediate_Chat("Использую DivineFavor что бы присумонить союзного крипа!", true);

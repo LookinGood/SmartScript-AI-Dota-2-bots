@@ -388,7 +388,8 @@ local function BotChatMessages()
 	then
 		if (isDefeatSay == false)
 		then
-			local message = linesDefeat[math.random(#linesDefeat)];
+			--local message = linesDefeat[math.random(#linesDefeat)];
+			local message = linesDefeat[RandomInt(1, #linesDefeat)];
 			npcBot:ActionImmediate_Chat(message, true);
 			isDefeatSay = true;
 			return;
@@ -399,7 +400,8 @@ local function BotChatMessages()
 	then
 		if (isVictorySay == false)
 		then
-			local message = linesVictory[math.random(#linesVictory)];
+			--local message = linesVictory[math.random(#linesVictory)];
+			local message = linesVictory[RandomInt(1, #linesVictory)];
 			npcBot:ActionImmediate_Chat(message, true);
 			isVictorySay = true;
 			return;
@@ -425,6 +427,7 @@ function ItemUsageThink()
 	local npcBot = GetBot();
 
 	GlyphUsageThink()
+	utility.FixDelayBot()
 
 	if not utility.IsHero(npcBot) or not utility.CanUseItems(npcBot) or utility.IsCloneMeepo(npcBot) or
 		(npcBot:IsInvisible() and not npcBot:HasModifier("modifier_invisible"))
@@ -522,6 +525,37 @@ function ItemUsageThink()
 			--npcBot:ActionImmediate_Chat("Телепортируюсь", true);
 			npcBot:Action_UseAbilityOnLocation(tpScroll, tpLocation);
 			return;
+		end
+	end
+
+	-- item_ward_sentry
+	local wardSentry = IsItemAvailable("item_ward_sentry");
+	if wardSentry ~= nil
+	then
+		local itemRange = wardSentry:GetCastRange();
+		local itemRadius = wardSentry:GetSpecialValueInt("true_sight_range");
+		if utility.PvPMode(npcBot) or utility.PvEMode(npcBot) or utility.WanderMode(npcBot) or botMode == BOT_MODE_LANING
+		then
+			local enemyHeroes = npcBot:GetNearbyHeroes(itemRadius, true, BOT_MODE_DESIRE_NONE);
+			if (#enemyHeroes > 0)
+			then
+				for _, enemy in pairs(enemyHeroes)
+				do
+					if enemy:IsInvisible() and utility.IsHero(enemy) and not enemy:HasModifier("modifier_item_dustofappearance")
+					then
+						if utility.CountEnemyTowerAroundPosition(enemy:GetLocation(), itemRadius) <= 0 and
+							utility.CountAllyTowerAroundPosition(enemy:GetLocation(), itemRadius) <= 0 and
+							not utility.CloseToAvailableWard("npc_dota_sentry_wards", enemy:GetLocation(), itemRadius)
+						then
+							--npcBot:ActionImmediate_Chat("Использую предмет wardSentry против невидимых героев!", true);
+							npcBot:Action_UseAbilityOnLocation(wardSentry,
+								utility.GetMaxRangeCastLocation(npcBot, enemy, itemRange));
+							npcBot:ActionImmediate_Ping(enemy:GetLocation().x, enemy:GetLocation().y, false);
+							return;
+						end
+					end
+				end
+			end
 		end
 	end
 
@@ -828,6 +862,26 @@ function ItemUsageThink()
 					--npcBot:ActionImmediate_Chat("Использую предмет dust против невидимых героев!",true);
 					npcBot:Action_UseAbility(dust);
 					npcBot:ActionImmediate_Ping(enemy:GetLocation().x, enemy:GetLocation().y, true);
+					return;
+				end
+			end
+		end
+	end
+
+	-- item_gem
+	local gemOfTrueSight = IsItemAvailable("item_gem");
+	if gemOfTrueSight ~= nil
+	then
+		local itemRange = gemOfTrueSight:GetSpecialValueInt("active_radius");
+		local enemyHeroes = npcBot:GetNearbyHeroes(itemRange, true, BOT_MODE_NONE);
+		if (#enemyHeroes > 0)
+		then
+			for _, enemy in pairs(enemyHeroes)
+			do
+				if enemy:IsInvisible()
+				then
+					--npcBot:ActionImmediate_Chat("Использую предмет gemOfTrueSight против невидимых героев!", true);
+					npcBot:Action_UseAbilityOnLocation(gemOfTrueSight, enemy:GetLocation());
 					return;
 				end
 			end
@@ -2863,6 +2917,25 @@ function ItemUsageThink()
 		end
 	end
 
+	-- item_roshans_banner
+	local roshansBanner = IsItemAvailable("item_roshans_banner");
+	if roshansBanner ~= nil
+	then
+		local itemRange = roshansBanner:GetCastRange();
+		local enemyHeroes = npcBot:GetNearbyHeroes(itemRange, true, BOT_MODE_NONE);
+		local allyLaneCreeps = npcBot:GetNearbyLaneCreeps(itemRange, false);
+		local enemyAncient = GetAncient(GetOpposingTeam());
+
+		if not utility.IsTargetInvulnerable(enemyAncient) and GetUnitToUnitDistance(npcBot, enemyAncient) <= itemRange
+			and (#allyLaneCreeps > 5) and (#enemyHeroes > 0)
+		then
+			npcBot:ActionImmediate_Chat("Использую предмет roshansBanner!", true);
+			npcBot:Action_UseAbilityOnLocation(roshansBanner,
+				utility.GetMaxRangeCastLocation(npcBot, enemyAncient, itemRange));
+			return;
+		end
+	end
+
 	-- item_revenants_brooch (Passive)
 	--[[ 	local revenantsBrooch = IsItemAvailable("item_revenants_brooch");
 	if revenantsBrooch ~= nil and revenantsBrooch:IsFullyCastable()
@@ -3354,7 +3427,7 @@ function ItemUsageThink()
 		end
 		if utility.RetreatMode(npcBot) and npcBot:DistanceFromFountain() >= 1000
 		then
-			npcBot:ActionImmediate_Chat("Использую предмет fallenSky для отступления!", true);
+			--npcBot:ActionImmediate_Chat("Использую предмет fallenSky для отступления!", true);
 			npcBot:Action_UseAbilityOnLocation(fallenSky, utility.GetEscapeLocation(npcBot, itemRange));
 			return;
 		end

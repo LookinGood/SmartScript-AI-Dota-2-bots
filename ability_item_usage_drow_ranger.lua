@@ -94,10 +94,7 @@ function ConsiderFrostArrows()
         return;
     end
 
-    local attackTarget = npcBot:GetAttackTarget();
-
-    if utility.CanCastSpellOnTarget(ability, attackTarget) and
-        (utility.IsHero(attackTarget) or utility.IsBoss(attackTarget))
+    if utility.IsNeedTurnOnAttackModifier()
     then
         if not ability:GetAutoCastState() then
             ability:ToggleAutoCast()

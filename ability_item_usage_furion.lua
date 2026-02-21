@@ -194,17 +194,19 @@ function ConsiderTeleportation()
         return BOT_ACTION_DESIRE_HIGH, tpLocation;
     end
 
-
     -- Cast if attack enemy
-    if utility.IsValidTarget(botTarget)
+    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
     then
-        if GetUnitToUnitDistance(npcBot, botTarget) >= 2000
+        if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
         then
-            local allyHeroes = botTarget:GetNearbyHeroes(1000, true, BOT_MODE_NONE);
-            if (#allyHeroes >= 2)
+            if GetUnitToUnitDistance(npcBot, botTarget) >= 2000
             then
-                --npcBot:ActionImmediate_Chat("Использую Teleportation на врага!", true);
-                return BOT_MODE_DESIRE_HIGH, allyHeroes[1]:GetLocation();
+                local allyHeroes = botTarget:GetNearbyHeroes(1000, true, BOT_MODE_NONE);
+                if (#allyHeroes > 0)
+                then
+                    --npcBot:ActionImmediate_Chat("Использую Teleportation на врага!", true);
+                    return BOT_MODE_DESIRE_HIGH, allyHeroes[1]:GetLocation();
+                end
             end
         end
     end

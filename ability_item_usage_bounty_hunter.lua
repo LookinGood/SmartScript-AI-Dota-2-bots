@@ -205,7 +205,10 @@ function ConsiderJinada()
         return;
     end
 
-    if (utility.IsHero(botTarget) or utility.IsBoss(botTarget)) and utility.CanCastSpellOnTarget(ability, botTarget)
+    local attackTarget = npcBot:GetAttackTarget();
+
+    if ((utility.IsHero(attackTarget) or utility.IsBoss(attackTarget) or attackTarget:IsAncientCreep()) and utility.CanCastSpellOnTarget(ability, attackTarget)) or
+        ((utility.IsHero(botTarget) or utility.IsBoss(botTarget) or botTarget:IsAncientCreep()) and utility.CanCastSpellOnTarget(ability, botTarget))
     then
         if not ability:GetAutoCastState() then
             ability:ToggleAutoCast()

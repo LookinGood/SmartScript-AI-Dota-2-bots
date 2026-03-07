@@ -4,6 +4,11 @@ require(GetScriptDirectory() .. "/utility")
 local npcBot = GetBot();
 
 function GetDesire()
+    if utility.NotCurrectHeroBot(npcBot) or not npcBot:IsAlive()
+    then
+        return BOT_ACTION_DESIRE_NONE;
+    end
+
     local castAbility = nil;
 
     if castAbility == nil then castAbility = npcBot:GetAbilityByName("tinker_rearm") end;
@@ -22,28 +27,19 @@ function GetDesire()
     if castAbility == nil then castAbility = npcBot:GetAbilityByName("windrunner_shackleshot") end;
     if castAbility == nil then castAbility = npcBot:GetAbilityByName("spirit_breaker_charge_of_darkness") end;
 
-    --LaunchSnowball = npcBot:GetAbilityByName("tusk_launch_snowball");
-
-    if npcBot:IsChanneling() or npcBot:NumQueuedActions() > 0 or (castAbility ~= nil and castAbility:IsInAbilityPhase()) or
+    if utility.IsBusy(npcBot) or
+        (castAbility ~= nil and castAbility:IsInAbilityPhase()) or
         npcBot:HasModifier("modifier_spirit_breaker_charge_of_darkness")
     then
         --npcBot:ActionImmediate_Chat("Решаю стоять на месте кастуя!", true);
         return BOT_MODE_DESIRE_ABSOLUTE;
     end
 
-    if npcBot:HasModifier("modifier_fountain_aura_buff")
-    then
-        if npcBot:GetCurrentActionType() == BOT_ACTION_TYPE_IDLE or npcBot:GetCurrentActionType() == BOT_ACTION_TYPE_DELAY
-        then
-            return BOT_MODE_DESIRE_ABSOLUTE;
-        end
-    end
-
-    return BOT_MODE_DESIRE_NONE;
+    return BOT_MODE_DESIRE_VERYLOW;
 end
 
 function OnStart()
-
+    --
 end
 
 function OnEnd()
@@ -51,47 +47,21 @@ function OnEnd()
 end
 
 function Think()
-    --[[     if (castAbility ~= nil and castAbility:IsInAbilityPhase()) or npcBot:IsChanneling() or npcBot:NumQueuedActions() > 0
-        or npcBot:HasModifier("modifier_spirit_breaker_charge_of_darkness")
+    if utility.IsBusy(npcBot)
     then
-        --npcBot:ActionImmediate_Chat("Стою на месте кастуя!", true);
         return;
-    end ]]
+    end
 
-    if npcBot:HasModifier("modifier_fountain_aura_buff")
+    if npcBot:GetActiveModeDesire() == BOT_MODE_DESIRE_VERYLOW and utility.CanMove(npcBot)
     then
-        if npcBot:GetCurrentActionType() == BOT_ACTION_TYPE_IDLE or npcBot:GetCurrentActionType() == BOT_ACTION_TYPE_DELAY
+        local fountainLocation = utility.GetFountainLocation();
+        if GetUnitToLocationDistance(npcBot, fountainLocation) > npcBot:GetBoundingRadius() * 4
         then
-            --npcBot:ActionImmediate_Chat("Выхожу из застоя!", true);
-            npcBot:Action_MoveToLocation(npcBot:GetLocation() + RandomVector(400));
+            npcBot:Action_MoveToLocation(utility.GetFountainLocation());
+            return;
+        else
+            npcBot:Action_MoveToLocation(npcBot:GetLocation() + RandomVector(npcBot:GetBoundingRadius() * 4));
             return;
         end
     end
 end
-
---[[     if castAbility == nil or not npcBot:IsChanneling()
-    then
-      return BOT_MODE_DESIRE_NONE;
-    end ]]
-
-
---[[     if npcBot:GetUnitName() == "npc_dota_hero_tinker"
-    then
-        if castAbility == nil then castAbility = npcBot:GetAbilityByName("tinker_rearm") end;
-        if castAbility:IsInAbilityPhase() or npcBot:IsChanneling()
-        then
-            npcBot:ActionImmediate_Chat("Решаю стоять на месте кастуя!", true);
-            return BOT_MODE_DESIRE_ABSOLUTE;
-        end
-    end ]]
-
---[[     if npcBot:IsChanneling()
-    then
-        castAbility = npcBot:GetAbilityByName("tinker_rearm");
-        if castAbility ~= nil and castAbility:IsInAbilityPhase() == true
-        then
-            --channeling = true;
-            npcBot:ActionImmediate_Chat("Решаю стоять на месте кастуя!", true);
-            return BOT_ACTION_DESIRE_ABSOLUTE;
-        end
-    end ]]

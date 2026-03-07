@@ -47,10 +47,10 @@ function AbilityLevelUpThink()
 end
 
 -- Abilities
-local StickyNapalm = AbilitiesReal[1]
-local Flamebreak = AbilitiesReal[2]
-local Firefly = AbilitiesReal[3]
-local FlamingLasso = AbilitiesReal[6]
+local StickyNapalm = npcBot:GetAbilityByName("batrider_sticky_napalm");
+local Flamebreak = npcBot:GetAbilityByName("batrider_flamebreak");
+local Firefly = npcBot:GetAbilityByName("batrider_firefly");
+local FlamingLasso = npcBot:GetAbilityByName("batrider_flaming_lasso");
 
 local castFlamebreakTimer = 0.0;
 
@@ -75,10 +75,10 @@ function AbilityUsageThink()
         return;
     end
 
-    if (castFlamebreakDesire > 0) and (DotaTime() >= castFlamebreakTimer + 2.0)
+    if (castFlamebreakDesire > 0) and (GameTime() >= castFlamebreakTimer + 2.0)
     then
         npcBot:Action_UseAbilityOnLocation(Flamebreak, castFlamebreakLocation);
-        castFlamebreakTimer = DotaTime();
+        castFlamebreakTimer = GameTime();
         return;
     end
 
@@ -97,7 +97,7 @@ function AbilityUsageThink()
     if EnemyInFlamingLasso()
     then
         npcBot:Action_ClearActions(false);
-        npcBot:Action_MoveToLocation(utility.SafeLocation(npcBot));
+        npcBot:Action_MoveToLocation(utility.GetFountainLocation());
         return;
     end
 end
@@ -395,7 +395,7 @@ function ConsiderFlamingLasso()
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= attackRange
                 and not utility.IsDisabled(botTarget)
             then
-                return BOT_MODE_DESIRE_HIGH, botTarget;
+                return BOT_ACTION_DESIRE_HIGH, botTarget;
             end
         end
     end

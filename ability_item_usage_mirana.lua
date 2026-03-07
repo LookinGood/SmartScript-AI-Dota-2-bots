@@ -273,7 +273,7 @@ function ConsiderLeap()
         -- Retreat use
         if utility.RetreatMode(npcBot)
         then
-            if (#enemyAbility > 0) and npcBot:IsFacingLocation(utility.SafeLocation(npcBot), 40)
+            if (#enemyAbility > 0) and npcBot:IsFacingLocation(utility.GetFountainLocation(), 40)
             then
                 --npcBot:ActionImmediate_Chat("Использую Leap обычный, для отхода!", true);
                 return BOT_ACTION_DESIRE_HIGH, nil, nil;

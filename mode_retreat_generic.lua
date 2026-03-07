@@ -6,7 +6,8 @@ local npcBot = GetBot();
 function GetDesire()
     if not npcBot:IsAlive() or utility.IsClone(npcBot) or
         --npcBot:HasModifier("modifier_skeleton_king_reincarnation_scepter") or
-        string.find(npcBot:GetUnitName(), "npc_dota_lone_druid_bear")
+        string.find(npcBot:GetUnitName(), "npc_dota_lone_druid_bear") or
+        npcBot:HasModifier('modifier_item_satanic_unholy')
     then
         return BOT_MODE_DESIRE_NONE;
     end
@@ -31,60 +32,43 @@ function GetDesire()
         return BOT_MODE_DESIRE_ABSOLUTE;
     end
 
-    botDesire = RemapValClamped(healthPercent, 0.3, 0.6, BOT_MODE_DESIRE_VERYHIGH, BOT_MODE_DESIRE_VERYLOW);
+    botDesire = RemapValClamped(healthPercent, 0.3, 0.6, BOT_MODE_DESIRE_VERYHIGH, BOT_MODE_DESIRE_NONE);
 
     if not npcBot:HasModifier("modifier_fountain_aura_buff") and (#enemyHeroAround <= 0) and not utility.BotWasRecentlyDamagedByEnemyHero(3.0)
         and botHPGegen >= 20 and healthPercent <= 0.6
     then
-        botDesire = botDesire - BOT_MODE_DESIRE_HIGH;
         --npcBot:ActionImmediate_Chat("Желание отступить: " .. botDesire, true);
+        return botDesire - BOT_MODE_DESIRE_HIGH;
     end
 
     if npcBot:HasModifier("modifier_fountain_aura_buff")
     then
         if (healthPercent <= 0.8 or manaPercent <= 0.8) or ((#enemyHeroAround > #allyHeroAround + 1) and utility.IsEnemiesAroundStronger())
         then
-            botDesire = botDesire + BOT_MODE_DESIRE_MODERATE;
+            return botDesire + BOT_MODE_DESIRE_MODERATE;
         end
     end
-
-    --[[     if botDesire > BOT_MODE_DESIRE_NONE
-    then
-        npcBot:ActionImmediate_Chat("Желание отступить: " .. botDesire, true);
-    end ]]
-
-    --[[     if (healthPercent <= 0.4) or (healthPercent <= 0.6 and npcBot:DistanceFromFountain() <= 2000)
-    then
-        local botDesire = RemapValClamped(healthPercent, 0.1, 1.0, BOT_MODE_DESIRE_VERYHIGH, BOT_MODE_DESIRE_NONE);
-        --npcBot:ActionImmediate_Chat("Желание отступить: " .. botDesire, true);
-        return botDesire;
-    end ]]
 
     if npcBot:HasModifier("modifier_medusa_mana_shield")
     then
         if (manaPercent <= 0.3) and (#enemyHeroAround > 0) and utility.BotWasRecentlyDamagedByEnemyHero(5.0)
         then
-            return BOT_MODE_DESIRE_VERYHIGH;
+            return botDesire + BOT_MODE_DESIRE_HIGH;
         end
     end
 
     if botMode == BOT_MODE_LANING
     then
-        if (#enemyHeroAround > #allyHeroAround) and utility.IsEnemiesAroundStronger()
+        if (#enemyHeroAround > #allyHeroAround + 1) and utility.IsEnemiesAroundStronger()
         then
-            return BOT_MODE_DESIRE_VERYHIGH;
+            return botDesire + BOT_MODE_DESIRE_MODERATE;
         end
     else
         if utility.IsEnemiesAroundStronger()
         then
             --npcBot:ActionImmediate_Chat("Враги сильнее, нужно отступить!", true);
-            return BOT_MODE_DESIRE_VERYHIGH;
+            return botDesire + BOT_MODE_DESIRE_HIGH;
         end
-    end
-
-    if (#allyHeroAround <= 1 and #enemyHeroAround > 1) and utility.IsEnemiesAroundStronger()
-    then
-        return BOT_MODE_DESIRE_VERYHIGH;
     end
 
     if (#enemyHeroAround > 0) and utility.IsEnemiesAroundStronger()
@@ -116,6 +100,13 @@ function OnEnd()
 end
 
 function Think()
+    if npcBot:HasModifier("modifier_skeleton_king_reincarnation_scepter_active") and utility.IsTargetTeleporting(npcBot)
+    then
+        --npcBot:ActionImmediate_Chat("Прерываю телепортацию.", true);
+        npcBot:Action_ClearActions(true);
+        return;
+    end
+
     if utility.IsBusy(npcBot)
     then
         return;
@@ -125,18 +116,14 @@ function Think()
 
     if npcBot:HasModifier("modifier_skeleton_king_reincarnation_scepter_active")
     then
-        if utility.IsTargetTeleporting(npcBot)
-        then
-            --npcBot:ActionImmediate_Chat("Прерываю телепортацию.", true);
-            npcBot:Action_ClearActions(true);
-            return;
-        end
         local enemyHeroes = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
         local enemyCreeps = npcBot:GetNearbyCreeps(1600, true);
+        local enemyOther = GetUnitList(UNIT_LIST_ENEMY_OTHER);
         local enemyTowers = npcBot:GetNearbyTowers(1600, true);
         local enemyBarracks = npcBot:GetNearbyBarracks(1600, true);
         local enemyAncient = GetAncient(GetOpposingTeam());
         local enemyFillers = npcBot:GetNearbyFillers(1600, true);
+        local enemyWards = GetUnitList(UNIT_LIST_ENEMY_WARDS);
         if (#enemyHeroes > 0)
         then
             local enemy = utility.GetWeakest(enemyHeroes);
@@ -156,6 +143,17 @@ function Think()
                 npcBot:SetTarget(enemy);
                 npcBot:Action_AttackUnit(enemy, false);
                 --npcBot:ActionImmediate_Chat("Атакую крипа: " .. enemy:GetUnitName(), true);
+                return;
+            end
+        end
+        if (#enemyOther > 0)
+        then
+            local enemy = utility.GetWeakest(enemyOther);
+            if not enemy:IsInvulnerable() and GetUnitToUnitDistance(npcBot, enemy) <= npcBot:GetCurrentVisionRange()
+            then
+                npcBot:SetTarget(enemy);
+                npcBot:Action_AttackUnit(enemy, false);
+                --npcBot:ActionImmediate_Chat("Атакую юнита: " .. enemy:GetUnitName(), true);
                 return;
             end
         end
@@ -187,6 +185,17 @@ function Think()
             npcBot:Action_AttackUnit(enemyAncient, false);
             --npcBot:ActionImmediate_Chat("Атакую древнего: " .. enemyAncient:GetUnitName(), true);
             return;
+        end
+        if (#enemyWards > 0)
+        then
+            local enemy = utility.GetWeakest(enemyWards);
+            if not enemy:IsInvulnerable() and GetUnitToUnitDistance(npcBot, enemy) <= npcBot:GetCurrentVisionRange()
+            then
+                npcBot:SetTarget(enemy);
+                npcBot:Action_AttackUnit(enemy, false);
+                --npcBot:ActionImmediate_Chat("Атакую вард: " .. enemy:GetUnitName(), true);
+                return;
+            end
         end
         if (#enemyFillers > 0)
         then

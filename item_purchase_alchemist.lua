@@ -21,19 +21,21 @@ local ItemsToBuy =
 
 	"item_blink",
 
-	"item_sange",
 	"item_basher",
+	"item_sange",
 	"item_abyssal_blade",
 
 	"item_radiance",
 
 	"item_overwhelming_blink",
 
+	"item_aghanims_shard",
+
 	"item_moon_shard",
 
-	"item_heart",
+	"item_ultimate_scepter",
 
-	"item_aghanims_shard",
+	"item_heart",
 
 	"item_travel_boots",
 	"item_travel_boots_2",

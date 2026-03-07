@@ -47,12 +47,12 @@ function AbilityLevelUpThink()
 end
 
 -- Abilities
-local BatteryAssault = AbilitiesReal[1]
-local PowerCogs = AbilitiesReal[2]
-local RocketFlare = AbilitiesReal[3]
-local Overclocking = AbilitiesReal[4]
-local Jetpack = AbilitiesReal[5]
-local Hookshot = AbilitiesReal[6]
+local BatteryAssault = npcBot:GetAbilityByName("rattletrap_battery_assault");
+local PowerCogs = npcBot:GetAbilityByName("rattletrap_power_cogs");
+local RocketFlare = npcBot:GetAbilityByName("rattletrap_rocket_flare");
+local Overclocking = npcBot:GetAbilityByName("rattletrap_overclocking");
+local Jetpack = npcBot:GetAbilityByName("rattletrap_jetpack");
+local Hookshot = npcBot:GetAbilityByName("rattletrap_hookshot");
 
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
@@ -110,19 +110,25 @@ function AbilityUsageThink()
     local mainCog = IsCogNeedsToBeBroken();
     if mainCog ~= nil
     then
-        npcBot:ActionImmediate_Ping(mainCog.x, mainCog.y, false);
-        npcBot:ActionImmediate_Chat("Ломаю Cog!", true);
+        npcBot:ActionImmediate_Ping(mainCog:GetLocation().x, mainCog:GetLocation().y, false);
+        npcBot:ActionImmediate_Chat("Ломаю " .. mainCog:GetUnitName(), true);
         npcBot:Action_ClearActions(false);
-        npcBot:Action_AttackUnit(mainCog, false);
+        npcBot:ActionQueue_AttackUnit(mainCog, true);
+         npcBot:ActionQueue_Delay(5.0);
         return;
     end
 end
 
 function IsCogNeedsToBeBroken()
+    if utility.IsDisabled(npcBot) or npcBot:IsDisarmed()
+    then
+        return nil;
+    end
+
     local mainCog = nil;
-    local cogs = GetUnitList(UNIT_LIST_ALLIED_CREEPS);
+    local cogs = GetUnitList(UNIT_LIST_ALLIED_OTHER);
     local fountainLocation = utility.GetFountainLocation();
-    if (#cogs > 0)
+    if (#cogs > 0) and npcBot:GetAttackTarget() == nil
     then
         for _, cog in pairs(cogs) do
             if cog:GetUnitName() == "npc_dota_rattletrap_cog" and not cog:IsInvulnerable()
@@ -130,16 +136,24 @@ function IsCogNeedsToBeBroken()
                 if utility.IsValidTarget(botTarget)
                 then
                     if GetUnitToUnitDistance(npcBot, botTarget) > npcBot:GetAttackRange() and GetUnitToUnitDistance(npcBot, cog) <= npcBot:GetAttackRange()
+                        and npcBot:IsFacingLocation(botTarget:GetLocation(), 20)
                     then
                         mainCog = cog;
+                        break;
                     end
-                end
-                if utility.RetreatMode(npcBot)
+                elseif utility.RetreatMode(npcBot)
                 then
                     if GetUnitToLocationDistance(cog, fountainLocation) < GetUnitToLocationDistance(npcBot, fountainLocation) and
-                        GetUnitToUnitDistance(npcBot, cog) <= npcBot:GetAttackRange()
+                        GetUnitToUnitDistance(npcBot, cog) <= npcBot:GetAttackRange() and npcBot:IsFacingLocation(fountainLocation, 40)
                     then
                         mainCog = cog;
+                        break;
+                    end
+                else
+                    if GetUnitToUnitDistance(npcBot, cog) <= npcBot:GetAttackRange() and npcBot:IsFacingLocation(cog:GetLocation(), 180)
+                    then
+                        mainCog = cog;
+                        break;
                     end
                 end
             end

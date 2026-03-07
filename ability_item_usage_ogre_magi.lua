@@ -47,11 +47,11 @@ function AbilityLevelUpThink()
 end
 
 -- Abilities
-local Fireblast = AbilitiesReal[1]
-local Ignite = AbilitiesReal[2]
-local Bloodlust = AbilitiesReal[3]
-local UnrefinedFireblast = AbilitiesReal[4]
-local FireShield = AbilitiesReal[5]
+local Fireblast = npcBot:GetAbilityByName("ogre_magi_fireblast");
+local Ignite = npcBot:GetAbilityByName("ogre_magi_ignite");
+local Bloodlust = npcBot:GetAbilityByName("ogre_magi_bloodlust");
+local UnrefinedFireblast = npcBot:GetAbilityByName("ogre_magi_unrefined_fireblast");
+local FireShield = npcBot:GetAbilityByName("ogre_magi_smash");
 
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
@@ -142,7 +142,7 @@ function ConsiderFireblast()
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
                 and not utility.IsDisabled(botTarget)
             then
-                return BOT_MODE_DESIRE_HIGH, botTarget;
+                return BOT_ACTION_DESIRE_HIGH, botTarget;
             end
         end
     end
@@ -168,7 +168,7 @@ end
 function ConsiderIgnite()
     local ability = Ignite;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -198,7 +198,7 @@ function ConsiderIgnite()
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
             then
-                return BOT_MODE_DESIRE_HIGH, botTarget;
+                return BOT_ACTION_DESIRE_HIGH, botTarget;
             end
         end
     end
@@ -259,7 +259,9 @@ function ConsiderBloodlust()
 
     if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_AUTOCAST)
     then
-        if npcBot:HasModifier('modifier_fountain_aura_buff')
+        if ((utility.PvPMode(npcBot) or utility.BossMode(npcBot)) and (utility.IsHero(botTarget) or utility.IsBoss(botTarget)) and
+                GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility * 2) or
+            npcBot:HasModifier('modifier_fountain_aura_buff')
         then
             if not ability:GetAutoCastState()
             then
@@ -279,32 +281,34 @@ function ConsiderBloodlust()
         do
             if utility.IsHero(ally) and not ally:HasModifier("modifier_ogre_magi_bloodlust")
             then
-                if utility.PvPMode(npcBot)
+                --[[        -- Attack use
+                if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
                 then
-                    if utility.IsHero(botTarget)
+                    if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
                     then
                         if GetUnitToUnitDistance(ally, botTarget) <= ally:GetAttackRange() * 2
                             or GetUnitToUnitDistance(ally, botTarget) > (ally:GetAttackRange() * 2)
                         then
                             --npcBot:ActionImmediate_Chat("Использую Bloodlust на союзника!", true);
-                            return BOT_MODE_DESIRE_HIGH, ally;
+                            return BOT_ACTION_DESIRE_HIGH, ally;
                         end
                     end
-                end
+                end ]]
 
+                -- Buff ally
                 if (ally:GetHealth() / ally:GetMaxHealth() <= 0.8 and
                         ally:WasRecentlyDamagedByAnyHero(2.0) or ally:WasRecentlyDamagedByTower(2.0))
                 then
                     --npcBot:ActionImmediate_Chat("Использую Bloodlust на союзника как баф!", true);
-                    return BOT_MODE_DESIRE_HIGH, ally;
+                    return BOT_ACTION_DESIRE_HIGH, ally;
                 end
 
-                if botMode ~= BOT_MODE_LANING
+                if botMode ~= BOT_MODE_LANING and (ManaPercentage >= 0.5)
                 then
                     if ally:GetAttackTarget() ~= nil
                     then
                         --npcBot:ActionImmediate_Chat("Использую Bloodlust на атакующего!", true);
-                        return BOT_MODE_DESIRE_HIGH, ally;
+                        return BOT_ACTION_DESIRE_HIGH, ally;
                     end
                 end
             end
@@ -312,7 +316,7 @@ function ConsiderBloodlust()
     end
 
     -- Cast to buff ally towers
-    if not utility.RetreatMode(npcBot)
+    if not utility.RetreatMode(npcBot) and (ManaPercentage >= 0.5)
     then
         local allyTowers = npcBot:GetNearbyTowers(castRangeAbility, false);
         if (#allyTowers > 0)
@@ -322,7 +326,7 @@ function ConsiderBloodlust()
                 if not ally:HasModifier("modifier_ogre_magi_bloodlust") and ally:GetAttackTarget() ~= nil
                 then
                     --npcBot:ActionImmediate_Chat("Использую Bloodlust на союзную башню!", true);
-                    return BOT_MODE_DESIRE_HIGH, ally;
+                    return BOT_ACTION_DESIRE_HIGH, ally;
                 end
             end
         end
@@ -338,9 +342,8 @@ function ConsiderUnrefinedFireblast()
     end
 
     local castRangeAbility = ability:GetCastRange();
-    local damageAbility = ability:GetSpecialValueInt("base_damage") +
-        (npcBot:GetAttributeValue(ATTRIBUTE_STRENGTH) / 100 *
-            ability:GetSpecialValueInt("str_multiplier"));
+    local damageAbility = math.floor(npcBot:GetAttributeValue(ATTRIBUTE_STRENGTH) *
+        ability:GetSpecialValueInt("str_multiplier") + ability:GetSpecialValueInt("base_damage"));
     local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility + 200, true, BOT_MODE_NONE);
 
     -- Cast if can kill somebody/interrupt cast
@@ -358,11 +361,6 @@ function ConsiderUnrefinedFireblast()
         end
     end
 
-    if Fireblast:IsCooldownReady()
-    then
-        return BOT_ACTION_DESIRE_NONE, 0;
-    end
-
     -- Attack use
     if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
     then
@@ -371,7 +369,8 @@ function ConsiderUnrefinedFireblast()
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
                 and not utility.IsDisabled(botTarget)
             then
-                return BOT_MODE_DESIRE_HIGH, botTarget;
+                --npcBot:ActionImmediate_Chat("Использую UnrefinedFireblast при атаке!", true);
+                return BOT_ACTION_DESIRE_HIGH, botTarget;
             end
         end
     end
@@ -384,7 +383,7 @@ function ConsiderUnrefinedFireblast()
             for _, enemy in pairs(enemyAbility) do
                 if utility.CanCastSpellOnTarget(ability, enemy) and not utility.IsDisabled(enemy)
                 then
-                    --npcBot:ActionImmediate_Chat("Использую UnrefinedFireblast что бы оторваться от врага",true);
+                    --npcBot:ActionImmediate_Chat("Использую UnrefinedFireblast что бы оторваться от врага", true);
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy;
                 end
             end
@@ -401,7 +400,7 @@ function ConsiderFireShield()
     end
 
     local castRangeAbility = ability:GetCastRange();
-    local allyAbility = npcBot:GetNearbyHeroes(castRangeAbility, false, BOT_MODE_NONE);
+    local allyAbility = npcBot:GetNearbyHeroes(castRangeAbility + 200, false, BOT_MODE_NONE);
 
     if (#allyAbility > 0)
     then
@@ -409,11 +408,11 @@ function ConsiderFireShield()
         do
             if utility.IsHero(ally) and not ally:HasModifier("modifier_ogre_magi_smash_buff")
             then
-                if ally:GetHealth() / ally:GetMaxHealth() <= 0.8 and
-                    ally:WasRecentlyDamagedByAnyHero(2.0) or ally:WasRecentlyDamagedByTower(2.0) or ally:WasRecentlyDamagedByCreep(5.0)
+                if (ally:GetHealth() / ally:GetMaxHealth() <= 0.9) and
+                    (ally:WasRecentlyDamagedByAnyHero(2.0) or ally:WasRecentlyDamagedByTower(2.0) or ally:WasRecentlyDamagedByCreep(5.0))
                 then
                     --npcBot:ActionImmediate_Chat("Использую FireShield на союзника как баф!", true);
-                    return BOT_MODE_DESIRE_HIGH, ally;
+                    return BOT_ACTION_DESIRE_HIGH, ally;
                 end
             end
         end
@@ -430,7 +429,7 @@ function ConsiderFireShield()
             if not ally:HasModifier("modifier_ogre_magi_smash_buff") and utility.IsTargetedByEnemy(ally, true)
             then
                 --npcBot:ActionImmediate_Chat("Использую FireShield на союзную башню!", true);
-                return BOT_MODE_DESIRE_HIGH, ally;
+                return BOT_ACTION_DESIRE_HIGH, ally;
             end
         end
     end
@@ -441,7 +440,7 @@ function ConsiderFireShield()
             if not ally:HasModifier("modifier_ogre_magi_smash_buff") and utility.IsTargetedByEnemy(ally, true)
             then
                 --npcBot:ActionImmediate_Chat("Использую FireShield на союзные казармы!", true);
-                return BOT_MODE_DESIRE_HIGH, ally;
+                return BOT_ACTION_DESIRE_HIGH, ally;
             end
         end
     end
@@ -450,7 +449,7 @@ function ConsiderFireShield()
         if not allyAncient:HasModifier("modifier_ogre_magi_smash_buff") and utility.IsTargetedByEnemy(allyAncient, true)
         then
             --npcBot:ActionImmediate_Chat("Использую FireShield на ДРЕВНЕГО!", true);
-            return BOT_MODE_DESIRE_HIGH, allyAncient;
+            return BOT_ACTION_DESIRE_HIGH, allyAncient;
         end
     end
 

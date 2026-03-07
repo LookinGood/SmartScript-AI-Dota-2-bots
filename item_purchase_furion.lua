@@ -15,31 +15,34 @@ local ItemsToBuy =
 
 	"item_phase_boots",
 
-	"item_invis_sword",
+	"item_oblivion_staff",
+	"item_witch_blade",
 
-	"item_maelstrom",
+	"item_oblivion_staff",
+	"item_orchid",
+
+	"item_invis_sword",
 
 	"item_black_king_bar",
 
-	"item_silver_edge",
-
 	"item_aghanims_shard",
 
-	"item_oblivion_staff",
-	"item_witch_blade",
+	"item_silver_edge",
+
 	"item_devastator",
 
-	"item_rod_of_atos",
-	"item_gungir",
+	"item_bloodthorn",
 
 	"item_ultimate_scepter",
 	"item_ultimate_scepter_2",
 
 	"item_moon_shard",
 
-	"item_oblivion_staff",
-	"item_orchid",
-	"item_bloodthorn",
+	"item_lesser_crit",
+	"item_greater_crit",
+
+	"item_travel_boots",
+	"item_travel_boots_2",
 }
 
 local realItemsToBuy = {}

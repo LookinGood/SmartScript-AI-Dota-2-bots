@@ -47,11 +47,11 @@ function AbilityLevelUpThink()
 end
 
 -- Abilities
-local Shockwave = AbilitiesReal[1]
-local Empower = AbilitiesReal[2]
-local Skewer = AbilitiesReal[3]
-local HornToss = AbilitiesReal[4]
-local ReversePolarity = AbilitiesReal[6]
+local Shockwave = npcBot:GetAbilityByName("magnataur_shockwave");
+local Empower = npcBot:GetAbilityByName("magnataur_empower");
+local Skewer = npcBot:GetAbilityByName("magnataur_skewer");
+local HornToss = npcBot:GetAbilityByName("magnataur_horn_toss");
+local ReversePolarity = npcBot:GetAbilityByName("magnataur_reverse_polarity");
 
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
@@ -192,7 +192,7 @@ function ConsiderEmpower()
                 if ally:GetAttackTarget() ~= nil
                 then
                     --npcBot:ActionImmediate_Chat("Использую " .. ability:GetName() " на " .. enemy:GetUnitName(), true);
-                    return BOT_MODE_DESIRE_HIGH, ally;
+                    return BOT_ACTION_DESIRE_HIGH, ally;
                 end
             end
         end
@@ -252,7 +252,7 @@ function ConsiderSkewer()
     -- Cast if need retreat
     if utility.RetreatMode(npcBot)
     then
-        if (#enemyAbility > 0) and npcBot:DistanceFromFountain() >= castRangeAbility
+        if (#enemyAbility > 0) and utility.BotWasRecentlyDamagedByEnemyHero(2.0) and npcBot:DistanceFromFountain() >= castRangeAbility
         then
             return BOT_ACTION_DESIRE_HIGH, utility.GetEscapeLocation(npcBot, castRangeAbility);
         end
@@ -348,7 +348,7 @@ function ConsiderReversePolarity()
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= radiusAbility
                 and not utility.IsDisabled(botTarget)
             then
-                return BOT_MODE_DESIRE_HIGH;
+                return BOT_ACTION_DESIRE_HIGH;
             end
         end
         -- Cast if enemy >=2

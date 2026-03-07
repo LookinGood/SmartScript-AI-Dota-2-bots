@@ -66,13 +66,7 @@ end
 function FixDelayBot()
 	local npcBot = GetBot();
 
-	local HighFive = npcBot:GetAbilityByName("high_five");
-	if HighFive ~= nil
-	then
-		print("HighFive обнаружен!")
-	end
-
-	if not npcBot:IsAlive() or npcBot:IsIllusion()
+	if not npcBot:IsAlive() or npcBot:IsIllusion() or not CanMove(npcBot) or IsDisabled(npcBot) or IsBusy(npcBot)
 	then
 		return;
 	end
@@ -80,34 +74,31 @@ function FixDelayBot()
 	local botMode = npcBot:GetActiveMode();
 	local botModeDesire = npcBot:GetActiveModeDesire();
 
-	if botMode == nil or botMode == BOT_MODE_NONE or
-		botModeDesire == nil or botModeDesire <= BOT_MODE_DESIRE_NONE or
-		npcBot:HasModifier("modifier_fountain_invulnerability")
+	if (botMode == nil or botMode == BOT_MODE_NONE or
+			botModeDesire == nil or botModeDesire <= BOT_MODE_DESIRE_NONE or
+			npcBot:HasModifier("modifier_fountain_invulnerability")) and
+		(npcBot:GetCurrentActionType() == BOT_ACTION_TYPE_IDLE or
+			npcBot:GetCurrentActionType() == BOT_ACTION_TYPE_DELAY or
+			npcBot:GetCurrentActionType() == BOT_ACTION_TYPE_NONE)
 	then
-		npcBot:Action_MoveToLocation(GetFountainLocation());
+		--npcBot:ActionImmediate_Chat("Я AFK, двигаюсь.", true);
+		npcBot:Action_MoveToLocation(npcBot:GetLocation() + RandomVector(npcBot:GetBoundingRadius() * 2));
 		return;
 	end
 
-
-	--[[ 	local allyHeroes = GetUnitList(UNIT_LIST_ALLIED_HEROES);
-	if (#allyHeroes > 0)
+	--[[ 	if npcBot:GetCurrentActionType() == BOT_ACTION_TYPE_IDLE or
+		npcBot:GetCurrentActionType() == BOT_ACTION_TYPE_DELAY or
+		npcBot:GetCurrentActionType() == BOT_ACTION_TYPE_NONE
 	then
-		for _, ally in pairs(allyHeroes)
-		do
-			if ally ~= npcBot and IsPlayerBot(ally:GetPlayerID()) and not utility.IsIllusion(ally) and ally:DistanceFromFountain() <= 1000
-			then
-				if ally:HasModifier("modifier_fountain_invulnerability") or
-					(utility.IsTargetInvulnerable(ally) and
-						(ally:GetCurrentActionType() == BOT_ACTION_TYPE_IDLE or
-							ally:GetCurrentActionType() == BOT_ACTION_TYPE_DELAY or
-							ally:GetCurrentActionType() == BOT_ACTION_TYPE_NONE))
-				then
-					npcBot:ActionImmediate_Chat("Цель AFK: " .. ally:GetUnitName(), true);
-					npcBot:ActionImmediate_Ping(ally:GetLocation().x, ally:GetLocation().y, true);
-					return;
-				end
-			end
-		end
+		npcBot:Action_MoveToLocation(npcBot:GetLocation() + RandomVector(npcBot:GetBoundingRadius() * 2));
+		return;
+	end
+ ]]
+
+	--[[ 	local HighFive = npcBot:GetAbilityByName("high_five");
+	if HighFive ~= nil
+	then
+		print("HighFive обнаружен!")
 	end ]]
 end
 
@@ -123,7 +114,8 @@ end
 function IsClone(npcTarget)
 	return IsValidTarget(npcTarget) and
 		(npcTarget:HasModifier("modifier_arc_warden_tempest_double") or
-			npcTarget:HasModifier("modifier_dazzle_nothl_projection_soul_clone"))
+			npcTarget:HasModifier("modifier_dazzle_nothl_projection_soul_clone") or
+			npcTarget:HasModifier("modifier_dazzle_nothl_projection_soul_debuf"))
 end
 
 function IsNight()
@@ -699,6 +691,11 @@ function IsIllusion(npcTarget)
 			return true;
 		end
 	else
+		if npcTarget:HasModifier("modifier_grimstroke_scepter_buff")
+		then
+			return;
+		end
+
 		local allyHeroes = GetUnitList(UNIT_LIST_ALLIED_HEROES);
 		for _, ally in pairs(allyHeroes) do
 			if not ally:IsIllusion()
@@ -713,7 +710,7 @@ function IsIllusion(npcTarget)
 		local playerId = npcTarget:GetPlayerID();
 		if (not IsHeroAlive(playerId)) or (GetHeroLevel(playerId) > npcTarget:GetLevel())
 		then
-			npcBot:ActionImmediate_Chat("Цель иллюзия: " .. npcTarget:GetUnitName(), true);
+			--npcBot:ActionImmediate_Chat("Цель иллюзия: " .. npcTarget:GetUnitName(), true);
 			return true;
 		end
 	end
@@ -731,25 +728,22 @@ end
 	npcTarget:HasModifier("modifier_phantom_lancer_juxtapose_illusion") ]]
 
 function IsAlly(unit1, unit2)
-	return (unit1:GetTeam() == unit2:GetTeam());
+	return unit1:GetTeam() == unit2:GetTeam();
 end
-
--- (IsValidTarget(npcBot) and IsValidTarget(npcTarget)) and
 
 function IsHero(npcTarget)
 	return npcTarget ~= nil and npcTarget:IsHero() and not IsIllusion(npcTarget) and not IsClone(npcTarget);
 end
 
 function IsBuilding(npcTarget)
-	return IsValidTarget(npcTarget) and
+	return (IsValidTarget(npcTarget) and not string.find(npcTarget:GetUnitName(), "fillers")) and
 		(npcTarget:IsBuilding() or
 			npcTarget:IsTower() or
 			npcTarget:IsBarracks() or
 			npcTarget:IsFort() or
 			string.find(npcTarget:GetUnitName(), "rax") or
 			string.find(npcTarget:GetUnitName(), "tower") or
-			string.find(npcTarget:GetUnitName(), "fort")
-			and not string.find(npcTarget:GetUnitName(), "fillers"));
+			string.find(npcTarget:GetUnitName(), "fort"));
 end
 
 function IsRoshan(npcTarget)
@@ -1057,7 +1051,7 @@ function IsAbilityAvailable(ability)
 	return ability ~= nil and
 		ability:IsFullyCastable() and
 		ability:IsActivated() and
-		ability:IsTrained() and
+		--ability:IsTrained() and
 		not ability:IsHidden()
 		and not CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_PASSIVE)
 	--and not ability:IsPassive()
@@ -1065,21 +1059,38 @@ end
 
 function IsTargetedByEnemy(unit, bcreeps)
 	local enemyHeroes = GetUnitList(UNIT_LIST_ENEMY_HEROES);
-	for _, enemy in pairs(enemyHeroes)
-	do
-		if enemy:GetAttackTarget() == unit
-		then
-			return true;
+	if (#enemyHeroes > 0)
+	then
+		for _, enemy in pairs(enemyHeroes)
+		do
+			if enemy:GetAttackTarget() == unit
+			then
+				return true;
+			end
 		end
 	end
 	if bcreeps == true
 	then
 		local enemyCreeps = GetUnitList(UNIT_LIST_ENEMY_CREEPS);
-		for _, enemy in pairs(enemyCreeps)
-		do
-			if enemy:GetAttackTarget() == unit
-			then
-				return true;
+		if (#enemyCreeps > 0)
+		then
+			for _, enemy in pairs(enemyCreeps)
+			do
+				if enemy:GetAttackTarget() == unit
+				then
+					return true;
+				end
+			end
+		end
+		local enemyOther = GetUnitList(UNIT_LIST_ENEMY_OTHER);
+		if (#enemyOther > 0)
+		then
+			for _, enemy in pairs(enemyOther)
+			do
+				if enemy:GetAttackTarget() == unit
+				then
+					return true;
+				end
 			end
 		end
 	end
@@ -1121,7 +1132,7 @@ function CountEnemyCreepAroundUnit(unit, radius)
 
 	for _, enemy in pairs(enemyCreeps)
 	do
-		if GetUnitToUnitDistance(unit, enemy) <= radius
+		if IsValidTarget(enemy) and GetUnitToUnitDistance(unit, enemy) <= radius
 		then
 			count = count + 1;
 		end
@@ -1166,7 +1177,37 @@ function CountEnemyTowerAroundUnit(unit, radius)
 
 	for _, enemy in pairs(enemyCreeps)
 	do
-		if GetUnitToUnitDistance(unit, enemy) <= radius and enemy:IsTower()
+		if IsValidTarget(enemy) and GetUnitToUnitDistance(unit, enemy) <= radius and enemy:IsTower()
+		then
+			count = count + 1;
+		end
+	end
+
+	return count;
+end
+
+function CountEnemyCreepsAroundPosition(position, radius)
+	local count = 0;
+	local enemyList = GetUnitList(UNIT_LIST_ENEMY_CREEPS);
+
+	for _, enemy in pairs(enemyList)
+	do
+		if IsValidTarget(enemy) and GetUnitToLocationDistance(enemy, position) <= radius
+		then
+			count = count + 1;
+		end
+	end
+
+	return count;
+end
+
+function CountEnemyHeroAroundPosition(position, radius)
+	local count = 0;
+	local enemyList = GetUnitList(UNIT_LIST_ENEMY_HEROES);
+
+	for _, enemy in pairs(enemyList)
+	do
+		if IsValidTarget(enemy) and GetUnitToLocationDistance(enemy, position) <= radius
 		then
 			count = count + 1;
 		end
@@ -1181,7 +1222,7 @@ function CountEnemyTowerAroundPosition(position, radius)
 
 	for _, enemy in pairs(enemyCreeps)
 	do
-		if GetUnitToLocationDistance(enemy, position) <= radius and enemy:IsTower()
+		if IsValidTarget(enemy) and GetUnitToLocationDistance(enemy, position) <= radius and enemy:IsTower()
 		then
 			count = count + 1;
 		end
@@ -1211,7 +1252,7 @@ function CountEnemyHeroAroundUnit(unit, radius)
 
 	for _, enemy in pairs(enemyHeroes)
 	do
-		if GetUnitToUnitDistance(unit, enemy) <= radius
+		if IsValidTarget(enemy) and GetUnitToUnitDistance(unit, enemy) <= radius
 		then
 			count = count + 1;
 		end
@@ -1383,16 +1424,32 @@ function CheckFlag(bitfield, flag)
 	return ((bitfield / flag) % 2) >= 1;
 end
 
---[[ function GetTargetPosition(npcTarget, fdelay)
-	if IsMoving(npcTarget)
-	then
-		return npcTarget:GetExtrapolatedLocation(fdelay);
-	else
-		return npcTarget:GetLocation();
-	end
-end ]]
-
 function GetTargetCastPosition(npcCaster, npcTarget, fDelay, fSpellSpeed)
+	if fDelay == nil
+	then
+		fDelay = 0.1
+	end
+
+	local targetDistance = GetUnitToUnitDistance(npcCaster, npcTarget);
+	local moveDirection = npcTarget:GetMovementDirectionStability();
+	local timeToHit = fDelay;
+
+	if fSpellSpeed ~= nil and fSpellSpeed > 0
+	then
+		timeToHit = fDelay + (targetDistance / fSpellSpeed);
+	end
+
+	local targetLocation = npcTarget:GetExtrapolatedLocation(timeToHit);
+
+	if moveDirection < 0.95
+	then
+		targetLocation = npcTarget:GetLocation();
+	end
+
+	return targetLocation;
+end
+
+--[[ function OLDGetTargetCastPosition(npcCaster, npcTarget, fDelay, fSpellSpeed)
 	if fSpellSpeed == nil
 	then
 		fSpellSpeed = 0.0;
@@ -1414,7 +1471,7 @@ function GetTargetCastPosition(npcCaster, npcTarget, fDelay, fSpellSpeed)
 	end
 
 	return targetLocation;
-end
+end ]]
 
 function CanAbilityKillTarget(npcTarget, damage, damagetype)
 	return IsValidTarget(npcTarget) and npcTarget:GetActualIncomingDamage(damage, damagetype) >= npcTarget:GetHealth();
@@ -1425,6 +1482,7 @@ function TargetCantDie(npcTarget)
 		(npcTarget:HasModifier("modifier_dazzle_shallow_grave") or
 			npcTarget:HasModifier("modifier_oracle_false_promise_timer") or
 			npcTarget:HasModifier("modifier_troll_warlord_battle_trance") or
+			npcTarget:HasModifier("modifier_abaddon_borrowed_time") or
 			npcTarget:HasModifier("modifier_item_aeon_disk_buff") or
 			npcTarget:HasModifier("modifier_skeleton_king_reincarnation_scepter_active"))
 end
@@ -1432,10 +1490,10 @@ end
 function IsTargetInvulnerable(npcTarget)
 	return IsValidTarget(npcTarget) and
 		(npcTarget:IsInvulnerable() or
-			npcTarget:HasModifier("modifier_item_aeon_disk_buff") or
-			npcTarget:HasModifier("modifier_templar_assassin_refraction_absorb") or
-			npcTarget:HasModifier("modifier_abaddon_aphotic_shield") or
-			npcTarget:HasModifier("modifier_abaddon_borrowed_time") or
+			--npcTarget:HasModifier("modifier_item_aeon_disk_buff") or
+			--npcTarget:HasModifier("modifier_templar_assassin_refraction_absorb") or
+			--npcTarget:HasModifier("modifier_abaddon_aphotic_shield") or
+			--npcTarget:HasModifier("modifier_abaddon_borrowed_time") or
 			npcTarget:HasModifier("modifier_fountain_glyph") or
 			npcTarget:HasModifier("modifier_skeleton_king_reincarnation_scepter_active"));
 end
@@ -1449,12 +1507,19 @@ function CanBeHeal(npcTarget)
 end
 
 function CanMove(npcTarget)
-	if IsValidTarget(npcTarget) and npcTarget:GetHealth() / npcTarget:GetMaxHealth() < 0.6
+	if IsValidTarget(npcTarget)
 	then
-		if npcTarget:HasModifier("modifier_bloodseeker_rupture") or
-			npcTarget:HasModifier("modifier_techies_minefield_sign_scepter_aura")
+		if (npcTarget:HasModifier("modifier_bloodseeker_rupture") and npcTarget:GetHealth() / npcTarget:GetMaxHealth() < 0.6) or
+			(npcTarget:HasModifier("modifier_techies_minefield_sign_scepter_aura") and npcTarget:GetHealth() / npcTarget:GetMaxHealth() < 0.4)
 		then
-			return false;
+			if not npcTarget:HasModifier("modifier_abaddon_borrowed_time") and
+				not npcTarget:HasModifier("modifier_dazzle_shallow_grave") and
+				not npcTarget:HasModifier("modifier_oracle_false_promise_timer") and
+				not npcTarget:HasModifier("modifier_troll_warlord_battle_trance") and
+				not npcTarget:HasModifier("modifier_skeleton_king_reincarnation_scepter_active")
+			then
+				return false;
+			end
 		end
 	end
 	return true;
@@ -1605,6 +1670,7 @@ function WanderMode(npcBot)
 		botMode == BOT_MODE_DEFEND_TOWER_TOP or
 		botMode == BOT_MODE_DEFEND_TOWER_MID or
 		botMode == BOT_MODE_DEFEND_TOWER_BOT or
+		botMode == BOT_MODE_FARM or
 		botMode == BOT_MODE_SECRET_SHOP or
 		botMode == BOT_MODE_SIDE_SHOP or
 		botMode == BOT_MODE_RUNE or
@@ -2417,10 +2483,10 @@ end
 	end
 end ]]
 
-function GetEscapeLocation(bot, maxAbilityRadius)
-	local botLocation = bot:GetLocation()
-	local direction = (GetFountainLocation() - botLocation):Normalized();
-	return botLocation + (direction * maxAbilityRadius)
+function GetEscapeLocation(unit, maxRadius)
+	local unitLocation = unit:GetLocation();
+	local direction = (GetFountainLocation() - unitLocation):Normalized();
+	return unitLocation + (direction * maxRadius)
 end
 
 function GetMaxRangeCastLocation(npcBot, npcTarget, maxAbilityRange)

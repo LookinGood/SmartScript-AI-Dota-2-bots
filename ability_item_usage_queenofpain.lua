@@ -47,10 +47,10 @@ function AbilityLevelUpThink()
 end
 
 -- Abilities
-local ShadowStrike = AbilitiesReal[1]
-local Blink = AbilitiesReal[2]
-local ScreamOfPain = AbilitiesReal[3]
-local SonicWave = AbilitiesReal[6]
+local ShadowStrike = npcBot:GetAbilityByName("queenofpain_shadow_strike");
+local Blink = npcBot:GetAbilityByName("queenofpain_blink");
+local ScreamOfPain = npcBot:GetAbilityByName("queenofpain_scream_of_pain");
+local SonicWave = npcBot:GetAbilityByName("queenofpain_sonic_wave");
 
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
@@ -228,6 +228,8 @@ function ConsiderBlink()
     local attackRange = npcBot:GetAttackRange();
     local castRangeAbility = ability:GetSpecialValueInt("AbilityCastRange");
     local radiusAbility = ability:GetSpecialValueInt("shard_aoe");
+    local minBlinkRange = ability:GetSpecialValueInt("min_blink_range");
+    local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
 
     -- Cast if get incoming spell
     local incomingSpells = npcBot:GetIncomingTrackingProjectiles();
@@ -247,12 +249,12 @@ function ConsiderBlink()
     -- Cast if enemy hero too far away
     if utility.PvPMode(npcBot)
     then
-        if utility.IsHero(botTarget)
+        if utility.IsHero(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) > minBlinkRange
         then
             if GetUnitToUnitDistance(npcBot, botTarget) > (attackRange * 2)
             then
                 --npcBot:ActionImmediate_Chat("Использую Blink для нападения!", true);
-                return BOT_ACTION_DESIRE_HIGH, botTarget:GetLocation();
+                return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
             else
                 --npcBot:ActionImmediate_Chat("Использую Blink для скачков вокруг врага!", true);
                 return BOT_ACTION_DESIRE_HIGH, botTarget:GetLocation() + RandomVector(radiusAbility);
@@ -267,6 +269,25 @@ function ConsiderBlink()
         then
             --npcBot:ActionImmediate_Chat("Использую Blink для отступления!", true);
             return BOT_ACTION_DESIRE_ABSOLUTE, utility.GetEscapeLocation(npcBot, castRangeAbility);
+        end
+    end
+
+    -- If going somewhere
+    if utility.WanderMode(npcBot) and (ManaPercentage >= 0.5)
+    then
+        local botMoveSpeed = npcBot:GetCurrentMovementSpeed();
+        local forwardTime = castRangeAbility / botMoveSpeed;
+        local extrapolatedLocation = npcBot:GetExtrapolatedLocation(forwardTime);
+        if npcBot:IsFacingLocation(extrapolatedLocation, 20) and IsLocationPassable(extrapolatedLocation) and
+            npcBot:GetCurrentActionType() == BOT_ACTION_TYPE_MOVE_TO and
+            (GetUnitToLocationDistance(npcBot, extrapolatedLocation) <= castRangeAbility and
+                GetUnitToLocationDistance(npcBot, extrapolatedLocation) >= castRangeAbility / 2) and
+            (utility.CountEnemyHeroAroundPosition(extrapolatedLocation, castRangeAbility) <= 0 and
+                utility.CountEnemyTowerAroundPosition(extrapolatedLocation, castRangeAbility) <= 0)
+        then
+            --npcBot:ActionImmediate_Chat("Телепортируюсь вперед.", true);
+            --npcBot:ActionImmediate_Ping(extrapolatedLocation.x, extrapolatedLocation.y, false);
+            return BOT_ACTION_DESIRE_VERYLOW, extrapolatedLocation;
         end
     end
 
@@ -388,7 +409,7 @@ function ConsiderSonicWave()
     -- Retreat use
     if utility.RetreatMode(npcBot)
     then
-        if (#enemyAbility > 0) and (HealthPercentage <= 0.6) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
+        if (#enemyAbility > 0) and (HealthPercentage <= 0.6) and utility.BotWasRecentlyDamagedByEnemyHero(2.0)
         then
             for _, enemy in pairs(enemyAbility) do
                 if utility.CanCastSpellOnTarget(ability, enemy)

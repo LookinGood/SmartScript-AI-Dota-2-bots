@@ -47,11 +47,11 @@ function AbilityLevelUpThink()
 end
 
 -- Abilities
-local SplitEarth = AbilitiesReal[1]
-local DiabolicEdict = AbilitiesReal[2]
-local LightningStorm = AbilitiesReal[3]
-local Nihilism = AbilitiesReal[4]
-local PulseNova = AbilitiesReal[6]
+local SplitEarth = npcBot:GetAbilityByName("leshrac_split_earth");
+local DiabolicEdict = npcBot:GetAbilityByName("leshrac_diabolic_edict");
+local LightningStorm = npcBot:GetAbilityByName("leshrac_lightning_storm");
+local Nihilism = npcBot:GetAbilityByName("leshrac_greater_lightning_storm");
+local PulseNova = npcBot:GetAbilityByName("leshrac_pulse_nova");
 
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
@@ -99,31 +99,42 @@ function AbilityUsageThink()
         return;
     end
 
-    if npcBot:HasModifier("modifier_leshrac_diabolic_edict")
+    DamagedEnemiesWithDiabolicEdict()
+    DamagedEnemiesWithPulseNova()
+end
+
+function DamagedEnemiesWithDiabolicEdict()
+    if not utility.CanMove(npcBot) or not npcBot:HasModifier("modifier_leshrac_diabolic_edict") or npcBot:HasModifier("modifier_leshrac_pulse_nova")
     then
-        local attackTarget = npcBot:GetAttackTarget();
-        if utility.IsValidTarget(attackTarget)
-        then
-            if GetUnitToUnitDistance(npcBot, attackTarget) > (DiabolicEdict:GetSpecialValueInt("radius") - 100)
-            then
-                --npcBot:ActionImmediate_Chat("Сближаюсь с врагом что бы обжечь его!",true);
-                npcBot:Action_ClearActions(false);
-                npcBot:Action_MoveToLocation(attackTarget:GetLocation());
-            end
-        end
+        return;
     end
 
-    if npcBot:HasModifier("modifier_leshrac_pulse_nova")
+    local attackTarget = npcBot:GetAttackTarget();
+    if utility.CanCastSpellOnTarget(DiabolicEdict, attackTarget) or (attackTarget:IsBuilding() and attackTarget:GetAttackTarget() ~= npcBot)
     then
-        local attackTarget = npcBot:GetAttackTarget();
-        if utility.IsHero(attackTarget)
+        if GetUnitToUnitDistance(npcBot, attackTarget) > (DiabolicEdict:GetSpecialValueInt("radius") - 100)
         then
-            if GetUnitToUnitDistance(npcBot, attackTarget) > (PulseNova:GetSpecialValueInt("radius") - 100)
-            then
-                --npcBot:ActionImmediate_Chat("Сближаюсь с врагом что бы обжечь его ультой!",true);
-                npcBot:Action_ClearActions(false);
-                npcBot:Action_MoveToLocation(attackTarget:GetLocation());
-            end
+            --npcBot:ActionImmediate_Chat("Сближаюсь с врагом что бы обжечь его DiabolicEdict!",true);
+            npcBot:Action_MoveToUnit(attackTarget);
+            return;
+        end
+    end
+end
+
+function DamagedEnemiesWithPulseNova()
+    if not utility.CanMove(npcBot) or not npcBot:HasModifier("modifier_leshrac_pulse_nova")
+    then
+        return;
+    end
+
+    local attackTarget = npcBot:GetAttackTarget();
+    if utility.CanCastSpellOnTarget(PulseNova, attackTarget)
+    then
+        if GetUnitToUnitDistance(npcBot, attackTarget) > (PulseNova:GetSpecialValueInt("radius") - 100)
+        then
+            --npcBot:ActionImmediate_Chat("Сближаюсь с врагом что бы обжечь его PulseNova!",true);
+            npcBot:Action_MoveToUnit(attackTarget);
+            return;
         end
     end
 end
@@ -190,9 +201,14 @@ function ConsiderDiabolicEdict()
         return BOT_ACTION_DESIRE_NONE;
     end
 
+    if npcBot:HasModifier("modifier_leshrac_diabolic_edict")
+    then
+        return BOT_ACTION_DESIRE_NONE;
+    end
+
     local attackTarget = npcBot:GetAttackTarget();
-    --local radiusAbility = ability:GetSpecialValueInt("radius");
-    local enemyAbility = npcBot:GetNearbyHeroes(npcBot:GetAttackRange(), true, BOT_MODE_NONE);
+    local radiusAbility = ability:GetAOERadius();
+    local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
 
     -- Attack use
     if utility.PvPMode(npcBot) or utility.RetreatMode(npcBot)
@@ -210,16 +226,20 @@ function ConsiderDiabolicEdict()
     end
 
     -- Use when attack
-    if utility.IsBuilding(attackTarget) and utility.CanCastSpellOnTarget(ability, attackTarget) and botMode ~= BOT_MODE_OUTPOST
+    if utility.CanCastSpellOnTarget(ability, attackTarget)
     then
-        if (attackTarget:GetHealth() / attackTarget:GetMaxHealth() >= 0.2) and (ManaPercentage >= 0.4)
+        if utility.PvPMode(npcBot) and utility.IsHero(attackTarget)
         then
-            --npcBot:ActionImmediate_Chat("Использую DiabolicEdict против зданий!", true);
             return BOT_ACTION_DESIRE_HIGH;
         end
-    elseif utility.IsHero(attackTarget)
-    then
-        return BOT_ACTION_DESIRE_HIGH;
+        if utility.IsBuilding(attackTarget) and botMode ~= BOT_MODE_OUTPOST
+        then
+            if (attackTarget:GetHealth() / attackTarget:GetMaxHealth() >= 0.2) and (ManaPercentage >= 0.4)
+            then
+                --npcBot:ActionImmediate_Chat("Использую DiabolicEdict против зданий!", true);
+                return BOT_ACTION_DESIRE_HIGH;
+            end
+        end
     end
 
     return BOT_ACTION_DESIRE_NONE;
@@ -232,6 +252,7 @@ function ConsiderLightningStorm()
     end
 
     local castRangeAbility = ability:GetCastRange();
+    local jumpCount = ability:GetSpecialValueInt("jump_count");
     local damageAbility = ability:GetSpecialValueInt("damage");
     local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility + 200, true, BOT_MODE_NONE);
 
@@ -258,7 +279,7 @@ function ConsiderLightningStorm()
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
             then
                 --npcBot:ActionImmediate_Chat("Использую LightningStorm по врагу в радиусе действия!",true);
-                return BOT_MODE_DESIRE_HIGH, botTarget;
+                return BOT_ACTION_DESIRE_HIGH, botTarget;
             end
         end
     end
@@ -281,8 +302,8 @@ function ConsiderLightningStorm()
     --  Pushing/defending/Farm
     if utility.PvEMode(npcBot)
     then
-        local enemyCreeps = npcBot:GetNearbyCreeps(castRangeAbility, true);
-        if (#enemyCreeps >= 3) and (ManaPercentage >= 0.7)
+        local enemyCreeps = npcBot:GetNearbyCreeps(castRangeAbility + 200, true);
+        if (#enemyCreeps >= math.floor(jumpCount / 2)) and (ManaPercentage >= 0.7)
         then
             local enemy = utility.GetWeakest(enemyCreeps);
             if utility.CanCastSpellOnTarget(ability, enemy)
@@ -313,6 +334,11 @@ function ConsiderNihilism()
         return BOT_ACTION_DESIRE_NONE;
     end
 
+    if npcBot:HasModifier("modifier_leshrac_decrepify_aura")
+    then
+        return BOT_ACTION_DESIRE_NONE;
+    end
+
     local radiusAbility = ability:GetSpecialValueInt("radius");
 
     -- Attack use
@@ -329,7 +355,7 @@ function ConsiderNihilism()
     -- Retreat use
     if utility.RetreatMode(npcBot)
     then
-        if (HealthPercentage <= 0.8) and npcBot:WasRecentlyDamagedByAnyHero(5.0) or npcBot:WasRecentlyDamagedByTower(2.0)
+        if (HealthPercentage <= 0.7) and (utility.BotWasRecentlyDamagedByEnemyHero(2.0) or npcBot:WasRecentlyDamagedByTower(2.0))
         then
             --npcBot:ActionImmediate_Chat("Использую Nihilism для отступления!", true);
             return BOT_ACTION_DESIRE_HIGH;

@@ -18,15 +18,15 @@ local Abilities, Talents, AbilitiesReal = ability_levelup_generic.GetHeroAbiliti
 local AbilityToLevelUp =
 {
     Abilities[1],
+    Abilities[3],
     Abilities[2],
-    Abilities[3],
     Abilities[1],
-    Abilities[3],
+    Abilities[1],
     Abilities[6],
     Abilities[1],
     Abilities[3],
-    Abilities[1],
-    Talents[2],
+    Abilities[3],
+    Talents[1],
     Abilities[3],
     Abilities[6],
     Abilities[2],
@@ -34,11 +34,11 @@ local AbilityToLevelUp =
     Talents[3],
     Abilities[2],
     Abilities[6],
-    Talents[5],
-    Talents[7],
-    Talents[1],
-    Talents[4],
     Talents[6],
+    Talents[7],
+    Talents[2],
+    Talents[4],
+    Talents[5],
     Talents[8],
 }
 
@@ -47,10 +47,10 @@ function AbilityLevelUpThink()
 end
 
 -- Abilities
-local ArcaneCurse = AbilitiesReal[1]
-local GlaivesOfWisdom = AbilitiesReal[2]
-local LastWord = AbilitiesReal[3]
-local GlobalSilence = AbilitiesReal[6]
+local ArcaneCurse = npcBot:GetAbilityByName("silencer_curse_of_the_silent");
+local GlaivesOfWisdom = npcBot:GetAbilityByName("silencer_glaives_of_wisdom");
+local LastWord = npcBot:GetAbilityByName("silencer_last_word");
+local GlobalSilence = npcBot:GetAbilityByName("silencer_global_silence");
 
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
@@ -113,7 +113,7 @@ function ConsiderArcaneCurse()
             then
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
+                    return BOT_ACTION_DESIRE_ABSOLUTE, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
                 end
             end
         end
@@ -160,7 +160,7 @@ function ConsiderArcaneCurse()
     end
 
     -- Cast when laning
-    if botMode == BOT_MODE_LANING and (ManaPercentage >= 0.7)
+    if botMode == BOT_MODE_LANING
     then
         local enemy = utility.GetWeakest(enemyAbility);
         if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7) and not enemy:HasModifier("modifier_silencer_curse_of_the_silent")

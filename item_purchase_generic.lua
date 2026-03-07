@@ -265,7 +265,29 @@ function SellSpecifiedItem(item_name)
         return;
     end
 
-    for i = 0, 8
+    local itemSlot = npcBot:FindItemSlot(item_name);
+    if itemSlot ~= nil
+    then
+        local sellingItem = npcBot:GetItemInSlot(itemSlot);
+        if (npcBot:GetItemSlotType(itemSlot) == ITEM_SLOT_TYPE_MAIN or npcBot:GetItemSlotType(itemSlot) == ITEM_SLOT_TYPE_BACKPACK) and
+            (npcBot:DistanceFromFountain() <= 600 or npcBot:DistanceFromSecretShop() <= 200)
+        then
+            --npcBot:ActionImmediate_Chat("Продаю лишний предмет: " .. npcBot:GetItemInSlot(itemSlot):GetName(), true);
+            npcBot:ActionImmediate_SellItem(sellingItem);
+            return;
+        end
+        if npcBot:GetItemSlotType(itemSlot) == ITEM_SLOT_TYPE_STASH
+        then
+            if sellingItem:GetName() ~= "item_ultimate_scepter_2"
+            then
+                --npcBot:ActionImmediate_Chat("Продаю лишний предмет из тайника: " .. npcBot:GetItemInSlot(itemSlot):GetName(), true);
+                npcBot:ActionImmediate_SellItem(sellingItem);
+                return;
+            end
+        end
+    end
+
+    --[[   for i = 0, 8
     do
         local slotItem = npcBot:GetItemInSlot(i);
         if slotItem ~= nil and slotItem:GetName() == item_name
@@ -282,14 +304,14 @@ function SellSpecifiedItem(item_name)
     for i = 9, 14
     do
         local slotItem = npcBot:GetItemInSlot(i);
-        if slotItem ~= nil and slotItem:GetName() == item_name
+        if slotItem ~= nil and slotItem:GetName() == item_name and slotItem:GetName() ~= "item_ultimate_scepter_2"
         then
             --npcBot:ActionImmediate_Chat("Продаю лишний предмет из тайника!", true);
             npcBot:ActionImmediate_SellItem(slotItem);
             return;
         end
     end
-
+ ]]
     --local courier = utility.GetBotCourier(npcBot);
 
     --[[     for i = 0, 8
@@ -309,6 +331,7 @@ end
 
 function SellExtraItem()
     local npcBot = GetBot();
+    SellSpecifiedItem("item_ultimate_scepter_2")
     if utility.IsItemSlotsFull()
     then
         if (DotaTime() > 5 * 60)

@@ -131,53 +131,57 @@ function IsWardAvailable(sWardType)
 end
 
 function GetDesire()
-    if not utility.IsHero(npcBot) or utility.IsCloneMeepo(npcBot) or npcBot:HasModifier("modifier_skeleton_king_reincarnation_scepter_active")
+    if utility.NotCurrectHeroBot(npcBot) or utility.IsCloneMeepo(npcBot) or not npcBot:IsAlive() or npcBot:HasModifier("modifier_skeleton_king_reincarnation_scepter_active")
     then
         return BOT_ACTION_DESIRE_NONE;
     end
 
     index1 = nil;
     index2 = nil;
-    emptySlot = utility.GetEmptyMainItemSlot();
-    emptyStashItemSlot = utility.GetEmptyStashItemSlot();
+    local emptySlot = utility.GetEmptyMainItemSlot();
+    local emptyStashItemSlot = utility.GetEmptyStashItemSlot();
     local trashItemSlot = utility.GetBotTrashItemSlot();
     local recipeItemSlot = utility.GetBotRecipeItemSlot();
 
     -- Перемещение лотусов в инвентарь
-    itemLotus = nil;
-    itemLotusSlot = nil;
-
-    if itemLotus == nil and emptySlot ~= nil
+    if emptySlot ~= nil
     then
         local lotusSlot1 = npcBot:FindItemSlot("item_famango");
         local lotusSlot2 = npcBot:FindItemSlot("item_great_famango");
         local lotusSlot3 = npcBot:FindItemSlot("item_greater_famango");
 
-        if npcBot:GetItemSlotType(lotusSlot1) == ITEM_SLOT_TYPE_BACKPACK
+        if lotusSlot1 ~= nil or
+            lotusSlot2 ~= nil or
+            lotusSlot3 ~= nil
         then
-            --npcBot:ActionImmediate_Chat("Хочу переложить healingLotus!", true);
-            itemLotus = npcBot:GetItemInSlot(lotusSlot1);
-            itemLotusSlot = lotusSlot1;
-            return BOT_MODE_DESIRE_ABSOLUTE;
-        elseif npcBot:GetItemSlotType(lotusSlot2) == ITEM_SLOT_TYPE_BACKPACK
-        then
-            --npcBot:ActionImmediate_Chat("Хочу переложить greatHealingLotus!", true);
-            itemLotus = npcBot:GetItemInSlot(lotusSlot2);
-            itemLotusSlot = lotusSlot2;
-            return BOT_MODE_DESIRE_ABSOLUTE;
-        elseif npcBot:GetItemSlotType(lotusSlot3) == ITEM_SLOT_TYPE_BACKPACK
-        then
-            --npcBot:ActionImmediate_Chat("Хочу переложить greaterHealingLotus!", true);
-            itemLotus = npcBot:GetItemInSlot(lotusSlot3);
-            itemLotusSlot = lotusSlot3;
-            return BOT_MODE_DESIRE_ABSOLUTE;
+            if npcBot:GetItemSlotType(lotusSlot1) == ITEM_SLOT_TYPE_BACKPACK
+            then
+                --npcBot:ActionImmediate_Chat("Хочу переложить healingLotus!", true);
+                index1 = lotusSlot1;
+                index2 = emptySlot;
+                return BOT_MODE_DESIRE_ABSOLUTE;
+            end
+            if npcBot:GetItemSlotType(lotusSlot2) == ITEM_SLOT_TYPE_BACKPACK
+            then
+                --npcBot:ActionImmediate_Chat("Хочу переложить greatHealingLotus!", true);
+                index1 = lotusSlot2;
+                index2 = emptySlot;
+                return BOT_MODE_DESIRE_ABSOLUTE;
+            end
+            if npcBot:GetItemSlotType(lotusSlot3) == ITEM_SLOT_TYPE_BACKPACK
+            then
+                --npcBot:ActionImmediate_Chat("Хочу переложить greaterHealingLotus!", true);
+                index1 = lotusSlot3;
+                index2 = emptySlot;
+                return BOT_MODE_DESIRE_ABSOLUTE;
+            end
         end
     end
 
     -- Освобождение места в инвентаре
     if npcBot:DistanceFromFountain() <= 500
     then
-    --[[     local expensiveStashItem = utility.GetMostExpensiveStashItem();
+        local expensiveStashItem = utility.GetMostExpensiveStashItem();
 
         if trashItemSlot ~= nil and (npcBot:GetItemSlotType(trashItemSlot) == ITEM_SLOT_TYPE_MAIN or npcBot:GetItemSlotType(trashItemSlot) == ITEM_SLOT_TYPE_BACKPACK)
         then
@@ -186,27 +190,26 @@ function GetDesire()
             then
                 index1 = trashItemSlot;
                 index2 = npcBot:FindItemSlot(expensiveStashItem:GetName());
-                npcBot:ActionImmediate_Chat("Хочу переложить мусор и стеш-вещь: " .. index1 .. " и " .. index2, true);
+                --npcBot:ActionImmediate_Chat("Хочу переложить мусор и стеш-вещь: " .. index1 .. " и " .. index2, true);
                 return BOT_MODE_DESIRE_ABSOLUTE;
             end
-        end ]]
+        end
 
         if recipeItemSlot ~= nil and (npcBot:GetItemSlotType(recipeItemSlot) == ITEM_SLOT_TYPE_MAIN or npcBot:GetItemSlotType(recipeItemSlot) == ITEM_SLOT_TYPE_BACKPACK)
         then
-       --[[      if expensiveStashItem ~= nil and not utility.IsItemRecipe(expensiveStashItem:GetName())
+            if expensiveStashItem ~= nil and not utility.IsItemRecipe(expensiveStashItem:GetName())
             then
                 index1 = recipeItemSlot;
                 index2 = npcBot:FindItemSlot(expensiveStashItem:GetName());
-                npcBot:ActionImmediate_Chat("Хочу переложить рецепт и вещь: " .. index1 .. " и " .. index2, true);
+                --npcBot:ActionImmediate_Chat("Хочу переложить рецепт и вещь: " .. index1 .. " и " .. index2, true);
                 return BOT_MODE_DESIRE_ABSOLUTE;
-            end ]]
+            end
 
             if emptyStashItemSlot ~= nil
             then
                 index1 = recipeItemSlot;
                 index2 = emptyStashItemSlot;
-                npcBot:ActionImmediate_Chat("Хочу переложить рецепт в пустой стеш-слот: " .. index1 .. " и " .. index2,
-                    true);
+                --npcBot:ActionImmediate_Chat("Хочу переложить рецепт в пустой стеш-слот: " .. index1 .. " и " .. index2, true);
                 return BOT_MODE_DESIRE_ABSOLUTE;
             end
         end
@@ -214,7 +217,7 @@ function GetDesire()
 
     local enemyHeroes = npcBot:GetNearbyHeroes(1000, true, BOT_MODE_NONE);
 
-    if not npcBot:IsAlive() or (#enemyHeroes > 0) or utility.IsBaseUnderAttack()
+    if (#enemyHeroes > 0)
     then
         return BOT_ACTION_DESIRE_NONE;
     end
@@ -223,48 +226,91 @@ function GetDesire()
     local itemList = GetDroppedItemList();
     pickUpItem = nil;
     pickUpItemLocation = nil;
+    dropItem = nil;
 
-    if (#itemList > 0) and not utility.IsItemSlotsFull()
+    if not utility.IsClone(npcBot) and (#itemList > 0)
     then
         for _, droppedItem in pairs(itemList) do
             if droppedItem ~= nil and GetUnitToLocationDistance(npcBot, droppedItem.location) <= 1600 and IsLocationPassable(droppedItem.location)
             then
-                if droppedItem.owner == npcBot or
-                    (droppedItem.item:GetName() == "item_cheese" or
-                        droppedItem.item:GetName() == "item_roshans_banner" or
-                        droppedItem.item:GetName() == "item_refresher_shard") or
-                    (droppedItem.item:GetName() == "item_gem" or droppedItem.item:GetName() == "item_rapier"
-                        and utility.GetEmptyMainItemSlot() ~= nil)
+                if ((droppedItem.item:GetName() == "item_gem" and not utility.IsBotHaveItem("item_gem")) or droppedItem.item:GetName() == "item_rapier")
                 then
-                    pickUpItem = droppedItem.item;
-                    pickUpItemLocation = droppedItem.location;
-                    --npcBot:ActionImmediate_Chat("Нужно поднять: " .. pickUpItem:GetName(), true);
-                    return BOT_MODE_DESIRE_ABSOLUTE;
+                    if utility.GetEmptyMainItemSlot() ~= nil
+                    then
+                        pickUpItem = droppedItem.item;
+                        pickUpItemLocation = droppedItem.location;
+                        --npcBot:ActionImmediate_Chat("Нужно поднять гем/рапиру: " .. pickUpItem:GetName(), true);
+                        return BOT_MODE_DESIRE_ABSOLUTE;
+                    else
+                        if trashItemSlot ~= nil and (npcBot:GetItemSlotType(trashItemSlot) == ITEM_SLOT_TYPE_MAIN)
+                        then
+                            dropItem = npcBot:GetItemInSlot(trashItemSlot);
+                            pickUpItem = droppedItem.item;
+                            pickUpItemLocation = droppedItem.location;
+                            --npcBot:ActionImmediate_Chat("Выкидываю/Поднимаю: " .. dropItem:GetName() .. " , " .. pickUpItem:GetName(), true);
+                            return BOT_MODE_DESIRE_ABSOLUTE;
+                        end
+                    end
+                elseif (droppedItem.item:GetName() == "item_cheese" or
+                        droppedItem.item:GetName() == "item_roshans_banner" or
+                        droppedItem.item:GetName() == "item_refresher_shard")
+                then
+                    if not utility.IsItemSlotsFull()
+                    then
+                        pickUpItem = droppedItem.item;
+                        pickUpItemLocation = droppedItem.location;
+                        --npcBot:ActionImmediate_Chat("Нужно поднять вещь рошана: " .. pickUpItem:GetName(), true);
+                        return BOT_MODE_DESIRE_ABSOLUTE;
+                    else
+                        if trashItemSlot ~= nil and (npcBot:GetItemSlotType(trashItemSlot) == ITEM_SLOT_TYPE_MAIN or
+                                npcBot:GetItemSlotType(trashItemSlot) == ITEM_SLOT_TYPE_BACKPACK)
+                        then
+                            dropItem = npcBot:GetItemInSlot(trashItemSlot);
+                            pickUpItem = droppedItem.item;
+                            pickUpItemLocation = droppedItem.location;
+                            --npcBot:ActionImmediate_Chat("Выкидываю/Поднимаю(Рошан): " .. dropItem:GetName() .. " , " .. pickUpItem:GetName(), true);
+                            return BOT_MODE_DESIRE_ABSOLUTE;
+                        end
+                    end
+                else
+                    if droppedItem.owner == npcBot
+                    then
+                        if not utility.IsItemSlotsFull()
+                        then
+                            pickUpItem = droppedItem.item;
+                            pickUpItemLocation = droppedItem.location;
+                            --npcBot:ActionImmediate_Chat("Нужно поднять мою вещь: " .. pickUpItem:GetName(), true);
+                            return BOT_MODE_DESIRE_ABSOLUTE;
+                        end
+                    end
                 end
             end
         end
     end
 
-    dropItem = nil;
     courier = utility.GetBotCourier(npcBot);
     isCourierNearAndDeliver = false;
 
-    if (GetCourierState(courier) == COURIER_STATE_DELIVERING_ITEMS) and GetUnitToUnitDistance(courier, npcBot) <= 1600
+    if not utility.IsClone(npcBot) and (GetCourierState(courier) == COURIER_STATE_DELIVERING_ITEMS) and GetUnitToUnitDistance(courier, npcBot) <= 1600
     then
-        if not utility.IsItemSlotsFull()
+        if trashItemSlot ~= nil
+        then
+            if (not utility.IsItemSlotsFull() and utility.IsTargetHaveItem(courier, "item_gem") and npcBot:GetItemSlotType(trashItemSlot) == ITEM_SLOT_TYPE_MAIN)
+                or utility.IsItemSlotsFull()
+            then
+                dropItem = npcBot:GetItemInSlot(trashItemSlot);
+                if dropItem ~= nil and npcBot:GetCourierValue() > GetItemCost(dropItem:GetName())
+                then
+                    --npcBot:ActionImmediate_Chat("Нужно встретить курьера: " .. dropItem:GetName(), true);
+                    isCourierNearAndDeliver = true;
+                    return BOT_MODE_DESIRE_ABSOLUTE;
+                end
+            end
+        end
+        if not utility.IsItemSlotsFull() and npcBot:DistanceFromFountain() >= 3000
         then
             isCourierNearAndDeliver = true;
             return BOT_MODE_DESIRE_ABSOLUTE;
-        end
-        if utility.IsItemSlotsFull() and trashItemSlot ~= nil and (DotaTime() > 5 * 60)
-        then
-            dropItem = npcBot:GetItemInSlot(trashItemSlot);
-            if dropItem ~= nil and npcBot:GetCourierValue() > GetItemCost(dropItem:GetName())
-            then
-                --npcBot:ActionImmediate_Chat("Нужно встретить курьера: " .. dropItem:GetName(), true);
-                isCourierNearAndDeliver = true;
-                return BOT_MODE_DESIRE_ABSOLUTE;
-            end
         end
     end
 
@@ -296,8 +342,8 @@ function GetDesire()
     if (#enemyCouriers > 0)
     then
         for _, courier in pairs(enemyCouriers) do
-            if courier:CanBeSeen() and courier:IsCourier() and not courier:IsInvulnerable()
-                and IsLocationPassable(courier:GetLocation())
+            if (courier:CanBeSeen() and not courier:IsInvulnerable() and IsLocationPassable(courier:GetLocation())) and
+                (courier:IsCourier() or courier:IsFlyingCourier())
             then
                 enemyCourier = courier;
                 return BOT_ACTION_DESIRE_ABSOLUTE;
@@ -305,7 +351,7 @@ function GetDesire()
         end
     end
 
-    if GetGameState() == GAME_STATE_PRE_GAME or GetGameState() ~= GAME_STATE_GAME_IN_PROGRESS
+    if GetGameState() == GAME_STATE_PRE_GAME or GetGameState() ~= GAME_STATE_GAME_IN_PROGRESS or utility.IsBaseUnderAttack()
     then
         return BOT_ACTION_DESIRE_NONE;
     end
@@ -370,7 +416,7 @@ function OnEnd()
 end
 
 function Think()
-    if utility.IsBusy(npcBot)
+    if utility.IsBusy(npcBot) or npcBot:GetCurrentActionType() == BOT_ACTION_TYPE_PICK_UP_ITEM or npcBot:GetCurrentActionType() == BOT_ACTION_TYPE_DROP_ITEM
     then
         return;
     end
@@ -384,27 +430,33 @@ function Think()
 
     if pickUpItem ~= nil and pickUpItemLocation ~= nil
     then
-        if GetUnitToLocationDistance(npcBot, pickUpItemLocation) > 100
+        if dropItem == nil
         then
-            --npcBot:ActionImmediate_Chat("Иду к предмету: " .. pickUpItem:GetName(), true);
-            --npcBot:ActionImmediate_Ping(pickUpItemLocation.x, pickUpItemLocation.y, true);
-            npcBot:Action_MoveToLocation(pickUpItemLocation + RandomVector(100));
-            return;
+            if GetUnitToLocationDistance(npcBot, pickUpItemLocation) > 100
+            then
+                --npcBot:ActionImmediate_Chat("Иду к предмету: " .. pickUpItem:GetName(), true);
+                --npcBot:ActionImmediate_Ping(pickUpItemLocation.x, pickUpItemLocation.y, true);
+                npcBot:Action_MoveToLocation(pickUpItemLocation + RandomVector(100));
+                return;
+            else
+                --npcBot:ActionImmediate_Chat("Поднимаю предмет: " .. pickUpItem:GetName(), true);
+                npcBot:Action_PickUpItem(pickUpItem);
+                return;
+            end
         else
-            --npcBot:ActionImmediate_Chat("Поднимаю предмет: " .. pickUpItem:GetName(), true);
-            npcBot:Action_PickUpItem(pickUpItem);
-            return;
+            if GetUnitToLocationDistance(npcBot, pickUpItemLocation) > 100
+            then
+                npcBot:Action_MoveToLocation(pickUpItemLocation + RandomVector(100));
+                return;
+            else
+                --npcBot:ActionImmediate_Chat("Выкидываю/Поднимаю.", true);
+                npcBot:ActionQueue_DropItem(dropItem, npcBot:GetLocation());
+                npcBot:ActionQueue_PickUpItem(pickUpItem);
+                return;
+            end
         end
     end
 
-    if (itemLotus ~= nil)
-    then
-        npcBot:ActionImmediate_SwapItems(itemLotusSlot, emptySlot);
-        --npcBot:ActionImmediate_Chat("Перекладываю healingLotus!", true);
-        --npcBot:Action_ClearActions(false);
-        --npcBot:Action_DropItem(itemLotus, npcBot:GetLocation());
-        return;
-    end
 
     if (isCourierNearAndDeliver == true)
     then
@@ -489,3 +541,67 @@ function Think()
         end
     end
 end
+
+--[[     if (itemLotus ~= nil)
+    then
+        npcBot:ActionImmediate_SwapItems(itemLotusSlot, emptySlot);
+        --npcBot:ActionImmediate_Chat("Перекладываю healingLotus!", true);
+        --npcBot:Action_ClearActions(false);
+        --npcBot:Action_DropItem(itemLotus, npcBot:GetLocation());
+        return;
+    end ]]
+
+
+--[[ if utility.IsItemSlotsFull()
+then
+    if trashItemSlot ~= nil and (npcBot:GetItemSlotType(trashItemSlot) == ITEM_SLOT_TYPE_MAIN or npcBot:GetItemSlotType(trashItemSlot) == ITEM_SLOT_TYPE_BACKPACK)
+    then
+        if (droppedItem.item:GetName() == "item_gem" or droppedItem.item:GetName() == "item_rapier")
+        then
+            dropItem = npcBot:GetItemInSlot(trashItemSlot);
+            pickUpItem = droppedItem.item;
+            pickUpItemLocation = droppedItem.location;
+            --npcBot:ActionImmediate_Chat("Нужно поднять: " .. pickUpItem:GetName(), true);
+            return BOT_MODE_DESIRE_ABSOLUTE;
+        end
+        if (droppedItem.owner == npcBot and (droppedItem.item:GetName() ~= "item_gem" or droppedItem.item:GetName() ~= "item_rapier")) or
+            (droppedItem.item:GetName() == "item_cheese" or
+                droppedItem.item:GetName() == "item_roshans_banner" or
+                droppedItem.item:GetName() == "item_refresher_shard")
+        then
+            dropItem = npcBot:GetItemInSlot(trashItemSlot);
+            pickUpItem = droppedItem.item;
+            pickUpItemLocation = droppedItem.location;
+            --npcBot:ActionImmediate_Chat("Нужно поднять: " .. pickUpItem:GetName(), true);
+            return BOT_MODE_DESIRE_ABSOLUTE;
+        end
+    end
+else
+
+end
+
+if utility.GetEmptyMainItemSlot() ~= nil
+then
+    if droppedItem.owner == npcBot or
+        (droppedItem.item:GetName() == "item_cheese" or
+            droppedItem.item:GetName() == "item_roshans_banner" or
+            droppedItem.item:GetName() == "item_refresher_shard")
+    then
+
+    end
+else
+
+end
+
+if (droppedItem.owner == npcBot and droppedItem.item:GetName() ~= "item_gem" and droppedItem.item:GetName() ~= "item_rapier") or
+    (droppedItem.item:GetName() == "item_cheese" or
+        droppedItem.item:GetName() == "item_roshans_banner" or
+        droppedItem.item:GetName() == "item_refresher_shard") or
+    (droppedItem.item:GetName() == "item_gem" or droppedItem.item:GetName() == "item_rapier"
+        and utility.GetEmptyMainItemSlot() ~= nil)
+then
+    pickUpItem = droppedItem.item;
+    pickUpItemLocation = droppedItem.location;
+    --npcBot:ActionImmediate_Chat("Нужно поднять: " .. pickUpItem:GetName(), true);
+    return BOT_MODE_DESIRE_ABSOLUTE;
+end ]]

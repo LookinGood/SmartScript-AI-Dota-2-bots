@@ -47,10 +47,10 @@ function AbilityLevelUpThink()
 end
 
 -- Abilities
-local Flux = AbilitiesReal[1]
-local MagneticField = AbilitiesReal[2]
-local SparkWraith = AbilitiesReal[3]
-local TempestDouble = AbilitiesReal[6]
+local Flux = npcBot:GetAbilityByName("arc_warden_flux");
+local MagneticField = npcBot:GetAbilityByName("arc_warden_magnetic_field");
+local SparkWraith = npcBot:GetAbilityByName("arc_warden_spark_wraith");
+local TempestDouble = npcBot:GetAbilityByName("arc_warden_tempest_double");
 
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
@@ -434,7 +434,7 @@ function ConsiderTempestDouble()
     -- Use when attack building
     if utility.IsBuilding(attackTarget) and utility.CanCastOnInvulnerableTarget(attackTarget)
     then
-        if (attackTarget:GetHealth() / attackTarget:GetMaxHealth() >= 0.3)
+        if (attackTarget:GetHealth() / attackTarget:GetMaxHealth() >= 0.4)
         then
             return BOT_ACTION_DESIRE_MODERATE, attackTarget:GetLocation() + RandomVector(castRangeAbility);
         end

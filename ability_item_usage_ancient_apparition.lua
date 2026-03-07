@@ -47,11 +47,11 @@ function AbilityLevelUpThink()
 end
 
 -- Abilities
-local ColdFeet = AbilitiesReal[1]
-local IceVortex = AbilitiesReal[2]
-local ChillingTouch = AbilitiesReal[3]
+local ColdFeet = npcBot:GetAbilityByName("ancient_apparition_cold_feet");
+local IceVortex = npcBot:GetAbilityByName("ancient_apparition_ice_vortex");
+local ChillingTouch = npcBot:GetAbilityByName("ancient_apparition_chilling_touch");
 local Release = npcBot:GetAbilityByName("ancient_apparition_ice_blast_release");
-local IceBlast = AbilitiesReal[6]
+local IceBlast = npcBot:GetAbilityByName("ancient_apparition_ice_blast");
 
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
@@ -105,11 +105,10 @@ end
 function ConsiderColdFeet()
     local ability = ColdFeet;
     if not utility.IsAbilityAvailable(ability) then
-        return BOT_ACTION_DESIRE_NONE, 0;
+        return BOT_ACTION_DESIRE_NONE, 0, nil;
     end
 
     local castRangeAbility = ability:GetCastRange();
-    local damageAbility = ability:GetSpecialValueInt("damage") * ability:GetDuration();
     local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
     local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility + 200, true, BOT_MODE_NONE);
 
@@ -117,17 +116,17 @@ function ConsiderColdFeet()
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) or enemy:IsChanneling() or utility.IsDisabled(enemy)
+            if enemy:IsChanneling() or utility.IsDisabled(enemy)
             then
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_UNIT_TARGET)
                     then
-                        --npcBot:ActionImmediate_Chat("Использую ColdFeet для убийства по цели!", true);
+                        --npcBot:ActionImmediate_Chat("Использую ColdFeet по цели!", true);
                         return BOT_ACTION_DESIRE_VERYHIGH, enemy, "target";
                     elseif utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_POINT)
                     then
-                        --npcBot:ActionImmediate_Chat("Использую ColdFeet для убийства по области!", true);
+                        --npcBot:ActionImmediate_Chat("Использую ColdFeet по области!", true);
                         return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0),
                             "location";
                     end
@@ -180,7 +179,7 @@ function ConsiderColdFeet()
         end
     end
 
-    return BOT_ACTION_DESIRE_NONE, 0;
+    return BOT_ACTION_DESIRE_NONE, 0, nil;
 end
 
 function ConsiderIceVortex()
@@ -278,22 +277,21 @@ function ConsiderRelease()
     end
 
     local projectiles = GetLinearProjectiles();
-    local radiusAbility = IceBlast:GetSpecialValueInt("radius_min");
+    local minRadius = IceBlast:GetSpecialValueInt("radius_min");
+    local killPrecent = IceBlast:GetSpecialValueInt("kill_pct");
     local enemyAbility = GetUnitList(UNIT_LIST_ENEMY_HEROES);
 
-    for _, iceBlast in pairs(projectiles)
-    do
-        if iceBlast ~= nil and iceBlast.ability:GetName() == "ancient_apparition_ice_blast"
-        then
-            for i = 1, #enemyAbility do
-                if GetUnitToLocationDistance(enemyAbility[i], iceBlast.location) <= radiusAbility
-                then
-                    if botTarget == enemyAbility[i] or enemyAbility[i]:GetHealth() <= (enemyAbility[i]:GetMaxHealth() / 100 * IceBlast:GetSpecialValueInt("kill_pct"))
+    if (#projectiles > 0) and (#enemyAbility > 0)
+    then
+        for _, iceBlast in pairs(projectiles)
+        do
+            if iceBlast ~= nil and iceBlast.ability:GetName() == "ancient_apparition_ice_blast"
+            then
+                for _, enemy in pairs(enemyAbility) do
+                    if (enemy == botTarget or enemy:GetHealth() <= (enemy:GetMaxHealth() / 100 * killPrecent)) and
+                        GetUnitToLocationDistance(enemy, iceBlast.location) <= minRadius
                     then
-                        --npcBot:ActionImmediate_Chat("Использую Release рядом с врагом!", true);
-                        return BOT_ACTION_DESIRE_HIGH;
-                    else
-                        return BOT_ACTION_DESIRE_MODERATE;
+                        return BOT_ACTION_DESIRE_VERYHIGH;
                     end
                 end
             end
@@ -309,18 +307,21 @@ function ConsiderIceBlast()
         return BOT_ACTION_DESIRE_NONE, 0;
     end
 
-    local healthLimit = ability:GetSpecialValueInt("kill_pct");
+    local killPrecent = ability:GetSpecialValueInt("kill_pct");
     local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
     local abilitySpeed = ability:GetSpecialValueInt("speed");
     local enemyAbility = GetUnitList(UNIT_LIST_ENEMY_HEROES);
 
-    -- Generic use if can kill enemy hero
-    for i = 1, #enemyAbility do
-        if enemyAbility[i]:GetHealth() <= (enemyAbility[i]:GetMaxHealth() / 100 * healthLimit)
-        then
-            --npcBot:ActionImmediate_Chat("Использую IceBlast что бы добить врага!", true);
-            return BOT_ACTION_DESIRE_VERYHIGH,
-                utility.GetTargetCastPosition(npcBot, enemyAbility[i], delayAbility, abilitySpeed);
+    -- Cast if can kill somebody
+    if (#enemyAbility > 0)
+    then
+        for _, enemy in pairs(enemyAbility) do
+            if utility.CanCastSpellOnTarget(ability, enemy) and (enemy:GetHealth() <= (enemy:GetMaxHealth() / 100 * killPrecent))
+            then
+                npcBot:ActionImmediate_Chat("Использую IceBlast что бы добить: " .. enemy:GetUnitName(), true);
+                return BOT_ACTION_DESIRE_ABSOLUTE,
+                    utility.GetTargetCastPosition(npcBot, enemy, delayAbility, abilitySpeed);
+            end
         end
     end
 
@@ -331,9 +332,32 @@ function ConsiderIceBlast()
         then
             --npcBot:ActionImmediate_Chat("Использую IceBlast по врагу в радиусе действия!",true);
             return BOT_ACTION_DESIRE_VERYHIGH,
-            utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, abilitySpeed);
+                utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, abilitySpeed);
         end
     end
 
     return BOT_ACTION_DESIRE_NONE, 0;
 end
+
+--[[ for i = 1, #enemyAbility do
+    if GetUnitToLocationDistance(enemyAbility[i], iceBlast.location) <= radiusAbility
+    then
+        if botTarget == enemyAbility[i] or enemyAbility[i]:GetHealth() <= (enemyAbility[i]:GetMaxHealth() / 100 * IceBlast:GetSpecialValueInt("kill_pct"))
+        then
+            --npcBot:ActionImmediate_Chat("Использую Release рядом с врагом!", true);
+            return BOT_ACTION_DESIRE_HIGH;
+        else
+            return BOT_ACTION_DESIRE_MODERATE;
+        end
+    end
+end
+
+for i = 1, #enemyAbility do
+    if enemyAbility[i]:GetHealth() <= (enemyAbility[i]:GetMaxHealth() / 100 * healthLimit)
+    then
+        --npcBot:ActionImmediate_Chat("Использую IceBlast что бы добить врага!", true);
+        return BOT_ACTION_DESIRE_VERYHIGH,
+            utility.GetTargetCastPosition(npcBot, enemyAbility[i], delayAbility, abilitySpeed);
+    end
+end
+ ]]

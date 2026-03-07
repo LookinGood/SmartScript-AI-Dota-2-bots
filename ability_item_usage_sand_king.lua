@@ -47,10 +47,10 @@ function AbilityLevelUpThink()
 end
 
 -- Abilities
-local Burrowstrike = AbilitiesReal[1]
-local SandStorm = AbilitiesReal[2]
-local Stinger = AbilitiesReal[3]
-local Epicenter = AbilitiesReal[6]
+local Burrowstrike = npcBot:GetAbilityByName("sandking_burrowstrike");
+local SandStorm = npcBot:GetAbilityByName("sandking_sand_storm");
+local Stinger = npcBot:GetAbilityByName("sandking_scorpion_strike");
+local Epicenter = npcBot:GetAbilityByName("sandking_epicenter");
 
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then

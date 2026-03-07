@@ -47,11 +47,11 @@ function AbilityLevelUpThink()
 end
 
 -- Abilities
-local ShurikenToss = AbilitiesReal[1]
-local Jinada = AbilitiesReal[2]
-local ShadowWalk = AbilitiesReal[3]
-local FriendlyShadow = AbilitiesReal[4]
-local Track = AbilitiesReal[6]
+local ShurikenToss = npcBot:GetAbilityByName("bounty_hunter_shuriken_toss");
+local Jinada = npcBot:GetAbilityByName("bounty_hunter_jinada");
+local ShadowWalk = npcBot:GetAbilityByName("bounty_hunter_wind_walk");
+local FriendlyShadow = npcBot:GetAbilityByName("bounty_hunter_wind_walk_ally");
+local Track = npcBot:GetAbilityByName("bounty_hunter_track");
 
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
@@ -165,7 +165,7 @@ function ConsiderShurikenToss()
                     end
                 end
                 --npcBot:ActionImmediate_Chat("Использую ShurikenToss по не помеченному врагу!", true);
-                return BOT_MODE_DESIRE_HIGH, botTarget;
+                return BOT_ACTION_DESIRE_HIGH, botTarget;
             end
         end
     end
@@ -205,10 +205,7 @@ function ConsiderJinada()
         return;
     end
 
-    local attackTarget = npcBot:GetAttackTarget();
-
-    if ((utility.IsHero(attackTarget) or utility.IsBoss(attackTarget) or attackTarget:IsAncientCreep()) and utility.CanCastSpellOnTarget(ability, attackTarget)) or
-        ((utility.IsHero(botTarget) or utility.IsBoss(botTarget) or botTarget:IsAncientCreep()) and utility.CanCastSpellOnTarget(ability, botTarget))
+    if utility.IsNeedTurnOnAttackModifier()
     then
         if not ability:GetAutoCastState() then
             ability:ToggleAutoCast()
@@ -268,7 +265,7 @@ function ConsiderShadowWalk()
     if attackTarget ~= nil and attackTarget:IsChanneling()
     then
         --npcBot:ActionImmediate_Chat("Использую ShadowWalk против кастующей цели!", true);
-        return BOT_MODE_DESIRE_VERYHIGH;
+        return BOT_ACTION_DESIRE_VERYHIGH;
     end
 
     -- Attack use
@@ -285,7 +282,7 @@ function ConsiderShadowWalk()
     if utility.RetreatMode(npcBot)
     then
         --npcBot:ActionImmediate_Chat("Использую ShadowWalk для отхода!", true);
-        return BOT_MODE_DESIRE_VERYHIGH;
+        return BOT_ACTION_DESIRE_VERYHIGH;
     end
 
     -- General use
@@ -294,7 +291,7 @@ function ConsiderShadowWalk()
         local enemyTowers = npcBot:GetNearbyTowers(1000, true);
         if (#enemyTowers == 0) and npcBot:GetCurrentActionType() ~= BOT_ACTION_TYPE_ATTACK
         then
-            return BOT_MODE_DESIRE_MODERATE;
+            return BOT_ACTION_DESIRE_MODERATE;
         end
     end
 
@@ -321,7 +318,7 @@ function ConsiderFriendlyShadow()
                         or ally:IsChanneling())
                 then
                     --npcBot:ActionImmediate_Chat("Использую FriendlyShadow на союзника!", true);
-                    return BOT_MODE_DESIRE_VERYHIGH, ally;
+                    return BOT_ACTION_DESIRE_VERYHIGH, ally;
                 end
             end
         end
@@ -349,7 +346,7 @@ function ConsiderTrack()
                 if not botTarget:HasModifier("modifier_bounty_hunter_track")
                 then
                     --npcBot:ActionImmediate_Chat("Использую Track по основной цели!", true);
-                    return BOT_MODE_DESIRE_VERYHIGH, botTarget;
+                    return BOT_ACTION_DESIRE_VERYHIGH, botTarget;
                 else
                     if (#enemyAbility > 1)
                     then

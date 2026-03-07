@@ -47,9 +47,9 @@ function AbilityLevelUpThink()
 end
 
 -- Abilities
-local SmokeScreen = AbilitiesReal[1]
-local BlinkStrike = AbilitiesReal[2]
-local TricksOfTheTrade = AbilitiesReal[3]
+local SmokeScreen = npcBot:GetAbilityByName("riki_smoke_screen");
+local BlinkStrike = npcBot:GetAbilityByName("riki_blink_strike");
+local TricksOfTheTrade = npcBot:GetAbilityByName("riki_tricks_of_the_trade");
 
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
@@ -189,12 +189,12 @@ function ConsiderBlinkStrike()
     -- Retreat use
     if utility.RetreatMode(npcBot)
     then
-        if (HealthPercentage <= 0.8) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
+        if (HealthPercentage <= 0.8) and utility.BotWasRecentlyDamagedByEnemyHero(2.0)
         then
             local allyAbility = npcBot:GetNearbyHeroes(castRangeAbility, false, BOT_MODE_NONE);
             local allyCreeps = npcBot:GetNearbyCreeps(castRangeAbility, false);
             local enemyCreeps = npcBot:GetNearbyCreeps(castRangeAbility, true);
-            local fountainLocation = utility.SafeLocation(npcBot);
+            local fountainLocation = utility.GetFountainLocation();
             if (#allyAbility > 1)
             then
                 for _, ally in pairs(allyAbility) do

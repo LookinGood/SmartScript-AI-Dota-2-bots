@@ -47,9 +47,9 @@ function AbilityLevelUpThink()
 end
 
 -- Abilities
-local Firestorm = AbilitiesReal[1]
-local PitOfMalice = AbilitiesReal[2]
-local FiendsGate = AbilitiesReal[6]
+local Firestorm = npcBot:GetAbilityByName("abyssal_underlord_firestorm");
+local PitOfMalice = npcBot:GetAbilityByName("abyssal_underlord_pit_of_malice");
+local FiendsGate = npcBot:GetAbilityByName("abyssal_underlord_dark_portal");
 
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
@@ -79,9 +79,9 @@ function AbilityUsageThink()
 
     if (castFiendsGateDesire > 0)
     then
-        npcBot:Action_ClearActions(false);
-        npcBot:ActionQueue_Delay(5.0);
+        npcBot:Action_ClearActions(true);
         npcBot:ActionQueue_UseAbilityOnLocation(FiendsGate, castFiendsGateLocation);
+        npcBot:ActionQueue_Delay(3.0);
         return;
     end
 end
@@ -197,25 +197,30 @@ function ConsiderFiendsGate()
     end
 
     local minDistance = ability:GetSpecialValueInt("minimum_distance");
+    local minFountainDistance = ability:GetSpecialValueInt("distance_from_fountain");
     local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
-    local ancient = GetAncient(GetTeam());
+    local allyAbility = GetUnitList(UNIT_LIST_ALLIED_HEROES);
 
     -- Attack use
     if utility.PvPMode(npcBot)
     then
         if utility.IsHero(botTarget)
         then
-            local allyHeroes = botTarget:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
-            if (#allyHeroes > 0) and GetUnitToUnitDistance(npcBot, botTarget) >= minDistance
+            if utility.CountAllyHeroAroundUnit(botTarget, minDistance) >= utility.CountEnemyHeroAroundUnit(botTarget, minDistance)
             then
-                if GetUnitToUnitDistance(npcBot, allyHeroes[1]) >= minDistance
+                if (#allyAbility > 1) and GetUnitToUnitDistance(npcBot, botTarget) >= minDistance and not botTarget:HasModifier('modifier_fountain_aura_buff')
                 then
-                    --npcBot:ActionImmediate_Chat("Использую FiendsGate для атаки!", true);
-                    return BOT_ACTION_DESIRE_VERYHIGH,
-                        utility.GetTargetPosition(allyHeroes[1], delayAbility) + RandomVector(npcBot:GetAttackRange());
-                else
-                    return BOT_ACTION_DESIRE_VERYHIGH,
-                        utility.GetTargetPosition(botTarget, delayAbility) + RandomVector(npcBot:GetAttackRange());
+                    for _, ally in pairs(allyAbility)
+                    do
+                        if ally ~= npcBot and utility.IsHero(ally) and GetUnitToUnitDistance(npcBot, ally) >= minDistance
+                            and GetUnitToUnitDistance(botTarget, ally) <= (ally:GetAttackRange() * 2)
+                        then
+                            --npcBot:ActionImmediate_Chat("Использую FiendsGate атакуя, на " .. botTarget:GetUnitName(), true);
+                            return BOT_ACTION_DESIRE_HIGH,
+                                utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0) +
+                                RandomVector(npcBot:GetAttackRange());
+                        end
+                    end
                 end
             end
         end
@@ -224,11 +229,13 @@ function ConsiderFiendsGate()
     -- Retreat use
     if utility.RetreatMode(npcBot)
     then
-        if (HealthPercentage <= 0.6) and npcBot:WasRecentlyDamagedByAnyHero(2.0) and npcBot:DistanceFromFountain() > minDistance
+        local ancient = GetAncient(GetTeam());
+        if (HealthPercentage <= 0.6) and utility.BotWasRecentlyDamagedByEnemyHero(2.0) and GetUnitToUnitDistance(npcBot, ancient) > minDistance
+            and npcBot:DistanceFromFountain() > minFountainDistance
         then
             --npcBot:ActionImmediate_Chat("Использую FiendsGate для отхода!", true);
-            --return BOT_ACTION_DESIRE_VERYHIGH, utility.SafeLocation(npcBot) + RandomVector(npcBot:GetAttackRange() * 4);
-            return BOT_ACTION_DESIRE_VERYHIGH, utility.GetEscapeLocation(ancient, 1000) + RandomVector(100);
+            return BOT_ACTION_DESIRE_VERYHIGH,
+                utility.GetEscapeLocation(ancient, npcBot:GetAttackRange() * 2);
         end
     end
 

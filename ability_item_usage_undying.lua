@@ -21,25 +21,25 @@ local AbilityToLevelUp =
     Abilities[1],
     Abilities[2],
     Abilities[1],
-    Abilities[3],
-    Abilities[6],
-    Abilities[3],
-    Abilities[3],
     Abilities[1],
+    Abilities[6],
+    Abilities[1],
+    Abilities[2],
+    Abilities[2],
     Talents[2],
-    Abilities[1],
+    Abilities[2],
     Abilities[6],
-    Abilities[2],
-    Abilities[2],
+    Abilities[3],
+    Abilities[3],
     Talents[4],
-    Abilities[2],
+    Abilities[3],
     Abilities[6],
-    Talents[5],
-    Talents[7],
-    Talents[1],
-    Talents[3],
     Talents[6],
     Talents[8],
+    Talents[1],
+    Talents[3],
+    Talents[5],
+    Talents[7],
 }
 
 function AbilityLevelUpThink()
@@ -47,10 +47,10 @@ function AbilityLevelUpThink()
 end
 
 -- Abilities
-local Decay = AbilitiesReal[1]
-local SoulRip = AbilitiesReal[2]
-local Tombstone = AbilitiesReal[3]
-local FleshGolem = AbilitiesReal[6]
+local Decay = npcBot:GetAbilityByName("undying_decay");
+local SoulRip = npcBot:GetAbilityByName("undying_soul_rip");
+local Tombstone = npcBot:GetAbilityByName("undying_tombstone");
+local FleshGolem = npcBot:GetAbilityByName("undying_flesh_golem");
 
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
@@ -214,37 +214,36 @@ function ConsiderSoulRip()
 
     local castRangeAbility = ability:GetCastRange();
     local radiusAbility = ability:GetSpecialValueInt("radius");
-    local maxUnits = ability:GetSpecialValueInt("max_units");
-    local damageForUnit = ability:GetSpecialValueInt("damage_per_unit");
     local allyCreepsAround = npcBot:GetNearbyCreeps(radiusAbility, false);
     local allyHeroAbilityAround = npcBot:GetNearbyHeroes(radiusAbility, false, BOT_MODE_NONE);
     local enemyCreepsAround = npcBot:GetNearbyCreeps(radiusAbility, true);
     local enemyHeroAround = npcBot:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
     local unitAroundMe = #allyCreepsAround + #allyHeroAbilityAround + #enemyCreepsAround + #enemyHeroAround;
+    local damageAbility = math.min(unitAroundMe, ability:GetSpecialValueInt("max_units")) *
+        ability:GetSpecialValueInt("damage_per_unit");
     local allyAbility = npcBot:GetNearbyHeroes(castRangeAbility + 200, false, BOT_MODE_NONE);
     local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility + 200, true, BOT_MODE_NONE);
 
-    if unitAroundMe <= maxUnits
+    --print("Целей SoulRip: " .. unitAroundMe)
+    --print("Урон SoulRip: " .. damageAbility)
+
+    -- Cast if can kill somebody
+    if (#enemyAbility > 0)
     then
-        local damageAbility = unitAroundMe * damageForUnit;
-        -- Cast if can kill somebody
-        if (#enemyAbility > 0)
-        then
-            for _, enemy in pairs(enemyAbility) do
-                if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType())
+        for _, enemy in pairs(enemyAbility) do
+            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType())
+            then
+                if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    if utility.CanCastSpellOnTarget(ability, enemy)
-                    then
-                        --npcBot:ActionImmediate_Chat("Использую SoulRip что бы добить " .. enemy:GetUnitName(), true);
-                        return BOT_ACTION_DESIRE_ABSOLUTE, enemy;
-                    end
+                    --npcBot:ActionImmediate_Chat("Использую SoulRip с уроном " .. damageAbility .. " что бы добить " .. enemy:GetUnitName(), true);
+                    return BOT_ACTION_DESIRE_ABSOLUTE, enemy;
                 end
             end
         end
     end
 
     -- Cast to heal ally hero
-    if (#allyAbility > 0) and (unitAroundMe > 1)
+    if (#allyAbility > 0) and damageAbility >= (ability:GetSpecialValueInt("damage_per_unit") * 2)
     then
         for _, ally in pairs(allyAbility)
         do
@@ -260,7 +259,7 @@ function ConsiderSoulRip()
     if utility.PvPMode(npcBot)
     then
         if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget)
-            and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility and damageAbility >= 300
+            and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility and damageAbility >= (ability:GetSpecialValueInt("damage_per_unit") * 2)
         then
             --npcBot:ActionImmediate_Chat("Использую Soul Rip по врагу в радиусе действия!",true);
             return BOT_ACTION_DESIRE_HIGH, botTarget;
@@ -280,31 +279,37 @@ function ConsiderTombstone()
     local radiusAbility = ability:GetSpecialValueInt("radius");
     local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
 
-    if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_POINT)
+    -- Cast if attack enemy
+    if utility.PvPMode(npcBot)
     then
-        -- Cast if attack enemy
-        if utility.PvPMode(npcBot)
+        if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget)
         then
-            if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+            if GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
             then
-                -- npcBot:ActionImmediate_Chat("Использую Tombstone для нападения!", true);
+                --npcBot:ActionImmediate_Chat("Использую Tombstone для нападения вблизи!", true);
                 return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0),
+                    "location";
+            elseif GetUnitToUnitDistance(npcBot, botTarget) > castRangeAbility and GetUnitToUnitDistance(npcBot, botTarget) < radiusAbility
+            then
+                --npcBot:ActionImmediate_Chat("Использую Tombstone для нападения издалека!", true);
+                return BOT_ACTION_DESIRE_HIGH, utility.GetMaxRangeCastLocation(npcBot, botTarget, castRangeAbility),
                     "location";
             end
         end
+    end
 
-        -- Use if need retreat
-        if utility.RetreatMode(npcBot)
+    -- Use if need retreat
+    if utility.RetreatMode(npcBot)
+    then
+        local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
+        if (#enemyAbility > 0) and (HealthPercentage <= 0.7) and utility.BotWasRecentlyDamagedByEnemyHero(2.0)
         then
-            local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
-            if (#enemyAbility > 0) and (HealthPercentage <= 0.7)
-            then
-                for _, enemy in pairs(enemyAbility) do
-                    if utility.CanCastSpellOnTarget(ability, enemy)
-                    then
-                        --npcBot:ActionImmediate_Chat("Использую Tombstone что бы оторваться от врага!", true);
-                        return BOT_ACTION_DESIRE_HIGH, npcBot:GetLocation() + RandomVector(200), "location";
-                    end
+            for _, enemy in pairs(enemyAbility) do
+                if utility.CanCastSpellOnTarget(ability, enemy)
+                then
+                    --npcBot:ActionImmediate_Chat("Использую Tombstone что бы оторваться от врага!", true);
+                    return BOT_ACTION_DESIRE_HIGH, npcBot:GetLocation() + RandomVector(npcBot:GetAttackRange()),
+                        "location";
                 end
             end
         end
@@ -344,12 +349,10 @@ function ConsiderFleshGolem()
         return BOT_ACTION_DESIRE_NONE;
     end
 
-    local attackRange = npcBot:GetAttackRange();
-
     -- Attack use
     if utility.PvPMode(npcBot)
     then
-        if utility.IsHero(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= (attackRange * 4)
+        if utility.IsHero(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= npcBot:GetAcquisitionRange()
         then
             --npcBot:ActionImmediate_Chat("Использую Flesh Golem для нападения!", true);
             return BOT_ACTION_DESIRE_HIGH;
@@ -359,7 +362,7 @@ function ConsiderFleshGolem()
     -- Retreat use
     if utility.RetreatMode(npcBot)
     then
-        if (HealthPercentage <= 0.6) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
+        if (HealthPercentage <= 0.6) and utility.BotWasRecentlyDamagedByEnemyHero(2.0)
         then
             --npcBot:ActionImmediate_Chat("Использую Flesh Golem для отступления!", true);
             return BOT_ACTION_DESIRE_HIGH;

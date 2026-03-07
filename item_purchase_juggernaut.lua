@@ -17,22 +17,22 @@ local ItemsToBuy =
 
 	"item_bfury",
 
+	"item_basher",
+
 	"item_yasha",
 	"item_manta",
+
+	"item_moon_shard",
 
 	"item_aghanims_shard",
 
 	"item_sange",
-	"item_basher",
 	"item_abyssal_blade",
 
 	"item_ultimate_scepter",
-
-	"item_butterfly",
-
 	"item_ultimate_scepter_2",
 
-	"item_moon_shard",
+	"item_butterfly",
 
 	"item_swift_blink",
 

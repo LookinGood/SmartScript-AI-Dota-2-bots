@@ -47,12 +47,13 @@ function AbilityLevelUpThink()
 end
 
 -- Abilities
-local ThunderStrike = AbilitiesReal[1]
-local Glimpse = AbilitiesReal[2]
-local KineticField = AbilitiesReal[3]
-local StaticStorm = AbilitiesReal[6]
+local ThunderStrike = npcBot:GetAbilityByName("disruptor_thunder_strike");
+local Glimpse = npcBot:GetAbilityByName("disruptor_glimpse");
+local KineticField = npcBot:GetAbilityByName("disruptor_kinetic_field");
+local KineticFence = npcBot:GetAbilityByName("disruptor_kinetic_fence");
+local StaticStorm = npcBot:GetAbilityByName("disruptor_static_storm");
 
-local castKineticFieldTimer = 0.0;
+local castKineticFenceTimer = 0.0;
 
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
@@ -66,7 +67,7 @@ function AbilityUsageThink()
 
     local castThunderStrikeDesire, castThunderStrikeTarget = ConsiderThunderStrike();
     local castGlimpseDesire, castGlimpseTarget = ConsiderGlimpse();
-    local castKineticFieldDesire, castKineticFieldLocation = ConsiderKineticField();
+    local castKineticFieldDesire, castKineticFieldLocation, castKineticFieldType = ConsiderKineticField();
     local castStaticStormDesire, castStaticStormLocation = ConsiderStaticStorm();
 
     if (castThunderStrikeDesire > 0)
@@ -81,11 +82,21 @@ function AbilityUsageThink()
         return;
     end
 
-    if (castKineticFieldDesire > 0) and (GameTime() >= castKineticFieldTimer + 2.0)
+    if (castKineticFieldDesire > 0)
     then
-        npcBot:Action_UseAbilityOnLocation(KineticField, castKineticFieldLocation);
-        castKineticFieldTimer = GameTime();
-        return;
+        if castKineticFieldType == "KineticField"
+        then
+            npcBot:Action_UseAbilityOnLocation(KineticField, castKineticFieldLocation);
+            return;
+        elseif castKineticFieldType == "KineticFence"
+        then
+            if (GameTime() >= castKineticFenceTimer + 2.0)
+            then
+                npcBot:Action_UseAbilityOnLocation(KineticFence, castKineticFieldLocation);
+                castKineticFenceTimer = GameTime();
+                return;
+            end
+        end
     end
 
     if (castStaticStormDesire > 0)
@@ -128,7 +139,7 @@ function ConsiderThunderStrike()
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
             then
                 --npcBot:ActionImmediate_Chat("Использую ThunderStrike по врагу в радиусе действия!",true);
-                return BOT_MODE_DESIRE_HIGH, botTarget;
+                return BOT_ACTION_DESIRE_HIGH, botTarget;
             end
         end
     end
@@ -157,7 +168,7 @@ function ConsiderThunderStrike()
             for _, enemy in pairs(enemyCreeps) do
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    return BOT_MODE_DESIRE_VERYLOW, enemy;
+                    return BOT_ACTION_DESIRE_VERYLOW, enemy;
                 end
             end
         end
@@ -227,7 +238,16 @@ end
 function ConsiderKineticField()
     local ability = KineticField;
     if not utility.IsAbilityAvailable(ability) then
-        return BOT_ACTION_DESIRE_NONE, 0;
+        return BOT_ACTION_DESIRE_NONE, 0, 0;
+    end
+
+    local castType = nil;
+    if ability:GetName() == "disruptor_kinetic_field"
+    then
+        castType = "KineticField";
+    elseif ability:GetName() == "disruptor_kinetic_fence"
+    then
+        castType = "KineticFence";
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -239,7 +259,8 @@ function ConsiderKineticField()
     then
         if utility.IsHero(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
         then
-            return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
+            return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0),
+                castType;
         end
     end
 
@@ -251,13 +272,14 @@ function ConsiderKineticField()
             for _, enemy in pairs(enemyAbility) do
                 if utility.IsValidTarget(enemy)
                 then
-                    return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
+                    return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0),
+                        castType;
                 end
             end
         end
     end
 
-    return BOT_ACTION_DESIRE_NONE, 0;
+    return BOT_ACTION_DESIRE_NONE, 0, 0;
 end
 
 function ConsiderStaticStorm()

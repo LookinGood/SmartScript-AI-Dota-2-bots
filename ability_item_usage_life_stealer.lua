@@ -47,11 +47,11 @@ function AbilityLevelUpThink()
 end
 
 -- Abilities
-local Rage = AbilitiesReal[1]
+local Rage = npcBot:GetAbilityByName("life_stealer_rage");
 local Unfettered = npcBot:GetAbilityByName("life_stealer_unfettered");
 local OpenWounds = npcBot:GetAbilityByName("life_stealer_open_wounds");
 local Consume = npcBot:GetAbilityByName("life_stealer_consume");
-local Infest = AbilitiesReal[6]
+local Infest = npcBot:GetAbilityByName("life_stealer_infest");
 
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
@@ -95,16 +95,8 @@ function AbilityUsageThink()
 
     if (castInfestDesire > 0)
     then
-        --infestTarget = castInfestTarget;
         npcBot:Action_UseAbilityOnEntity(Infest, castInfestTarget);
         return;
-    end
-
-    if npcBot:HasModifier("modifier_life_stealer_infest") and utility.RetreatMode(npcBot)
-    --and infestTarget:IsCreep()
-    then
-        --npcBot:ActionImmediate_Chat("Отступаю в крипе!", true);
-        npcBot:ActionPush_MoveToLocation(utility.SafeLocation(npcBot));
     end
 end
 
@@ -127,9 +119,7 @@ function ConsiderRage()
         for _, spell in pairs(incomingSpells)
         do
             if not utility.IsAlly(npcBot, spell.caster) and GetUnitToLocationDistance(npcBot, spell.location) <= 300 and spell.is_attack == false and
-                not npcBot:HasModifier("modifier_antimage_counterspell") and
-                not npcBot:HasModifier("modifier_item_sphere_target") and
-                not npcBot:HasModifier("modifier_item_lotus_orb_active")
+                not utility.HaveReflectSpell(npcBot)
             then
                 return BOT_ACTION_DESIRE_VERYHIGH;
             end
@@ -139,14 +129,14 @@ function ConsiderRage()
     -- Attack use
     if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
     then
-        if (utility.IsHero(botTarget) or utility.IsBoss(botTarget)) and (GetUnitToUnitDistance(npcBot, botTarget) <= npcBot:GetAttackRange() * 4)
+        if (utility.IsHero(botTarget) or utility.IsBoss(botTarget)) and (GetUnitToUnitDistance(npcBot, botTarget) <= npcBot:GetAcquisitionRange())
         then
             return BOT_ACTION_DESIRE_HIGH;
         end
     end
 
     -- General use
-    if (HealthPercentage <= 0.8) and ((npcBot:WasRecentlyDamagedByAnyHero(2.0) or npcBot:WasRecentlyDamagedByTower(2.0)))
+    if (HealthPercentage <= 0.8) and (utility.BotWasRecentlyDamagedByEnemyHero(2.0) or npcBot:WasRecentlyDamagedByTower(2.0))
     then
         return BOT_ACTION_DESIRE_HIGH;
     end
@@ -184,14 +174,14 @@ function ConsiderUnfettered()
     -- Attack use
     if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
     then
-        if (utility.IsHero(botTarget) or utility.IsBoss(botTarget)) and (GetUnitToUnitDistance(npcBot, botTarget) <= npcBot:GetAttackRange() * 4)
+        if (utility.IsHero(botTarget) or utility.IsBoss(botTarget)) and (GetUnitToUnitDistance(npcBot, botTarget) <= npcBot:GetAcquisitionRange())
         then
             return BOT_ACTION_DESIRE_HIGH;
         end
     end
 
     -- General use
-    if (HealthPercentage <= 0.8) and ((npcBot:WasRecentlyDamagedByAnyHero(2.0) or npcBot:WasRecentlyDamagedByTower(2.0)))
+    if (HealthPercentage <= 0.8) and (utility.BotWasRecentlyDamagedByEnemyHero(2.0) or npcBot:WasRecentlyDamagedByTower(2.0))
     then
         return BOT_ACTION_DESIRE_HIGH;
     end
@@ -216,7 +206,7 @@ function ConsiderOpenWounds()
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
                 and not utility.IsDisabled(botTarget)
             then
-                return BOT_MODE_DESIRE_HIGH, botTarget;
+                return BOT_ACTION_DESIRE_HIGH, botTarget;
             end
         end
     end
@@ -238,44 +228,45 @@ function ConsiderOpenWounds()
     return BOT_ACTION_DESIRE_NONE, 0;
 end
 
+-- modifier_life_stealer_infest"
+
 function ConsiderConsume()
     local ability = Consume;
     if not utility.IsAbilityAvailable(ability) then
         return BOT_ACTION_DESIRE_NONE;
     end
 
-    local damageAbility = Infest:GetSpecialValueInt("damage");
-    local radiusAbility = Infest:GetSpecialValueInt("radius");
-    local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
+    --npcBot:ActionImmediate_Chat("Готова " .. ability:GetName(), true);
 
-    -- Cast if can kill somebody
+    --local damageAbility = Infest:GetSpecialValueInt("damage");
+    --local radiusAbility = Infest:GetSpecialValueInt("radius");
+    --local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
+
+    --[[     -- Cast if can kill somebody
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
             if utility.CanAbilityKillTarget(enemy, damageAbility, Infest:GetDamageType())
             then
-                if utility.CanCastSpellOnTarget(ability, enemy)
+                if utility.CanCastSpellOnTarget(Infest, enemy)
                 then
-                    --npcBot:ActionImmediate_Chat("Использую Consume что бы добить цель!", true);
-                    return BOT_ACTION_DESIRE_HIGH;
+                    --npcBot:ActionImmediate_Chat("Использую Consume что бы добить " .. enemy:GetUnitName(), true);
+                    return BOT_ACTION_DESIRE_ABSOLUTE;
                 end
             end
         end
-    end
+    end ]]
 
-    if npcBot:HasModifier("modifier_life_stealer_infest")
+    if not utility.RetreatMode(npcBot)
     then
-        if not utility.RetreatMode(npcBot)
+        --npcBot:ActionImmediate_Chat("Использую Consume не отступая!", true);
+        return BOT_ACTION_DESIRE_MODERATE;
+    else
+        local enemyAbility = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
+        if (#enemyAbility <= 0) or not utility.IsEnemiesAroundStronger()
         then
-            --npcBot:ActionImmediate_Chat("Использую Consume не отступая!", true);
-            return BOT_ACTION_DESIRE_HIGH;
-        else
-            local enemyAbility = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
-            if (#enemyAbility <= 0)
-            then
-                --npcBot:ActionImmediate_Chat("Использую Consume когда врагов рядом нет!", true);
-                return BOT_ACTION_DESIRE_HIGH;
-            end
+            --npcBot:ActionImmediate_Chat("Использую Consume когда врагов рядом нет!", true);
+            return BOT_ACTION_DESIRE_MODERATE;
         end
     end
 
@@ -337,10 +328,10 @@ function ConsiderInfest()
                                 end
                             end
                         end
-                        if (#allyHeroesAbility > 0)
+                        if (#allyHeroesAbility > 1)
                         then
                             for _, allyHero in pairs(allyHeroesAbility) do
-                                if utility.CanCastSpellOnTarget(ability, allyHero) and GetUnitToUnitDistance(allyHero, enemy) <= radiusAbility
+                                if allyHero ~= npcBot and utility.CanCastSpellOnTarget(ability, allyHero) and GetUnitToUnitDistance(allyHero, enemy) <= radiusAbility
                                 then
                                     --npcBot:ActionImmediate_Chat("Использую Infest на союзном герое что бы убить цель!",true);
                                     return BOT_ACTION_DESIRE_VERYHIGH, allyHero;
@@ -393,10 +384,10 @@ function ConsiderInfest()
                             end
                         end
                     end
-                    if (#allyHeroesAbility > 0)
+                    if (#allyHeroesAbility > 1)
                     then
                         for _, allyHero in pairs(allyHeroesAbility) do
-                            if GetUnitToUnitDistance(allyHero, botTarget) <= radiusAbility
+                            if allyHero ~= npcBot and GetUnitToUnitDistance(allyHero, botTarget) <= radiusAbility
                             then
                                 npcBot:ActionImmediate_Chat("Использую Infest на союзном герое для атаки!",
                                     true);
@@ -434,9 +425,7 @@ function ConsiderInfest()
         end
         if utility.CheckFlag(ability:GetTargetType(), ABILITY_TARGET_TYPE_HERO)
         then
-            local allyHeroesAbility = npcBot:GetNearbyHeroes(castRangeAbility, false, BOT_MODE_NONE);
-            local enemyHeroesAbility = npcBot:GetNearbyHeroes(castRangeAbility, false, BOT_MODE_NONE);
-            if (#enemyHeroesAbility > 0) and (#allyHeroesAbility <= 0)
+            if (#enemyHeroesAbility > 0) and (#allyHeroesAbility <= 1)
             then
                 for _, enemyHero in pairs(enemyHeroesAbility) do
                     if utility.CanCastSpellOnTarget(ability, enemyHero)
@@ -447,10 +436,10 @@ function ConsiderInfest()
                     end
                 end
             end
-            if (#allyHeroesAbility > 0)
+            if (#allyHeroesAbility > 1)
             then
                 for _, allyHero in pairs(allyHeroesAbility) do
-                    if utility.CanCastSpellOnTarget(ability, allyHero) and GetUnitToUnitDistance(allyHero, enemy) <= radiusAbility
+                    if allyHero ~= npcBot and utility.CanCastSpellOnTarget(ability, allyHero) and GetUnitToUnitDistance(allyHero, enemy) <= radiusAbility
                     then
                         npcBot:ActionImmediate_Chat("Использую Infest на союзном герое что бы сбежать!",
                             true);

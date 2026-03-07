@@ -47,11 +47,11 @@ function AbilityLevelUpThink()
 end
 
 -- Abilities
-local SearingChains = AbilitiesReal[1]
-local SleightOfFist = AbilitiesReal[2]
-local FlameGuard = AbilitiesReal[3]
-local ActivateFireRemnant = AbilitiesReal[4]
-local FireRemnant = AbilitiesReal[6]
+local SearingChains = npcBot:GetAbilityByName("ember_spirit_searing_chains");
+local SleightOfFist = npcBot:GetAbilityByName("ember_spirit_sleight_of_fist");
+local FlameGuard = npcBot:GetAbilityByName("ember_spirit_flame_guard");
+local ActivateFireRemnant = npcBot:GetAbilityByName("ember_spirit_activate_fire_remnant");
+local FireRemnant = npcBot:GetAbilityByName("ember_spirit_fire_remnant");
 
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
@@ -272,7 +272,7 @@ function ConsiderFlameGuard()
     -- Retreat use
     if utility.RetreatMode(npcBot)
     then
-        if (HealthPercentage <= 0.9) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
+        if (HealthPercentage <= 0.9) and utility.BotWasRecentlyDamagedByEnemyHero(2.0)
         then
             --npcBot:ActionImmediate_Chat("Использую FlameGuard для отступления!", true);
             return BOT_ACTION_DESIRE_HIGH;
@@ -288,16 +288,22 @@ function ConsiderActivateFireRemnant()
         return BOT_ACTION_DESIRE_NONE, 0;
     end
 
+    if npcBot:HasModifier("modifier_ember_spirit_fire_remnant_thinker")
+    then
+        return BOT_ACTION_DESIRE_NONE, 0;
+    end
+
     local castRangeAbility = FireRemnant:GetCastRange();
     local radiusAbility = FireRemnant:GetSpecialValueInt("radius");
     local allyUnits = GetUnitList(UNIT_LIST_ALLIED_OTHER);
+
 
     -- Attack use
     if utility.PvPMode(npcBot)
     then
         if utility.IsHero(botTarget)
         then
-            if #allyUnits > 0
+            if (#allyUnits > 0)
             then
                 for _, ally in pairs(allyUnits) do
                     if ally:GetUnitName() == "npc_dota_ember_spirit_remnant" and GetUnitToUnitDistance(ally, botTarget) <= radiusAbility
@@ -313,7 +319,7 @@ function ConsiderActivateFireRemnant()
     -- Use if need retreat
     if utility.RetreatMode(npcBot)
     then
-        if #allyUnits > 0
+        if (#allyUnits > 0)
         then
             for _, ally in pairs(allyUnits) do
                 if ally:GetUnitName() == "npc_dota_ember_spirit_remnant" and GetUnitToUnitDistance(ally, npcBot) > castRangeAbility / 2
@@ -332,6 +338,11 @@ end
 function ConsiderFireRemnant()
     local ability = FireRemnant;
     if not utility.IsAbilityAvailable(ability) then
+        return BOT_ACTION_DESIRE_NONE, 0;
+    end
+
+    if npcBot:HasModifier("modifier_ember_spirit_fire_remnant_thinker")
+    then
         return BOT_ACTION_DESIRE_NONE, 0;
     end
 

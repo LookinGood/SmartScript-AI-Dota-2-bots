@@ -27,10 +27,11 @@ local ItemsToBuy =
 	"item_shivas_guard",
 
 	"item_ultimate_scepter",
-	"item_ultimate_scepter_2",
 
 	"item_soul_booster",
 	"item_bloodstone",
+
+	"item_ultimate_scepter_2",
 
 	"item_sheepstick",
 

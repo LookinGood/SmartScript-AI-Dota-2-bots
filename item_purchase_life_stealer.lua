@@ -7,7 +7,7 @@ local ItemsToBuy =
 
 	"item_flask",
 
-	"item_orb_of_frost",
+	"item_faerie_fire",
 
 	"item_magic_wand",
 
@@ -15,23 +15,24 @@ local ItemsToBuy =
 
 	"item_phase_boots",
 
-	"item_orb_of_corrosion",
+	"item_radiance",
 
-	"item_desolator",
+	"item_basher",
 
 	"item_sange",
 	"item_yasha",
 
+	"item_blink",
+
 	"item_sange",
-	"item_basher",
 	"item_abyssal_blade",
 
-	"item_radiance",
+	"item_aghanims_shard",
 
 	"item_ultimate_scepter",
 	"item_ultimate_scepter_2",
 
-	"item_aghanims_shard",
+	"item_overwhelming_blink",
 
 	"item_moon_shard",
 

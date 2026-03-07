@@ -28,10 +28,10 @@ local ItemsToBuy =
 	"item_soul_booster",
 	"item_angels_demise",
 
+	"item_sange",
+
 	"item_pers",
 	"item_sphere",
-
-	"item_sange",
 
 	"item_wind_waker",
 

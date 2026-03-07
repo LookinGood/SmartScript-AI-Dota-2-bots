@@ -47,11 +47,11 @@ function AbilityLevelUpThink()
 end
 
 -- Abilities
-local ChargeOfDarkness = AbilitiesReal[1]
-local Bulldoze = AbilitiesReal[2]
-local GreaterBash = AbilitiesReal[3]
-local PlanarPocket = AbilitiesReal[4]
-local NetherStrike = AbilitiesReal[6]
+local ChargeOfDarkness = npcBot:GetAbilityByName("spirit_breaker_charge_of_darkness");
+local Bulldoze = npcBot:GetAbilityByName("spirit_breaker_bulldoze");
+local GreaterBash = npcBot:GetAbilityByName("spirit_breaker_greater_bash");
+local PlanarPocket = npcBot:GetAbilityByName("spirit_breaker_planar_pocket");
+local NetherStrike = npcBot:GetAbilityByName("spirit_breaker_nether_strike");
 
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
@@ -131,7 +131,7 @@ function ConsiderChargeOfDarkness()
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if utility.CanAbilityKillTarget(enemy, damageAbility, GreaterBash:GetDamageType()) or enemy:IsChanneling()
+            if (utility.CanAbilityKillTarget(enemy, damageAbility, GreaterBash:GetDamageType()) or enemy:IsChanneling())
                 and not botTarget:HasModifier('modifier_fountain_aura_buff')
             then
                 if utility.CanCastSpellOnTarget(ability, enemy)
@@ -154,7 +154,7 @@ function ConsiderChargeOfDarkness()
                 if GetUnitToUnitDistance(npcBot, botTarget) <= 3000
                 then
                     --npcBot:ActionImmediate_Ping(botTarget.x, botTarget.y, false);
-                    return BOT_MODE_DESIRE_HIGH, botTarget;
+                    return BOT_ACTION_DESIRE_HIGH, botTarget;
                 else
                     local allyHeroes = botTarget:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
                     local enemyHeroes = botTarget:GetNearbyHeroes(1600, false, BOT_MODE_NONE);
@@ -162,7 +162,7 @@ function ConsiderChargeOfDarkness()
                     then
                         --npcBot:ActionImmediate_Ping(botTarget.x, botTarget.y, false);
                         --npcBot:ActionImmediate_Chat("Бегу на " .. botTarget:GetUnitName(), false);
-                        return BOT_MODE_DESIRE_HIGH, botTarget;
+                        return BOT_ACTION_DESIRE_HIGH, botTarget;
                     end
                 end
             end
@@ -324,7 +324,7 @@ function ConsiderNetherStrike()
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
                 and not utility.IsDisabled(botTarget)
             then
-                return BOT_MODE_DESIRE_HIGH, botTarget;
+                return BOT_ACTION_DESIRE_HIGH, botTarget;
             end
         end
     end

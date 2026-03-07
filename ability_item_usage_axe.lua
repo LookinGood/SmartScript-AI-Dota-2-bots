@@ -48,9 +48,9 @@ function AbilityLevelUpThink()
 end
 
 -- Abilities
-local BerserkersCall = AbilitiesReal[1]
-local BattleHunger = AbilitiesReal[2]
-local CullingBlade = AbilitiesReal[6]
+local BerserkersCall = npcBot:GetAbilityByName("axe_berserkers_call");
+local BattleHunger = npcBot:GetAbilityByName("axe_battle_hunger");
+local CullingBlade = npcBot:GetAbilityByName("axe_culling_blade");
 
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
@@ -125,6 +125,16 @@ function ConsiderBerserkersCall()
         end
     end
 
+    -- Roshan use
+    if utility.BossMode(npcBot)
+    then
+        if utility.IsRoshan(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget) and
+            GetUnitToUnitDistance(npcBot, botTarget) <= radiusAbility
+        then
+            return BOT_ACTION_DESIRE_HIGH;
+        end
+    end
+
     -- Cast if push/defend/farm
     if utility.PvEMode(npcBot)
     then
@@ -151,6 +161,8 @@ function ConsiderBattleHunger()
         return BOT_ACTION_DESIRE_NONE, 0;
     end
 
+    -- botTarget:HasModifier("modifier_axe_battle_hunger")
+
     local castRangeAbility = ability:GetCastRange();
     local damageAbility = ability:GetSpecialValueInt("damage_per_second") * ability:GetSpecialValueInt("duration");
     local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
@@ -164,7 +176,7 @@ function ConsiderBattleHunger()
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую BattleHunger что бы убить цель!", true);
-                    return BOT_ACTION_DESIRE_VERYHIGH, enemy;
+                    return BOT_ACTION_DESIRE_ABSOLUTE, enemy;
                 end
             end
         end
@@ -176,9 +188,8 @@ function ConsiderBattleHunger()
         if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
-                and not botTarget:HasModifier("modifier_axe_battle_hunger")
             then
-                return BOT_MODE_DESIRE_HIGH, botTarget;
+                return BOT_ACTION_DESIRE_HIGH, botTarget;
             end
         end
     end
@@ -189,7 +200,7 @@ function ConsiderBattleHunger()
         if (#enemyAbility > 0)
         then
             for _, enemy in pairs(enemyAbility) do
-                if utility.CanCastSpellOnTarget(ability, enemy) and not enemy:HasModifier("modifier_axe_battle_hunger")
+                if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy;
                 end
@@ -202,7 +213,6 @@ function ConsiderBattleHunger()
     then
         local enemy = utility.GetWeakest(enemyAbility);
         if utility.CanCastSpellOnTarget(ability, enemy) and (ManaPercentage >= 0.7)
-            and not enemy:HasModifier("modifier_axe_battle_hunger")
         then
             return BOT_ACTION_DESIRE_VERYHIGH, enemy;
         end
@@ -229,7 +239,7 @@ function ConsiderCullingBlade()
             then
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    return BOT_MODE_DESIRE_VERYHIGH, enemy;
+                    return BOT_ACTION_DESIRE_ABSOLUTE, enemy;
                 end
             end
         end

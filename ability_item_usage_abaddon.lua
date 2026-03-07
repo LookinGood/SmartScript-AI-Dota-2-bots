@@ -47,9 +47,9 @@ function AbilityLevelUpThink()
 end
 
 -- Abilities
-local MistCoil = AbilitiesReal[1]
-local AphoticShield = AbilitiesReal[2]
-local BorrowedTime = AbilitiesReal[6]
+local MistCoil = npcBot:GetAbilityByName("abaddon_death_coil");
+local AphoticShield = npcBot:GetAbilityByName("abaddon_aphotic_shield");
+local BorrowedTime = npcBot:GetAbilityByName("abaddon_borrowed_time");
 
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
@@ -185,16 +185,19 @@ function ConsiderAphoticShield()
         end
 
         -- Safe ally hero
-        for _, ally in pairs(allyAbility)
-        do
-            if utility.IsHero(ally) and not ally:HasModifier("modifier_abaddon_aphotic_shield")
-            then
-                if (ally:GetHealth() / ally:GetMaxHealth() <= 0.8 and
-                        (ally:WasRecentlyDamagedByAnyHero(2.0) or ally:WasRecentlyDamagedByTower(2.0) or ally:WasRecentlyDamagedByCreep(2.0)))
-                    or utility.IsDisabled(ally)
+        if (#allyAbility > 0)
+        then
+            for _, ally in pairs(allyAbility)
+            do
+                if utility.IsHero(ally) and not ally:HasModifier("modifier_abaddon_aphotic_shield")
                 then
-                    --npcBot:ActionImmediate_Chat("Использую AphoticShield на союзника для защиты!",true);
-                    return BOT_MODE_DESIRE_HIGH, ally;
+                    if ((ally:GetHealth() / ally:GetMaxHealth() <= 0.8) and
+                            (ally:WasRecentlyDamagedByAnyHero(2.0) or ally:WasRecentlyDamagedByTower(2.0) or ally:WasRecentlyDamagedByCreep(2.0)))
+                        or utility.IsDisabled(ally)
+                    then
+                        --npcBot:ActionImmediate_Chat("Использую AphoticShield на союзника для защиты!",true);
+                        return BOT_MODE_DESIRE_HIGH, ally;
+                    end
                 end
             end
         end
@@ -216,7 +219,7 @@ function ConsiderBorrowedTime()
 
     local enemyAbility = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
 
-    if (HealthPercentage <= 0.3) and (#enemyAbility > 1) and npcBot:WasRecentlyDamagedByAnyHero(1.0)
+    if (HealthPercentage <= 0.3) and (#enemyAbility > 1) and utility.BotWasRecentlyDamagedByEnemyHero(1.0)
     then
         --npcBot:ActionImmediate_Chat("Использую BorrowedTime!", true);
         return BOT_ACTION_DESIRE_VERYLOW;

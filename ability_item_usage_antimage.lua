@@ -47,11 +47,11 @@ function AbilityLevelUpThink()
 end
 
 -- Abilities
-local Blink = AbilitiesReal[2]
-local Counterspell = AbilitiesReal[3]
-local BlinkFragment = AbilitiesReal[4]
-local CounterspellAlly = AbilitiesReal[5]
-local ManaVoid = AbilitiesReal[6]
+local Blink = npcBot:GetAbilityByName("antimage_blink");
+local Counterspell = npcBot:GetAbilityByName("antimage_counterspell");
+local BlinkFragment = npcBot:GetAbilityByName("antimage_mana_overload");
+local CounterspellAlly = npcBot:GetAbilityByName("antimage_counterspell_ally");
+local ManaVoid = npcBot:GetAbilityByName("antimage_mana_void");
 
 -- Ability Use
 function AbilityUsageThink()
@@ -112,10 +112,10 @@ function ConsiderBlink()
     local minBlinkRange = ability:GetSpecialValueInt("min_blink_range");
     local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
 
-    -- Cast if enemy hero too far away
-    if utility.PvPMode(npcBot)
+    -- Cast if target too far away
+    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
     then
-        if utility.IsHero(botTarget)
+        if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
         then
             if utility.CanCastOnInvulnerableTarget(botTarget) and (GetUnitToUnitDistance(npcBot, botTarget) > minBlinkRange
                     and GetUnitToUnitDistance(npcBot, botTarget) > (attackRange * 2))
@@ -151,11 +151,24 @@ function ConsiderBlink()
         end
     end
 
-    --[[     -- If going somewhere
-    if not utility.IsHero(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) > (attackRange * 2)
+    -- If going somewhere
+    if utility.WanderMode(npcBot) and (ManaPercentage >= 0.5)
     then
-        return BOT_ACTION_DESIRE_VERYLOW, botTarget:GetLocation();
-    end ]]
+        local botMoveSpeed = npcBot:GetCurrentMovementSpeed();
+        local forwardTime = castRangeAbility / botMoveSpeed;
+        local extrapolatedLocation = npcBot:GetExtrapolatedLocation(forwardTime);
+        if npcBot:IsFacingLocation(extrapolatedLocation, 20) and IsLocationPassable(extrapolatedLocation) and
+            npcBot:GetCurrentActionType() == BOT_ACTION_TYPE_MOVE_TO and
+            (GetUnitToLocationDistance(npcBot, extrapolatedLocation) <= castRangeAbility and
+                GetUnitToLocationDistance(npcBot, extrapolatedLocation) >= castRangeAbility / 2) and
+            (utility.CountEnemyHeroAroundPosition(extrapolatedLocation, castRangeAbility) <= 0 and
+                utility.CountEnemyTowerAroundPosition(extrapolatedLocation, castRangeAbility) <= 0)
+        then
+            --npcBot:ActionImmediate_Chat("Телепортируюсь вперед.", true);
+            --npcBot:ActionImmediate_Ping(extrapolatedLocation.x, extrapolatedLocation.y, false);
+            return BOT_ACTION_DESIRE_VERYLOW, extrapolatedLocation;
+        end
+    end
 
     return BOT_ACTION_DESIRE_NONE, 0;
 end
@@ -214,7 +227,7 @@ function ConsiderBlinkFragment()
             for _, enemy in pairs(enemyAbility) do
                 if utility.IsValidTarget(enemy)
                 then
-                    return BOT_MODE_DESIRE_MODERATE, enemy:GetLocation();
+                    return BOT_ACTION_DESIRE_MODERATE, enemy:GetLocation();
                 end
             end
         end
@@ -272,11 +285,11 @@ function ConsiderManaVoid()
     then
         for _, enemy in pairs(enemyAbility) do
             local damageAbility = damagePercentMana * (enemy:GetMaxMana() - enemy:GetMana())
-            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) or enemy:GetMana() / enemy:GetMaxMana() <= 0.2 or enemy:IsChanneling()
+            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) or (enemy:GetMana() / enemy:GetMaxMana() <= 0.2) or enemy:IsChanneling()
             then
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    return BOT_MODE_DESIRE_VERYHIGH, enemy;
+                    return BOT_ACTION_DESIRE_VERYHIGH, enemy;
                 end
             end
         end

@@ -3,11 +3,11 @@ require(GetScriptDirectory() .. "/bot_name_generic")
 require(GetScriptDirectory() .. "/hero_role_generic")
 
 local hero_pool_my, heroesTank, heroesHealers, heroesDpsMelee, heroesDpsRanged, heroesCarry, heroesSupport =
-hero_role_generic.GetHeroesList();
+	hero_role_generic.GetHeroesList();
 
 -- Insert here hero hame and set "testmode = true" if you want the bot to choose a specific hero (Work only in Radiant team)
 local testmode = false;
-local testHero = "npc_dota_hero_riki"
+local testHero = "npc_dota_hero_undying"
 
 local testTeam =
 {
@@ -220,24 +220,28 @@ function Think()
 
 	if testmode
 	then
-		for _, i in pairs(GetTeamPlayers(GetTeam()))
-		do
-			if IsPlayerBot(i) and GetSelectedHeroName(i) == ""
-			then
-				table.insert(botPlayers, i);
-			end
-		end
-		if (#botPlayers > 0)
+		if GetTeam() == TEAM_RADIANT
 		then
-			if testPlayer == nil
+			for _, i in pairs(GetTeamPlayers(GetTeam()))
+			do
+				if IsPlayerBot(i) and GetSelectedHeroName(i) == ""
+				then
+					table.insert(botPlayers, i);
+				end
+			end
+
+			if (#botPlayers > 0)
 			then
-				testPlayer = math.random(1, #botPlayers);
-				SelectHero(testPlayer, testHero);
-				--print("Персонаж: ", testHero, " выбран для теста.");
+				if testPlayer == nil
+				then
+					testPlayer = botPlayers[RandomInt(1, #botPlayers)];
+					SelectHero(testPlayer, testHero);
+					--print("Персонаж: ", testHero, " выбран для теста.");
+				end
 			end
 		end
 	end
-	--
+
 
 	local lastpick = 10;
 

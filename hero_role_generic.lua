@@ -523,6 +523,7 @@ local heroesSupport =
 }
 
 local heroesHolyLocket = {
+    "npc_dota_hero_dazzle",
     "npc_dota_hero_oracle",
     "npc_dota_hero_wisp",
 }

@@ -47,10 +47,10 @@ function AbilityLevelUpThink()
 end
 
 -- Abilities
-local StiflingDagger = AbilitiesReal[1]
-local PhantomStrike = AbilitiesReal[2]
-local Blur = AbilitiesReal[3]
-local FanOfKnives = AbilitiesReal[4]
+local StiflingDagger = npcBot:GetAbilityByName("phantom_assassin_stifling_dagger");
+local PhantomStrike = npcBot:GetAbilityByName("phantom_assassin_phantom_strike");
+local Blur = npcBot:GetAbilityByName("phantom_assassin_blur");
+local FanOfKnives = npcBot:GetAbilityByName("phantom_assassin_fan_of_knives");
 
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
@@ -197,7 +197,7 @@ function ConsiderPhantomStrike()
             local allyCreeps = npcBot:GetNearbyCreeps(castRangeAbility, false);
             local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
             local enemyCreeps = npcBot:GetNearbyCreeps(castRangeAbility, true);
-            local fountainLocation = utility.SafeLocation(npcBot);
+            local fountainLocation = utility.GetFountainLocation();
             if (#allyAbility > 1)
             then
                 for _, ally in pairs(allyAbility) do

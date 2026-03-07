@@ -26,6 +26,10 @@ local ignoredAbility = {
     "night_stalker_darkness",
     "nyx_assassin_burrow",
     "largo_amphibian_rhapsody",
+    "dazzle_nothl_projection_end",
+    "marci_special_delivery",
+    "marci_companion_run",
+    "rattletrap_jetpack_toggle",
 }
 
 local interruptAbility = {
@@ -258,7 +262,7 @@ local protectTargetAbility = {
     "grimstroke_spirit_walk",
     "lich_frost_shield",
     "lone_druid_spirit_link",
-    "marci_guardian",
+    "marci_bodyguard",
     "omniknight_repel",
     "oracle_fates_edict",
     "shadow_demon_disseminate",

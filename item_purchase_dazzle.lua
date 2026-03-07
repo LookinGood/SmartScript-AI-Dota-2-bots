@@ -18,16 +18,13 @@ local ItemsToBuy =
 	"item_ring_of_basilius",
 	"item_arcane_boots",
 
-	"item_glimmer_cape",
+	"item_holy_locket",
 
 	"item_headdress",
 	"item_mekansm",
 	"item_guardian_greaves",
 
 	"item_aghanims_shard",
-
-	"item_pavise",
-	"item_solar_crest",
 
 	"item_pers",
 	"item_lotus_orb",
@@ -37,10 +34,10 @@ local ItemsToBuy =
 	"item_ultimate_scepter",
 	"item_ultimate_scepter_2",
 
-	"item_aeon_disk",
-
 	"item_soul_booster",
 	"item_octarine_core",
+
+	"item_aeon_disk",
 }
 
 local realItemsToBuy = {}

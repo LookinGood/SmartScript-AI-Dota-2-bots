@@ -47,14 +47,12 @@ function AbilityLevelUpThink()
 end
 
 -- Abilities
-local WildAxes = AbilitiesReal[1]
-local SummonBoar = AbilitiesReal[2]
-local SummonHawk = AbilitiesReal[3]
+local WildAxes = npcBot:GetAbilityByName("beastmaster_wild_axes");
+local SummonBoar = npcBot:GetAbilityByName("beastmaster_call_of_the_wild_boar");
+local SummonHawk = npcBot:GetAbilityByName("beastmaster_call_of_the_wild_hawk");
 local InnerBeast = npcBot:GetAbilityByName("beastmaster_inner_beast");
-local DrumsOfSlom = AbilitiesReal[5]
-local PrimalRoar = AbilitiesReal[6]
---SummonBoar = npcBot:GetAbilityByName("beastmaster_call_of_the_wild_boar");
---SummonHawk = npcBot:GetAbilityByName("beastmaster_call_of_the_wild_hawk");
+local DrumsOfSlom = npcBot:GetAbilityByName("beastmaster_drums_of_slom");
+local PrimalRoar = npcBot:GetAbilityByName("beastmaster_primal_roar");
 
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
@@ -196,7 +194,7 @@ function ConsiderSummonBoar()
     if utility.RetreatMode(npcBot)
     then
         local enemyAbility = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
-        if (#enemyAbility > 0) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
+        if (#enemyAbility > 0) and utility.BotWasRecentlyDamagedByEnemyHero(2.0)
         then
             return BOT_ACTION_DESIRE_HIGH;
         end
@@ -213,7 +211,7 @@ function ConsiderSummonBoar()
             ((#enemyCreeps > 0) or
                 (#enemyTowers > 0) or
                 (#enemyBarracks > 0) or
-                npcBot:GetAttackTarget() == enemyAncient)
+                GetUnitToUnitDistance(npcBot, enemyAncient) <= 1600)
         then
             return BOT_ACTION_DESIRE_LOW;
         end
@@ -348,7 +346,7 @@ function ConsiderPrimalRoar()
             then
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    return BOT_ACTION_DESIRE_VERYHIGH, enemy;
+                    return BOT_ACTION_DESIRE_ABSOLUTE, enemy;
                 end
             end
         end
@@ -362,7 +360,7 @@ function ConsiderPrimalRoar()
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
                 and not utility.IsDisabled(botTarget)
             then
-                return BOT_MODE_DESIRE_HIGH, botTarget;
+                return BOT_ACTION_DESIRE_HIGH, botTarget;
             end
         end
     end

@@ -4,11 +4,6 @@ module("ability_item_usage_generic", package.seeall)
 require(GetScriptDirectory() .. "/utility")
 require(GetScriptDirectory() .. "/teleportation_usage_generic")
 
---[[ local utility = require(GetScriptDirectory() .. "/utility")
-local wardUsage = require(GetScriptDirectory() .. "/ward_usage_generic")
-local teleportUsage = require(GetScriptDirectory() .. "/teleportation_usage_generic")
---require(GetScriptDirectory() .. "/ward_usage_generic")]]
-
 --#region COURIER THINK
 function CourierUsageThink()
 	local npcBot = GetBot();
@@ -127,14 +122,16 @@ function BuybackUsageThink()
 	if not npcBot:IsHero() or npcBot:IsAlive() or npcBot:IsIllusion() or utility.IsClone(npcBot) or utility.IsCloneMeepo(npcBot)
 	then
 		return;
-	elseif not npcBot:IsAlive() and not npcBot:HasBuyback()
+	end
+
+	if not npcBot:HasBuyback() or npcBot:GetGold() < npcBot:GetBuybackCost() or npcBot:GetBuybackCooldown() > 0
 	then
 		return;
 	end
 
 	local respawnTime = npcBot:GetRespawnTime();
 
-	if npcBot:HasBuyback() and (respawnTime > 60.0)
+	if (respawnTime >= 60.0)
 	then
 		if (npcBot.idletime == nil)
 		then
@@ -144,7 +141,7 @@ function BuybackUsageThink()
 			then
 				npcBot.idletime = nil;
 				npcBot:ActionImmediate_Buyback();
-				npcBot:ActionImmediate_Chat("Выкупаюсь!", false);
+				--npcBot:ActionImmediate_Chat("Выкупаюсь!", false);
 				return;
 			end
 		end
@@ -156,13 +153,8 @@ end
 --#region GLYPH THINK
 function GlyphUsageThink()
 	local npcBot = GetBot();
-
-	if npcBot == nil or not utility.IsHero(npcBot) or utility.IsClone(npcBot) or utility.IsCloneMeepo(npcBot)
+	if npcBot == nil or not utility.IsHero(npcBot) or utility.IsClone(npcBot) or utility.IsCloneMeepo(npcBot) or GetGlyphCooldown() > 0
 	then
-		return;
-	end
-
-	if GetGlyphCooldown() > 0 then
 		return;
 	end
 
@@ -1364,6 +1356,7 @@ function ItemUsageThink()
 				end
 			end
 		end
+
 		if utility.PvPMode(npcBot)
 		then
 			if utility.IsHero(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= itemRange
@@ -1383,20 +1376,18 @@ function ItemUsageThink()
 				end
 			end
 		end
-		if utility.RetreatMode(npcBot)
+
+		local allyHeroes = npcBot:GetNearbyHeroes(itemRange, false, BOT_MODE_NONE);
+		if (#allyHeroes > 0)
 		then
-			local allyHeroes = npcBot:GetNearbyHeroes(itemRange, false, BOT_MODE_NONE);
-			if (#allyHeroes > 0)
-			then
-				for _, ally in pairs(allyHeroes)
-				do
-					if not utility.IsIllusion(ally) and utility.IsHero(ally) and (ally:GetHealth() / ally:GetMaxHealth() <= 0.7) and ally:WasRecentlyDamagedByAnyHero(2.0)
-						and ally:IsFacingLocation(utility.GetFountainLocation(), 40) and utility.CanMove(ally)
-					then
-						--npcBot:ActionImmediate_Chat("Использую предмет force_staff для отступления!",true);
-						npcBot:Action_UseAbilityOnEntity(forceStaff, ally);
-						return;
-					end
+			for _, ally in pairs(allyHeroes)
+			do
+				if not utility.IsIllusion(ally) and utility.IsHero(ally) and (ally:GetHealth() / ally:GetMaxHealth() <= 0.7) and ally:WasRecentlyDamagedByAnyHero(2.0)
+					and ally:IsFacingLocation(utility.GetFountainLocation(), 40) and utility.CanMove(ally)
+				then
+					--npcBot:ActionImmediate_Chat("Использую предмет force_staff для отступления!",true);
+					npcBot:Action_UseAbilityOnEntity(forceStaff, ally);
+					return;
 				end
 			end
 		end
@@ -1440,22 +1431,23 @@ function ItemUsageThink()
 			end
 		end
 
-		if utility.RetreatMode(npcBot)
+		local allyHeroes = npcBot:GetNearbyHeroes(pikeAllyRange, false, BOT_MODE_NONE);
+		if (#allyHeroes > 0)
 		then
-			local allyHeroes = npcBot:GetNearbyHeroes(pikeAllyRange, false, BOT_MODE_NONE);
-			if (#allyHeroes > 0)
-			then
-				for _, ally in pairs(allyHeroes)
-				do
-					if utility.IsHero(ally) and (ally:GetHealth() / ally:GetMaxHealth() <= 0.7) and ally:WasRecentlyDamagedByAnyHero(2.0)
-						and ally:IsFacingLocation(utility.GetFountainLocation(), 20) and utility.CanMove(ally)
-					then
-						--npcBot:ActionImmediate_Chat("Использую предмет hurricane Pike для отступления!",true);
-						npcBot:Action_UseAbilityOnEntity(hurricanePike, ally);
-						return;
-					end
+			for _, ally in pairs(allyHeroes)
+			do
+				if utility.IsHero(ally) and (ally:GetHealth() / ally:GetMaxHealth() <= 0.7) and ally:WasRecentlyDamagedByAnyHero(2.0)
+					and ally:IsFacingLocation(utility.GetFountainLocation(), 20) and utility.CanMove(ally)
+				then
+					--npcBot:ActionImmediate_Chat("Использую предмет hurricane Pike для отступления!",true);
+					npcBot:Action_UseAbilityOnEntity(hurricanePike, ally);
+					return;
 				end
 			end
+		end
+
+		if utility.RetreatMode(npcBot)
+		then
 			if (#enemyHeroes > 0)
 			then
 				for _, enemy in pairs(enemyHeroes) do
@@ -2316,8 +2308,11 @@ function ItemUsageThink()
 	then
 		if not npcBot:HasModifier("modifier_item_moon_shard_consumed")
 		then
-			npcBot:Action_UseAbilityOnEntity(moonShard, npcBot);
-			return;
+			if utility.IsItemSlotsFull()
+			then
+				npcBot:Action_UseAbilityOnEntity(moonShard, npcBot);
+				return;
+			end
 		else
 			local allyHeroes = npcBot:GetNearbyHeroes(1600, false, BOT_MODE_NONE);
 			if (#allyHeroes > 1)
@@ -2933,6 +2928,21 @@ function ItemUsageThink()
 			npcBot:Action_UseAbilityOnLocation(roshansBanner,
 				utility.GetMaxRangeCastLocation(npcBot, enemyAncient, itemRange));
 			return;
+		end
+	end
+
+	-- item_ultimate_scepter - Alchemist Only
+	if npcBot:GetUnitName() == "npc_dota_hero_alchemist"
+	then
+		local ultimateScepter = IsItemAvailable("item_ultimate_scepter");
+		if ultimateScepter ~= nil
+		then
+			if not npcBot:HasModifier("modifier_alchemist_scepter_bonus_damage")
+			then
+				--npcBot:ActionImmediate_Chat("Использую предмет ultimateScepter!", true);
+				npcBot:Action_UseAbilityOnEntity(ultimateScepter, npcBot);
+				return;
+			end
 		end
 	end
 

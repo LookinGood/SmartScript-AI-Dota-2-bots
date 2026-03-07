@@ -173,7 +173,8 @@ function ConsiderPounce()
     -- Retreat use
     if utility.RetreatMode(npcBot)
     then
-        if (HealthPercentage <= 0.8) and npcBot:WasRecentlyDamagedByAnyHero(2.0) and npcBot:IsFacingLocation(utility.SafeLocation(npcBot), 40)
+        if (HealthPercentage <= 0.8) and utility.BotWasRecentlyDamagedByEnemyHero(2.0) and npcBot:IsFacingLocation(utility.GetFountainLocation(), 40)
+            and npcBot:DistanceFromFountain() >= castRangeAbility
         then
             --npcBot:ActionImmediate_Chat("Использую Pounce для отхода!",true);
             return BOT_ACTION_DESIRE_HIGH;

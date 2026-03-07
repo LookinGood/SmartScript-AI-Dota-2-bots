@@ -207,7 +207,7 @@ function ConsiderShieldCrash()
     -- Retreat use
     if utility.RetreatMode(npcBot)
     then
-        if (HealthPercentage <= 0.8) and npcBot:WasRecentlyDamagedByAnyHero(2.0) and npcBot:IsFacingLocation(utility.SafeLocation(npcBot), 40)
+        if (HealthPercentage <= 0.8) and utility.BotWasRecentlyDamagedByEnemyHero(2.0) and npcBot:IsFacingLocation(utility.GetFountainLocation(), 40)
             and npcBot:DistanceFromFountain() >= castRangeAbility
         then
             if canDoubleJump == 1

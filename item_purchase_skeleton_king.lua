@@ -27,8 +27,8 @@ local ItemsToBuy =
 
 	"item_black_king_bar",
 
-	"item_sange",
 	"item_basher",
+	"item_sange",
 	"item_abyssal_blade",
 
 	"item_ultimate_scepter",

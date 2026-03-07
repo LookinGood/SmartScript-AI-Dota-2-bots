@@ -210,7 +210,7 @@ function ConsiderIcarusDive()
     end
 
     -- Cast when laning
-    if botMode == BOT_MODE_LANING
+--[[     if botMode == BOT_MODE_LANING
     then
         local enemyAbility = npcBot:GetNearbyHeroes(utility.GetCurrentCastDistance(castRangeAbility), true, BOT_MODE_NONE);
         local enemy = utility.GetWeakest(enemyAbility);
@@ -218,7 +218,7 @@ function ConsiderIcarusDive()
         then
             return BOT_ACTION_DESIRE_MODERATE, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
         end
-    end
+    end ]]
 
     return BOT_ACTION_DESIRE_NONE, 0;
 end

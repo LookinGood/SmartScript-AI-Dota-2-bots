@@ -1,8 +1,8 @@
 ---@diagnostic disable: undefined-global
-require( GetScriptDirectory().."/item_purchase_generic" ) 
+require(GetScriptDirectory() .. "/item_purchase_generic")
 
 local ItemsToBuy =
-{ 
+{
 	"item_tango",
 
 	"item_flask",
@@ -16,11 +16,9 @@ local ItemsToBuy =
 	"item_soul_ring",
 
 	"item_ring_of_basilius",
-    "item_arcane_boots",
+	"item_arcane_boots",
 
 	"item_hand_of_midas",
-
-	"item_kaya",
 
 	"item_ultimate_scepter",
 
@@ -28,6 +26,7 @@ local ItemsToBuy =
 
 	"item_dagon",
 
+	"item_kaya",
 	"item_sange",
 
 	"item_dagon_2",
@@ -42,10 +41,10 @@ local ItemsToBuy =
 	"item_heart",
 
 	"item_soul_booster",
-    "item_octarine_core",
+	"item_octarine_core",
 
-    "item_travel_boots",
-    "item_travel_boots_2",
+	"item_travel_boots",
+	"item_travel_boots_2",
 }
 
 local realItemsToBuy = {}
@@ -56,7 +55,7 @@ end
 
 -- Old version
 --[[ local ItemsToBuy =
-{ 
+{
 	"item_tango",
 	"item_magic_stick",
 	"item_branches",

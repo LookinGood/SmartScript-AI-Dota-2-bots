@@ -47,11 +47,11 @@ function AbilityLevelUpThink()
 end
 
 -- Abilities
-local Enfeeble = AbilitiesReal[1]
-local BrainSap = AbilitiesReal[2]
-local Nightmare = AbilitiesReal[3]
+local Enfeeble = npcBot:GetAbilityByName("bane_enfeeble");
+local BrainSap = npcBot:GetAbilityByName("bane_brain_sap");
+local Nightmare = npcBot:GetAbilityByName("bane_nightmare");
 local NightmareEnd = npcBot:GetAbilityByName("bane_nightmare_end");
-local FiendsGrip = AbilitiesReal[6]
+local FiendsGrip = npcBot:GetAbilityByName("bane_fiends_grip");
 
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
@@ -132,7 +132,7 @@ function ConsiderEnfeeble()
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
             then
-                return BOT_MODE_DESIRE_HIGH, botTarget;
+                return BOT_ACTION_DESIRE_HIGH, botTarget;
             end
         end
     end
@@ -186,7 +186,7 @@ function ConsiderBrainSap()
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
             then
-                return BOT_MODE_DESIRE_HIGH, botTarget;
+                return BOT_ACTION_DESIRE_HIGH, botTarget;
             end
         end
     end
@@ -367,7 +367,7 @@ function ConsiderFiendsGrip()
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
                 and not utility.IsDisabled(botTarget)
             then
-                return BOT_MODE_DESIRE_HIGH, botTarget;
+                return BOT_ACTION_DESIRE_HIGH, botTarget;
             end
         end
     end

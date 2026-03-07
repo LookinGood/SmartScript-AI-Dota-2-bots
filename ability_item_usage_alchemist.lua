@@ -47,11 +47,11 @@ function AbilityLevelUpThink()
 end
 
 -- Abilities
-local AcidSpray = AbilitiesReal[1]
-local UnstableConcoction = AbilitiesReal[2]
+local AcidSpray = npcBot:GetAbilityByName("alchemist_acid_spray");
+local UnstableConcoction = npcBot:GetAbilityByName("alchemist_unstable_concoction");
 local UnstableConcoctionThrow = npcBot:GetAbilityByName("alchemist_unstable_concoction_throw");
-local BerserkPotion = AbilitiesReal[4]
-local ChemicalRage = AbilitiesReal[6]
+local BerserkPotion = npcBot:GetAbilityByName("alchemist_berserk_potion");
+local ChemicalRage = npcBot:GetAbilityByName("alchemist_chemical_rage");
 
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
@@ -109,6 +109,7 @@ function ConsiderAcidSpray()
     local castRangeAbility = ability:GetCastRange();
     local radiusAbility = ability:GetSpecialValueInt("radius");
     local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
+    local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
 
     -- Cast if attack enemy
     if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
@@ -180,7 +181,7 @@ function ConsiderUnstableConcoction()
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility - 100
                 and not utility.IsDisabled(botTarget)
             then
-                --npcBot:ActionImmediate_Chat("Использую LightStrikeArray по цели!", true);
+                --npcBot:ActionImmediate_Chat("Использую UnstableConcoction по цели!", true);
                 return BOT_ACTION_DESIRE_VERYHIGH;
             end
         end
@@ -189,7 +190,7 @@ function ConsiderUnstableConcoction()
     -- Retreat use
     if utility.RetreatMode(npcBot)
     then
-        if (#enemyAbility > 0)
+        if (#enemyAbility > 0) and (HealthPercentage <= 0.8)
         then
             for _, enemy in pairs(enemyAbility) do
                 if utility.CanCastSpellOnTarget(ability, enemy) and not utility.IsDisabled(enemy)
@@ -203,7 +204,179 @@ function ConsiderUnstableConcoction()
     return BOT_ACTION_DESIRE_NONE;
 end
 
+local function IsBrewReady(brewTime)
+    if npcBot.concoctionStartTime == nil
+    then
+        npcBot.concoctionStartTime = GameTime();
+    else
+        if GameTime() - npcBot.concoctionStartTime >= brewTime
+        then
+            npcBot.concoctionStartTime = nil;
+            return true;
+        end
+    end
+
+    return false;
+end
+
 function ConsiderUnstableConcoctionThrow()
+    local ability = UnstableConcoctionThrow;
+    if not utility.IsAbilityAvailable(ability) then
+        return BOT_ACTION_DESIRE_NONE, 0;
+    end
+
+    local castRangeAbility = ability:GetCastRange();
+    local damageAbility = ability:GetSpecialValueInt("max_damage");
+    local brewTime = ability:GetSpecialValueInt("brew_time");
+    local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
+
+    -- Cast if can kill somebody/Interrup cast
+    if (#enemyAbility > 0)
+    then
+        for _, enemy in pairs(enemyAbility) do
+            if utility.CanCastSpellOnTarget(ability, enemy)
+            then
+                if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and utility.PvPMode(npcBot)
+                then
+                    if IsBrewReady(brewTime)
+                    then
+                        --npcBot:ActionImmediate_Chat("Использую UnstableConcoctionThrow что бы убить " .. enemy:GetUnitName(), true);
+                        return BOT_ACTION_DESIRE_ABSOLUTE, enemy;
+                    end
+                end
+                if enemy:IsChanneling()
+                then
+                    --npcBot:ActionImmediate_Chat("Использую UnstableConcoctionThrow что бы сбить заклинание у " .. enemy:GetUnitName(), true);
+                    return BOT_ACTION_DESIRE_VERYHIGH, enemy;
+                end
+            end
+        end
+    end
+
+    -- Attack use
+    if utility.PvPMode(npcBot)
+    then
+        if utility.IsHero(botTarget)
+        then
+            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+            then
+                if IsBrewReady(brewTime)
+                then
+                    --npcBot:ActionImmediate_Chat("Использую UnstableConcoctionThrow по врагу: " .. botTarget:GetUnitName(), true);
+                    return BOT_ACTION_DESIRE_HIGH, botTarget;
+                end
+            end
+        end
+    end
+
+    -- Retreat use
+    if not utility.PvPMode(npcBot) or utility.RetreatMode(npcBot)
+    then
+        if (#enemyAbility > 0)
+        then
+            for _, enemy in pairs(enemyAbility) do
+                if utility.CanCastSpellOnTarget(ability, enemy)
+                then
+                    --npcBot:ActionImmediate_Chat("Использую UnstableConcoctionThrow что бы оторваться от " .. enemy:GetUnitName(), true);
+                    return BOT_ACTION_DESIRE_VERYHIGH, enemy;
+                end
+            end
+        end
+    end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
+end
+
+function ConsiderBerserkPotion()
+    local ability = BerserkPotion;
+    if not utility.IsAbilityAvailable(ability) then
+        return BOT_ACTION_DESIRE_NONE, 0;
+    end
+
+    local castRangeAbility = ability:GetCastRange();
+    local allyAbility = npcBot:GetNearbyHeroes(castRangeAbility, false, BOT_MODE_NONE);
+
+    -- Cast to buff allies
+    if (#allyAbility > 0)
+    then
+        for _, ally in pairs(allyAbility)
+        do
+            if utility.IsHero(ally) and not ally:HasModifier("modifier_alchemist_berserk_potion") and ally:GetHealth() / ally:GetMaxHealth() <= 0.8
+            then
+                if ally:WasRecentlyDamagedByAnyHero(2.0) or
+                    ally:WasRecentlyDamagedByCreep(2.0) or
+                    ally:WasRecentlyDamagedByTower(2.0) or
+                    utility.IsHero(ally:GetAttackTarget())
+                then
+                    --npcBot:ActionImmediate_Chat("Использую BerserkPotion на союзника!", true);
+                    return BOT_ACTION_DESIRE_HIGH, ally;
+                end
+            end
+        end
+    end
+
+    -- Attack use
+    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
+    then
+        if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
+        then
+            if (#allyAbility > 0)
+            then
+                for _, ally in pairs(allyAbility)
+                do
+                    if utility.IsHero(ally) and not ally:HasModifier("modifier_alchemist_berserk_potion") and
+                        (GetUnitToUnitDistance(ally, botTarget) <= (ally:GetAttackRange() * 2) or
+                            GetUnitToUnitDistance(ally, botTarget) > (ally:GetAttackRange() * 2))
+                    then
+                        --npcBot:ActionImmediate_Chat("Использую BerserkPotion на союзника!", true);
+                        return BOT_ACTION_DESIRE_HIGH, ally;
+                    end
+                end
+            end
+        end
+    end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
+end
+
+function ConsiderChemicalRage()
+    local ability = ChemicalRage;
+    if not utility.IsAbilityAvailable(ability) then
+        return BOT_ACTION_DESIRE_NONE;
+    end
+
+    if npcBot:HasModifier("modifier_alchemist_chemical_rage")
+    then
+        return BOT_ACTION_DESIRE_NONE;
+    end
+
+    -- Attack use
+    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
+    then
+        if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
+        then
+            if utility.CanCastOnInvulnerableTarget(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= (npcBot:GetAttackRange() * 4)
+            then
+                --npcBot:ActionImmediate_Chat("Использую ChemicalRage для нападения!", true);
+                return BOT_ACTION_DESIRE_HIGH;
+            end
+        end
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
+    then
+        if (HealthPercentage <= 0.7) and utility.BotWasRecentlyDamagedByEnemyHero(2.0)
+        then
+            --npcBot:ActionImmediate_Chat("Использую ChemicalRage для отступления!", true);
+            return BOT_ACTION_DESIRE_HIGH;
+        end
+    end
+
+    return BOT_ACTION_DESIRE_NONE;
+end
+
+--[[ function ConsiderUnstableConcoctionThrow()
     local ability = UnstableConcoctionThrow;
     if not utility.IsAbilityAvailable(ability) then
         return BOT_ACTION_DESIRE_NONE, 0;
@@ -230,14 +403,14 @@ function ConsiderUnstableConcoctionThrow()
                         then
                             npcBot.idletime = nil
                             --npcBot:ActionImmediate_Chat("Использую UnstableConcoctionThrow что бы убить врага!", true);
-                            return BOT_MODE_DESIRE_HIGH, enemy;
+                            return BOT_ACTION_DESIRE_HIGH, enemy;
                         end
                     end
                 end
                 if enemy:IsChanneling()
                 then
                     --npcBot:ActionImmediate_Chat("Использую UnstableConcoctionThrow что бы сбить заклинание цели!", true);
-                    return BOT_MODE_DESIRE_HIGH, enemy;
+                    return BOT_ACTION_DESIRE_HIGH, enemy;
                 end
             end
         end
@@ -256,7 +429,7 @@ function ConsiderUnstableConcoctionThrow()
                 then
                     npcBot.idletime = nil
                     --npcBot:ActionImmediate_Chat("Использую UnstableConcoctionThrow по врагу в радиусе действия!",true);
-                    return BOT_MODE_DESIRE_HIGH, botTarget;
+                    return BOT_ACTION_DESIRE_HIGH, botTarget;
                 end
             end
         end
@@ -287,93 +460,4 @@ function ConsiderUnstableConcoctionThrow()
     end
 
     return BOT_ACTION_DESIRE_NONE, 0;
-end
-
-function ConsiderBerserkPotion()
-    local ability = BerserkPotion;
-    if not utility.IsAbilityAvailable(ability) then
-        return BOT_ACTION_DESIRE_NONE, 0;
-    end
-
-    local castRangeAbility = ability:GetCastRange();
-    local allyAbility = npcBot:GetNearbyHeroes(castRangeAbility, false, BOT_MODE_NONE);
-
-    -- Cast to buff allies
-    if (#allyAbility > 0)
-    then
-        for _, ally in pairs(allyAbility)
-        do
-            if utility.IsHero(ally) and not ally:HasModifier("modifier_alchemist_berserk_potion") and ally:GetHealth() / ally:GetMaxHealth() <= 0.8
-            then
-                if ally:WasRecentlyDamagedByAnyHero(2.0) or
-                    ally:WasRecentlyDamagedByCreep(5.0) or
-                    ally:WasRecentlyDamagedByTower(2.0) or
-                    utility.IsHero(ally:GetAttackTarget())
-                then
-                    --npcBot:ActionImmediate_Chat("Использую BerserkPotion на союзника!", true);
-                    return BOT_MODE_DESIRE_HIGH, ally;
-                end
-            end
-        end
-    end
-
-    -- Attack use
-    if utility.PvPMode(npcBot)
-    then
-        if utility.IsHero(botTarget)
-        then
-            if (#allyAbility > 0)
-            then
-                for _, ally in pairs(allyAbility)
-                do
-                    if not ally:HasModifier("modifier_alchemist_berserk_potion")
-                    then
-                        if utility.IsHero(ally) and GetUnitToUnitDistance(ally, botTarget) <= ally:GetAttackRange() * 2
-                            or GetUnitToUnitDistance(ally, botTarget) > (ally:GetAttackRange() * 2)
-                        then
-                            --npcBot:ActionImmediate_Chat("Использую BerserkPotion на союзника!", true);
-                            return BOT_MODE_DESIRE_HIGH, ally;
-                        end
-                    end
-                end
-            end
-        end
-    end
-
-    return BOT_ACTION_DESIRE_NONE, 0;
-end
-
-function ConsiderChemicalRage()
-    local ability = ChemicalRage;
-    if not utility.IsAbilityAvailable(ability) then
-        return BOT_ACTION_DESIRE_NONE;
-    end
-
-    if npcBot:HasModifier("modifier_alchemist_chemical_rage")
-    then
-        return BOT_ACTION_DESIRE_NONE;
-    end
-
-    -- Attack use
-    if utility.PvPMode(npcBot)
-    then
-        if utility.IsHero(botTarget) and utility.CanCastOnInvulnerableTarget(botTarget)
-            and GetUnitToUnitDistance(npcBot, botTarget) <= npcBot:GetAttackRange() * 4
-        then
-            --npcBot:ActionImmediate_Chat("Использую ChemicalRage для нападения!", true);
-            return BOT_ACTION_DESIRE_HIGH;
-        end
-    end
-
-    -- Retreat use
-    if utility.RetreatMode(npcBot)
-    then
-        if (HealthPercentage <= 0.7) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
-        then
-            --npcBot:ActionImmediate_Chat("Использую ChemicalRage для отступления!", true);
-            return BOT_ACTION_DESIRE_HIGH;
-        end
-    end
-
-    return BOT_ACTION_DESIRE_NONE;
-end
+end ]]

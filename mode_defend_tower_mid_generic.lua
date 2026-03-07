@@ -300,21 +300,21 @@ function Think()
     local wanderRadius = 500;
     local defendZone = utility.GetEscapeLocation(mainBuilding, wanderRadius);
     --local enemyCreeps = npcBot:GetNearbyCreeps(1600, true);
-    local allyHeroes = npcBot:GetNearbyHeroes(500, false, BOT_MODE_NONE);
-    local enemyHeroes = npcBot:GetNearbyHeroes(500, true, BOT_MODE_NONE);
+    --local allyHeroes = npcBot:GetNearbyHeroes(1000, false, BOT_MODE_NONE);
+    --local enemyHeroes = npcBot:GetNearbyHeroes(1000, true, BOT_MODE_NONE);
     local mainCreep = nil;
 
     npcBot:SetTarget(mainBuilding);
 
     if utility.BotWasRecentlyDamagedByEnemyHero(2.0) or
         (healthPercent <= 0.4 and npcBot:WasRecentlyDamagedByCreep(2.0)) or
-        (#enemyHeroes > #allyHeroes)
+        (utility.IsEnemiesAroundStronger())
     then
         npcBot:Action_ClearActions(false);
         npcBot:Action_MoveToLocation(fountainLocation);
         return;
     else
-        if npcBot == botDefender and mainBuilding == ancient
+        if npcBot == botDefender and mainBuilding == ancient and mainCreep == nil
         then
             if GetUnitToLocationDistance(npcBot, ancientLocation) > 1600
             then

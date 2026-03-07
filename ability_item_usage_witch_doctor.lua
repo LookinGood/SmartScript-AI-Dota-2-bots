@@ -47,11 +47,11 @@ function AbilityLevelUpThink()
 end
 
 -- Abilities
-local ParalyzingCask = AbilitiesReal[1]
-local VoodooRestoration = AbilitiesReal[2]
-local Maledict = AbilitiesReal[3]
-local VoodooSwitcheroo = AbilitiesReal[4]
-local DeathWard = AbilitiesReal[6]
+local ParalyzingCask = npcBot:GetAbilityByName("witch_doctor_paralyzing_cask");
+local VoodooRestoration = npcBot:GetAbilityByName("witch_doctor_voodoo_restoration");
+local Maledict = npcBot:GetAbilityByName("witch_doctor_maledict");
+local VoodooSwitcheroo = npcBot:GetAbilityByName("witch_doctor_voodoo_switcheroo");
+local DeathWard = npcBot:GetAbilityByName("witch_doctor_death_ward");
 
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
@@ -62,6 +62,8 @@ function AbilityUsageThink()
     botTarget = npcBot:GetTarget();
     HealthPercentage = npcBot:GetHealth() / npcBot:GetMaxHealth();
     ManaPercentage = npcBot:GetMana() / npcBot:GetMaxMana();
+
+    healingAllyHero = nil;
 
     local castParalyzingCaskDesire, castParalyzingCaskTarget = ConsiderParalyzingCask();
     local castVoodooRestorationDesire = ConsiderVoodooRestoration();
@@ -100,30 +102,24 @@ function AbilityUsageThink()
         return;
     end
 
-    -- Trying to stay close to wounded hero
-    if npcBot:HasModifier("modifier_voodoo_restoration_heal") and VoodooRestoration:GetToggleState() == true
+    HealingAlliesWithVoodooRestoration()
+end
+
+function HealingAlliesWithVoodooRestoration()
+    if utility.PvPMode(npcBot) or utility.RetreatMode(npcBot) or VoodooRestoration:GetToggleState() == false or healingAllyHero == nil or healingAllyHero == npcBot
     then
-        if not utility.PvPMode(npcBot) and not utility.RetreatMode(npcBot)
-        then
-            local allyAbility = npcBot:GetNearbyHeroes(VoodooRestoration:GetSpecialValueInt("radius") * 2, false,
-                BOT_MODE_NONE);
-            if (#allyAbility > 1)
-            then
-                for _, ally in pairs(allyAbility)
-                do
-                    if ally ~= npcBot and utility.IsHero(ally) and utility.CanBeHeal(ally) and (ally:GetHealth() / ally:GetMaxHealth() < 0.8)
-                    then
-                        if GetUnitToUnitDistance(npcBot, ally) > (VoodooRestoration:GetSpecialValueInt("radius"))
-                        then
-                            npcBot:Action_ClearActions(false);
-                            npcBot:Action_MoveToLocation(ally:GetLocation() +
-                                RandomVector(VoodooRestoration:GetSpecialValueInt("radius")));
-                            return;
-                        end
-                    end
-                end
-            end
-        end
+        return;
+    end
+
+    local healingRadius = VoodooRestoration:GetSpecialValueInt("radius");
+
+    if GetUnitToUnitDistance(npcBot, healingAllyHero) > healingRadius
+    then
+        npcBot:Action_MoveToUnit(healingAllyHero);
+        return;
+    else
+        npcBot:Action_MoveToLocation(healingAllyHero:GetLocation() + RandomVector(healingRadius));
+        return;
     end
 end
 
@@ -217,23 +213,24 @@ function ConsiderVoodooRestoration()
             if utility.IsHero(ally) and utility.CanBeHeal(ally) and (ally:GetHealth() / ally:GetMaxHealth() < 0.8)
             then
                 countHeroesToHeal = countHeroesToHeal + 1;
+                healingAllyHero = ally;
             end
         end
+    end
 
-        if (countHeroesToHeal > 0)
+    if (countHeroesToHeal > 0)
+    then
+        if ability:GetToggleState() == false
         then
-            if ability:GetToggleState() == false
-            then
-                --npcBot:ActionImmediate_Chat("Использую VoodooRestoration для хила!", true);
-                return BOT_ACTION_DESIRE_HIGH;
-            end
-        elseif (countHeroesToHeal <= 0) and not utility.PvPMode(npcBot)
+            --npcBot:ActionImmediate_Chat("Использую VoodooRestoration для хила!", true);
+            return BOT_ACTION_DESIRE_HIGH;
+        end
+    elseif (countHeroesToHeal <= 0) and not utility.PvPMode(npcBot)
+    then
+        if ability:GetToggleState() == true
         then
-            if ability:GetToggleState() == true
-            then
-                --npcBot:ActionImmediate_Chat("Выключаю VoodooRestoration, хил не нужен!", true);
-                return BOT_ACTION_DESIRE_HIGH;
-            end
+            --npcBot:ActionImmediate_Chat("Выключаю VoodooRestoration, хил не нужен!", true);
+            return BOT_ACTION_DESIRE_HIGH;
         end
     end
 
@@ -265,7 +262,7 @@ function ConsiderMaledict()
     end
 
     local castRangeAbility = ability:GetCastRange();
-    local damageAbility = ability:GetAbilityDamage() * ability:GetSpecialValueInt("AbilityDuration");
+    local damageAbility = ability:GetSpecialValueInt("bonus_damage") * ability:GetSpecialValueInt("AbilityDuration");
     local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
     local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility + 200, true, BOT_MODE_NONE);
 

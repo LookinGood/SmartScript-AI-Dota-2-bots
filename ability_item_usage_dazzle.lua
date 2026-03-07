@@ -47,10 +47,11 @@ function AbilityLevelUpThink()
 end
 
 -- Abilities
-local PoisonTouch = AbilitiesReal[1]
-local ShallowGrave = AbilitiesReal[2]
-local ShadowWave = AbilitiesReal[3]
-local NothlProjection = AbilitiesReal[6]
+local PoisonTouch = npcBot:GetAbilityByName("dazzle_poison_touch");
+local ShallowGrave = npcBot:GetAbilityByName("dazzle_shallow_grave");
+local ShadowWave = npcBot:GetAbilityByName("dazzle_shadow_wave");
+local NothlProjection = npcBot:GetAbilityByName("dazzle_nothl_projection");
+local NothlProjectionEnd = npcBot:GetAbilityByName("dazzle_nothl_projection_end");
 
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
@@ -66,6 +67,7 @@ function AbilityUsageThink()
     local castShallowGraveDesire, castShallowGraveTarget = ConsiderShallowGrave();
     local castShadowWaveDesire, castShadowWaveTarget = ConsiderShadowWave();
     local castNothlProjectionDesire, castNothlProjectionLocation = ConsiderNothlProjection();
+    local castNothlProjectionEndDesire = ConsiderNothlProjectionEnd();
 
     if (castPoisonTouchDesire > 0)
     then
@@ -88,6 +90,12 @@ function AbilityUsageThink()
     if (castNothlProjectionDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(NothlProjection, castNothlProjectionLocation);
+        return;
+    end
+
+    if (castNothlProjectionEndDesire > 0)
+    then
+        npcBot:Action_UseAbility(NothlProjectionEnd);
         return;
     end
 end
@@ -302,34 +310,79 @@ function ConsiderShadowWave()
     return BOT_ACTION_DESIRE_NONE, 0;
 end
 
+-- modifier_dazzle_nothl_projection_soul_debuff -- копия?
+-- modifier_dazzle_nothl_projection_physical_body_debuff -- оригинал
+-- modifier_dazzle_nothl_projection_soul_clone -- Не работает для опознавания копии
+
 function ConsiderNothlProjection()
     local ability = NothlProjection;
     if not utility.IsAbilityAvailable(ability) then
         return BOT_ACTION_DESIRE_NONE, 0;
     end
 
-    local castRangeAbility = ability:GetCastRange() + 200;
+    if npcBot:WasRecentlyDamagedByTower(2.0)
+    then
+        return BOT_ACTION_DESIRE_NONE, 0;
+    end
+
+    local castRangeAbility = ability:GetCastRange();
+    local maxCastRange = ability:GetSpecialValueInt("leash_start");
     local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
+    local speedAbility = ability:GetSpecialValueInt("initial_travel_speed");
 
     -- Attack use
     if utility.PvPMode(npcBot)
     then
-        if utility.IsHero(botTarget)
+        if utility.IsHero(botTarget) and utility.CanCastOnInvulnerableTarget(botTarget)
         then
-            if utility.CanCastOnInvulnerableTarget(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+            if (utility.IsAbilityAvailable(PoisonTouch) or
+                    utility.IsAbilityAvailable(ShallowGrave) or
+                    utility.IsAbilityAvailable(ShadowWave))
             then
-                if (PoisonTouch:IsCooldownReady() or
-                        ShallowGrave:IsCooldownReady() or
-                        ShadowWave:IsCooldownReady())
+                if GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
                 then
-                    --npcBot:ActionImmediate_Chat("Использую NothlProjection на врага!", true);
-                    return BOT_ACTION_DESIRE_ABSOLUTE, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
+                    --npcBot:ActionImmediate_Chat("Использую NothlProjection на врага вблизи!", true);
+                    return BOT_ACTION_DESIRE_HIGH,
+                        utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, speedAbility);
+                elseif GetUnitToUnitDistance(npcBot, botTarget) > castRangeAbility and GetUnitToUnitDistance(npcBot, botTarget) <= maxCastRange
+                then
+                    --npcBot:ActionImmediate_Chat("Использую NothlProjection на врага издалека!", true);
+                    return BOT_ACTION_DESIRE_HIGH, utility.GetMaxRangeCastLocation(npcBot, botTarget, castRangeAbility);
                 end
             end
         end
     end
 
     return BOT_ACTION_DESIRE_NONE, 0;
+end
+
+function ConsiderNothlProjectionEnd()
+    local ability = NothlProjectionEnd;
+    if not utility.IsAbilityAvailable(ability) then
+        return BOT_ACTION_DESIRE_NONE;
+    end
+
+    local allyAbility = GetUnitList(UNIT_LIST_ALLIED_HEROES);
+
+    if (#allyAbility > 0)
+    then
+        for _, ally in pairs(allyAbility)
+        do
+            if ally:GetUnitName() == npcBot:GetUnitName() and ally:GetPlayerID() == npcBot:GetPlayerID() and ally:IsStunned()
+            then
+                if (utility.IsHero(ally) and ally:GetHealth() / ally:GetMaxHealth() <= 0.5)
+                    and (ally:WasRecentlyDamagedByAnyHero(2.0) or
+                        ally:WasRecentlyDamagedByCreep(2.0) or
+                        ally:WasRecentlyDamagedByTower(2.0))
+                then
+                    --npcBot:ActionImmediate_Chat("Использую NothlProjectionEnd: " .. ally:GetUnitName(), true);
+                    return BOT_ACTION_DESIRE_ABSOLUTE;
+                end
+            end
+        end
+    end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 ---- DELETED ABILITY

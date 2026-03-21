@@ -11,7 +11,7 @@ local ItemsToBuy =
 
 	"item_magic_wand",
 
-	"item_wraith_band",
+	"item_null_talisman",
 
 	"item_power_treads",
 

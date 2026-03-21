@@ -91,6 +91,8 @@ function ConsiderBerserkersCall()
         return BOT_ACTION_DESIRE_NONE;
     end
 
+    -- enemy:HasModifier("modifier_axe_berserkers_call")
+
     local radiusAbility = ability:GetAOERadius();
     local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
 
@@ -115,8 +117,7 @@ function ConsiderBerserkersCall()
         then
             for _, enemy in pairs(enemyAbility)
             do
-                if utility.CanCastSpellOnTarget(ability, enemy) and not utility.IsDisabled(enemy)
-                    and not enemy:HasModifier("modifier_axe_berserkers_call")
+                if utility.CanCastSpellOnTarget(ability, enemy) and not utility.IsDisabled(enemy) and not enemy:IsDominated()
                 then
                     --npcBot:ActionImmediate_Chat("Использую BerserkersCall против врага в радиусе действия!", true);
                     return BOT_ACTION_DESIRE_HIGH;
@@ -143,7 +144,7 @@ function ConsiderBerserkersCall()
         then
             for _, enemy in pairs(enemyCreeps) do
                 if utility.CanCastSpellOnTarget(ability, enemy) and npcBot:GetAttackTarget() == enemy
-                    and not enemy:HasModifier("modifier_axe_berserkers_call")
+                    and not enemy:IsDominated()
                 then
                     --npcBot:ActionImmediate_Chat("Использую BerserkersCall против крипов", true);
                     return BOT_ACTION_DESIRE_HIGH;

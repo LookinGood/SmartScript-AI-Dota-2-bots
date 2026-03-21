@@ -11,33 +11,35 @@ local ItemsToBuy =
 
 	"item_magic_wand",
 
-    "item_null_talisman",
+	"item_null_talisman",
 
-	"item_ring_of_basilius",
-	"item_arcane_boots",
-
-	"item_glimmer_cape",
+	"item_power_treads",
 
 	"item_oblivion_staff",
-    "item_witch_blade",
+	"item_witch_blade",
 
-	"item_force_staff",
 	"item_dragon_lance",
-	"item_hurricane_pike",
-
-	"item_aghanims_shard",
 
 	"item_ultimate_scepter",
 
-	"item_devastator",
+	"item_force_staff",
+	"item_hurricane_pike",
 
-	"item_kaya",
-	"item_sange",
+	"item_pers",
+	"item_sphere",
+
+	"item_aghanims_shard",
+
+	"item_devastator",
 
 	"item_ultimate_scepter_2",
 
-	"item_soul_booster",
-    "item_bloodstone",
+	"item_kaya",
+	"item_yasha",
+
+	"item_moon_shard",
+
+	"item_skadi",
 
 	"item_travel_boots",
 	"item_travel_boots_2",

@@ -732,7 +732,7 @@ function IsAlly(unit1, unit2)
 end
 
 function IsHero(npcTarget)
-	return npcTarget ~= nil and npcTarget:IsHero() and not IsIllusion(npcTarget) and not IsClone(npcTarget);
+	return IsValidTarget(npcTarget) and npcTarget:IsHero() and not IsIllusion(npcTarget) and not IsClone(npcTarget);
 end
 
 function IsBuilding(npcTarget)
@@ -756,6 +756,10 @@ end
 
 function IsBoss(npcTarget)
 	return IsRoshan(npcTarget) or IsTormentor(npcTarget);
+end
+
+function IsMeleeUnit(npcTarget)
+	return IsValidTarget(npcTarget) and npcTarget:GetAttackRange() < 300
 end
 
 function IsNeedTurnOnAttackModifier()
@@ -1512,6 +1516,10 @@ function CanMove(npcTarget)
 		if (npcTarget:HasModifier("modifier_bloodseeker_rupture") and npcTarget:GetHealth() / npcTarget:GetMaxHealth() < 0.6) or
 			(npcTarget:HasModifier("modifier_techies_minefield_sign_scepter_aura") and npcTarget:GetHealth() / npcTarget:GetMaxHealth() < 0.4)
 		then
+			if HaveRemovedRegenBuff(npcTarget)
+			then
+				return false;
+			end
 			if not npcTarget:HasModifier("modifier_abaddon_borrowed_time") and
 				not npcTarget:HasModifier("modifier_dazzle_shallow_grave") and
 				not npcTarget:HasModifier("modifier_oracle_false_promise_timer") and

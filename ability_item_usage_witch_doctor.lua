@@ -200,6 +200,11 @@ function ConsiderVoodooRestoration()
         return BOT_ACTION_DESIRE_NONE;
     end
 
+    if npcBot:GetMana() < ability:GetManaCost() * 3 and ability:GetToggleState() == false
+    then
+        return BOT_ACTION_DESIRE_NONE;
+    end
+
     local radiusAbility = ability:GetSpecialValueInt("radius");
     local allyAbility = npcBot:GetNearbyHeroes(radiusAbility, false, BOT_MODE_NONE);
     local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);

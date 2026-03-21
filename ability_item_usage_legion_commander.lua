@@ -47,9 +47,9 @@ function AbilityLevelUpThink()
 end
 
 -- Abilities
-local OverwhelmingOdds = AbilitiesReal[1]
-local PressTheAttack = AbilitiesReal[2]
-local Duel = AbilitiesReal[6]
+local OverwhelmingOdds = npcBot:GetAbilityByName("legion_commander_overwhelming_odds");
+local PressTheAttack = npcBot:GetAbilityByName("legion_commander_press_the_attack");
+local Duel = npcBot:GetAbilityByName("legion_commander_duel");
 
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
@@ -119,27 +119,32 @@ function ConsiderOverwhelmingOdds()
         end
     end
 
-    -- Attack use
-    if utility.PvPMode(npcBot)
+    -- Attack/Retreat use
+    if utility.PvPMode(npcBot) or utility.RetreatMode(npcBot)
     then
         if (#enemyAbility > 0)
         then
             for _, enemy in pairs(enemyAbility) do
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    --npcBot:ActionImmediate_Chat("Использую OverwhelmingOdds для нападения!",true);
+                    --npcBot:ActionImmediate_Chat("Использую OverwhelmingOdds для нападения/отступления!",true);
                     return BOT_ACTION_DESIRE_HIGH;
                 end
             end
         end
-        -- Boss use
+    end
+
+    -- Boss use
+    if utility.BossMode(npcBot)
+    then
         if utility.IsBoss(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= radiusAbility
         then
-            --npcBot:ActionImmediate_Chat("Использую OverwhelmingOdds против Рошана!", true);
+            --npcBot:ActionImmediate_Chat("Использую OverwhelmingOdds против Босса!", true);
             return BOT_ACTION_DESIRE_HIGH;
         end
     end
 
+    -- PvE use
     if utility.PvEMode(npcBot)
     then
         local enemyCreeps = npcBot:GetNearbyCreeps(radiusAbility, true);
@@ -176,10 +181,7 @@ function ConsiderPressTheAttack()
             -- Heal ally
             if utility.IsHero(ally) and not ally:HasModifier("modifier_legion_commander_press_the_attack")
             then
-                if ((ally:WasRecentlyDamagedByAnyHero(2.0) or
-                            ally:WasRecentlyDamagedByCreep(2.0) or
-                            ally:WasRecentlyDamagedByTower(2.0))
-                        and (ally:GetHealth() / ally:GetMaxHealth() <= 0.8)) or (utility.IsDisabled(ally))
+                if ((ally:GetHealth() / ally:GetMaxHealth() <= 0.7)) or (utility.IsDisabled(ally))
                 then
                     if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_UNIT_TARGET)
                     then
@@ -192,34 +194,25 @@ function ConsiderPressTheAttack()
                             "location";
                     end
                 end
-                -- Buff Ally attack
-                if utility.PvPMode(npcBot)
+            end
+            -- Buff Ally attack
+            if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
+            then
+                if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
                 then
-                    if utility.IsHero(botTarget)
+                    if utility.IsHero(ally) and GetUnitToUnitDistance(ally, botTarget) > ally:GetAttackRange()
+                        and GetUnitToUnitDistance(ally, botTarget) <= 1600 and not utility.IsHaveMaxSpeed(ally)
                     then
-                        if (#allyAbility > 0)
+                        if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_UNIT_TARGET)
                         then
-                            for _, ally in pairs(allyAbility)
-                            do
-                                if not utility.IsHaveMaxSpeed(ally) and not utility.IsDisabled(ally)
-                                then
-                                    if utility.IsHero(ally) and GetUnitToUnitDistance(ally, botTarget) > ally:GetAttackRange()
-                                        and GetUnitToUnitDistance(ally, botTarget) <= 1600
-                                    then
-                                        if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_UNIT_TARGET)
-                                        then
-                                            --npcBot:ActionImmediate_Chat("Использую PressTheAttack для атаки по цели!",  true);
-                                            return BOT_ACTION_DESIRE_HIGH, ally, "target";
-                                        elseif utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_POINT)
-                                        then
-                                            --npcBot:ActionImmediate_Chat("Использую PressTheAttack для атаки по области!", true);
-                                            return BOT_ACTION_DESIRE_HIGH,
-                                                utility.GetTargetCastPosition(npcBot, ally, delayAbility, 0),
-                                                "location";
-                                        end
-                                    end
-                                end
-                            end
+                            --npcBot:ActionImmediate_Chat("Использую PressTheAttack для атаки по цели!",  true);
+                            return BOT_ACTION_DESIRE_HIGH, ally, "target";
+                        elseif utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_POINT)
+                        then
+                            --npcBot:ActionImmediate_Chat("Использую PressTheAttack для атаки по области!", true);
+                            return BOT_ACTION_DESIRE_HIGH,
+                                utility.GetTargetCastPosition(npcBot, ally, delayAbility, 0),
+                                "location";
                         end
                     end
                 end
@@ -265,10 +258,13 @@ function ConsiderDuel()
         if utility.IsHero(botTarget)
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
-                and not botTarget:IsDominated() and not botTarget:IsAttackImmune() and botTarget:GetHealth() < npcBot:GetHealth()
+                and not botTarget:IsDominated() and not botTarget:IsAttackImmune()
             then
-                --npcBot:ActionImmediate_Chat("Использую Duel по цели!", true);
-                return BOT_ACTION_DESIRE_HIGH, botTarget;
+                if (HealthPercentage >= botTarget:GetHealth() / botTarget:GetMaxHealth()) or not utility.IsEnemiesAroundStronger()
+                then
+                    --npcBot:ActionImmediate_Chat("Использую Duel по " .. botTarget:GetUnitName(), true);
+                    return BOT_ACTION_DESIRE_HIGH, botTarget;
+                end
             end
         end
         -- Cast if enemy >=2
@@ -276,9 +272,9 @@ function ConsiderDuel()
         then
             local weakestEnemyHero = utility.GetWeakest(enemyAbility);
             if utility.CanCastSpellOnTarget(ability, weakestEnemyHero) and not weakestEnemyHero:IsDominated() and not weakestEnemyHero:IsAttackImmune()
-                and weakestEnemyHero:GetHealth() <= npcBot:GetHealth()
+                and npcBot:GetOffensivePower() >= weakestEnemyHero:GetRawOffensivePower()
             then
-                --npcBot:ActionImmediate_Chat("Использую Duel по слабейшей цели!", true);
+                --npcBot:ActionImmediate_Chat("Использую Duel по слабой цели " .. weakestEnemyHero:GetUnitName() .. npcBot:GetOffensivePower() .. " vs " .. weakestEnemyHero:GetRawOffensivePower(), true);
                 return BOT_ACTION_DESIRE_HIGH, weakestEnemyHero;
             end
         end

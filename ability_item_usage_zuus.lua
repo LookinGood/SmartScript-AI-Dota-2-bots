@@ -31,13 +31,13 @@ local AbilityToLevelUp =
     Abilities[6],
     Abilities[3],
     Abilities[3],
-    Talents[3],
+    Talents[4],
     Abilities[3],
     Abilities[6],
     Talents[5],
     Talents[7],
     Talents[1],
-    Talents[4],
+    Talents[3],
     Talents[6],
     Talents[8],
 }
@@ -47,12 +47,13 @@ function AbilityLevelUpThink()
 end
 
 -- Abilities
-local ArcLightning = AbilitiesReal[1]
-local LightningBolt = AbilitiesReal[2]
-local HeavenlyJump = AbilitiesReal[3]
-local Nimbus = AbilitiesReal[4]
-local LightningHands = AbilitiesReal[5]
-local ThundergodWrath = AbilitiesReal[6]
+local ArcLightning = npcBot:GetAbilityByName("zuus_arc_lightning");
+local LightningBolt = npcBot:GetAbilityByName("zuus_lightning_bolt");
+local HeavenlyJump = npcBot:GetAbilityByName("zuus_heavenly_jump");
+local StaticField = npcBot:GetAbilityByName("zuus_static_field");
+local Nimbus = npcBot:GetAbilityByName("zuus_cloud");
+local LightningHands = npcBot:GetAbilityByName("zuus_lightning_hands");
+local ThundergodWrath = npcBot:GetAbilityByName("zuus_thundergods_wrath");
 
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
@@ -63,6 +64,13 @@ function AbilityUsageThink()
     botTarget = npcBot:GetTarget();
     HealthPercentage = npcBot:GetHealth() / npcBot:GetMaxHealth();
     ManaPercentage = npcBot:GetMana() / npcBot:GetMaxMana();
+
+    if StaticField ~= nil
+    then
+        SFhealthDamagePrc = StaticField:GetSpecialValueInt("damage_health_pct");
+    else
+        SFhealthDamagePrc = 0;
+    end
 
     local castArcLightningDesire, castArcLightningTarget = ConsiderArcLightning();
     local castLightningBoltDesire, castLightningBoltLocation = ConsiderLightningBolt();
@@ -121,13 +129,13 @@ function ConsiderArcLightning()
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            local damageAbility = ability:GetSpecialValueInt("arc_damage") + (enemy:GetMaxHealth() / 100 *
-                ability:GetSpecialValueInt("damage_health_pct"));
+            local damageAbility = ability:GetSpecialValueInt("arc_damage") +
+                (enemy:GetHealth() / 100 * SFhealthDamagePrc);
             if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType())
             then
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    --npcBot:ActionImmediate_Chat("Использую ArcLightning что бы убить цель!",true);
+                    --npcBot:ActionImmediate_Chat("Использую ArcLightning что бы убить " .. enemy:GetUnitName() .. " уроном: " .. damageAbility, true);
                     return BOT_ACTION_DESIRE_ABSOLUTE, enemy;
                 end
             end
@@ -146,6 +154,21 @@ function ConsiderArcLightning()
         end
     end
 
+    --  Pushing/defending/Farm
+    if utility.PvEMode(npcBot)
+    then
+        local enemyCreeps = npcBot:GetNearbyCreeps(castRangeAbility, true);
+        if (#enemyCreeps > 2) and (ManaPercentage >= 0.5)
+        then
+            for _, enemy in pairs(enemyCreeps) do
+                if utility.CanCastSpellOnTarget(ability, enemy)
+                then
+                    return BOT_ACTION_DESIRE_MODERATE, enemy;
+                end
+            end
+        end
+    end
+
     -- Last hit
     if not utility.PvPMode(npcBot) and not utility.RetreatMode(npcBot) and (ManaPercentage >= 0.4)
     then
@@ -153,10 +176,11 @@ function ConsiderArcLightning()
         if (#enemyCreeps > 0)
         then
             for _, enemy in pairs(enemyCreeps) do
-                local damageAbility = ability:GetSpecialValueInt("arc_damage") + (enemy:GetMaxHealth() / 100 *
-                    ability:GetSpecialValueInt("damage_health_pct"));
+                local damageAbility = ability:GetSpecialValueInt("arc_damage") +
+                    (enemy:GetHealth() / 100 * SFhealthDamagePrc);
                 if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and utility.CanCastSpellOnTarget(ability, enemy)
                 then
+                    --npcBot:ActionImmediate_Chat("Использую ArcLightning что бы добить " .. enemy:GetUnitName() .. " уроном: " .. damageAbility, true);
                     return BOT_ACTION_DESIRE_LOW, enemy;
                 end
             end
@@ -174,7 +198,6 @@ function ConsiderLightningBolt()
 
     local castRangeAbility = ability:GetCastRange();
     local radiusAbility = ability:GetSpecialValueInt("spread_aoe");
-    local damageAbility = ability:GetAbilityDamage();
     local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
     local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility + 200, true, BOT_MODE_NONE);
 
@@ -182,11 +205,13 @@ function ConsiderLightningBolt()
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
+            local damageAbility = ability:GetSpecialValueInt("damage") + (enemy:GetHealth() / 100 * SFhealthDamagePrc);
             if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType())
                 or enemy:IsChanneling() or enemy:IsInvisible()
             then
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
+                    --npcBot:ActionImmediate_Chat("Использую LightningBolt что бы убить " .. enemy:GetUnitName() .. " уроном: " .. damageAbility, true);
                     return BOT_ACTION_DESIRE_ABSOLUTE, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
                 end
             end
@@ -200,7 +225,7 @@ function ConsiderLightningBolt()
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
             then
-                return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
+                return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
             end
         end
     end
@@ -243,17 +268,18 @@ function ConsiderHeavenlyJump()
     end
 
     local castRangeAbility = ability:GetSpecialValueInt("range");
-    local damageAbility = ability:GetSpecialValueInt("damage");
     local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
 
     -- Cast if can kill somebody
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
+            local damageAbility = ability:GetSpecialValueInt("damage") + (enemy:GetHealth() / 100 * SFhealthDamagePrc);
             if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType())
             then
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
+                    --npcBot:ActionImmediate_Chat("Использую LightningBolt что бы убить " .. enemy:GetUnitName() .. " уроном: " .. damageAbility, true);
                     return BOT_ACTION_DESIRE_ABSOLUTE;
                 end
             end
@@ -275,7 +301,7 @@ function ConsiderHeavenlyJump()
     if utility.RetreatMode(npcBot)
     then
         local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
-        if (#enemyAbility > 0) and npcBot:IsFacingLocation(utility.SafeLocation(npcBot), 40)
+        if (#enemyAbility > 0) and npcBot:IsFacingLocation(utility.GetFountainLocation(), 40)
         then
             --npcBot:ActionImmediate_Chat("Использую HeavenlyJump для отступления", true);
             return BOT_ACTION_DESIRE_HIGH;
@@ -291,9 +317,13 @@ function ConsiderNimbus()
         return BOT_ACTION_DESIRE_NONE, 0;
     end
 
-    local castRangeAbility = ability:GetSpecialValueInt("cloud_radius") * 10;
-    --local radiusAbility = ability:GetSpecialValueInt("cloud_radius");
-    local damageAbility = LightningBolt:GetAbilityDamage();
+    if not LightningBolt:IsTrained()
+    then
+        return BOT_ACTION_DESIRE_NONE, 0;
+    end
+
+    local castRangeAbility = ability:GetSpecialValueInt("cloud_radius") * 2;
+    local radiusAbility = ability:GetSpecialValueInt("cloud_radius");
     local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
     local enemyAbility = GetUnitList(UNIT_LIST_ENEMY_HEROES);
 
@@ -301,36 +331,39 @@ function ConsiderNimbus()
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
+            local damageAbility = LightningBolt:GetSpecialValueInt("damage") +
+                (enemy:GetHealth() / 100 * SFhealthDamagePrc);
             if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) or enemy:IsChanneling()
             then
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    --npcBot:ActionImmediate_Chat("Использую Nimbus что бы добить " .. enemy:GetUnitName(), true);
+                    --npcBot:ActionImmediate_Chat( "Использую Nimbus что бы убить " .. enemy:GetUnitName() .. " уроном: " .. damageAbility, true);
                     return BOT_ACTION_DESIRE_ABSOLUTE, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
                 end
             end
         end
     end
 
-
-    --[[     -- Cast if can kill somebody
-    for i = 1, #enemyAbility do
-        if utility.CanAbilityKillTarget(enemyAbility[i], damageAbility, ability:GetDamageType())
-            and utility.CanCastSpellOnTarget(ability, enemyAbility[i])
-        then
-            --npcBot:ActionImmediate_Chat("Использую Nimbus что бы добить врага!", true);
-            return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemyAbility[i], delayAbility, 0);
-        end
-    end ]]
-
     -- Attack use
     if utility.PvPMode(npcBot)
     then
         if utility.IsHero(botTarget)
         then
-            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+            if utility.CanCastSpellOnTarget(ability, botTarget)
             then
-                return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
+                if GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+                then
+                    --npcBot:ActionImmediate_Chat("Использую Nimbus на врага рядом!", true);
+                    return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
+                else
+                    local allyHeroesNearby = botTarget:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
+                    if (#allyHeroesNearby > 0)
+                    then
+                        --npcBot:ActionImmediate_Chat( "Использую Nimbus на врага рядом с союзным " .. allyHeroesNearby[1]:GetUnitName(), true);
+                        return BOT_ACTION_DESIRE_MODERATE,
+                            utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
+                    end
+                end
             end
         end
     end
@@ -344,46 +377,37 @@ function ConsiderNimbus()
             for _, enemy in pairs(enemyAbility) do
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
+                    return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
                 end
             end
         end
     end
 
-    --[[         -- Pushing/defending
-    elseif utility.PvEMode(npcBot)
+    -- Pushing/defending
+    if utility.PvEMode(npcBot)
     then
-        local enemyTower = GetUnitList(UNIT_LIST_ENEMY_BUILDINGS);
-        local frendlyTower = GetUnitList(UNIT_LIST_ALLIED_BUILDINGS);
-        if (#enemyTower > 0)
+        local enemyCreeps = GetUnitList(UNIT_LIST_ENEMY_CREEPS);
+        if (#enemyCreeps > 0) and (ManaPercentage >= 0.7)
         then
-            for _, enemy in pairs(enemyTower) do
-                if enemy:IsTower()
+            for _, enemy in pairs(enemyCreeps) do
+                if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    local enemyHeroAroundTower = utility.CountEnemyHeroAroundUnit(enemy, radiusAbility);
-                    if (enemyHeroAroundTower > 0)
+                    local attackTarget = enemy:GetAttackTarget();
+                    if (attackTarget:IsTower() or attackTarget:IsBarracks() or attackTarget == GetAncient(GetTeam()))
+                        and (attackTarget:GetHealth() / attackTarget:GetMaxHealth() <= 0.6)
                     then
-                        --npcBot:ActionImmediate_Chat("Использую Nimbus под вражескую башню " .. enemy:GetUnitName(), true);
-                        return BOT_MODE_DESIRE_LOW, enemy:GetLocation();
+                        local locationAoE = npcBot:FindAoELocation(true, false, attackTarget:GetLocation(),
+                            castRangeAbility, radiusAbility, 0, 0);
+                        if locationAoE ~= nil and (locationAoE.count >= 3)
+                        then
+                            --npcBot:ActionImmediate_Chat("Использую Nimbus защищая " .. attackTarget:GetUnitName(), true);
+                            return BOT_ACTION_DESIRE_LOW, locationAoE.targetloc;
+                        end
                     end
                 end
             end
         end
-        if (#frendlyTower > 0)
-        then
-            for _, ally in pairs(frendlyTower) do
-                if ally:IsTower()
-                then
-                    local enemyHeroAroundTower = utility.CountEnemyHeroAroundUnit(ally, radiusAbility);
-                    local enemyCreepsAroundTower = utility.CountEnemyCreepAroundUnit(enemy, radiusAbility);
-                    if (enemyHeroAroundTower > 0) or (enemyCreepsAroundTower > 2)
-                    then
-                        --npcBot:ActionImmediate_Chat("Использую Nimbus под союзную башню " .. enemy:GetUnitName(), true);
-                        return BOT_MODE_DESIRE_LOW, ally:GetLocation();
-                    end
-                end
-            end
-        end ]]
+    end
 
     return BOT_ACTION_DESIRE_NONE, 0;
 end
@@ -413,22 +437,22 @@ function ConsiderThundergodWrath()
         return BOT_ACTION_DESIRE_NONE;
     end
 
+    local castRangeAbility = ability:GetSpecialValueInt("sight_radius_day") * 2;
     local enemyAbility = GetUnitList(UNIT_LIST_ENEMY_HEROES);
 
-    -- Cast if can kill/do a lot of damage somebody
+    -- Cast if can kill somebody
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
             if utility.IsHero(enemy)
             then
-                local damageAbility = ability:GetSpecialValueInt("damage") + (enemy:GetMaxHealth() / 100 *
-                    ability:GetSpecialValueInt("damage_pct"));
-                --print(damageAbility)
-                if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) or damageAbility >= math.floor(enemy:GetMaxHealth() / 2)
+                local damageAbility = ability:GetSpecialValueInt("damage") +
+                    (enemy:GetHealth() / 100 * SFhealthDamagePrc);
+                if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType())
                 then
                     if utility.CanCastSpellOnTarget(ability, enemy)
                     then
-                        --npcBot:ActionImmediate_Chat("Использую ThundergodWrath что бы убить " .. enemy:GetUnitName(), true);
+                        --npcBot:ActionImmediate_Chat("Использую ThundergodWrath что бы убить " ..  enemy:GetUnitName() .. " уроном: " .. damageAbility, true);
                         return BOT_ACTION_DESIRE_ABSOLUTE;
                     end
                 end
@@ -436,15 +460,23 @@ function ConsiderThundergodWrath()
         end
     end
 
+    -- Attack use
+    if utility.PvPMode(npcBot)
+    then
+        if utility.IsHero(botTarget)
+        then
+            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+            then
+                local damageAbility = ability:GetSpecialValueInt("damage") +
+                    (botTarget:GetHealth() / 100 * SFhealthDamagePrc);
+                if damageAbility >= math.floor(botTarget:GetMaxHealth() / 2)
+                then
+                    --npcBot:ActionImmediate_Chat("Использую ThundergodWrath для атаки " .. botTarget:GetUnitName() .. " с уроном: " .. damageAbility, true);
+                    return BOT_ACTION_DESIRE_VERYHIGH;
+                end
+            end
+        end
+    end
+
     return BOT_ACTION_DESIRE_NONE;
 end
-
---[[     -- Generic use if can kill enemy hero
-    for i = 1, #enemyAbility do
-        if utility.CanAbilityKillTarget(enemyAbility[i], damageAbility, ability:GetDamageType())
-            and utility.CanCastSpellOnTarget(ability, enemyAbility[i])
-        then
-            --npcBot:ActionImmediate_Chat("Использую ThundergodWrath что бы добить врага!", true);
-            return BOT_MODE_DESIRE_ABSOLUTE;
-        end
-    end ]]

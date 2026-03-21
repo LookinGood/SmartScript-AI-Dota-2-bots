@@ -9,8 +9,6 @@ local ItemsToBuy =
 
 	"item_orb_of_frost",
 
-	"item_magic_wand",
-
 	"item_wraith_band",
 
 	"item_power_treads",
@@ -19,20 +17,22 @@ local ItemsToBuy =
 
 	"item_diffusal_blade",
 
-	"item_black_king_bar",
-
 	"item_yasha",
 	"item_manta",
 
-	"item_lesser_crit",
-	"item_greater_crit",
+	"item_black_king_bar",
+
+	"item_basher",
 
 	"item_aghanims_shard",
 
-	"item_ultimate_scepter",
-	"item_ultimate_scepter_2",
+	"item_sange",
+	"item_abyssal_blade",
 
 	"item_disperser",
+
+	"item_ultimate_scepter",
+	"item_ultimate_scepter_2",
 
 	"item_moon_shard",
 

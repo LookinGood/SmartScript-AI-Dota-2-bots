@@ -22,14 +22,15 @@ local ItemsToBuy =
 	"item_yasha",
 	"item_manta",
 
-	"item_moon_shard",
-
 	"item_aghanims_shard",
 
 	"item_sange",
 	"item_abyssal_blade",
 
 	"item_ultimate_scepter",
+
+	"item_moon_shard",
+
 	"item_ultimate_scepter_2",
 
 	"item_butterfly",

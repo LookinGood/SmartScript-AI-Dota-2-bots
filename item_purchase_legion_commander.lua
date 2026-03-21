@@ -25,11 +25,12 @@ local ItemsToBuy =
     "item_greater_crit",
 
     "item_ultimate_scepter",
+
+    "item_aghanims_shard",
+
     "item_ultimate_scepter_2",
 
     "item_overwhelming_blink",
-
-    "item_aghanims_shard",
 
     "item_moon_shard",
 

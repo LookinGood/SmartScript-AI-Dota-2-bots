@@ -271,6 +271,7 @@ local heroesTank =
     "npc_dota_hero_tusk",
     "npc_dota_hero_tiny",
     "npc_dota_hero_pudge",
+    "npc_dota_hero_legion_commander",
 }
 
 local heroesHealers =

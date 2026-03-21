@@ -9,8 +9,6 @@ local ItemsToBuy =
 
     "item_enchanted_mango",
 
-    "item_magic_wand",
-
     "item_bracer",
 
     "item_soul_ring",
@@ -19,11 +17,11 @@ local ItemsToBuy =
 
     "item_blade_mail",
 
+    "item_blink",
+
     "item_lesser_crit",
 
     "item_aghanims_shard",
-
-    "item_blink",
 
     "item_greater_crit",
 

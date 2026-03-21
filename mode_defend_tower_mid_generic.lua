@@ -179,7 +179,7 @@ function GetCurrentAttackTarget()
                         --npcBot:ActionImmediate_Chat("Крип атакует здание: " .. enemy:GetUnitName(), true);
                         return enemy;
                     end
-                    if GetUnitToUnitDistance(enemy, mainBuilding) <= 2000
+                    if GetUnitToUnitDistance(enemy, mainBuilding) <= radiusUnit
                     then
                         --npcBot:ActionImmediate_Chat("Крип рядом со зданием: " .. enemy:GetUnitName(), true);
                         return enemy;
@@ -195,10 +195,10 @@ function GetCurrentAttackTarget()
                 then
                     if enemy:GetAttackTarget() == mainBuilding
                     then
-                        npcBot:ActionImmediate_Chat("Юнит атакует здание: " .. enemy:GetUnitName(), true);
+                        --npcBot:ActionImmediate_Chat("Юнит атакует здание: " .. enemy:GetUnitName(), true);
                         return enemy;
                     end
-                    if GetUnitToUnitDistance(enemy, mainBuilding) <= 2000
+                    if GetUnitToUnitDistance(enemy, mainBuilding) <= radiusUnit
                     then
                         --npcBot:ActionImmediate_Chat("Юнит рядом со зданием: " .. enemy:GetUnitName(), true);
                         return enemy;
@@ -296,19 +296,19 @@ function Think()
     local ancientLocation = ancient:GetLocation();
     local ancientRadius = ancient:GetBoundingRadius();
     local fountainLocation = utility.GetFountainLocation();
-    --local team = npcBot:GetTeam();
     local wanderRadius = 500;
     local defendZone = utility.GetEscapeLocation(mainBuilding, wanderRadius);
+    local mainCreep = GetCurrentAttackTarget();
+
+    --local team = npcBot:GetTeam();
     --local enemyCreeps = npcBot:GetNearbyCreeps(1600, true);
     --local allyHeroes = npcBot:GetNearbyHeroes(1000, false, BOT_MODE_NONE);
     --local enemyHeroes = npcBot:GetNearbyHeroes(1000, true, BOT_MODE_NONE);
-    local mainCreep = nil;
 
     npcBot:SetTarget(mainBuilding);
 
-    if utility.BotWasRecentlyDamagedByEnemyHero(2.0) or
-        (healthPercent <= 0.4 and npcBot:WasRecentlyDamagedByCreep(2.0)) or
-        (utility.IsEnemiesAroundStronger())
+    if (utility.BotWasRecentlyDamagedByEnemyHero(2.0) and utility.IsEnemiesAroundStronger()) or
+        (healthPercent <= 0.4 and npcBot:WasRecentlyDamagedByCreep(2.0))
     then
         npcBot:Action_ClearActions(false);
         npcBot:Action_MoveToLocation(fountainLocation);
@@ -316,13 +316,12 @@ function Think()
     else
         if npcBot == botDefender and mainBuilding == ancient and mainCreep == nil
         then
-            if GetUnitToLocationDistance(npcBot, ancientLocation) > 1600
+            if GetUnitToLocationDistance(npcBot, ancientLocation) > radiusUnit
             then
                 npcBot:Action_ClearActions(false);
                 npcBot:Action_MoveToLocation(ancientLocation);
                 return;
             else
-                mainCreep = GetCurrentAttackTarget();
                 if mainCreep ~= nil
                 then
                     npcBot:SetTarget(mainCreep);
@@ -341,23 +340,50 @@ function Think()
                 end
             end
         else
-            if GetUnitToLocationDistance(npcBot, defendZone) > 700 and mainCreep == nil
+            if GetUnitToLocationDistance(npcBot, defendZone) > radiusUnit and mainCreep == nil
             then
                 npcBot:Action_ClearActions(false);
                 npcBot:Action_MoveToLocation(defendZone);
                 return;
             else
-                local enemyHeroes = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
-                local allyHeroes = npcBot:GetNearbyHeroes(1600, false, BOT_MODE_NONE);
-                mainCreep = GetCurrentAttackTarget();
                 if mainCreep ~= nil
                 then
                     npcBot:SetTarget(mainCreep);
-                    if (#enemyHeroes >= #allyHeroes)
+                    if utility.IsEnemiesAroundStronger()
                     then
-                        npcBot:Action_ClearActions(false);
-                        npcBot:Action_AttackUnit(mainCreep, true);
-                        return;
+                        if utility.IsMeleeUnit(npcBot)
+                        then
+                            if GetUnitToUnitDistance(npcBot, mainCreep) <= npcBot:GetAttackRange() * 3
+                            then
+                                npcBot:Action_ClearActions(false);
+                                npcBot:Action_AttackUnit(mainCreep, false);
+                                return;
+                            else
+                                npcBot:Action_ClearActions(false);
+                                npcBot:Action_MoveToLocation(ancientLocation);
+                                return;
+                            end
+                        else
+                            if GetUnitToUnitDistance(npcBot, mainCreep) > npcBot:GetAttackRange() and
+                                GetUnitToUnitDistance(npcBot, mainCreep) <= npcBot:GetAttackRange() * 2
+                            then
+                                npcBot:Action_ClearActions(false);
+                                npcBot:ActionQueue_AttackUnit(mainCreep, true);
+                                npcBot:ActionQueue_MoveToLocation(ancientLocation);
+                                --npcBot:ActionImmediate_Chat("Кайчу " .. mainCreep:GetUnitName(), true);
+                                return;
+                            elseif GetUnitToUnitDistance(npcBot, mainCreep) <= npcBot:GetAttackRange()
+                            then
+                                npcBot:Action_ClearActions(false);
+                                npcBot:Action_AttackUnit(mainCreep, false);
+                                --npcBot:ActionImmediate_Chat("Атакую как рдд " .. mainCreep:GetUnitName(), true);
+                                return;
+                            else
+                                npcBot:Action_ClearActions(false);
+                                npcBot:Action_MoveToLocation(ancientLocation);
+                                return;
+                            end
+                        end
                     else
                         npcBot:Action_ClearActions(false);
                         npcBot:Action_AttackUnit(mainCreep, false);
@@ -372,16 +398,3 @@ function Think()
         end
     end
 end
-
---[[     if mainBuilding:IsTower()
-    then
-        return BOT_ACTION_DESIRE_HIGH;
-    elseif mainBuilding:IsBarracks()
-    then
-        return BOT_ACTION_DESIRE_VERYHIGH;
-    elseif mainBuilding:IsFort() or mainBuilding == GetAncient(GetTeam())
-    then
-        return BOT_ACTION_DESIRE_ABSOLUTE;
-    else
-        return BOT_ACTION_DESIRE_NONE;
-    end ]]

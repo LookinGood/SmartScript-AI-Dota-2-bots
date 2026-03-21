@@ -54,7 +54,7 @@ local CallDown = AbilitiesReal[6]
 
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
-        return
+        return;
     end
 
     botMode = npcBot:GetActiveMode();
@@ -151,7 +151,7 @@ function ConsiderHomingMissile()
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
             then
                 --npcBot:ActionImmediate_Chat("Использую HomingMissile по врагу в радиусе действия!",true);
-                return BOT_MODE_DESIRE_HIGH, botTarget;
+                return BOT_ACTION_DESIRE_HIGH, botTarget;
             end
         end
     end

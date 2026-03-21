@@ -9,38 +9,42 @@ local ItemsToBuy =
 
 	"item_clarity",
 
-	"item_enchanted_mango",
+	"item_clarity",
 
 	"item_magic_wand",
 
 	"item_null_talisman",
 
-	"item_power_treads",
-
-	"item_oblivion_staff",
-	"item_witch_blade",
+	"item_ring_of_basilius",
+	"item_arcane_boots",
 
 	"item_pers",
 	"item_phylactery",
 
-	"item_force_staff",
-	"item_dragon_lance",
-	"item_hurricane_pike",
+	"item_kaya",
+	"item_sange",
+
+	"item_dagon",
+
+	"item_ultimate_scepter",
 
 	"item_aghanims_shard",
-
-	"item_devastator",
 
 	"item_soul_booster",
 	"item_angels_demise",
 
-	"item_kaya",
-	"item_sange",
+	"item_dagon_2",
+	"item_dagon_3",
+	"item_dagon_4",
+	"item_dagon_5",
 
-	"item_ultimate_scepter",
+	"item_pers",
+	"item_sphere",
+
 	"item_ultimate_scepter_2",
 
-	"item_arcane_blink",
+	"item_soul_booster",
+	"item_octarine_core",
 
 	"item_travel_boots",
 	"item_travel_boots_2",

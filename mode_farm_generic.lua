@@ -214,7 +214,8 @@ function GetDesire()
     --npcBot:ActionImmediate_Chat("Убийств: " .. tostring(botKills), true);
     --npcBot:ActionImmediate_Chat("Смертей: " .. tostring(botDeaths), true);
 
-    if (botLevel < 4) or (botLevel >= 30) or (botGold > npcBot:GetBuybackCost()) or (HealthPercentage < 0.3) or (#enemyHeroes > 0)
+    if (botLevel < 4) or (botLevel >= 30) or (botGold > npcBot:GetBuybackCost()) or (HealthPercentage < 0.3) or (#enemyHeroes > 0) or
+        (npcBot:HasModifier("modifier_medusa_mana_shield") and botLevel < 6)
     then
         return BOT_MODE_DESIRE_NONE;
     end

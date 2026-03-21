@@ -9,8 +9,6 @@ local ItemsToBuy =
 
     "item_enchanted_mango",
 
-    "item_magic_wand",
-
     "item_soul_ring",
 
     "item_bracer",
@@ -19,23 +17,24 @@ local ItemsToBuy =
 
     "item_vanguard",
 
-    "item_blade_mail",
-
     "item_blink",
+
+    "item_blade_mail",
 
     "item_crimson_guard",
 
     "item_aghanims_shard",
 
     "item_ultimate_scepter",
-    "item_ultimate_scepter_2",
-
-    "item_heart",
 
     "item_overwhelming_blink",
 
+    "item_heart",
+
+    "item_ultimate_scepter_2",
+
     "item_soul_booster",
-    "item_bloodstone",
+    "item_octarine_core",
 
     "item_travel_boots",
     "item_travel_boots_2",

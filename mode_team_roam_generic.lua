@@ -35,6 +35,22 @@ function GetDesire()
         return BOT_MODE_DESIRE_ABSOLUTE;
     end
 
+    denyAllyHero = nil;
+    local allyHeroes = npcBot:GetNearbyHeroes(1600, false, BOT_MODE_NONE);
+    local enemyHeroes = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
+    if (#allyHeroes > 1) and (#enemyHeroes <= 0)
+    then
+        for _, ally in pairs(allyHeroes)
+        do
+            if ally ~= npcBot and utility.IsHero(ally) and ally:IsSpeciallyDeniable() and ally:WasRecentlyDamagedByAnyHero(2.0)
+            then
+                --npcBot:ActionImmediate_Chat("Хочу задинаить героя " .. ally:GetUnitName(), true);
+                denyAllyHero = ally;
+                return BOT_ACTION_DESIRE_ABSOLUTE;
+            end
+        end
+    end
+
     return BOT_MODE_DESIRE_VERYLOW;
 end
 
@@ -49,6 +65,13 @@ end
 function Think()
     if utility.IsBusy(npcBot)
     then
+        return;
+    end
+
+    if denyAllyHero ~= nil
+    then
+        npcBot:Action_ClearActions(false);
+        npcBot:Action_AttackUnit(denyAllyHero, false);
         return;
     end
 

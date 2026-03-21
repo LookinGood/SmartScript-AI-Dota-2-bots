@@ -215,13 +215,13 @@ function Think()
 
     if utility.CanMove(npcBot)
     then
-        if GetUnitToLocationDistance(npcBot, fountainLocation) >= 600
+        if GetUnitToLocationDistance(npcBot, fountainLocation) >= npcBot:GetBoundingRadius() * 3
         then
             --npcBot:ActionImmediate_Chat("ОТСТУПАЮ!", true);
             npcBot:Action_MoveToLocation(fountainLocation);
             return;
         else
-            npcBot:Action_MoveToLocation(npcBot:GetLocation() + RandomVector(200));
+            npcBot:Action_MoveToLocation(npcBot:GetLocation() + RandomVector(npcBot:GetBoundingRadius() * 2));
             return;
         end
     else
@@ -232,23 +232,25 @@ function Think()
             for _, enemy in pairs(enemyHeroAround) do
                 if utility.CanCastOnInvulnerableTarget(enemy) and not utility.IsNotAttackTarget(enemy)
                 then
+                    npcBot:SetTarget(enemy);
                     npcBot:Action_AttackUnit(enemy, true);
                     return;
                 end
             end
-        elseif (#enemyCreepsAround > 0)
+        end
+        if (#enemyCreepsAround > 0)
         then
             for _, enemy in pairs(enemyCreepsAround) do
                 if utility.CanCastOnInvulnerableTarget(enemy) and not utility.IsNotAttackTarget(enemy)
                 then
+                    npcBot:SetTarget(enemy);
                     npcBot:Action_AttackUnit(enemy, true);
                     return;
                 end
             end
-        else
-            npcBot:Action_AttackMove(npcBot:GetLocation());
-            return;
         end
+        npcBot:Action_AttackMove(npcBot:GetLocation());
+        return;
     end
 end
 

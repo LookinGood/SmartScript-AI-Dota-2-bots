@@ -318,7 +318,7 @@ function ConsiderIceBlast()
         for _, enemy in pairs(enemyAbility) do
             if utility.CanCastSpellOnTarget(ability, enemy) and (enemy:GetHealth() <= (enemy:GetMaxHealth() / 100 * killPrecent))
             then
-                npcBot:ActionImmediate_Chat("Использую IceBlast что бы добить: " .. enemy:GetUnitName(), true);
+                --npcBot:ActionImmediate_Chat("Использую IceBlast что бы добить: " .. enemy:GetUnitName(), true);
                 return BOT_ACTION_DESIRE_ABSOLUTE,
                     utility.GetTargetCastPosition(npcBot, enemy, delayAbility, abilitySpeed);
             end

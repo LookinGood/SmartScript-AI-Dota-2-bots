@@ -360,7 +360,7 @@ function Think()
                                 return;
                             else
                                 npcBot:Action_ClearActions(false);
-                                npcBot:Action_MoveToLocation(ancientLocation);
+                                npcBot:Action_MoveToLocation(defendZone + RandomVector(wanderRadius));
                                 return;
                             end
                         else
@@ -369,7 +369,7 @@ function Think()
                             then
                                 npcBot:Action_ClearActions(false);
                                 npcBot:ActionQueue_AttackUnit(mainCreep, true);
-                                npcBot:ActionQueue_MoveToLocation(ancientLocation);
+                                npcBot:ActionQueue_MoveToLocation(defendZone + RandomVector(wanderRadius));
                                 --npcBot:ActionImmediate_Chat("Кайчу " .. mainCreep:GetUnitName(), true);
                                 return;
                             elseif GetUnitToUnitDistance(npcBot, mainCreep) <= npcBot:GetAttackRange()
@@ -380,7 +380,7 @@ function Think()
                                 return;
                             else
                                 npcBot:Action_ClearActions(false);
-                                npcBot:Action_MoveToLocation(ancientLocation);
+                                npcBot:Action_MoveToLocation(defendZone + RandomVector(wanderRadius));
                                 return;
                             end
                         end

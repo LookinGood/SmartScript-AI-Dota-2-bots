@@ -110,11 +110,11 @@ function AbilityUsageThink()
     local mainCog = IsCogNeedsToBeBroken();
     if mainCog ~= nil
     then
-        npcBot:ActionImmediate_Ping(mainCog:GetLocation().x, mainCog:GetLocation().y, false);
-        npcBot:ActionImmediate_Chat("Ломаю " .. mainCog:GetUnitName(), true);
+        --npcBot:ActionImmediate_Ping(mainCog:GetLocation().x, mainCog:GetLocation().y, false);
+        --npcBot:ActionImmediate_Chat("Ломаю " .. mainCog:GetUnitName(), true);
         npcBot:Action_ClearActions(false);
         npcBot:ActionQueue_AttackUnit(mainCog, true);
-         npcBot:ActionQueue_Delay(5.0);
+        npcBot:ActionQueue_Delay(5.0);
         return;
     end
 end

@@ -15,6 +15,7 @@ local ItemsToBuy =
 
 	"item_phase_boots",
 
+	"item_pers",
 	"item_bfury",
 
 	"item_basher",

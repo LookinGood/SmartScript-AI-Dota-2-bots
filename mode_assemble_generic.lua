@@ -6,8 +6,8 @@ require(GetScriptDirectory() .. "/utility")
 local npcBot = GetBot();
 local minAllyHeroes = 3;
 local checkRadius = 8000;
-local radiantTormentorLocation = Vector(7487.2, -7837.4, 272.0);
-local direTormentorLocation = Vector(-7246.2, 7885.7, 313.9);
+local radiantTormentorLocation = Vector(7746.4, -6214.7, 114.2);
+local direTormentorLocation = Vector(-7684.9, 6332.9, 108.6);
 local updateInterval = 300;
 local lastUpdateTime = 0;
 local tormentorPositions = {}
@@ -195,16 +195,17 @@ function GetDesire()
 	local currentTime = DotaTime();
 	if currentTime - lastUpdateTime >= updateInterval
 	then
-		if utility.IsNight()
+		if not utility.IsNight()
 		then
-			--npcBot:ActionImmediate_Chat("Ночь - Терзатель у Radiant.", true);
-			tormentorPositions = {
-				radiantTormentorLocation
-			}
-		else
-			--npcBot:ActionImmediate_Chat("День - Терзатель у Dire.", true);
+			--npcBot:ActionImmediate_Chat("Ночь - Терзатель у Dire.", true);
 			tormentorPositions = {
 				direTormentorLocation
+			}
+		else
+			--npcBot:ActionImmediate_Chat("День - Терзатель у Radiant.", true);
+			tormentorPositions = {
+				radiantTormentorLocation
+
 			}
 		end
 		lastUpdateTime = currentTime;

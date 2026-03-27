@@ -15,8 +15,6 @@ local ItemsToBuy =
 
 	"item_phase_boots",
 
-	"item_veil_of_discord",
-
 	"item_kaya",
 	"item_sange",
 

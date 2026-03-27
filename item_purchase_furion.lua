@@ -31,6 +31,7 @@ local ItemsToBuy =
 
 	"item_devastator",
 
+	"item_oblivion_staff",
 	"item_bloodthorn",
 
 	"item_ultimate_scepter",

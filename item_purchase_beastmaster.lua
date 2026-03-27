@@ -17,6 +17,7 @@ local ItemsToBuy =
 
     "item_helm_of_the_dominator",
 
+    "item_headdress",
     "item_ancient_janggo",
     "item_boots_of_bearing",
 

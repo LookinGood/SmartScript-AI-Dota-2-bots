@@ -34,11 +34,13 @@ local ItemsToBuy =
 
 	"item_devastator",
 
+	"item_oblivion_staff",
 	"item_bloodthorn",
 
 	"item_ultimate_scepter",
 	"item_ultimate_scepter_2",
 
+	"item_veil_of_discord",
 	"item_soul_booster",
 	"item_bloodstone",
 

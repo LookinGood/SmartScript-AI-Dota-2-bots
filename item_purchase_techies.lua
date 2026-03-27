@@ -11,36 +11,36 @@ local ItemsToBuy =
 
 	"item_wind_lace",
 
-	"item_magic_wand",
-
 	"item_null_talisman",
 
 	"item_soul_ring",
 
 	"item_tranquil_boots",
 
-	"item_kaya",
+	"item_cyclone",
 
+	"item_headdress",
 	"item_ancient_janggo",
 	"item_boots_of_bearing",
 
-	"item_sange",
+	"item_aghanims_shard",
 
-	"item_rod_of_atos",
-	"item_gungir",
+	"item_kaya",
+	"item_yasha",
+
+	"item_soul_booster",
+	"item_crellas_crozier",
 
 	"item_ultimate_scepter",
 
-	"item_aghanims_shard",
+	"item_wind_waker",
+
+	"item_ultimate_scepter_2",
 
 	"item_sheepstick",
 
 	"item_soul_booster",
 	"item_octarine_core",
-
-	"item_ultimate_scepter_2",
-
-	"item_heart",
 }
 
 local realItemsToBuy = {}

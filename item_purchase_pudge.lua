@@ -21,7 +21,6 @@ local ItemsToBuy =
 
     "item_blink",
 
-    "item_veil_of_discord",
     "item_shivas_guard",
 
     "item_black_king_bar",

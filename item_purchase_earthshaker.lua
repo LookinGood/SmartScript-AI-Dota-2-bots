@@ -18,8 +18,6 @@ local ItemsToBuy =
     "item_ring_of_basilius",
     "item_arcane_boots",
 
-    "item_veil_of_discord",
-
     "item_blink",
 
     "item_shivas_guard",

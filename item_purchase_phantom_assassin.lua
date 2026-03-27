@@ -17,6 +17,7 @@ local ItemsToBuy =
 
 	"item_lifesteal",
 
+	"item_pers",
 	"item_bfury",
 
 	"item_black_king_bar",

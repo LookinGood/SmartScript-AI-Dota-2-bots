@@ -74,26 +74,18 @@ function FixDelayBot()
 	local botMode = npcBot:GetActiveMode();
 	local botModeDesire = npcBot:GetActiveModeDesire();
 
-	if (botMode == nil or botMode == BOT_MODE_NONE or
-			botModeDesire == nil or botModeDesire <= BOT_MODE_DESIRE_NONE or
-			npcBot:HasModifier("modifier_fountain_invulnerability")) and
-		(npcBot:GetCurrentActionType() == BOT_ACTION_TYPE_IDLE or
-			npcBot:GetCurrentActionType() == BOT_ACTION_TYPE_DELAY or
-			npcBot:GetCurrentActionType() == BOT_ACTION_TYPE_NONE)
-	then
-		--npcBot:ActionImmediate_Chat("Я AFK, двигаюсь.", true);
-		npcBot:Action_MoveToLocation(npcBot:GetLocation() + RandomVector(npcBot:GetBoundingRadius() * 2));
-		return;
-	end
-
-	--[[ 	if npcBot:GetCurrentActionType() == BOT_ACTION_TYPE_IDLE or
-		npcBot:GetCurrentActionType() == BOT_ACTION_TYPE_DELAY or
+	if (npcBot:HasModifier("modifier_fountain_invulnerability") or
+			botMode == nil or botMode == BOT_MODE_NONE or
+			botModeDesire <= BOT_MODE_DESIRE_NONE) and
 		npcBot:GetCurrentActionType() == BOT_ACTION_TYPE_NONE
+	--npcBot:GetCurrentActionType() == BOT_ACTION_TYPE_NONE
+	--npcBot:GetCurrentActionType() == BOT_ACTION_TYPE_IDLE or
+	--npcBot:GetCurrentActionType() == BOT_ACTION_TYPE_DELAY or
 	then
+		npcBot:ActionImmediate_Chat("Я AFK, двигаюсь.", true);
 		npcBot:Action_MoveToLocation(npcBot:GetLocation() + RandomVector(npcBot:GetBoundingRadius() * 2));
 		return;
 	end
- ]]
 
 	--[[ 	local HighFive = npcBot:GetAbilityByName("high_five");
 	if HighFive ~= nil
@@ -1048,7 +1040,8 @@ function IsBusy(npcTarget)
 		(npcTarget:IsChanneling() or
 			npcTarget:IsUsingAbility() or
 			npcTarget:IsCastingAbility() or
-			npcTarget:NumQueuedActions() > 0)
+			npcTarget:NumQueuedActions() > 0 or
+			npcTarget:HasModifier("modifier_spirit_breaker_charge_of_darkness"))
 end
 
 function IsAbilityAvailable(ability)
@@ -1397,7 +1390,6 @@ end
 function CanCast(npcTarget)
 	return npcTarget:IsAlive() and
 		npcTarget:NumQueuedActions() <= 0 and
-		not npcTarget:IsIllusion() and
 		not npcTarget:IsUsingAbility() and
 		not npcTarget:IsCastingAbility() and
 		not npcTarget:IsChanneling() and
@@ -1419,7 +1411,7 @@ function CanUseItems(npcTarget)
 		not npcTarget:IsIllusion() and
 		--not npcTarget:IsUsingAbility() and
 		not npcTarget:IsCastingAbility() and
-		--not npcTarget:IsChanneling() and
+		not npcTarget:IsChanneling() and
 		not npcTarget:IsMuted()
 	--not IsCantBeControlled(npcTarget)
 end
@@ -2415,11 +2407,14 @@ local trashItemList = {
 	"item_faerie_fire",
 	"item_enchanted_mango",
 	"item_blood_grenade",
+	"item_infused_raindrop",
+	"item_smoke_of_deceit",
 	"item_famango",
 	"item_great_famango",
 	"item_greater_famango",
-	"item_infused_raindrop",
-	"item_smoke_of_deceit",
+	"item_foragers_stats",
+	"item_foragers_health",
+	"item_foragers_mana",
 }
 
 function IsItemTrash(itemName)

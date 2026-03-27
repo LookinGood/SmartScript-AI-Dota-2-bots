@@ -256,9 +256,9 @@ function GetDesire()
         --npcBot:ActionImmediate_Chat("Рядом есть доступный лагерь крипов!", true);
         if botDeaths >= botKills
         then
-            return BOT_MODE_DESIRE_HIGH;
-        else
             return BOT_MODE_DESIRE_MODERATE;
+        else
+            return BOT_MODE_DESIRE_LOW;
         end
     end
 

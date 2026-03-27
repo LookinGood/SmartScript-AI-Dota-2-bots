@@ -475,12 +475,13 @@ function ItemUsageThink()
 		then
 			for _, ally in pairs(allyHeroes)
 			do
-				if utility.IsHero(ally) and not ally:IsInvisible() and not ally:HasModifier("modifier_spirit_breaker_charge_of_darkness")
+				if utility.IsHero(ally) and not ally:IsInvisible()
 				then
 					if (ally:GetHealth() / ally:GetMaxHealth() <= 0.8 and ally:WasRecentlyDamagedByAnyHero(2.0)) or ally:IsChanneling() or
 						ally:HasModifier("modifier_crystal_maiden_freezing_field") or
 						ally:HasModifier("modifier_teleporting") or
-						ally:HasModifier("modifier_wisp_relocate_return")
+						ally:HasModifier("modifier_wisp_relocate_return") or
+						ally:HasModifier("modifier_spirit_breaker_charge_of_darkness")
 					then
 						--npcBot:ActionImmediate_Chat("Использую glimmerCape на союзнике!", true);
 						npcBot:Action_UseAbilityOnEntity(glimmerCape, ally);
@@ -492,7 +493,7 @@ function ItemUsageThink()
 	end
 
 	-- INTERRUPT CAST ITEMS
-	if npcBot:IsChanneling() or npcBot:IsUsingAbility()
+	if npcBot:IsChanneling() or npcBot:IsUsingAbility() or npcBot:IsCastingAbility()
 	then
 		return;
 	end
@@ -2330,10 +2331,11 @@ function ItemUsageThink()
 		end
 	end
 
-	-- 	item_ghost/item_ethereal_blade
+	-- 	item_ghost/item_ethereal_blade/item_crellas_crozier
 	local ghost = IsItemAvailable("item_ghost");
 	local etherealBlade = IsItemAvailable("item_ethereal_blade");
-	if ghost ~= nil
+	local crellasCrozier = IsItemAvailable("item_crellas_crozier");
+	if ghost ~= nil or crellasCrozier ~= nil
 	then
 		if utility.RetreatMode(npcBot)
 		then
@@ -2344,9 +2346,18 @@ function ItemUsageThink()
 				do
 					if enemy:GetAttackTarget() == npcBot and (healthPercent <= 0.8)
 					then
-						--npcBot:ActionImmediate_Chat("Использую предмет ghost!", true);
-						npcBot:Action_UseAbility(ghost);
-						return;
+						if ghost ~= nil
+						then
+							--npcBot:ActionImmediate_Chat("Использую предмет ghost!", true);
+							npcBot:Action_UseAbility(ghost);
+							return;
+						end
+						if crellasCrozier ~= nil
+						then
+							--npcBot:ActionImmediate_Chat("Использую предмет crellasCrozier!", true);
+							npcBot:Action_UseAbility(crellasCrozier);
+							return;
+						end
 					end
 				end
 			end
@@ -2404,6 +2415,7 @@ function ItemUsageThink()
 				end
 			end
 			if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
+				or npcBot:HasModifier("modifier_spirit_breaker_charge_of_darkness")
 			then
 				if (utility.IsHero(botTarget) or utility.IsBoss(botTarget)) and GetUnitToUnitDistance(npcBot, botTarget) <= (attackRange * 4)
 				then
@@ -2439,7 +2451,8 @@ function ItemUsageThink()
 					end
 				end
 			end
-			if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
+			if utility.PvPMode(npcBot) or utility.BossMode(npcBot) or
+				npcBot:HasModifier("modifier_spirit_breaker_charge_of_darkness")
 			then
 				if (utility.IsHero(botTarget) or utility.IsBoss(botTarget)) and GetUnitToUnitDistance(npcBot, botTarget) <= (attackRange * 4)
 				then
@@ -2946,6 +2959,45 @@ function ItemUsageThink()
 		end
 	end
 
+	-- item_foragers_stats (Forager's Kit)
+	local foragersStats = IsItemAvailable("item_foragers_stats");
+	if foragersStats ~= nil
+	then
+		npcBot:Action_UseAbility(foragersStats);
+		return;
+	end
+
+	-- item_foragers_health (Forager's Kit)
+	local foragersHealth = IsItemAvailable("item_foragers_health");
+	if foragersHealth ~= nil
+	then
+		local itemRange = foragersHealth:GetCastRange();
+		local allyHeroes = npcBot:GetNearbyHeroes(itemRange, false, BOT_MODE_NONE);
+		if (#allyHeroes > 0)
+		then
+			for _, ally in pairs(allyHeroes)
+			do
+				if utility.IsHero(ally) and (ally:GetHealth() / ally:GetMaxHealth() <= 0.8) and not HaveHealthRegenBuff(npcBot) and
+					ally:TimeSinceDamagedByAnyHero(5.0) and ally:TimeSinceDamagedByCreep(5.0)
+				then
+					--npcBot:ActionImmediate_Chat("Использую предмет foragersHealth на союзнике!",true);
+					npcBot:Action_UseAbilityOnEntity(foragersHealth, ally);
+					return;
+				end
+			end
+		end
+	end
+
+	-- item_foragers_mana (Forager's Kit)
+	local foragersMana = IsItemAvailable("item_foragers_mana");
+	if foragersMana ~= nil
+	then
+		if manaPercent <= 0.8 and not HaveManaRegenBuff(npcBot)
+		then
+			npcBot:Action_UseAbility(foragersMana);
+		end
+	end
+
 	-- item_revenants_brooch (Passive)
 	--[[ 	local revenantsBrooch = IsItemAvailable("item_revenants_brooch");
 	if revenantsBrooch ~= nil and revenantsBrooch:IsFullyCastable()
@@ -3064,7 +3116,7 @@ function ItemUsageThink()
 		then
 			for _, ally in pairs(allyHeroes)
 			do
-				if not utility.IsIllusion(ally) and not ally:HasModifier("modifier_item_polliwog_charm_buff")
+				if utility.IsHero(ally) and not ally:HasModifier("modifier_item_polliwog_charm_buff")
 				then
 					if (ally:GetHealth() / ally:GetMaxHealth() <= 0.7)
 					then
@@ -3072,6 +3124,45 @@ function ItemUsageThink()
 						npcBot:Action_UseAbilityOnEntity(polliwogCharm, ally);
 						return;
 					end
+				end
+			end
+		end
+	end
+
+	-- item_medallion_of_courage
+	local medallionOfCourage = IsNeutralItemAvailable("item_medallion_of_courage");
+	if medallionOfCourage ~= nil
+	then
+		local itemRange = medallionOfCourage:GetCastRange();
+		local allyHeroes = npcBot:GetNearbyHeroes(itemRange, false, BOT_MODE_NONE);
+		if (#allyHeroes > 1)
+		then
+			for _, ally in pairs(allyHeroes)
+			do
+				if ally ~= npcBot and utility.IsHero(ally) and (ally:GetHealth() / ally:GetMaxHealth() <= 0.7) and
+					not ally:HasModifier("modifier_item_medallion_of_courage_armor_addition")
+				then
+					if ally:WasRecentlyDamagedByAnyHero(2.0) or
+						ally:WasRecentlyDamagedByTower(2.0) or
+						ally:WasRecentlyDamagedByCreep(2.0)
+					then
+						--npcBot:ActionImmediate_Chat("Использую medallionOfCourage на " .. ally:GetUnitName(), true);
+						npcBot:Action_UseAbilityOnEntity(medallionOfCourage, ally);
+						return;
+					end
+				end
+			end
+		end
+		if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
+		then
+			if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
+			then
+				if utility.CanCastSpellOnTarget(medallionOfCourage, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= itemRange
+					and not botTarget:HasModifier("modifier_item_medallion_of_courage_armor_reduction")
+				then
+					--npcBot:ActionImmediate_Chat("Использую medallionOfCourage на " .. botTarget:GetUnitName(), true);
+					npcBot:Action_UseAbilityOnEntity(medallionOfCourage, botTarget);
+					return;
 				end
 			end
 		end
@@ -3151,6 +3242,29 @@ function ItemUsageThink()
 				then
 					--npcBot:ActionImmediate_Chat("Использую manaDraught на " .. ally:GetUnitName(), true);
 					npcBot:Action_UseAbilityOnEntity(manaDraught, ally);
+					return;
+				end
+			end
+		end
+	end
+
+	-- item_seeds_of_serenity
+	local seedsOfSerenity = IsNeutralItemAvailable("item_seeds_of_serenity");
+	if seedsOfSerenity ~= nil
+	then
+		local itemRange = seedsOfSerenity:GetCastRange();
+		local allyHeroes = npcBot:GetNearbyHeroes(itemRange, false, BOT_MODE_NONE);
+		if (#allyHeroes > 0)
+		then
+			for _, ally in pairs(allyHeroes)
+			do
+				if utility.IsHero(ally) and utility.CanBeHeal(ally) and
+					ally:GetHealth() / ally:GetMaxHealth() <= 0.7 and
+					not HaveHealthRegenBuff(ally) and
+					not ally:HasModifier("modifier_item_seeds_of_serenity_active_aura")
+				then
+					--npcBot:ActionImmediate_Chat("Использую seedsOfSerenity на " .. ally:GetUnitName(), true);
+					npcBot:Action_UseAbilityOnLocation(seedsOfSerenity, ally:GetLocation())
 					return;
 				end
 			end
@@ -3341,6 +3455,24 @@ function ItemUsageThink()
 				then
 					--npcBot:ActionImmediate_Chat("Использую предмет flayersBota!", true);
 					npcBot:Action_UseAbility(flayersBota);
+					return;
+				end
+			end
+		end
+	end
+
+	-- item_dagger_of_ristul
+	local daggerOfRistul = IsNeutralItemAvailable("item_dagger_of_ristul");
+	if daggerOfRistul ~= nil
+	then
+		if not npcBot:HasModifier("modifier_item_dagger_of_ristul_buf")
+		then
+			if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
+			then
+				if (utility.IsHero(botTarget) or utility.IsBoss(botTarget)) and npcBot:GetAttackTarget() == botTarget
+				then
+					--npcBot:ActionImmediate_Chat("Использую предмет daggerOfRistul!", true);
+					npcBot:Action_UseAbility(daggerOfRistul);
 					return;
 				end
 			end
@@ -3541,6 +3673,59 @@ function ItemUsageThink()
 		end
 	end
 
+	-- item_heavy_blade
+	local witchbane = IsNeutralItemAvailable("item_heavy_blade");
+	if witchbane ~= nil
+	then
+		local itemRange = witchbane:GetCastRange();
+		local allyHeroes = npcBot:GetNearbyHeroes(itemRange, false, BOT_MODE_NONE);
+		if utility.PvPMode(npcBot)
+		then
+			if utility.IsHero(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= itemRange
+				and botTarget:NumModifiers() > 0
+			then
+				--npcBot:ActionImmediate_Chat("Использую предмет witchbane на врагеl!", true);
+				npcBot:Action_UseAbilityOnLocation(witchbane, botTarget:GetLocation());
+				return;
+			end
+		end
+		if (#allyHeroes > 0)
+		then
+			for _, ally in pairs(allyHeroes)
+			do
+				if utility.IsHero(ally) and utility.IsDisabled(ally)
+				then
+					--npcBot:ActionImmediate_Chat("Использую witchbane на " .. ally:GetUnitName(), true);
+					npcBot:Action_UseAbilityOnLocation(witchbane, ally:GetLocation())
+					return;
+				end
+			end
+		end
+	end
+
+	-- item_stonefeather_satchel
+	local stonefeatherSatchel = IsNeutralItemAvailable("item_stonefeather_satchel");
+	if stonefeatherSatchel ~= nil
+	then
+		if utility.BotWasRecentlyDamagedByEnemyHero(2.0) or
+			npcBot:WasRecentlyDamagedByTower(2.0) or
+			npcBot:WasRecentlyDamagedByCreep(2.0)
+		then
+			if stonefeatherSatchel:GetToggleState() == false
+			then
+				--npcBot:ActionImmediate_Chat("Использую предмет stonefeather satchel получая урон!", true);
+				npcBot:Action_UseAbility(stonefeatherSatchel);
+				return;
+			end
+		else
+			if stonefeatherSatchel:GetToggleState() == true
+			then
+				--npcBot:ActionImmediate_Chat("Использую предмет stonefeather satchel в обычный режим!", true);
+				npcBot:Action_UseAbility(stonefeatherSatchel);
+				return;
+			end
+		end
+	end
 
 
 

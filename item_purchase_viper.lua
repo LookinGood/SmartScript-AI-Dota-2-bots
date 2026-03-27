@@ -18,12 +18,10 @@ local ItemsToBuy =
 	"item_power_treads",
 
 	"item_dragon_lance",
+	"item_specialists_array",
+	"item_hydras_breath",
 
 	"item_yasha",
-
-	"item_force_staff",
-	"item_hurricane_pike",
-
 	"item_manta",
 
 	"item_black_king_bar",

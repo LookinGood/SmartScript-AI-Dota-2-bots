@@ -34,7 +34,6 @@ local ItemsToBuy =
 	"item_dagon_4",
 	"item_dagon_5",
 
-	"item_maelstrom",
 	"item_gungir",
 
 	"item_devastator",

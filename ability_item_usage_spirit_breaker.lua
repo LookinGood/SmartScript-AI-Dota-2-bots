@@ -34,11 +34,11 @@ local AbilityToLevelUp =
     Talents[4],
     Abilities[2],
     Abilities[6],
-    Talents[5],
+    Talents[6],
     Talents[7],
     Talents[1],
     Talents[3],
-    Talents[6],
+    Talents[5],
     Talents[8],
 }
 
@@ -62,18 +62,40 @@ function AbilityUsageThink()
     botTarget = npcBot:GetTarget();
     HealthPercentage = npcBot:GetHealth() / npcBot:GetMaxHealth();
     ManaPercentage = npcBot:GetMana() / npcBot:GetMaxMana();
-    GreaterBashDamage = math.floor(npcBot:GetCurrentMovementSpeed() / 100 * GreaterBash:GetSpecialValueInt("damage"));
 
-    local castChargeOfDarknessDesire, castChargeOfDarknessTarget = ConsiderChargeOfDarkness();
+    if npcBot:HasModifier("modifier_spirit_breaker_charge_of_darkness") and (botTarget:HasModifier('modifier_fountain_aura_buff'))
+    then
+        npcBot:Action_ClearActions(true);
+        --npcBot:ActionImmediate_Chat("Отменяю ChargeOfDarkness.", true);
+        return;
+    end
+
+    if GreaterBash:IsTrained()
+    then
+        GreaterBashDamage = math.floor(npcBot:GetCurrentMovementSpeed() / 100 * GreaterBash:GetSpecialValueInt("damage"));
+    end
+
+    local castChargeOfDarknessDesire, castChargeOfDarknessTarget, castChargeOfDarknessTargetType =
+        ConsiderChargeOfDarkness();
     local castBulldozeDesire = ConsiderBulldoze();
-    local castPlanarPocketDesire = ConsiderPlanarPocket();
+    local castPlanarPocketDesire, castPlanarPocketTarget = ConsiderPlanarPocket();
     local castNetherStrikeDesire, castNetherStrikeTarget = ConsiderNetherStrike();
 
     if (castChargeOfDarknessDesire > 0)
     then
-        npcBot:Action_ClearActions(true);
-        npcBot:Action_UseAbilityOnEntity(ChargeOfDarkness, castChargeOfDarknessTarget);
-        return;
+        if (castChargeOfDarknessTargetType == "combo")
+        then
+            npcBot:Action_ClearActions(true);
+            npcBot:ActionQueue_UseAbilityOnEntity(ChargeOfDarkness, castChargeOfDarknessTarget);
+            npcBot:ActionQueue_UseAbility(Bulldoze);
+            npcBot:ActionQueue_Delay(5.0);
+            return;
+        else
+            npcBot:Action_ClearActions(true);
+            npcBot:ActionQueue_UseAbilityOnEntity(ChargeOfDarkness, castChargeOfDarknessTarget);
+            npcBot:ActionQueue_Delay(5.0);
+            return;
+        end
     end
 
     if (castBulldozeDesire > 0)
@@ -84,7 +106,7 @@ function AbilityUsageThink()
 
     if (castPlanarPocketDesire > 0)
     then
-        npcBot:Action_UseAbility(PlanarPocket);
+        npcBot:ActionQueue_UseAbilityOnEntity(PlanarPocket, castPlanarPocketTarget);
         return;
     end
 
@@ -112,32 +134,44 @@ function AbilityUsageThink()
     end ]]
 end
 
+local function IsBulldozeComboReady()
+    return utility.IsAbilityAvailable(ChargeOfDarkness) and utility.IsAbilityAvailable(Bulldoze)
+        and npcBot:GetMana() > (ChargeOfDarkness:GetManaCost() + Bulldoze:GetManaCost())
+end
+
+--npcBot:ActionImmediate_Ping(botTarget.x, botTarget.y, false);
+
 function ConsiderChargeOfDarkness()
     local ability = ChargeOfDarkness;
     if not utility.IsAbilityAvailable(ability) then
-        return BOT_ACTION_DESIRE_NONE, 0;
+        return BOT_ACTION_DESIRE_NONE, 0, 0;
     end
 
     if npcBot:HasModifier("modifier_spirit_breaker_charge_of_darkness") or npcBot:IsRooted()
     then
-        return BOT_ACTION_DESIRE_NONE, 0;
+        return BOT_ACTION_DESIRE_NONE, 0, 0;
     end
 
-    local castRangeAbility = 600;
-    local damageAbility = GreaterBashDamage;
+    local castRangeAbility = 800;
     local enemyAbility = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
 
     -- Cast if can kill somebody/interrupt cast
-    if (#enemyAbility > 0)
+    if (#enemyAbility > 0) and GreaterBash:IsTrained()
     then
         for _, enemy in pairs(enemyAbility) do
-            if (utility.CanAbilityKillTarget(enemy, damageAbility, GreaterBash:GetDamageType()) or enemy:IsChanneling())
-                and not botTarget:HasModifier('modifier_fountain_aura_buff')
+            if (utility.CanAbilityKillTarget(enemy, GreaterBashDamage, GreaterBash:GetDamageType()) or enemy:IsChanneling())
+                and not enemy:HasModifier('modifier_fountain_aura_buff')
             then
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    --npcBot:ActionImmediate_Chat("Использую ChargeOfDarkness что бы сбить заклинание или убить цель!", true);
-                    return BOT_ACTION_DESIRE_VERYHIGH, enemy;
+                    if IsBulldozeComboReady()
+                    then
+                        --npcBot:ActionImmediate_Chat("Использую ChargeOfDarkness сбивая/убивая с комбо " .. enemy:GetUnitName(), true);
+                        return BOT_ACTION_DESIRE_VERYHIGH, enemy, "combo";
+                    else
+                        --npcBot:ActionImmediate_Chat("Использую ChargeOfDarkness сбивая/убивая без комбо " .. enemy:GetUnitName(), true);
+                        return BOT_ACTION_DESIRE_VERYHIGH, enemy, 0;
+                    end
                 end
             end
         end
@@ -153,16 +187,27 @@ function ConsiderChargeOfDarkness()
             then
                 if GetUnitToUnitDistance(npcBot, botTarget) <= 3000
                 then
-                    --npcBot:ActionImmediate_Ping(botTarget.x, botTarget.y, false);
-                    return BOT_ACTION_DESIRE_HIGH, botTarget;
+                    if IsBulldozeComboReady()
+                    then
+                        --npcBot:ActionImmediate_Chat("Бегу вблизи с комбо на " .. botTarget:GetUnitName(), false);
+                        return BOT_ACTION_DESIRE_HIGH, botTarget, "combo";
+                    else
+                        --npcBot:ActionImmediate_Chat("Бегу вблизи без комбо на " .. botTarget:GetUnitName(), false);
+                        return BOT_ACTION_DESIRE_HIGH, botTarget, 0;
+                    end
                 else
-                    local allyHeroes = botTarget:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
-                    local enemyHeroes = botTarget:GetNearbyHeroes(1600, false, BOT_MODE_NONE);
+                    local allyHeroes = botTarget:GetNearbyHeroes(700, true, BOT_MODE_NONE);
+                    local enemyHeroes = botTarget:GetNearbyHeroes(700, false, BOT_MODE_NONE);
                     if (#allyHeroes >= #enemyHeroes)
                     then
-                        --npcBot:ActionImmediate_Ping(botTarget.x, botTarget.y, false);
-                        --npcBot:ActionImmediate_Chat("Бегу на " .. botTarget:GetUnitName(), false);
-                        return BOT_ACTION_DESIRE_HIGH, botTarget;
+                        if IsBulldozeComboReady()
+                        then
+                            --npcBot:ActionImmediate_Chat("Бегу с комбо на " .. botTarget:GetUnitName(), false);
+                            return BOT_ACTION_DESIRE_HIGH, botTarget, "combo";
+                        else
+                            --npcBot:ActionImmediate_Chat("Бегу без комбо на " .. botTarget:GetUnitName(), false);
+                            return BOT_ACTION_DESIRE_HIGH, botTarget, 0;
+                        end
                     end
                 end
             end
@@ -172,34 +217,49 @@ function ConsiderChargeOfDarkness()
     -- Retreat use
     if utility.RetreatMode(npcBot)
     then
-        local enemyHeroes = GetUnitList(UNIT_LIST_ENEMY_HEROES);
-        local enemyCreeps = GetUnitList(UNIT_LIST_ENEMY_CREEPS);
-        local fountainLocation = utility.GetFountainLocation();
-        if (#enemyHeroes > 0)
+        if (HealthPercentage <= 0.7)
         then
-            for _, enemy in pairs(enemyHeroes) do
-                if GetUnitToLocationDistance(enemy, fountainLocation) < GetUnitToLocationDistance(npcBot, fountainLocation) and
-                    (GetUnitToUnitDistance(enemy, npcBot) > castRangeAbility / 2)
-                then
-                    --npcBot:ActionImmediate_Chat("Использую ChargeOfDarkness для побега на врага!", true);
-                    return BOT_ACTION_DESIRE_HIGH, enemy;
+            local enemyHeroes = GetUnitList(UNIT_LIST_ENEMY_HEROES);
+            local enemyCreeps = GetUnitList(UNIT_LIST_ENEMY_CREEPS);
+            local fountainLocation = utility.GetFountainLocation();
+            if (#enemyHeroes > 0)
+            then
+                for _, enemy in pairs(enemyHeroes) do
+                    if GetUnitToLocationDistance(enemy, fountainLocation) < GetUnitToLocationDistance(npcBot, fountainLocation) and
+                        (GetUnitToUnitDistance(enemy, npcBot) > castRangeAbility / 2)
+                    then
+                        if IsBulldozeComboReady()
+                        then
+                            --npcBot:ActionImmediate_Chat("Использую ChargeOfDarkness убегая на героя с комбо " .. enemy:GetUnitName(), true);
+                            return BOT_ACTION_DESIRE_VERYHIGH, enemy, "combo";
+                        else
+                            --npcBot:ActionImmediate_Chat("Использую ChargeOfDarkness убегая на героя без комбо " .. enemy:GetUnitName(), true);
+                            return BOT_ACTION_DESIRE_VERYHIGH, enemy, 0;
+                        end
+                    end
                 end
             end
-        end
-        if (#enemyCreeps > 0)
-        then
-            for _, enemy in pairs(enemyCreeps) do
-                if GetUnitToLocationDistance(enemy, fountainLocation) < GetUnitToLocationDistance(npcBot, fountainLocation) and
-                    (GetUnitToUnitDistance(enemy, npcBot) > castRangeAbility / 2)
-                then
-                    --npcBot:ActionImmediate_Chat("Использую ChargeOfDarkness для побега на крипа!", true);
-                    return BOT_ACTION_DESIRE_HIGH, enemy;
+            if (#enemyCreeps > 0)
+            then
+                for _, enemy in pairs(enemyCreeps) do
+                    if GetUnitToLocationDistance(enemy, fountainLocation) < GetUnitToLocationDistance(npcBot, fountainLocation) and
+                        (GetUnitToUnitDistance(enemy, npcBot) > castRangeAbility / 2)
+                    then
+                        if IsBulldozeComboReady()
+                        then
+                            --npcBot:ActionImmediate_Chat("Использую ChargeOfDarkness убегая на крипа с комбо " .. enemy:GetUnitName(), true);
+                            return BOT_ACTION_DESIRE_VERYHIGH, enemy, "combo";
+                        else
+                            --npcBot:ActionImmediate_Chat("Использую ChargeOfDarkness убегая на крипа без комбо " .. enemy:GetUnitName(), true);
+                            return BOT_ACTION_DESIRE_VERYHIGH, enemy, 0;
+                        end
+                    end
                 end
             end
         end
     end
 
-    return BOT_ACTION_DESIRE_NONE, 0;
+    return BOT_ACTION_DESIRE_NONE, 0, 0;
 end
 
 function ConsiderBulldoze()
@@ -231,7 +291,8 @@ function ConsiderBulldoze()
     -- Retreat use
     if utility.RetreatMode(npcBot)
     then
-        if (HealthPercentage <= 0.8) and npcBot:DistanceFromFountain() >= 1000
+        local enemyAbility = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
+        if (HealthPercentage <= 0.8) and (#enemyAbility > 0)
         then
             --npcBot:ActionImmediate_Chat("Использую Bulldoze для отступления!", true);
             return BOT_ACTION_DESIRE_HIGH;
@@ -244,51 +305,51 @@ end
 function ConsiderPlanarPocket()
     local ability = PlanarPocket;
     if not utility.IsAbilityAvailable(ability) then
-        return BOT_ACTION_DESIRE_NONE;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
-    if npcBot:HasModifier("modifier_spirit_breaker_planar_pocket")
+    if npcBot:HasModifier("modifier_spirit_breaker_planar_pocket_aura")
     then
-        return BOT_ACTION_DESIRE_NONE;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
-    local radiusAbility = ability:GetSpecialValueInt("radius");
-    local allyAbility = npcBot:GetNearbyHeroes(radiusAbility, false, BOT_MODE_NONE);
+    local castRangeAbility = ability:GetCastRange();
+    local allyAbility = npcBot:GetNearbyHeroes(castRangeAbility, false, BOT_MODE_NONE);
+    local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
 
-    -- General use
-    if (#allyAbility > 0)
+    -- Ally use
+    if (#allyAbility > 1)
     then
         for _, ally in pairs(allyAbility)
         do
-            local incomingSpells = ally:GetIncomingTrackingProjectiles();
-            if (#incomingSpells > 0)
+            if ally ~= npcBot and utility.IsHero(ally) and not utility.HaveReflectSpell(ally)
+                and not ally:HasModifier("modifier_spirit_breaker_planar_pocket")
             then
-                if utility.IsHero(ally) and
-                    not HaveReflectSpell(ally) and
-                    not ally:HasModifier("modifier_spirit_breaker_planar_pocket")
+                if ally:GetHealth() / ally:GetMaxHealth() <= 0.9 and ally:WasRecentlyDamagedByAnyHero(2.0)
                 then
-                    for _, spell in pairs(incomingSpells)
-                    do
-                        if not utility.IsAlly(ally, spell.caster) and GetUnitToLocationDistance(ally, spell.location) <= 300 and spell.is_attack == false
-                        then
-                            return BOT_ACTION_DESIRE_VERYHIGH;
-                        end
-                    end
+                    npcBot:ActionImmediate_Chat("Использую PlanarPocket на союзника " .. ally:GetUnitName(), true);
+                    return BOT_ACTION_DESIRE_HIGH, ally;
                 end
             end
         end
     end
 
     -- Retreat use
-    if utility.RetreatMode(npcBot)
+    if utility.PvPMode(npcBot) or utility.RetreatMode(npcBot)
     then
-        if npcBot:WasRecentlyDamagedByAnyHero(2.0)
+        if (#enemyAbility > 0) and utility.BotWasRecentlyDamagedByEnemyHero(2.0)
         then
-            return BOT_ACTION_DESIRE_VERYHIGH;
+            for _, enemy in pairs(enemyAbility) do
+                if utility.CanCastSpellOnTarget(ability, enemy) and not enemy:HasModifier("modifier_spirit_breaker_planar_pocket")
+                then
+                    --npcBot:ActionImmediate_Chat("Использую PlanarPocket отступая!",true);
+                    return BOT_ACTION_DESIRE_VERYHIGH, enemy;
+                end
+            end
         end
     end
 
-    return BOT_ACTION_DESIRE_NONE;
+    return BOT_ACTION_DESIRE_NONE, 0;
 end
 
 function ConsiderNetherStrike()

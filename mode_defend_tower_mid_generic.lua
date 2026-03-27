@@ -286,6 +286,7 @@ function Think()
     if denyingTower ~= nil
     then
         --npcBot:ActionImmediate_Chat("Добиваю " .. denyingTower:GetUnitName(), true);
+        npcBot:SetTarget(denyingTower);
         npcBot:Action_ClearActions(false);
         npcBot:Action_AttackUnit(denyingTower, false);
         return;
@@ -307,7 +308,7 @@ function Think()
 
     npcBot:SetTarget(mainBuilding);
 
-    if (utility.BotWasRecentlyDamagedByEnemyHero(2.0) and utility.IsEnemiesAroundStronger()) or
+    if utility.BotWasRecentlyDamagedByEnemyHero(2.0) and utility.IsEnemiesAroundStronger() or
         (healthPercent <= 0.4 and npcBot:WasRecentlyDamagedByCreep(2.0))
     then
         npcBot:Action_ClearActions(false);
@@ -353,7 +354,7 @@ function Think()
                     then
                         if utility.IsMeleeUnit(npcBot)
                         then
-                            if GetUnitToUnitDistance(npcBot, mainCreep) <= npcBot:GetAttackRange() * 3
+                            if GetUnitToUnitDistance(npcBot, mainCreep) <= npcBot:GetAcquisitionRange()
                             then
                                 npcBot:Action_ClearActions(false);
                                 npcBot:Action_AttackUnit(mainCreep, false);

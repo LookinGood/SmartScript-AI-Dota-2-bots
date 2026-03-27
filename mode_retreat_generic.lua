@@ -215,13 +215,13 @@ function Think()
 
     if utility.CanMove(npcBot)
     then
-        if GetUnitToLocationDistance(npcBot, fountainLocation) >= npcBot:GetBoundingRadius() * 3
+        if GetUnitToLocationDistance(npcBot, fountainLocation) >= npcBot:GetAcquisitionRange()
         then
             --npcBot:ActionImmediate_Chat("ОТСТУПАЮ!", true);
             npcBot:Action_MoveToLocation(fountainLocation);
             return;
         else
-            npcBot:Action_MoveToLocation(npcBot:GetLocation() + RandomVector(npcBot:GetBoundingRadius() * 2));
+            npcBot:Action_MoveToLocation(npcBot:GetLocation() + RandomVector(npcBot:GetBoundingRadius() * 4));
             return;
         end
     else

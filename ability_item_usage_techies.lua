@@ -42,18 +42,19 @@ local AbilityToLevelUp =
     Talents[7],
 }
 
-
 function AbilityLevelUpThink()
     ability_levelup_generic.AbilityLevelUpThink(AbilityToLevelUp)
 end
 
 -- Abilities
-local StickyBomb = AbilitiesReal[1]
-local ReactiveTazer = AbilitiesReal[2]
+local StickyBomb = npcBot:GetAbilityByName("techies_sticky_bomb");
+local ReactiveTazer = npcBot:GetAbilityByName("techies_reactive_tazer");
 local DetonateTazer = npcBot:GetAbilityByName("techies_reactive_tazer_stop");
-local BlastOff = AbilitiesReal[3]
-local MinefieldSign = AbilitiesReal[5]
-local ProximityMines = AbilitiesReal[6]
+local BlastOff = npcBot:GetAbilityByName("techies_suicide");
+local MinefieldSign = npcBot:GetAbilityByName("techies_minefield_sign");
+local Mad = npcBot:GetAbilityByName("techies_mutually_assured_destruction");
+local DetonateMad = npcBot:GetAbilityByName("techies_focused_detonate");
+local ProximityMines = npcBot:GetAbilityByName("techies_land_mines");
 
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
@@ -70,6 +71,8 @@ function AbilityUsageThink()
     local castDetonateTazerDesire = ConsiderDetonateTazer();
     local castBlastOffDesire, castBlastOffLocation = ConsiderBlastOff();
     local castMinefieldSignDesire, castMinefieldSignLocation = ConsiderMinefieldSign();
+    local castMadDesire, castMadLocation = ConsiderMad();
+    local castDetonateMadDesire = ConsiderDetonateMad();
     local castProximityMinesDesire, castProximityMinesLocation = ConsiderProximityMines();
 
     if (castStickyBombDesire > 0)
@@ -103,15 +106,27 @@ function AbilityUsageThink()
         return;
     end
 
-    if (castProximityMinesDesire > 0)
-    then
-        npcBot:Action_UseAbilityOnLocation(ProximityMines, castProximityMinesLocation);
-        return;
-    end
-
     if (castMinefieldSignDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(MinefieldSign, castMinefieldSignLocation);
+        return;
+    end
+
+    if (castMadDesire > 0)
+    then
+        npcBot:Action_UseAbilityOnLocation(Mad, castMadLocation);
+        return;
+    end
+
+    if (castDetonateMadDesire > 0)
+    then
+        npcBot:Action_UseAbility(DetonateMad);
+        return;
+    end
+
+    if (castProximityMinesDesire > 0)
+    then
+        npcBot:Action_UseAbilityOnLocation(ProximityMines, castProximityMinesLocation);
         return;
     end
 end
@@ -121,6 +136,21 @@ local function MineInRadius(radius, location)
     for _, creep in pairs(unit)
     do
         if creep:GetUnitName() == "npc_dota_techies_land_mine"
+        then
+            if GetUnitToLocationDistance(creep, location) <= radius
+            then
+                return true;
+            end
+        end
+    end
+    return false;
+end
+
+local function MadInRadius(radius, location)
+    local unit = GetUnitList(UNIT_LIST_ALLIED_OTHER);
+    for _, creep in pairs(unit)
+    do
+        if creep:GetUnitName() == "npc_dota_techies_innate_mine"
         then
             if GetUnitToLocationDistance(creep, location) <= radius
             then
@@ -419,6 +449,113 @@ function ConsiderMinefieldSign()
     end
 
     return BOT_ACTION_DESIRE_NONE, 0;
+end
+
+function ConsiderMad()
+    local ability = Mad;
+    if not utility.IsAbilityAvailable(ability) then
+        return BOT_ACTION_DESIRE_NONE, 0;
+    end
+
+    local castRangeAbility = ability:GetSpecialValueInt("AbilityCastRange");
+    local damageAbility = ability:GetSpecialValueInt("base_damage") +
+        math.floor(npcBot:GetMaxMana()) / 100 * ability:GetSpecialValueInt("max_mana_pct_as_damage");
+    local delayAbility = ability:GetSpecialValueInt("explosion_delay");
+    local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
+
+    -- Cast if can kill somebody
+    if (#enemyAbility > 0)
+    then
+        for _, enemy in pairs(enemyAbility) do
+            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType())
+            then
+                if utility.CanCastSpellOnTarget(ability, enemy)
+                then
+                    npcBot:ActionImmediate_Chat(
+                        "Использую Mad с уроном " .. damageAbility .. " убивая " .. enemy:GetUnitName(), true);
+                    return BOT_ACTION_DESIRE_VERYHIGH,
+                        utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
+                end
+            end
+        end
+    end
+
+    -- Attack use
+    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
+    then
+        if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
+        then
+            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility + 200
+            then
+                npcBot:ActionImmediate_Chat("Использую Mad для нападения!", true);
+                return BOT_ACTION_DESIRE_VERYHIGH,
+                    utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
+            end
+        end
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
+    then
+        if (#enemyAbility > 0)
+        then
+            for _, enemy in pairs(enemyAbility) do
+                if utility.CanCastSpellOnTarget(ability, enemy)
+                then
+                    npcBot:ActionImmediate_Chat("Использую Mad для отступления!", true);
+                    return BOT_ACTION_DESIRE_VERYHIGH,
+                        utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
+                end
+            end
+        end
+    end
+
+    -- Cast when laning
+    if botMode == BOT_MODE_LANING
+    then
+        local enemy = utility.GetWeakest(enemyAbility);
+        if utility.CanCastSpellOnTarget(ability, enemy)
+        then
+            return BOT_ACTION_DESIRE_VERYHIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
+        end
+    end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
+end
+
+function ConsiderDetonateMad()
+    local ability = DetonateMad;
+    if not utility.IsAbilityAvailable(ability) then
+        return BOT_ACTION_DESIRE_NONE;
+    end
+
+    local radiusAbility = Mad:GetSpecialValueInt("radius");
+    local enemyHeroes = GetUnitList(UNIT_LIST_ENEMY_HEROES);
+    local enemyCreeps = GetUnitList(UNIT_LIST_ENEMY_CREEPS);
+
+    if (#enemyHeroes > 0)
+    then
+        for _, enemy in pairs(enemyHeroes) do
+            if utility.CanCastSpellOnTarget(ability, enemy) and MadInRadius(radiusAbility, enemy:GetLocation())
+            then
+                --npcBot:ActionImmediate_Chat("Использую DetonateMad на героя " .. enemy:GetUnitName(), true);
+                return BOT_ACTION_DESIRE_VERYHIGH;
+            end
+        end
+    end
+
+    if (#enemyCreeps > 0)
+    then
+        for _, enemy in pairs(enemyCreeps) do
+            if utility.CanCastSpellOnTarget(ability, enemy) and MadInRadius(radiusAbility, enemy:GetLocation()) and utility.IsBoss(enemy)
+            then
+                --npcBot:ActionImmediate_Chat("Использую DetonateMad на босса " .. enemy:GetUnitName(), true);
+                return BOT_ACTION_DESIRE_VERYHIGH;
+            end
+        end
+    end
+
+    return BOT_ACTION_DESIRE_VERYLOW;
 end
 
 function ConsiderProximityMines()

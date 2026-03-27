@@ -18,8 +18,9 @@ local ItemsToBuy =
 
 	"item_kaya",
 
+	"item_veil_of_discord",
 	"item_soul_booster",
-    "item_bloodstone",
+	"item_bloodstone",
 
 	"item_sange",
 
@@ -31,13 +32,13 @@ local ItemsToBuy =
 	"item_sheepstick",
 
 	"item_ultimate_scepter",
-    "item_ultimate_scepter_2",
+	"item_ultimate_scepter_2",
 
 	"item_soul_booster",
 	"item_octarine_core",
 
 	"item_travel_boots",
-    "item_travel_boots_2",
+	"item_travel_boots_2",
 }
 
 local realItemsToBuy = {}

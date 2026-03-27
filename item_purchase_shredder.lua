@@ -29,7 +29,6 @@ local ItemsToBuy =
 
     "item_aghanims_shard",
 
-    "item_veil_of_discord",
     "item_shivas_guard",
 
     "item_pers",

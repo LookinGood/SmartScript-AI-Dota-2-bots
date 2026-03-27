@@ -337,7 +337,7 @@ function ConsiderDrinkingBuddies()
     -- Retreat use
     if utility.RetreatMode(npcBot)
     then
-        if (HealthPercentage <= 0.8) and npcBot:WasRecentlyDamagedByAnyHero(2.0) and not npcBot:HasModifier("modifier_tusk_drinking_buddies_buff")
+        if (HealthPercentage <= 0.8) and utility.BotWasRecentlyDamagedByEnemyHero(2.0) and not npcBot:HasModifier("modifier_tusk_drinking_buddies_buff")
         then
             local allyAbility = npcBot:GetNearbyHeroes(castRangeAbility, false, BOT_MODE_NONE);
             local allyCreeps = npcBot:GetNearbyCreeps(castRangeAbility, false);

@@ -23,6 +23,7 @@ local ItemsToBuy =
 
 	"item_ultimate_scepter",
 
+	"item_headdress",
 	"item_ancient_janggo",
 	"item_boots_of_bearing",
 

@@ -35,6 +35,7 @@ local ItemsToBuy =
 	"item_ultimate_scepter",
 	"item_ultimate_scepter_2",
 
+	"item_oblivion_staff",
 	"item_bloodthorn",
 
 	"item_moon_shard",

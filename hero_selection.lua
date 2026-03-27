@@ -7,14 +7,14 @@ local hero_pool_my, heroesTank, heroesHealers, heroesDpsMelee, heroesDpsRanged, 
 
 -- Insert here hero hame and set "testmode = true" if you want the bot to choose a specific hero (Work only in Radiant team)
 local testmode = false;
-local testHero = "npc_dota_hero_winter_wyvern"
+local testHero = "npc_dota_hero_muerta"
 
 local testTeam =
 {
-	"npc_dota_hero_lycan",
-	"npc_dota_hero_enchantress",
-	"npc_dota_hero_venomancer",
-	"npc_dota_hero_beastmaster",
+	"npc_dota_hero_kez",
+	"npc_dota_hero_muerta",
+	"npc_dota_hero_marci",
+	"npc_dota_hero_primal_beast",
 }
 
 function GetBotNames()

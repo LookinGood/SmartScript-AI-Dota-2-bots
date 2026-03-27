@@ -15,9 +15,11 @@ local ItemsToBuy =
 
 	"item_power_treads",
 
-	"item_hand_of_midas",
-
+	"item_pers",
 	"item_bfury",
+
+	"item_pers",
+	"item_mage_slayer",
 
 	"item_black_king_bar",
 
@@ -31,14 +33,14 @@ local ItemsToBuy =
 	"item_ultimate_scepter",
 	"item_ultimate_scepter_2",
 
+	"item_aghanims_shard",
+
 	"item_moon_shard",
 
 	"item_butterfly",
 
 	"item_travel_boots",
 	"item_travel_boots_2",
-
-	"item_aghanims_shard",
 }
 
 local realItemsToBuy = {}

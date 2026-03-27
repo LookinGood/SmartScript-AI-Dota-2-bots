@@ -17,8 +17,6 @@ local ItemsToBuy =
 
     "item_hand_of_midas",
 
-    "item_veil_of_discord",
-
     "item_black_king_bar",
 
     "item_aghanims_shard",

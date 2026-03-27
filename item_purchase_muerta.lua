@@ -7,7 +7,7 @@ local ItemsToBuy =
 
 	"item_flask",
 
-	"item_clarity",
+	"item_faerie_fire",
 
 	"item_magic_wand",
 
@@ -15,28 +15,30 @@ local ItemsToBuy =
 
 	"item_power_treads",
 
-	"item_pers",
-	"item_mage_slayer",
+	"item_maelstrom",
 
-	"item_pers",
-	"item_sphere",
+	"item_dragon_lance",
+	"item_specialists_array",
 
-	"item_yasha",
-	"item_manta",
+	"item_lesser_crit",
+
+	"item_hydras_breath",
+
+	"item_black_king_bar",
 
 	"item_aghanims_shard",
 
-	"item_oblivion_staff",
-	"item_witch_blade",
-	"item_devastator",
+	"item_greater_crit",
+
+	"item_mjollnir",
 
 	"item_ultimate_scepter",
 	"item_ultimate_scepter_2",
 
 	"item_moon_shard",
 
-	"item_soul_booster",
-	"item_octarine_core",
+	"item_kaya",
+	"item_yasha",
 
 	"item_travel_boots",
 	"item_travel_boots_2",

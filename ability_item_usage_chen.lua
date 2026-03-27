@@ -47,11 +47,12 @@ function AbilityLevelUpThink()
 end
 
 -- Abilities
-local Penitence = AbilitiesReal[1]
-local HolyPersuasion = AbilitiesReal[2]
-local DivineFavor = AbilitiesReal[3]
-local SummonConvert = AbilitiesReal[4]
-local HandOfGod = AbilitiesReal[6]
+local Penitence = npcBot:GetAbilityByName("chen_penitence");
+local HolyPersuasion = npcBot:GetAbilityByName("chen_holy_persuasion");
+local DivineFavor = npcBot:GetAbilityByName("chen_divine_favor");
+local SummonConvert = npcBot:GetAbilityByName("chen_summon_convert");
+local Zealot = npcBot:GetAbilityByName("chen_zealot");
+local HandOfGod = npcBot:GetAbilityByName("chen_hand_of_god");
 
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
@@ -66,6 +67,7 @@ function AbilityUsageThink()
     local castPenitenceDesire, castPenitenceTarget = ConsiderPenitence();
     local castHolyPersuasionDesire, castHolyPersuasionTarget = ConsiderHolyPersuasion();
     local castDivineFavorDesire, castDivineFavorTarget = ConsiderDivineFavor();
+    local castZealotDesire, castZealotTarget = ConsiderZealot();
     local castSummonConvertDesire = ConsiderSummonConvert();
     local castHandOfGodDesire = ConsiderHandOfGod();
 
@@ -87,6 +89,12 @@ function AbilityUsageThink()
         return;
     end
 
+    if (castZealotDesire > 0)
+    then
+        npcBot:Action_UseAbilityOnEntity(Zealot, castZealotTarget);
+        return;
+    end
+
     if (castSummonConvertDesire > 0)
     then
         npcBot:Action_UseAbility(SummonConvert);
@@ -95,6 +103,7 @@ function AbilityUsageThink()
 
     if (castHandOfGodDesire > 0)
     then
+        npcBot:Action_ClearActions(true);
         npcBot:Action_UseAbility(HandOfGod);
         return;
     end
@@ -118,7 +127,7 @@ function ConsiderPenitence()
             then
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    npcBot:ActionImmediate_Chat("Использую Penitence что бы добить " .. enemy:GetUnitName(), true);
+                    --npcBot:ActionImmediate_Chat("Использую Penitence что бы добить " .. enemy:GetUnitName(), true);
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy;
                 end
             end
@@ -186,8 +195,8 @@ local function CreepUnderControlCount()
     return count;
 end
 
-function IsCatapult(npcTarget)
-    return IsValidTarget(npcTarget) and
+local function IsCatapult(npcTarget)
+    return utility.IsValidTarget(npcTarget) and
         string.find(npcTarget:GetUnitName(), "siege");
 end
 
@@ -234,7 +243,6 @@ function ConsiderDivineFavor()
 
     local castRangeAbility = ability:GetCastRange();
     local allyHeroes = npcBot:GetNearbyHeroes(castRangeAbility, false, BOT_MODE_NONE);
-    local allyCreeps = GetUnitList(UNIT_LIST_ALLIED_CREEPS);
 
     -- Cast to heal ally hero
     if (#allyHeroes > 0)
@@ -249,6 +257,17 @@ function ConsiderDivineFavor()
         end
     end
 
+    return BOT_ACTION_DESIRE_NONE, 0;
+end
+
+function ConsiderZealot()
+    local ability = Zealot;
+    if not utility.IsAbilityAvailable(ability) then
+        return BOT_ACTION_DESIRE_NONE, 0;
+    end
+
+    local allyCreeps = GetUnitList(UNIT_LIST_ALLIED_CREEPS);
+
     -- Cast if controlled creep too far away
     if (#allyCreeps > 0)
     then
@@ -256,7 +275,7 @@ function ConsiderDivineFavor()
             if ally:GetPlayerID() == npcBot:GetPlayerID() and ally:HasModifier("modifier_chen_holy_persuasion") and GetUnitToUnitDistance(npcBot, ally) >= 3000
                 and (ally:TimeSinceDamagedByAnyHero() >= 5.0 and ally:TimeSinceDamagedByCreep() >= 5.0)
             then
-                --npcBot:ActionImmediate_Chat("Использую DivineFavor что бы присумонить союзного крипа!", true);
+                --npcBot:ActionImmediate_Chat("Использую Zealot что бы присумонить " .. ally:GetUnitName(), true);
                 return BOT_ACTION_DESIRE_HIGH, npcBot;
             end
         end

@@ -27,7 +27,7 @@ function GetDesire()
     if castAbility == nil then castAbility = npcBot:GetAbilityByName("windrunner_shackleshot") end;
     if castAbility == nil then castAbility = npcBot:GetAbilityByName("spirit_breaker_charge_of_darkness") end;
 
-    if utility.IsBusy(npcBot) or
+    if npcBot:IsChanneling() or
         (castAbility ~= nil and castAbility:IsInAbilityPhase()) or
         npcBot:HasModifier("modifier_spirit_breaker_charge_of_darkness")
     then
@@ -51,7 +51,7 @@ function GetDesire()
         end
     end
 
-    return BOT_MODE_DESIRE_VERYLOW;
+    return BOT_MODE_DESIRE_NONE;
 end
 
 function OnStart()
@@ -75,7 +75,7 @@ function Think()
         return;
     end
 
-    if npcBot:GetActiveModeDesire() == BOT_MODE_DESIRE_VERYLOW and utility.CanMove(npcBot)
+    --[[     if utility.CanMove(npcBot)
     then
         local fountainLocation = utility.GetFountainLocation();
         if GetUnitToLocationDistance(npcBot, fountainLocation) > npcBot:GetBoundingRadius() * 4
@@ -86,5 +86,5 @@ function Think()
             npcBot:Action_MoveToLocation(npcBot:GetLocation() + RandomVector(npcBot:GetBoundingRadius() * 4));
             return;
         end
-    end
+    end ]]
 end

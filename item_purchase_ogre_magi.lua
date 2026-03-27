@@ -33,6 +33,7 @@ local ItemsToBuy =
 	"item_soul_booster",
 	"item_angels_demise",
 
+	"item_oblivion_staff",
 	"item_bloodthorn",
 
 	"item_ultimate_scepter_2",

@@ -20,11 +20,11 @@ local ItemsToBuy =
 	"item_oblivion_staff",
 	"item_witch_blade",
 
-	"item_ancient_janggo",
-
 	"item_oblivion_staff",
 	"item_orchid",
 
+	"item_headdress",
+	"item_ancient_janggo",
 	"item_boots_of_bearing",
 
 	"item_aghanims_shard",
@@ -37,6 +37,7 @@ local ItemsToBuy =
 
 	"item_devastator",
 
+	"item_oblivion_staff",
 	"item_bloodthorn",
 
 	"item_pers",

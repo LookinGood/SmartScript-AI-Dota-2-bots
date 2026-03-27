@@ -15,26 +15,30 @@ local ItemsToBuy =
 
 	"item_phase_boots",
 
+	"item_pers",
+	"item_phylactery",
+
 	"item_invis_sword",
 
 	"item_yasha",
-	"item_sange",
+	"item_kaya",
 
 	"item_black_king_bar",
 
-	"item_silver_edge",
-
 	"item_aghanims_shard",
 
-	"item_lesser_crit",
-	"item_greater_crit",
+	"item_soul_booster",
+	"item_angels_demise",
+
+	"item_silver_edge",
 
 	"item_ultimate_scepter",
 	"item_ultimate_scepter_2",
 
 	"item_moon_shard",
 
-	"item_swift_blink",
+	"item_buckler",
+	"item_assault",
 
 	"item_travel_boots",
 	"item_travel_boots_2",

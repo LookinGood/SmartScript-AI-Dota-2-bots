@@ -18,21 +18,21 @@ local Abilities, Talents, AbilitiesReal = ability_levelup_generic.GetHeroAbiliti
 local AbilityToLevelUp =
 {
     Abilities[1],
-    Abilities[2],
     Abilities[3],
+    Abilities[2],
     Abilities[1],
     Abilities[1],
     Abilities[6],
     Abilities[1],
-    Abilities[2],
-    Abilities[2],
+    Abilities[3],
+    Abilities[3],
     Talents[2],
-    Abilities[2],
+    Abilities[3],
     Abilities[6],
-    Abilities[3],
-    Abilities[3],
+    Abilities[2],
+    Abilities[2],
     Talents[4],
-    Abilities[3],
+    Abilities[2],
     Abilities[6],
     Talents[5],
     Talents[7],
@@ -47,13 +47,14 @@ function AbilityLevelUpThink()
 end
 
 -- Abilities
-local Laser = AbilitiesReal[1]
+local Laser = npcBot:GetAbilityByName("tinker_laser");
 local HeatSeekingMissile = npcBot:GetAbilityByName("tinker_heat_seeking_missile");
-local MarchOfTheMachines = AbilitiesReal[2]
-local DefenseMatrix = AbilitiesReal[3]
-local WarpFlare = AbilitiesReal[4]
-local KeenConveyance = AbilitiesReal[5]
-local Rearm = AbilitiesReal[6]
+local MarchOfTheMachines = npcBot:GetAbilityByName("tinker_march_of_the_machines");
+local DefenseMatrix = npcBot:GetAbilityByName("tinker_defense_matrix");
+local DeployTurrets = npcBot:GetAbilityByName("tinker_deploy_turrets");
+local WarpFlare = npcBot:GetAbilityByName("tinker_warp_grenade");
+local KeenConveyance = npcBot:GetAbilityByName("tinker_keen_teleport");
+local Rearm = npcBot:GetAbilityByName("tinker_rearm");
 
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
@@ -69,6 +70,7 @@ function AbilityUsageThink()
     local castMarchOfTheMachinesDesire, castMarchOfTheMachinesLocation = ConsiderMarchOfTheMachines();
     local castHeatSeekingMissileDesire = ConsiderHeatSeekingMissile();
     local castDefenseMatrixDesire, castDefenseMatrixTarget = ConsiderDefenseMatrix();
+    local castDeployTurretsDesire, castDeployTurretsLocation = ConsiderDeployTurrets();
     local castWarpFlareDesire, castWarpFlareTarget = ConsiderWarpFlare();
     local castKeenConveyanceDesire, castKeenConveyanceLocation = ConsiderKeenConveyance();
     local castRearmDesire = ConsiderRearm();
@@ -97,6 +99,12 @@ function AbilityUsageThink()
         return;
     end
 
+    if (castDeployTurretsDesire > 0)
+    then
+        npcBot:Action_UseAbilityOnLocation(DeployTurrets, castDeployTurretsLocation);
+        return;
+    end
+
     if (castWarpFlareDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(WarpFlare, castWarpFlareTarget);
@@ -112,7 +120,7 @@ function AbilityUsageThink()
     if (castRearmDesire > 0)
     then
         npcBot:Action_ClearAction(true);
-        npcBot:Action_UseAbility(Rearm);
+        npcBot:ActionQueue_UseAbility(Rearm);
         return;
     end
 end
@@ -340,6 +348,83 @@ function ConsiderWarpFlare()
     return BOT_ACTION_DESIRE_NONE, 0;
 end
 
+function ConsiderDeployTurrets()
+    local ability = DeployTurrets;
+    if not utility.IsAbilityAvailable(ability) then
+        return BOT_ACTION_DESIRE_NONE, 0;
+    end
+
+    local castRangeAbility = ability:GetCastRange();
+    local radiusAbility = ability:GetSpecialValueInt("drop_aoe_radius");
+    local damageAbility = ability:GetSpecialValueInt("drop_damage");
+    local turretsAttackRange = ability:GetSpecialValueInt("missile_target_range");
+    local delayAbility = ability:GetSpecialValueInt("drop_delay");
+    local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility + radiusAbility, true, BOT_MODE_NONE);
+
+    -- Cast if can kill somebody/interrupt cast
+    if (#enemyAbility > 0)
+    then
+        for _, enemy in pairs(enemyAbility) do
+            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) or enemy:IsChanneling()
+            then
+                if utility.CanCastSpellOnTarget(ability, enemy)
+                then
+                    if GetUnitToUnitDistance(npcBot, enemy) <= castRangeAbility
+                    then
+                        --npcBot:ActionImmediate_Chat("Использую DeployTurrets в радиусе каста добивая!", true);
+                        return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
+                    elseif GetUnitToUnitDistance(npcBot, enemy) <= castRangeAbility + radiusAbility
+                    then
+                        --npcBot:ActionImmediate_Chat("Использую DeployTurrets в касте+радиусе добивая!", true);
+                        return BOT_ACTION_DESIRE_HIGH, utility.GetMaxRangeCastLocation(npcBot, enemy, castRangeAbility);
+                    end
+                end
+            end
+        end
+    end
+
+    -- Cast if attack enemy
+    if utility.PvPMode(npcBot)
+    then
+        if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget)
+        then
+            if GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+            then
+                --npcBot:ActionImmediate_Chat("Использую DeployTurrets на врага в радиусе каста!", true);
+                return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
+            elseif GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility + turretsAttackRange
+            then
+                --npcBot:ActionImmediate_Chat("Использую DeployTurrets на врага в радиусе атаки варда!",true);
+                return BOT_ACTION_DESIRE_HIGH, utility.GetMaxRangeCastLocation(npcBot, botTarget, castRangeAbility);
+            end
+        end
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
+    then
+        if (#enemyAbility > 0)
+        then
+            for _, enemy in pairs(enemyAbility) do
+                if utility.CanCastSpellOnTarget(ability, enemy) and not utility.IsDisabled(enemy)
+                then
+                    if GetUnitToUnitDistance(npcBot, enemy) <= castRangeAbility
+                    then
+                        --npcBot:ActionImmediate_Chat("Использую DeployTurrets в радиусе для отхода!", true);
+                        return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
+                    elseif GetUnitToUnitDistance(npcBot, enemy) <= castRangeAbility + radiusAbility
+                    then
+                        --npcBot:ActionImmediate_Chat("Использую DeployTurrets в касте+радиусе для отхода!", true);
+                        return BOT_ACTION_DESIRE_HIGH, utility.GetMaxRangeCastLocation(npcBot, enemy, castRangeAbility);
+                    end
+                end
+            end
+        end
+    end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
+end
+
 function ConsiderKeenConveyance()
     local ability = KeenConveyance;
     if not utility.IsAbilityAvailable(ability) then
@@ -368,12 +453,13 @@ function ConsiderRearm()
 
     local ability1 = npcBot:GetAbilityInSlot(0);
     local ability2 = npcBot:GetAbilityInSlot(1);
+    local ability3 = npcBot:GetAbilityInSlot(2);
 
     -- General use
     if utility.PvPMode(npcBot)
     then
-        if (not ability1:IsCooldownReady() and not ability2:IsCooldownReady())
-            and (npcBot:GetMana() >= ability1:GetManaCost() + ability2:GetManaCost() + ability:GetManaCost())
+        if (not ability1:IsCooldownReady() and not ability2:IsCooldownReady() and not ability3:IsCooldownReady())
+            and (npcBot:GetMana() >= ability:GetManaCost() + ability1:GetManaCost() + ability2:GetManaCost() + ability3:GetManaCost())
         then
             --npcBot:ActionImmediate_Chat("Использую Rearm в бою!", true);
             return BOT_ACTION_DESIRE_HIGH;

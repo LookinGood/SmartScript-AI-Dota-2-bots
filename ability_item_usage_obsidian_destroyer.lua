@@ -47,9 +47,10 @@ function AbilityLevelUpThink()
 end
 
 -- Abilities
-local ArcaneOrb = AbilitiesReal[1]
-local AstralImprisonment = AbilitiesReal[2]
-local SanitysEclipse = AbilitiesReal[6]
+local ArcaneOrb = npcBot:GetAbilityByName("obsidian_destroyer_arcane_orb");
+local AstralImprisonment = npcBot:GetAbilityByName("obsidian_destroyer_astral_imprisonment");
+local Objurgation = npcBot:GetAbilityByName("obsidian_destroyer_objurgation");
+local SanitysEclipse = npcBot:GetAbilityByName("obsidian_destroyer_sanity_eclipse");
 
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
@@ -63,11 +64,18 @@ function AbilityUsageThink()
 
     ConsiderArcaneOrb();
     local castAstralImprisonmentDesire, castAstralImprisonmentTarget = ConsiderAstralImprisonment();
+    local castObjurgationDesire = ConsiderObjurgation();
     local castSanitysEclipseDesire, castSanitysEclipseLocation = ConsiderSanitysEclipse();
 
     if (castAstralImprisonmentDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(AstralImprisonment, castAstralImprisonmentTarget);
+        return;
+    end
+
+    if (castObjurgationDesire > 0)
+    then
+        npcBot:Action_UseAbility(Objurgation);
         return;
     end
 
@@ -196,6 +204,43 @@ function ConsiderAstralImprisonment()
     end
 
     return BOT_ACTION_DESIRE_NONE, 0;
+end
+
+function ConsiderObjurgation()
+    local ability = Objurgation;
+    if not utility.IsAbilityAvailable(ability) then
+        return BOT_ACTION_DESIRE_NONE;
+    end
+
+    if npcBot:HasModifier("modifier_obsidian_destroyer_equilibrium_barrier")
+    then
+        return BOT_ACTION_DESIRE_NONE;
+    end
+
+    local incomingSpells = npcBot:GetIncomingTrackingProjectiles();
+
+    -- Cast if get incoming spell
+    if (#incomingSpells > 0)
+    then
+        for _, spell in pairs(incomingSpells)
+        do
+            if not utility.IsAlly(npcBot, spell.caster) and GetUnitToLocationDistance(npcBot, spell.location) <= 300 and spell.is_attack == false
+                and not utility.HaveReflectSpell(npcBot)
+            then
+                return BOT_ACTION_DESIRE_VERYHIGH;
+            end
+        end
+    end
+
+    -- General use
+    if (HealthPercentage <= 0.6) and (utility.BotWasRecentlyDamagedByEnemyHero(2.0) or
+            npcBot:WasRecentlyDamagedByCreep(2.0) or
+            npcBot:WasRecentlyDamagedByTower(2.0))
+    then
+        return BOT_ACTION_DESIRE_HIGH;
+    end
+
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderSanitysEclipse()

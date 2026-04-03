@@ -24,7 +24,7 @@ local ItemsToBuy =
     "item_lifesteal",
 
     "item_basher",
-    "item_vanguard",
+    "item_sange",
     "item_abyssal_blade",
 
     "item_aghanims_shard",

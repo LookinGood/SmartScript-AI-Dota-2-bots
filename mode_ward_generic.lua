@@ -374,7 +374,7 @@ function GetDesire()
                     if not utility.CloseToAvailableWard("npc_dota_observer_wards", s, wardObserverRadius)
                     then
                         wardSpot = s;
-                        return BOT_ACTION_DESIRE_HIGH;
+                        return BOT_ACTION_DESIRE_MODERATE;
                     end
                 elseif wardSentry ~= nil
                 then
@@ -382,7 +382,7 @@ function GetDesire()
                     if not utility.CloseToAvailableWard("npc_dota_sentry_wards", s, wardSentryRadius)
                     then
                         wardSpot = s;
-                        return BOT_ACTION_DESIRE_HIGH;
+                        return BOT_ACTION_DESIRE_MODERATE;
                     end
                 elseif wardDispenser ~= nil
                 then
@@ -392,7 +392,7 @@ function GetDesire()
                         not utility.CloseToAvailableWard("npc_dota_sentry_wards", s, wardSentryRadius)
                     then
                         wardSpot = s;
-                        return BOT_ACTION_DESIRE_HIGH;
+                        return BOT_ACTION_DESIRE_MODERATE;
                     end
                 end
             end

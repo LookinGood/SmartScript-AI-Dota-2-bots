@@ -22,9 +22,9 @@ local ItemsToBuy =
 
 	"item_aether_lens",
 
-	"item_cyclone",
-
 	"item_aghanims_shard",
+
+	"item_cyclone",
 
 	"item_pers",
 	"item_sphere",

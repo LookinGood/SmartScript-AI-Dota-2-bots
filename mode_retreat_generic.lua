@@ -16,7 +16,6 @@ function GetDesire()
     --local enemyHeroes = utility.CountEnemyHeroAroundUnit(npcBot, 2000);
     -- string.find(npcBot:GetUnitName(), "medusa")
 
-    local botDesire = BOT_MODE_DESIRE_NONE;
     local botMode = npcBot:GetActiveMode();
     local botHPGegen = npcBot:GetHealthRegen();
     local healthPercent = npcBot:GetHealth() / npcBot:GetMaxHealth();
@@ -32,20 +31,17 @@ function GetDesire()
         return BOT_MODE_DESIRE_ABSOLUTE;
     end
 
-    botDesire = RemapValClamped(healthPercent, 0.3, 0.6, BOT_MODE_DESIRE_VERYHIGH, BOT_MODE_DESIRE_NONE);
-
-    if not npcBot:HasModifier("modifier_fountain_aura_buff") and (#enemyHeroAround <= 0) and not utility.BotWasRecentlyDamagedByEnemyHero(3.0)
-        and botHPGegen >= 20 and healthPercent <= 0.6
+    if not npcBot:HasModifier("modifier_fountain_aura_buff") and healthPercent <= 0.6 and not utility.BotWasRecentlyDamagedByEnemyHero(3.0)
+        and (#enemyHeroAround <= 0) and (botHPGegen >= 20 or utility.IsBotHaveItem("item_aegis"))
     then
-        --npcBot:ActionImmediate_Chat("Желание отступить: " .. botDesire, true);
-        return botDesire - BOT_MODE_DESIRE_HIGH;
+        return BOT_MODE_DESIRE_NONE;
     end
 
     if npcBot:HasModifier("modifier_fountain_aura_buff")
     then
         if (healthPercent <= 0.8 or manaPercent <= 0.8) or ((#enemyHeroAround > #allyHeroAround + 1) and utility.IsEnemiesAroundStronger())
         then
-            return botDesire + BOT_MODE_DESIRE_MODERATE;
+            return BOT_MODE_DESIRE_MODERATE;
         end
     end
 
@@ -53,7 +49,7 @@ function GetDesire()
     then
         if (manaPercent <= 0.3) and (#enemyHeroAround > 0) and utility.BotWasRecentlyDamagedByEnemyHero(5.0)
         then
-            return botDesire + BOT_MODE_DESIRE_HIGH;
+            return BOT_MODE_DESIRE_HIGH;
         end
     end
 
@@ -61,27 +57,31 @@ function GetDesire()
     then
         if (#enemyHeroAround > #allyHeroAround + 1) and utility.IsEnemiesAroundStronger()
         then
-            return botDesire + BOT_MODE_DESIRE_MODERATE;
+            return BOT_MODE_DESIRE_MODERATE;
         end
     else
         if utility.IsEnemiesAroundStronger()
         then
             --npcBot:ActionImmediate_Chat("Враги сильнее, нужно отступить!", true);
-            return botDesire + BOT_MODE_DESIRE_HIGH;
+            return BOT_MODE_DESIRE_MODERATE;
         end
     end
 
-    if (#enemyHeroAround > 0) and utility.IsEnemiesAroundStronger()
+    if (#enemyHeroAround > 0) and utility.IsEnemiesAroundStronger() and npcBot:GetCurrentActionType() ~= BOT_ACTION_TYPE_ATTACK
     then
         for _, enemy in pairs(enemyHeroAround) do
             if utility.IsValidTarget(enemy) and utility.IsHero(enemy:GetAttackTarget())
-                and npcBot:GetCurrentActionType() ~= BOT_ACTION_TYPE_ATTACK
             then
-                return botDesire + BOT_MODE_DESIRE_MODERATE;
+                return BOT_MODE_DESIRE_MODERATE;
             end
         end
     end
 
+    local botDesire = RemapValClamped(healthPercent, 0.3, 0.5, BOT_MODE_DESIRE_VERYHIGH, BOT_MODE_DESIRE_NONE);
+    --[[     if botDesire > BOT_MODE_DESIRE_NONE
+    then
+        npcBot:ActionImmediate_Chat("Желание отступить: " .. botDesire, true);
+    end ]]
     return botDesire;
 end
 

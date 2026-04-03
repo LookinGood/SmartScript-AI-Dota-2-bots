@@ -7,7 +7,7 @@ local hero_pool_my, heroesTank, heroesHealers, heroesDpsMelee, heroesDpsRanged, 
 
 -- Insert here hero hame and set "testmode = true" if you want the bot to choose a specific hero (Work only in Radiant team)
 local testmode = false;
-local testHero = "npc_dota_hero_muerta"
+local testHero = "npc_dota_hero_venomancer"
 
 local testTeam =
 {
@@ -222,13 +222,18 @@ function Think()
 	then
 		if GetTeam() == TEAM_RADIANT
 		then
-			for _, i in pairs(GetTeamPlayers(GetTeam()))
+			local teamPlayers = GetTeamPlayers(GetTeam());
+			for _, i in pairs(teamPlayers)
 			do
 				if IsPlayerBot(i) and GetSelectedHeroName(i) == ""
 				then
-					table.insert(botPlayers, i);
+					if (#botPlayers) < (#teamPlayers)
+					then
+						table.insert(botPlayers, i);
+					end
 				end
 			end
+
 
 			if (#botPlayers > 0)
 			then
@@ -251,7 +256,7 @@ function Think()
 		then
 			for _, i in pairs(GetTeamPlayers(GetTeam()))
 			do
-				if IsPlayerBot(i) and GetSelectedHeroName(i) == "" and (i ~= testPlayer)
+				if IsPlayerBot(i) and GetSelectedHeroName(i) == ""
 				then
 					hero = GetTestPick();
 					SelectHero(i, hero);

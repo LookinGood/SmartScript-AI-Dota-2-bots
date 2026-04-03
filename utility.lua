@@ -66,6 +66,14 @@ end
 function FixDelayBot()
 	local npcBot = GetBot();
 
+	local HighFive = npcBot:GetAbilityByName("plus_high_five");
+	if HighFive ~= nil
+	then
+		npcBot:ActionImmediate_Chat(HighFive:GetName() .. " обнаружен.", true);
+		npcBot:Action_UseAbility(HighFive);
+		--print("HighFive обнаружен!")
+	end
+
 	if not npcBot:IsAlive() or npcBot:IsIllusion() or not CanMove(npcBot) or IsDisabled(npcBot) or IsBusy(npcBot)
 	then
 		return;
@@ -74,24 +82,18 @@ function FixDelayBot()
 	local botMode = npcBot:GetActiveMode();
 	local botModeDesire = npcBot:GetActiveModeDesire();
 
-	if (npcBot:HasModifier("modifier_fountain_invulnerability") or
-			botMode == nil or botMode == BOT_MODE_NONE or
+	if npcBot:HasModifier("modifier_fountain_invulnerability") or
+		(botMode == nil or botMode == BOT_MODE_NONE or
 			botModeDesire <= BOT_MODE_DESIRE_NONE) and
-		npcBot:GetCurrentActionType() == BOT_ACTION_TYPE_NONE
+		npcBot:GetCurrentActionType() == BOT_ACTION_TYPE_IDLE
 	--npcBot:GetCurrentActionType() == BOT_ACTION_TYPE_NONE
 	--npcBot:GetCurrentActionType() == BOT_ACTION_TYPE_IDLE or
 	--npcBot:GetCurrentActionType() == BOT_ACTION_TYPE_DELAY or
 	then
-		npcBot:ActionImmediate_Chat("Я AFK, двигаюсь.", true);
+		--npcBot:ActionImmediate_Chat("Я AFK, двигаюсь.", true);
 		npcBot:Action_MoveToLocation(npcBot:GetLocation() + RandomVector(npcBot:GetBoundingRadius() * 2));
 		return;
 	end
-
-	--[[ 	local HighFive = npcBot:GetAbilityByName("high_five");
-	if HighFive ~= nil
-	then
-		print("HighFive обнаружен!")
-	end ]]
 end
 
 function IsValidTarget(npcTarget)

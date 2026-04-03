@@ -327,7 +327,7 @@ function ConsiderPlanarPocket()
             then
                 if ally:GetHealth() / ally:GetMaxHealth() <= 0.9 and ally:WasRecentlyDamagedByAnyHero(2.0)
                 then
-                    npcBot:ActionImmediate_Chat("Использую PlanarPocket на союзника " .. ally:GetUnitName(), true);
+                    --npcBot:ActionImmediate_Chat("Использую PlanarPocket на союзника " .. ally:GetUnitName(), true);
                     return BOT_ACTION_DESIRE_HIGH, ally;
                 end
             end

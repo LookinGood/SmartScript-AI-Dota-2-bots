@@ -47,10 +47,11 @@ function AbilityLevelUpThink()
 end
 
 -- Abilities
-local Starstorm = AbilitiesReal[1]
-local SacredArrow = AbilitiesReal[2]
-local Leap = AbilitiesReal[3]
-local MoonlightShadow = AbilitiesReal[6]
+local Starstorm = npcBot:GetAbilityByName("mirana_starfall");
+local SacredArrow = npcBot:GetAbilityByName("mirana_arrow");
+local Leap = npcBot:GetAbilityByName("mirana_leap");
+local CelestialQuiver = npcBot:GetAbilityByName("mirana_celestial_quiver");
+local MoonlightShadow = npcBot:GetAbilityByName("mirana_invis");
 
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
@@ -65,6 +66,7 @@ function AbilityUsageThink()
     local castStarstormDesire = ConsiderStarstorm();
     local castSacredArrowDesire, castSacredArrowLocation = ConsiderSacredArrow();
     local castLeapDesire, castLeapLocation, castLeapTargetType = ConsiderLeap();
+    ConsiderCelestialQuiver();
     local castMoonlightShadowDesire = ConsiderMoonlightShadow();
 
     if (castStarstormDesire > 0)
@@ -309,6 +311,24 @@ function ConsiderLeap()
     end
 
     return BOT_ACTION_DESIRE_NONE, 0, 0;
+end
+
+function ConsiderCelestialQuiver()
+    local ability = CelestialQuiver;
+    if not utility.IsAbilityAvailable(ability) then
+        return;
+    end
+
+    if utility.IsNeedTurnOnAttackModifier()
+    then
+        if not ability:GetAutoCastState() then
+            ability:ToggleAutoCast()
+        end
+    else
+        if ability:GetAutoCastState() then
+            ability:ToggleAutoCast()
+        end
+    end
 end
 
 function ConsiderMoonlightShadow()

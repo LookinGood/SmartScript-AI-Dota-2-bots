@@ -47,10 +47,11 @@ function AbilityLevelUpThink()
 end
 
 -- Abilities
-local EtherShock = AbilitiesReal[1]
-local Hex = AbilitiesReal[2]
-local Shackles = AbilitiesReal[3]
-local MassSerpentWard = AbilitiesReal[6]
+local EtherShock = npcBot:GetAbilityByName("shadow_shaman_ether_shock");
+local Hex = npcBot:GetAbilityByName("shadow_shaman_voodoo");
+local Shackles = npcBot:GetAbilityByName("shadow_shaman_shackles");
+local Urnaconda = npcBot:GetAbilityByName("shadow_shaman_urnaconda");
+local MassSerpentWard = npcBot:GetAbilityByName("shadow_shaman_mass_serpent_ward");
 
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
@@ -65,6 +66,7 @@ function AbilityUsageThink()
     local castEtherShockDesire, castEtherShockTarget = ConsiderEtherShock();
     local castHexDesire, castHexTarget = ConsiderHex();
     local castShacklesDesire, castShacklesTarget = ConsiderShackles();
+    local castUrnacondaDesire, castUrnacondaLocation = ConsiderUrnaconda();
     local castMassSerpentWardDesire, castMassSerpentWardLocation = ConsiderMassSerpentWard();
 
     if (castEtherShockDesire > 0)
@@ -82,6 +84,12 @@ function AbilityUsageThink()
     if (castShacklesDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(Shackles, castShacklesTarget);
+        return;
+    end
+
+    if (castUrnacondaDesire > 0)
+    then
+        npcBot:Action_UseAbilityOnLocation(Urnaconda, castUrnacondaLocation);
         return;
     end
 
@@ -273,6 +281,72 @@ function ConsiderShackles()
                 then
                     --npcBot:ActionImmediate_Chat("Использую Shackles что бы оторваться от врага", true);
                     return BOT_ACTION_DESIRE_VERYHIGH, enemy;
+                end
+            end
+        end
+    end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
+end
+
+function ConsiderUrnaconda()
+    local ability = Urnaconda;
+    if not utility.IsAbilityAvailable(ability) then
+        return BOT_ACTION_DESIRE_NONE, 0;
+    end
+
+    local castRangeAbility = ability:GetCastRange();
+    local radiusAbility = ability:GetSpecialValueInt("impact_radius");
+    local damageAbility = ability:GetSpecialValueInt("impact_damage");
+    local delayAbility = ability:GetSpecialValueInt("AbilityCastPoint");
+    local speedAbility = ability:GetSpecialValueInt("speed");
+    local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility + radiusAbility, true, BOT_MODE_NONE);
+
+    -- Cast if can kill somebody
+    if (#enemyAbility > 0)
+    then
+        for _, enemy in pairs(enemyAbility) do
+            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType())
+            then
+                if utility.CanCastSpellOnTarget(ability, enemy)
+                then
+                    if GetUnitToUnitDistance(npcBot, enemy) <= castRangeAbility
+                    then
+                        --npcBot:ActionImmediate_Chat("Использую Urnaconda в радиусе каста добивая!", true);
+                        return BOT_ACTION_DESIRE_HIGH,
+                            utility.GetTargetCastPosition(npcBot, enemy, delayAbility, speedAbility);
+                    elseif GetUnitToUnitDistance(npcBot, enemy) <= castRangeAbility + radiusAbility
+                    then
+                        --npcBot:ActionImmediate_Chat("Использую Urnaconda в касте+радиусе добивая!!", true);
+                        return BOT_ACTION_DESIRE_HIGH, utility.GetMaxRangeCastLocation(npcBot, enemy, castRangeAbility);
+                    end
+                end
+            end
+        end
+    end
+
+    if not MassSerpentWard:IsTrained()
+    then
+        return BOT_ACTION_DESIRE_NONE, 0;
+    end
+
+    -- Attack use
+    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
+    then
+        if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
+        then
+            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= (castRangeAbility + radiusAbility)
+                and not utility.IsDisabled(botTarget)
+            then
+                if GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+                then
+                    --npcBot:ActionImmediate_Chat("Использую Urnaconda в радиусе каста!", true);
+                    return BOT_ACTION_DESIRE_HIGH,
+                        utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, speedAbility);
+                elseif GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility + radiusAbility
+                then
+                    --npcBot:ActionImmediate_Chat("Использую Urnaconda в касте+радиусе!!", true);
+                    return BOT_ACTION_DESIRE_HIGH, utility.GetMaxRangeCastLocation(npcBot, botTarget, castRangeAbility);
                 end
             end
         end

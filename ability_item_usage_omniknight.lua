@@ -164,15 +164,18 @@ function ConsiderPurification()
     end
 
     -- Attack use
-    if utility.PvPMode(npcBot)
+    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
     then
-        if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+        if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
         then
-            local nearbyAlly = GetNearbyAllyUnit(botTarget, radiusAbility);
-            if nearbyAlly ~= nil
+            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
             then
-                --npcBot:ActionImmediate_Chat( "Использую Purification на героя для атаки: " .. nearbyAlly:GetUnitName(), true);
-                return BOT_ACTION_DESIRE_HIGH, nearbyAlly;
+                local nearbyAlly = GetNearbyAllyUnit(botTarget, radiusAbility);
+                if nearbyAlly ~= nil
+                then
+                    --npcBot:ActionImmediate_Chat( "Использую Purification на героя для атаки: " .. nearbyAlly:GetUnitName(), true);
+                    return BOT_ACTION_DESIRE_HIGH, nearbyAlly;
+                end
             end
         end
     end

@@ -7,6 +7,8 @@ module("hero_role_generic", package.seeall)
 	"npc_dota_hero_hoodwink", -- not work currect
 	"npc_dota_hero_dark_willow", -- not work currect
 	"npc_dota_hero_lone_druid",  -- not work currect
+    "npc_dota_hero_muerta", -- not work currect
+    "npc_dota_hero_marci", -- not work currect
     "npc_dota_hero_centaur",
 	"npc_dota_hero_gyrocopter",
 	"npc_dota_hero_disruptor",
@@ -127,7 +129,6 @@ module("hero_role_generic", package.seeall)
 	"npc_dota_hero_wisp",
 	"npc_dota_hero_meepo",
 	"npc_dota_hero_largo",
-    "npc_dota_hero_muerta",
 ]]
 --#endregion
 
@@ -254,7 +255,8 @@ local hero_pool_my =
     "npc_dota_hero_wisp",
     "npc_dota_hero_meepo",
     "npc_dota_hero_largo",
-    "npc_dota_hero_muerta",
+    --"npc_dota_hero_muerta",
+    --"npc_dota_hero_marci",
 }
 
 local heroesTank =
@@ -340,6 +342,7 @@ local heroesDpsMelee =
     "npc_dota_hero_tiny",
     "npc_dota_hero_tusk",
     "npc_dota_hero_skeleton_king",
+    --"npc_dota_hero_marci",
 
     "npc_dota_hero_antimage",
     "npc_dota_hero_bounty_hunter",
@@ -393,7 +396,7 @@ local heroesDpsRanged =
     "npc_dota_hero_tinker",
     "npc_dota_hero_windrunner",
     "npc_dota_hero_zuus",
-    "npc_dota_hero_muerta",
+    --"npc_dota_hero_muerta",
 }
 
 local heroesCarry =
@@ -470,7 +473,8 @@ local heroesCarry =
     "npc_dota_hero_invoker",
     --"npc_dota_hero_lone_druid",
     "npc_dota_hero_meepo",
-    "npc_dota_hero_muerta",
+    --"npc_dota_hero_muerta",
+    --"npc_dota_hero_marci",
 }
 
 local heroesSupport =

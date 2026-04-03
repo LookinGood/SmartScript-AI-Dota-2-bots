@@ -109,7 +109,7 @@ end
 function GetDesire()
 	local enemyHeroes = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
 
-	if not utility.IsHero(npcBot) or not npcBot:IsAlive() or utility.IsClone(npcBot) or (#enemyHeroes > 0) or utility.IsBaseUnderAttack()
+	if not utility.IsHero(npcBot) or not npcBot:IsAlive() or utility.IsClone(npcBot) or (#enemyHeroes > 0 and utility.IsEnemiesAroundStronger()) or utility.IsBaseUnderAttack()
 		or npcBot:HasModifier("modifier_skeleton_king_reincarnation_scepter_active") or
 		string.find(npcBot:GetUnitName(), "npc_dota_lone_druid_bear")
 	then
@@ -137,9 +137,9 @@ function GetDesire()
 		--npcBot:ActionImmediate_Chat("Рядом есть доступный для захвата аванпост.", true);
 		if closestOutpost:HasModifier("modifier_watch_tower_capturing")
 		then
-			return BOT_MODE_DESIRE_VERYHIGH;
-		else
 			return BOT_MODE_DESIRE_HIGH;
+		else
+			return BOT_MODE_DESIRE_MODERATE;
 		end
 	end
 

@@ -43,7 +43,7 @@ end
 function GetDesire()
     local enemyHeroes = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
 
-    if not utility.IsHero(npcBot) or not npcBot:IsAlive() or utility.IsClone(npcBot) or (#enemyHeroes > 0) or utility.IsBaseUnderAttack()
+    if not utility.IsHero(npcBot) or not npcBot:IsAlive() or utility.IsClone(npcBot) or utility.IsBaseUnderAttack() or (#enemyHeroes > 0 and utility.IsEnemiesAroundStronger())
     then
         return BOT_MODE_DESIRE_NONE;
     end

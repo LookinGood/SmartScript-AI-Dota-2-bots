@@ -47,11 +47,12 @@ function AbilityLevelUpThink()
 end
 
 -- Abilities
-local FrostBlast = AbilitiesReal[1]
-local FrostShield = AbilitiesReal[2]
-local SinisterGaze = AbilitiesReal[3]
-local IceSpire = AbilitiesReal[4]
-local ChainFrost = AbilitiesReal[6]
+local FrostBlast = npcBot:GetAbilityByName("lich_frost_nova");
+local FrostShield = npcBot:GetAbilityByName("lich_frost_shield");
+local SinisterGaze = npcBot:GetAbilityByName("lich_sinister_gaze");
+local Sacrifice = npcBot:GetAbilityByName("lich_death_charge");
+local IceSpire = npcBot:GetAbilityByName("lich_ice_spire");
+local ChainFrost = npcBot:GetAbilityByName("lich_chain_frost");
 
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
@@ -66,6 +67,7 @@ function AbilityUsageThink()
     local castFrostBlastDesire, castFrostBlastTarget = ConsiderFrostBlast();
     local castFrostShieldDesire, castFrostShieldTarget = ConsiderFrostShield();
     local castSinisterGazeDesire, castSinisterGazeTarget, castSinisterGazeTargetType = ConsiderSinisterGaze();
+    local castSacrificeDesire, castSacrificeTarget = ConsiderSacrifice();
     local castIceSpireDesire, castIceSpireLocation = ConsiderIceSpire();
     local castChainFrostDesire, castChainFrostTarget = ConsiderChainFrost();
 
@@ -92,6 +94,12 @@ function AbilityUsageThink()
             npcBot:Action_UseAbilityOnLocation(SinisterGaze, castSinisterGazeTarget);
             return;
         end
+    end
+
+    if (castSacrificeDesire > 0)
+    then
+        npcBot:Action_UseAbilityOnEntity(Sacrifice, castSacrificeTarget);
+        return;
     end
 
     if (castIceSpireDesire > 0)
@@ -140,7 +148,7 @@ function ConsiderFrostBlast()
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
             then
-                return BOT_MODE_DESIRE_HIGH, botTarget;
+                return BOT_ACTION_DESIRE_HIGH, botTarget;
             end
         end
     end
@@ -218,7 +226,7 @@ function ConsiderFrostShield()
                         if GetUnitToUnitDistance(ally, botTarget) <= radiusAbility
                         then
                             --npcBot:ActionImmediate_Chat("Использую FrostShield на союзника рядом с врагом!",true);
-                            return BOT_MODE_DESIRE_HIGH, ally;
+                            return BOT_ACTION_DESIRE_HIGH, ally;
                         end
                     end
                 end
@@ -234,7 +242,7 @@ function ConsiderFrostShield()
                     (ally:WasRecentlyDamagedByAnyHero(2.0) or ally:WasRecentlyDamagedByTower(2.0) or ally:WasRecentlyDamagedByCreep(2.0))
                 then
                     --npcBot:ActionImmediate_Chat("Использую FrostShield на союзника для защиты!",true);
-                    return BOT_MODE_DESIRE_HIGH, ally;
+                    return BOT_ACTION_DESIRE_HIGH, ally;
                 end
             end
         end
@@ -251,7 +259,7 @@ function ConsiderFrostShield()
             if not ally:HasModifier("modifier_lich_frost_shield") and utility.IsTargetedByEnemy(ally, true)
             then
                 --npcBot:ActionImmediate_Chat("Использую FrostShield на союзную башню!", true);
-                return BOT_MODE_DESIRE_HIGH, ally;
+                return BOT_ACTION_DESIRE_HIGH, ally;
             end
         end
     end
@@ -262,7 +270,7 @@ function ConsiderFrostShield()
             if not ally:HasModifier("modifier_lich_frost_shield") and utility.IsTargetedByEnemy(ally, true)
             then
                 --npcBot:ActionImmediate_Chat("Использую FrostShield на союзные казармы!", true);
-                return BOT_MODE_DESIRE_HIGH, ally;
+                return BOT_ACTION_DESIRE_HIGH, ally;
             end
         end
     end
@@ -271,7 +279,7 @@ function ConsiderFrostShield()
         if not allyAncient:HasModifier("modifier_lich_frost_shield") and utility.IsTargetedByEnemy(allyAncient, true)
         then
             --npcBot:ActionImmediate_Chat("Использую FrostShield на ДРЕВНЕГО!", true);
-            return BOT_MODE_DESIRE_HIGH, allyAncient;
+            return BOT_ACTION_DESIRE_HIGH, allyAncient;
         end
     end
 
@@ -300,11 +308,11 @@ function ConsiderSinisterGaze()
                     if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_UNIT_TARGET)
                     then
                         --npcBot:ActionImmediate_Chat("Использую SinisterGaze сбивая каст без аганима!", true);
-                        return BOT_MODE_DESIRE_HIGH, enemy, "target";
+                        return BOT_ACTION_DESIRE_HIGH, enemy, "target";
                     elseif utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_POINT)
                     then
                         --npcBot:ActionImmediate_Chat("Использую SinisterGaze сбивая каст с аганимом!",true);
-                        return BOT_MODE_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0),
+                        return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0),
                             "location";
                     end
                 end
@@ -323,11 +331,11 @@ function ConsiderSinisterGaze()
                 if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_UNIT_TARGET)
                 then
                     --npcBot:ActionImmediate_Chat("Использую SinisterGaze по врагу без аганима!", true);
-                    return BOT_MODE_DESIRE_HIGH, botTarget, "target";
+                    return BOT_ACTION_DESIRE_HIGH, botTarget, "target";
                 elseif utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_POINT)
                 then
                     --npcBot:ActionImmediate_Chat("Использую SinisterGaze по врагу с аганимом!", true);
-                    return BOT_MODE_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0),
+                    return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0),
                         "location";
                 end
             end
@@ -356,11 +364,11 @@ function ConsiderSinisterGaze()
                     if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_UNIT_TARGET)
                     then
                         --npcBot:ActionImmediate_Chat("Использую SinisterGaze для отхода без аганима!", true);
-                        return BOT_MODE_DESIRE_HIGH, enemy, "target";
+                        return BOT_ACTION_DESIRE_HIGH, enemy, "target";
                     elseif utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_POINT)
                     then
                         --npcBot:ActionImmediate_Chat("Использую SinisterGaze для отхода с аганимом!",true);
-                        return BOT_MODE_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0),
+                        return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0),
                             "location";
                     end
                 end
@@ -377,11 +385,74 @@ function ConsiderSinisterGaze()
             if utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_UNIT_TARGET)
             then
                 --npcBot:ActionImmediate_Chat("Использую SinisterGaze на лайне без аганима!",true);
-                return BOT_MODE_DESIRE_HIGH, enemy, "target";
+                return BOT_ACTION_DESIRE_HIGH, enemy, "target";
             elseif utility.CheckFlag(ability:GetBehavior(), ABILITY_BEHAVIOR_POINT)
             then
                 --npcBot:ActionImmediate_Chat("Использую SinisterGaze на лайне с аганимом!", true);
-                return BOT_MODE_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0), "location";
+                return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0), "location";
+            end
+        end
+    end
+
+    return BOT_ACTION_DESIRE_NONE, 0;
+end
+
+function ConsiderSacrifice()
+    local ability = Sacrifice;
+    if not utility.IsAbilityAvailable(ability) then
+        return BOT_ACTION_DESIRE_NONE, 0;
+    end
+
+    local castRangeAbility = ability:GetCastRange();
+    local allyCreeps = npcBot:GetNearbyCreeps(castRangeAbility, false);
+    local allyLaneCreeps = npcBot:GetNearbyLaneCreeps(castRangeAbility, false);
+    local enemyAbility = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
+
+    -- Cast when laning
+    if botMode == BOT_MODE_LANING and (#enemyAbility > 0) and (ManaPercentage <= 0.9)
+    then
+        if (#allyLaneCreeps > 0)
+        then
+            for _, ally in pairs(allyLaneCreeps) do
+                if (ally:GetHealth() / ally:GetMaxHealth() <= 0.5 or ally:IsSpeciallyDeniable())
+                then
+                    --npcBot:ActionImmediate_Chat("Использую " .. ability:GetName() .. " (лайнинг) на Lane крипа " .. ally:GetUnitName(), true);
+                    return BOT_ACTION_DESIRE_HIGH, ally;
+                end
+            end
+        end
+        if (#allyCreeps > 0)
+        then
+            for _, ally in pairs(allyCreeps) do
+                if ally:IsSpeciallyDeniable()
+                then
+                    --npcBot:ActionImmediate_Chat("Использую " .. ability:GetName() .. " (лайнинг) на союзного крипа " .. ally:GetUnitName(), true);
+                    return BOT_ACTION_DESIRE_HIGH, ally;
+                end
+            end
+        end
+    end
+
+    if (ManaPercentage <= 0.4)
+    then
+        if (#allyLaneCreeps > 0)
+        then
+            for _, ally in pairs(allyLaneCreeps) do
+                if ally:IsAlive()
+                then
+                    --npcBot:ActionImmediate_Chat("Использую " .. ability:GetName() .. " на Lane крипа " .. ally:GetUnitName(), true);
+                    return BOT_ACTION_DESIRE_HIGH, ally;
+                end
+            end
+        end
+        if (#allyCreeps > 0)
+        then
+            for _, ally in pairs(allyCreeps) do
+                if (ally:GetPlayerID() == npcBot:GetPlayerID()) or (ally:GetPlayerID() ~= npcBot:GetPlayerID() and ally:IsSpeciallyDeniable())
+                then
+                    --npcBot:ActionImmediate_Chat("Использую " .. ability:GetName() .. " на союзного крипа " .. ally:GetUnitName(), true);
+                    return BOT_ACTION_DESIRE_HIGH, ally;
+                end
             end
         end
     end

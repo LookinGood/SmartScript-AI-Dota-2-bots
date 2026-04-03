@@ -19,6 +19,7 @@ local ItemsToBuy =
 
 	"item_aether_lens",
 
+	"item_headdress",
 	"item_ancient_janggo",
 	"item_boots_of_bearing",
 

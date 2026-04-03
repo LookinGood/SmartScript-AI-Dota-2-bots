@@ -288,7 +288,8 @@ function ConsiderBlinkStrike()
             if (#enemyAbility > 0)
             then
                 for _, enemy in pairs(enemyAbility) do
-                    if GetUnitToLocationDistance(enemy, fountainLocation) < GetUnitToLocationDistance(npcBot, fountainLocation) and
+                    if utility.CanCastSpellOnTarget(ability, enemy) and
+                        GetUnitToLocationDistance(enemy, fountainLocation) < GetUnitToLocationDistance(npcBot, fountainLocation) and
                         (GetUnitToUnitDistance(enemy, npcBot) > castRangeAbility / 2)
                     then
                         --npcBot:ActionImmediate_Chat("Использую BlinkStrike для побега на врага!",true);
@@ -299,7 +300,8 @@ function ConsiderBlinkStrike()
             if (#enemyCreeps > 0)
             then
                 for _, enemy in pairs(enemyCreeps) do
-                    if GetUnitToLocationDistance(enemy, fountainLocation) < GetUnitToLocationDistance(npcBot, fountainLocation) and
+                    if utility.CanCastSpellOnTarget(ability, enemy) and
+                        GetUnitToLocationDistance(enemy, fountainLocation) < GetUnitToLocationDistance(npcBot, fountainLocation) and
                         (GetUnitToUnitDistance(enemy, npcBot) > castRangeAbility / 2)
                     then
                         --npcBot:ActionImmediate_Chat("Использую BlinkStrike для побега на вражеского крипа!",true);

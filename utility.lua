@@ -74,7 +74,7 @@ function FixDelayBot()
 	if HighFive ~= nil and utility.IsAbilityAvailable(HighFive)
 	then
 		local botTarget = npcBot:GetTarget();
-		local radiusAbility = ability:GetSpecialValueInt("acknowledge_range");
+		local radiusAbility = HighFive:GetSpecialValueInt("acknowledge_range");
 		local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
 		if utility.PvPMode(npcBot)
 		then

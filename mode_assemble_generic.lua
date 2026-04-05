@@ -197,15 +197,14 @@ function GetDesire()
 	then
 		if not utility.IsNight()
 		then
-			--npcBot:ActionImmediate_Chat("Ночь - Терзатель у Dire.", true);
-			tormentorPositions = {
-				direTormentorLocation
-			}
-		else
 			--npcBot:ActionImmediate_Chat("День - Терзатель у Radiant.", true);
 			tormentorPositions = {
 				radiantTormentorLocation
-
+			}
+		else
+			--npcBot:ActionImmediate_Chat("Ночь - Терзатель у Dire.", true);
+			tormentorPositions = {
+				direTormentorLocation
 			}
 		end
 		lastUpdateTime = currentTime;

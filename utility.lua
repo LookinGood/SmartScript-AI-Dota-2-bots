@@ -83,9 +83,9 @@ function FixDelayBot()
 	local botModeDesire = npcBot:GetActiveModeDesire();
 
 	if npcBot:HasModifier("modifier_fountain_invulnerability") or
-		(botMode == nil or botMode == BOT_MODE_NONE or
-			botModeDesire <= BOT_MODE_DESIRE_NONE) and
-		npcBot:GetCurrentActionType() == BOT_ACTION_TYPE_IDLE
+		((botMode == nil or botMode == BOT_MODE_NONE or
+				botModeDesire <= BOT_MODE_DESIRE_NONE) and
+			npcBot:GetCurrentActionType() == BOT_ACTION_TYPE_IDLE)
 	--npcBot:GetCurrentActionType() == BOT_ACTION_TYPE_NONE
 	--npcBot:GetCurrentActionType() == BOT_ACTION_TYPE_IDLE or
 	--npcBot:GetCurrentActionType() == BOT_ACTION_TYPE_DELAY or

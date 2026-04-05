@@ -20,19 +20,18 @@ local ItemsToBuy =
 	"item_invis_sword",
 
 	"item_dragon_lance",
-
-	"item_lesser_crit",
-
-	"item_silver_edge",
-
-	"item_greater_crit",
-
 	"item_force_staff",
 	"item_hurricane_pike",
 
-	"item_aghanims_shard",
+	"item_lesser_crit",
+	"item_greater_crit",
+
+	"item_silver_edge",
 
 	"item_ultimate_scepter",
+
+	"item_aghanims_shard",
+
 	"item_ultimate_scepter_2",
 
 	"item_mjollnir",

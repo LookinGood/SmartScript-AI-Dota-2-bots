@@ -124,7 +124,7 @@ function BuybackUsageThink()
 		return;
 	end
 
-	if not npcBot:HasBuyback() or npcBot:GetGold() < npcBot:GetBuybackCost() or npcBot:GetBuybackCooldown() > 0
+	if not npcBot:HasBuyback() or (npcBot:GetGold() < npcBot:GetBuybackCost()) or npcBot:GetBuybackCooldown() > 0
 	then
 		return;
 	end

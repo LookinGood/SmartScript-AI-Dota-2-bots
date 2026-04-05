@@ -26,7 +26,7 @@ local AbilityToLevelUp =
     Abilities[1],
     Abilities[2],
     Abilities[2],
-    Talents[1],
+    Talents[2],
     Abilities[2],
     Abilities[6],
     Abilities[3],
@@ -36,7 +36,7 @@ local AbilityToLevelUp =
     Abilities[6],
     Talents[6],
     Talents[8],
-    Talents[2],
+    Talents[1],
     Talents[3],
     Talents[5],
     Talents[7],
@@ -68,6 +68,13 @@ local rhythmInterval = 1.0;
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
         return;
+    end
+
+    if utility.IsDisabled(npcBot)
+    then
+        castBattleSongTimer = 0.0;
+        castSpeedSongTimer = 0.0;
+        castHealSongTimer = 0.0;
     end
 
     botMode = npcBot:GetActiveMode();

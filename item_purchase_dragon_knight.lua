@@ -17,7 +17,6 @@ local ItemsToBuy =
 
     "item_power_treads",
 
-    "item_vanguard",
     "item_heavens_halberd",
 
     "item_black_king_bar",

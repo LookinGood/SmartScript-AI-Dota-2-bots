@@ -25,8 +25,6 @@ local ItemsToBuy =
 
     "item_guardian_greaves",
 
-    "item_vanguard",
-
     "item_soul_booster",
     "item_bloodstone",
 

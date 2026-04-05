@@ -65,19 +65,36 @@ end
 
 function FixDelayBot()
 	local npcBot = GetBot();
-
-	local HighFive = npcBot:GetAbilityByName("plus_high_five");
-	if HighFive ~= nil
-	then
-		npcBot:ActionImmediate_Chat(HighFive:GetName() .. " обнаружен.", true);
-		npcBot:Action_UseAbility(HighFive);
-		--print("HighFive обнаружен!")
-	end
-
 	if not npcBot:IsAlive() or npcBot:IsIllusion() or not CanMove(npcBot) or IsDisabled(npcBot) or IsBusy(npcBot)
 	then
 		return;
 	end
+
+	local HighFive = npcBot:GetAbilityByName("plus_high_five");
+	if HighFive ~= nil and utility.IsAbilityAvailable(HighFive)
+	then
+		local radiusAbility = ability:GetSpecialValueInt("acknowledge_range");
+		local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
+		if utility.PvPMode(npcBot)
+		then
+			if utility.IsHero(botTarget)
+			then
+				if GetUnitToUnitDistance(npcBot, botTarget) <= radiusAbility
+				then
+					npcBot:Action_UseAbility(HighFive);
+					return;
+				end
+			end
+		end
+		if (#enemyAbility > 0) and utility.RetreatMode(npcBot)
+		then
+			npcBot:Action_UseAbility(HighFive);
+			return;
+		end
+		--npcBot:ActionImmediate_Chat(HighFive:GetName() .. " обнаружен.", true);
+		--print("HighFive обнаружен!")
+	end
+
 
 	local botMode = npcBot:GetActiveMode();
 	local botModeDesire = npcBot:GetActiveModeDesire();

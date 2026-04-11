@@ -415,6 +415,42 @@ end
 --local message = nil;
 --local message = linesKillEnemyHero[math.random(#linesKillEnemyHero)];
 
+local function EventAbilityUsage()
+	local npcBot = GetBot();
+
+	if not utility.IsHero(npcBot) or utility.IsCloneMeepo(npcBot) or utility.IsClone(npcBot) or not utility.CanCast(npcBot)
+	then
+		return;
+	end
+
+	local botTarget = npcBot:GetTarget();
+
+	-- Hive Five usage
+	local HighFive = npcBot:GetAbilityByName("plus_high_five");
+	if HighFive ~= nil and utility.IsAbilityAvailable(HighFive)
+	then
+		local radiusAbility = HighFive:GetSpecialValueInt("acknowledge_range");
+		if utility.PvPMode(npcBot)
+		then
+			if utility.IsHero(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= radiusAbility
+			then
+				npcBot:Action_UseAbility(HighFive);
+				return;
+			end
+		end
+		if utility.RetreatMode(npcBot)
+		then
+			local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
+			if (#enemyAbility > 0)
+			then
+				npcBot:Action_UseAbility(HighFive);
+				return;
+			end
+		end
+		--npcBot:ActionImmediate_Chat(HighFive:GetName() .. " обнаружен.", true);
+	end
+end
+
 function ItemUsageThink()
 	local npcBot = GetBot();
 
@@ -430,6 +466,7 @@ function ItemUsageThink()
 	if not utility.IsClone(npcBot)
 	then
 		BotChatMessages()
+		EventAbilityUsage()
 	end
 
 	local botMode = npcBot:GetActiveMode();

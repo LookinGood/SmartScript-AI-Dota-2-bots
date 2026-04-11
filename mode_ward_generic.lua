@@ -10,7 +10,7 @@ local RADIANT_TOPSPOT3 = Vector(-7938.8, 1834.6, 215.4);
 local RADIANT_TOPSPOTNOTOWER = Vector(-6610.1, -3063.9, 209.1);
 
 local RADIANT_BOTTWINGATE = Vector(6847.8, -7351.5, 155.6); -- Late game
-local RADIANT_RUNEWISDOM = Vector(-8210.5, 420.0, 295.2);    -- Late game
+local RADIANT_RUNEWISDOM = Vector(-8210.5, 420.0, 295.2);   -- Late game
 
 local RADIANT_MIDSPOT1 = Vector(499.2, -1761.3, 102.5);
 local RADIANT_MIDSPOTNOTOWER = Vector(-4343.4, -3883.9, 175.1);
@@ -36,7 +36,7 @@ local DIRE_TOPSPOTPOND = Vector(-7713.2, 4267.1, 119.0);
 local DIRE_TOPSPOTNOTOWER = Vector(3098.2, 5769.3, 219.4);
 
 local DIRE_TOPTWINGATE = Vector(-6877.1, 7461.0, 143.0); -- Late game
-local DIRE_RUNEWISDOM = Vector(8448.0, -970.3, 290.8);    -- Late game
+local DIRE_RUNEWISDOM = Vector(8448.0, -970.3, 290.8);   -- Late game
 
 local DIRE_MIDSPOT1 = Vector(-935.3, 1265.0, 100.4);
 local DIRE_MIDSPOTNOTOWER = Vector(4012.5, 3470.9, 203.9);
@@ -143,9 +143,22 @@ function GetDesire()
     local trashItemSlot = utility.GetBotTrashItemSlot();
     local recipeItemSlot = utility.GetBotRecipeItemSlot();
 
-    -- Перемещение лотусов в инвентарь
+    -- Перемещение бесценных предметов в инвентарь
     if emptySlot ~= nil
     then
+        --[[   local zeroCostItemSlot = utility.GetZeroCostItemSlot();
+        if zeroCostItemSlot ~= nil
+        then
+            if npcBot:GetItemSlotType(zeroCostItemSlot) == ITEM_SLOT_TYPE_BACKPACK
+            then
+                index1 = zeroCostItemSlot;
+                index2 = emptySlot;
+                npcBot:ActionImmediate_Chat("Хочу переложить бесценый итем в инвентарь: " .. index1 .. " в " .. index2,
+                    true);
+                return BOT_MODE_DESIRE_ABSOLUTE;
+            end
+        end ]]
+
         local lotusSlot1 = npcBot:FindItemSlot("item_famango");
         local lotusSlot2 = npcBot:FindItemSlot("item_great_famango");
         local lotusSlot3 = npcBot:FindItemSlot("item_greater_famango");

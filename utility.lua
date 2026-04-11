@@ -70,33 +70,6 @@ function FixDelayBot()
 		return;
 	end
 
-	local HighFive = npcBot:GetAbilityByName("plus_high_five");
-	if HighFive ~= nil and utility.IsAbilityAvailable(HighFive)
-	then
-		local botTarget = npcBot:GetTarget();
-		local radiusAbility = HighFive:GetSpecialValueInt("acknowledge_range");
-		local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
-		if utility.PvPMode(npcBot)
-		then
-			if utility.IsHero(botTarget)
-			then
-				if GetUnitToUnitDistance(npcBot, botTarget) <= radiusAbility
-				then
-					npcBot:Action_UseAbility(HighFive);
-					return;
-				end
-			end
-		end
-		if (#enemyAbility > 0) and utility.RetreatMode(npcBot)
-		then
-			npcBot:Action_UseAbility(HighFive);
-			return;
-		end
-		--npcBot:ActionImmediate_Chat(HighFive:GetName() .. " обнаружен.", true);
-		--print("HighFive обнаружен!")
-	end
-
-
 	local botMode = npcBot:GetActiveMode();
 	local botModeDesire = npcBot:GetActiveModeDesire();
 
@@ -538,6 +511,19 @@ function GetEmptyStashItemSlot()
 
 	for i = 9, 14 do
 		if npcBot:GetItemInSlot(i) == nil
+		then
+			return i;
+		end
+	end
+
+	return nil;
+end
+
+function GetZeroCostItemSlot()
+	local npcBot = GetBot();
+
+	for i = 0, 14 do
+		if npcBot:GetItemInSlot(i) ~= nil and (GetItemCost(npcBot:GetItemInSlot(i)) <= 0 or GetItemCost(npcBot:GetItemInSlot(i)) == nil)
 		then
 			return i;
 		end
@@ -1578,7 +1564,7 @@ function CanCastOnMagicImmuneAndInvulnerableTarget(npcTarget)
 end
 
 function CanCastSpellOnTarget(spell, npcTarget)
-	if spell == nil or not IsValidTarget(npcTarget)
+	if spell == nil or not IsValidTarget(npcTarget) or IsIllusion(npcTarget)
 	then
 		return false;
 	end
@@ -1586,47 +1572,44 @@ function CanCastSpellOnTarget(spell, npcTarget)
 	local npcBot = GetBot();
 	local damageType = spell:GetDamageType();
 
-	if spell ~= nil
+	if SafeCast(npcTarget)
 	then
-		if SafeCast(npcTarget)
+		if damageType == DAMAGE_TYPE_MAGICAL or damageType == DAMAGE_TYPE_PHYSICAL or damageType == DAMAGE_TYPE_PURE
 		then
-			if damageType == DAMAGE_TYPE_MAGICAL or damageType == DAMAGE_TYPE_PHYSICAL or damageType == DAMAGE_TYPE_PURE
+			if not IsTargetInvulnerable(npcTarget) and not npcBot:HasModifier("modifier_item_aeon_disk_buff") and (not TargetCantDie(npcTarget) and npcTarget:GetHealth() / npcTarget:GetMaxHealth() >= 0.2)
 			then
-				if not IsTargetInvulnerable(npcTarget) and not TargetCantDie(npcTarget) and not npcBot:HasModifier("modifier_item_aeon_disk_buff")
+				if damageType == DAMAGE_TYPE_MAGICAL
 				then
-					if damageType == DAMAGE_TYPE_MAGICAL
+					if utility.CheckFlag(spell:GetTargetFlags(), ABILITY_TARGET_FLAG_MAGIC_IMMUNE_ENEMIES)
 					then
-						if utility.CheckFlag(spell:GetTargetFlags(), ABILITY_TARGET_FLAG_MAGIC_IMMUNE_ENEMIES)
-						then
-							return true;
-						else
-							return CanCastOnMagicImmuneTarget(npcTarget);
-						end
-					elseif damageType == DAMAGE_TYPE_PHYSICAL
+						return true;
+					else
+						return CanCastOnMagicImmuneTarget(npcTarget);
+					end
+				elseif damageType == DAMAGE_TYPE_PHYSICAL
+				then
+					if utility.CheckFlag(spell:GetTargetFlags(), ABILITY_TARGET_FLAG_MAGIC_IMMUNE_ENEMIES)
 					then
-						if utility.CheckFlag(spell:GetTargetFlags(), ABILITY_TARGET_FLAG_MAGIC_IMMUNE_ENEMIES)
-						then
-							return true;
-						else
-							return CanCastOnInvulnerableTarget(npcTarget);
-						end
-					elseif damageType == DAMAGE_TYPE_PURE
+						return true;
+					else
+						return CanCastOnInvulnerableTarget(npcTarget);
+					end
+				elseif damageType == DAMAGE_TYPE_PURE
+				then
+					if utility.CheckFlag(spell:GetTargetFlags(), ABILITY_TARGET_FLAG_MAGIC_IMMUNE_ENEMIES)
 					then
-						if utility.CheckFlag(spell:GetTargetFlags(), ABILITY_TARGET_FLAG_MAGIC_IMMUNE_ENEMIES)
-						then
-							return true;
-						else
-							return not npcTarget:HasModifier("modifier_black_king_bar_immune");
-						end
+						return true;
+					else
+						return not npcTarget:HasModifier("modifier_black_king_bar_immune");
 					end
 				end
+			end
+		else
+			if utility.CheckFlag(spell:GetTargetFlags(), ABILITY_TARGET_FLAG_MAGIC_IMMUNE_ENEMIES)
+			then
+				return true;
 			else
-				if utility.CheckFlag(spell:GetTargetFlags(), ABILITY_TARGET_FLAG_MAGIC_IMMUNE_ENEMIES)
-				then
-					return true;
-				else
-					return CanCastOnMagicImmuneTarget(npcTarget);
-				end
+				return CanCastOnMagicImmuneTarget(npcTarget);
 			end
 		end
 	end

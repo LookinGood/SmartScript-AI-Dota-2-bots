@@ -32,7 +32,6 @@ local ItemsToBuy =
     "item_sange",
     "item_abyssal_blade",
 
-    "item_veil_of_discord",
     "item_shivas_guard",
 
     "item_ultimate_scepter",

@@ -523,7 +523,7 @@ function GetZeroCostItemSlot()
 	local npcBot = GetBot();
 
 	for i = 0, 14 do
-		if npcBot:GetItemInSlot(i) ~= nil and (GetItemCost(npcBot:GetItemInSlot(i)) <= 0 or GetItemCost(npcBot:GetItemInSlot(i)) == nil)
+		if npcBot:GetItemInSlot(i) ~= nil and (GetItemCost(npcBot:GetItemInSlot(i):GetName()) <= 0 or GetItemCost(npcBot:GetItemInSlot(i):GetName()) == nil)
 		then
 			return i;
 		end

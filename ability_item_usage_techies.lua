@@ -471,8 +471,7 @@ function ConsiderMad()
             then
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    npcBot:ActionImmediate_Chat(
-                        "Использую Mad с уроном " .. damageAbility .. " убивая " .. enemy:GetUnitName(), true);
+                    --npcBot:ActionImmediate_Chat("Использую Mad с уроном " .. damageAbility .. " убивая " .. enemy:GetUnitName(), true);
                     return BOT_ACTION_DESIRE_VERYHIGH,
                         utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
                 end
@@ -487,7 +486,7 @@ function ConsiderMad()
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility + 200
             then
-                npcBot:ActionImmediate_Chat("Использую Mad для нападения!", true);
+                --npcBot:ActionImmediate_Chat("Использую Mad для нападения!", true);
                 return BOT_ACTION_DESIRE_VERYHIGH,
                     utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
             end
@@ -502,7 +501,7 @@ function ConsiderMad()
             for _, enemy in pairs(enemyAbility) do
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    npcBot:ActionImmediate_Chat("Использую Mad для отступления!", true);
+                    --npcBot:ActionImmediate_Chat("Использую Mad для отступления!", true);
                     return BOT_ACTION_DESIRE_VERYHIGH,
                         utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
                 end

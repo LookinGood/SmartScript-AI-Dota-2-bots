@@ -418,7 +418,7 @@ end
 local function EventAbilityUsage()
 	local npcBot = GetBot();
 
-	if not utility.IsHero(npcBot) or utility.IsCloneMeepo(npcBot) or utility.IsClone(npcBot) or not utility.CanCast(npcBot)
+	if not utility.IsHero(npcBot) or utility.IsCloneMeepo(npcBot) or utility.IsClone(npcBot) or not utility.CanCast(npcBot) or RollPercentage(50)
 	then
 		return;
 	end

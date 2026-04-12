@@ -17,16 +17,18 @@ local ItemsToBuy =
 
 	"item_tranquil_boots",
 
-	"item_cyclone",
+	"item_kaya",
 
 	"item_headdress",
 	"item_ancient_janggo",
+
+	"item_yasha",
+
 	"item_boots_of_bearing",
 
 	"item_aghanims_shard",
 
-	"item_kaya",
-	"item_yasha",
+	"item_cyclone",
 
 	"item_soul_booster",
 	"item_crellas_crozier",

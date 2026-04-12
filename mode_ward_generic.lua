@@ -146,20 +146,19 @@ function GetDesire()
     -- Перемещение бесценных предметов в инвентарь
     if emptySlot ~= nil
     then
-        --[[   local zeroCostItemSlot = utility.GetZeroCostItemSlot();
+        local zeroCostItemSlot = utility.GetZeroCostItemSlot();
         if zeroCostItemSlot ~= nil
         then
             if npcBot:GetItemSlotType(zeroCostItemSlot) == ITEM_SLOT_TYPE_BACKPACK
             then
                 index1 = zeroCostItemSlot;
                 index2 = emptySlot;
-                npcBot:ActionImmediate_Chat("Хочу переложить бесценый итем в инвентарь: " .. index1 .. " в " .. index2,
-                    true);
+                --npcBot:ActionImmediate_Chat("Хочу переложить бесценый итем в инвентарь: " .. index1 .. " в " .. index2, true);
                 return BOT_MODE_DESIRE_ABSOLUTE;
             end
-        end ]]
+        end
 
-        local lotusSlot1 = npcBot:FindItemSlot("item_famango");
+        --[[ local lotusSlot1 = npcBot:FindItemSlot("item_famango");
         local lotusSlot2 = npcBot:FindItemSlot("item_great_famango");
         local lotusSlot3 = npcBot:FindItemSlot("item_greater_famango");
 
@@ -188,7 +187,7 @@ function GetDesire()
                 index2 = emptySlot;
                 return BOT_MODE_DESIRE_ABSOLUTE;
             end
-        end
+        end ]]
     end
 
     -- Освобождение места в инвентаре

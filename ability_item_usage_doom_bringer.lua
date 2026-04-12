@@ -219,11 +219,10 @@ function ConsiderInfernalBlade()
         return BOT_ACTION_DESIRE_NONE, 0;
     end
 
-    local castRangeAbility = npcBot:GetAttackRange();
+    local castRangeAbility = ability:GetCastRange();
     local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility + 200, true, BOT_MODE_NONE);
 
-    if (utility.IsHero(botTarget) or utility.IsBoss(botTarget)) and utility.CanCastSpellOnTarget(ability, botTarget)
-        and not utility.IsDisabled(botTarget)
+    if utility.IsNeedTurnOnAttackModifier()
     then
         if not ability:GetAutoCastState() then
             ability:ToggleAutoCast()

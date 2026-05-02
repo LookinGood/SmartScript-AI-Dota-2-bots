@@ -19,34 +19,6 @@ local function printObjectFields(object)
     end
 end
 
-function GetCountAllDeadHeroes()
-    local countAllyHeroes = 0;
-    local countEnemyHeroes = 0;
-
-    local allyPlayers = GetTeamPlayers(GetTeam());
-    local enemyPlayers = GetTeamPlayers(GetOpposingTeam());
-
-    for _, i in pairs(allyPlayers)
-    do
-        if not IsHeroAlive(i)
-        then
-            countAllyHeroes = countAllyHeroes + 1;
-        end
-    end
-
-    for _, i in pairs(enemyPlayers)
-    do
-        if not IsHeroAlive(i)
-        then
-            countEnemyHeroes = countEnemyHeroes + 1;
-        end
-    end
-
-    --npcBot:ActionImmediate_Chat("" .. countAllyHeroes .. " " .. countEnemyHeroes .. " " .. #allyPlayers .. " " .. #enemyPlayers, true);
-
-    return countAllyHeroes, countEnemyHeroes, #allyPlayers, #enemyPlayers;
-end
-
 function UpdateCreepCamps()
     realCamps = {}
     local camps = GetNeutralSpawners();
@@ -194,7 +166,7 @@ function GetDesire()
         end
     end
 
-    local countAllyDeadHeroes, countEnemyDeadHeroes, countAllyPlayers, countEnemyPlayers = GetCountAllDeadHeroes();
+    local countAllyDeadHeroes, countEnemyDeadHeroes, countAllyPlayers, countEnemyPlayers = utility.GetCountAllDeadHeroes();
 
     if (countEnemyDeadHeroes >= math.floor(countEnemyPlayers / 2) + 1)
     then

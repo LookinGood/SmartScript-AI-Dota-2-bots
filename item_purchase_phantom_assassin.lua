@@ -15,8 +15,6 @@ local ItemsToBuy =
 
 	"item_power_treads",
 
-	"item_lifesteal",
-
 	"item_pers",
 	"item_bfury",
 
@@ -26,16 +24,16 @@ local ItemsToBuy =
 	"item_sange",
 	"item_abyssal_blade",
 
-	"item_aghanims_shard",
+	"item_satanic",
 
-	"item_nullifier",
+	"item_aghanims_shard",
 
 	"item_ultimate_scepter",
 	"item_ultimate_scepter_2",
 
 	"item_moon_shard",
 
-	"item_satanic",
+	"item_nullifier",
 
 	"item_travel_boots",
 	"item_travel_boots_2",

@@ -19,7 +19,7 @@ local AbilityToLevelUp =
 {
     Abilities[1],
     Abilities[2],
-    Abilities[3],
+    Abilities[5],
     Abilities[1],
     Abilities[1],
     Abilities[6],
@@ -29,10 +29,10 @@ local AbilityToLevelUp =
     Talents[2],
     Abilities[2],
     Abilities[6],
-    Abilities[3],
-    Abilities[3],
+    Abilities[5],
+    Abilities[5],
     Talents[3],
-    Abilities[3],
+    Abilities[5],
     Abilities[6],
     Talents[5],
     Talents[8],
@@ -100,7 +100,7 @@ function ConsiderStiflingDagger()
 
     local castRangeAbility = ability:GetCastRange();
     local damageAbility = ability:GetSpecialValueInt("base_damage") +
-        math.floor(npcBot:GetAttackDamage()) / 100 * ability:GetSpecialValueInt("attack_factor_tooltip");
+        (math.floor(npcBot:GetAttackDamage()) / 100 * ability:GetSpecialValueInt("attack_factor_tooltip"));
     local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility + 200, true, BOT_MODE_NONE);
 
     -- Cast if can kill somebody
@@ -168,16 +168,16 @@ end
 function ConsiderPhantomStrike()
     local ability = PhantomStrike;
     if not utility.IsAbilityAvailable(ability) then
-        return;
+        return BOT_ACTION_DESIRE_NONE, 0;
     end
 
     local attackRange = npcBot:GetAttackRange();
     local castRangeAbility = ability:GetCastRange();
 
     -- Attack use
-    if utility.PvPMode(npcBot)
+    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
     then
-        if utility.IsHero(botTarget)
+        if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
                 and GetUnitToUnitDistance(npcBot, botTarget) >= attackRange and not npcBot:HasModifier("modifier_phantom_assassin_phantom_strike")

@@ -11,7 +11,7 @@ function GetDesire()
         or botMode == BOT_MODE_LANING or utility.IsBaseUnderAttack()
 
     then
-        return BOT_ACTION_DESIRE_NONE;
+        return BOT_MODE_DESIRE_NONE;
     end
 
     --[[     local botModeDesire = npc:GetActiveModeDesire();
@@ -19,10 +19,18 @@ function GetDesire()
     if botModeDesire <= BOT_MODE_DESIRE_NONE or npcBot:GetCurrentActionType() == BOT_ACTION_TYPE_NONE
     then
         npcBot:ActionImmediate_Chat("Решаю пушить мид от безделья.", true);
-        return BOT_ACTION_DESIRE_VERYLOW;
+        return BOT_MODE_DESIRE_VERYLOW;
     end ]]
 
-    return BOT_ACTION_DESIRE_VERYLOW;
+    local countAllyDeadHeroes, countEnemyDeadHeroes, countAllyPlayers, countEnemyPlayers = utility.GetCountAllDeadHeroes();
+
+    if utility.IsAllyTeamHaveItem("item_aegis") or (countEnemyDeadHeroes >= math.floor(countEnemyPlayers / 2) + 1)
+    then
+        --npcBot:ActionImmediate_Chat("Решаю пушить мид (враги мертвы/есть аегис).", true);
+        return BOT_MODE_DESIRE_MODERATE;
+    end
+
+    return BOT_MODE_DESIRE_VERYLOW;
 end
 
 function OnStart()

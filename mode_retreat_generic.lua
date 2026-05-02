@@ -2,14 +2,20 @@
 require(GetScriptDirectory() .. "/utility")
 
 local npcBot = GetBot();
+local fountainLocation = nil;
 
 function GetDesire()
-    if not npcBot:IsAlive() or utility.IsClone(npcBot) or
+    if not npcBot:IsAlive() or npcBot:GetHealth() <= 0 or utility.IsClone(npcBot) or
         --npcBot:HasModifier("modifier_skeleton_king_reincarnation_scepter") or
         string.find(npcBot:GetUnitName(), "npc_dota_lone_druid_bear") or
         npcBot:HasModifier('modifier_item_satanic_unholy')
     then
         return BOT_MODE_DESIRE_NONE;
+    end
+
+    if fountainLocation == nil
+    then
+        fountainLocation = utility.GetFountainLocation();
     end
 
     --local allyHeroes = utility.CountAllyHeroAroundUnit(npcBot, 2000);
@@ -31,8 +37,8 @@ function GetDesire()
         return BOT_MODE_DESIRE_ABSOLUTE;
     end
 
-    if not npcBot:HasModifier("modifier_fountain_aura_buff") and healthPercent <= 0.6 and not utility.BotWasRecentlyDamagedByEnemyHero(3.0)
-        and (#enemyHeroAround <= 0) and (botHPGegen >= 20 or utility.IsBotHaveItem("item_aegis"))
+    if (not npcBot:HasModifier("modifier_fountain_aura_buff") and healthPercent <= 0.6 and not utility.BotWasRecentlyDamagedByEnemyHero(3.0)
+            and (#enemyHeroAround <= 0)) and (botHPGegen >= 20 or utility.IsBotHaveItem("item_aegis"))
     then
         return BOT_MODE_DESIRE_NONE;
     end
@@ -67,7 +73,21 @@ function GetDesire()
         end
     end
 
-    if (#enemyHeroAround > 0) and utility.IsEnemiesAroundStronger() and npcBot:GetCurrentActionType() ~= BOT_ACTION_TYPE_ATTACK
+    if healthPercent <= 0.3
+    then
+        --npcBot:ActionImmediate_Chat("Желание отступить высокое: " .. BOT_MODE_DESIRE_VERYHIGH, true);
+        return BOT_MODE_DESIRE_VERYHIGH;
+    elseif healthPercent <= 0.4
+    then
+        --npcBot:ActionImmediate_Chat("Желание отступить среднее: " .. BOT_MODE_DESIRE_MODERATE, true);
+        return BOT_MODE_DESIRE_MODERATE;
+    elseif healthPercent <= 0.5
+    then
+        --npcBot:ActionImmediate_Chat("Желание отступить низкое: " .. BOT_MODE_DESIRE_LOW, true);
+        return BOT_MODE_DESIRE_LOW;
+    end
+
+    --[[     if (#enemyHeroAround > 0) and utility.IsEnemiesAroundStronger() and npcBot:GetCurrentActionType() ~= BOT_ACTION_TYPE_ATTACK
     then
         for _, enemy in pairs(enemyHeroAround) do
             if utility.IsValidTarget(enemy) and utility.IsHero(enemy:GetAttackTarget())
@@ -76,13 +96,13 @@ function GetDesire()
             end
         end
     end
-
-    local botDesire = RemapValClamped(healthPercent, 0.3, 0.5, BOT_MODE_DESIRE_VERYHIGH, BOT_MODE_DESIRE_NONE);
+ ]]
+    --local botDesire = RemapValClamped(healthPercent, 0.2, 0.6, BOT_MODE_DESIRE_VERYHIGH, BOT_MODE_DESIRE_NONE);
     --[[     if botDesire > BOT_MODE_DESIRE_NONE
     then
         npcBot:ActionImmediate_Chat("Желание отступить: " .. botDesire, true);
     end ]]
-    return botDesire;
+    return BOT_MODE_DESIRE_NONE;
 end
 
 function OnStart()
@@ -111,8 +131,6 @@ function Think()
     then
         return;
     end
-
-    local fountainLocation = utility.GetFountainLocation();
 
     if npcBot:HasModifier("modifier_skeleton_king_reincarnation_scepter_active")
     then
@@ -208,23 +226,12 @@ function Think()
                 return;
             end
         end
-
         npcBot:Action_MoveToLocation(npcBot:GetLocation() + RandomVector(1600));
         return;
     end
 
-    if utility.CanMove(npcBot)
+    if not utility.CanMove(npcBot)
     then
-        if GetUnitToLocationDistance(npcBot, fountainLocation) >= npcBot:GetAcquisitionRange()
-        then
-            --npcBot:ActionImmediate_Chat("ОТСТУПАЮ!", true);
-            npcBot:Action_MoveToLocation(fountainLocation);
-            return;
-        else
-            npcBot:Action_MoveToLocation(npcBot:GetLocation() + RandomVector(npcBot:GetBoundingRadius() * 4));
-            return;
-        end
-    else
         local enemyHeroAround = npcBot:GetNearbyHeroes(npcBot:GetAttackRange(), true, BOT_MODE_NONE);
         local enemyCreepsAround = npcBot:GetNearbyCreeps(npcBot:GetAttackRange(), true);
         if (#enemyHeroAround > 0)
@@ -250,6 +257,20 @@ function Think()
             end
         end
         npcBot:Action_AttackMove(npcBot:GetLocation());
+        return;
+    end
+
+    local retreatLocation = utility.GetEscapeLocation(npcBot, npcBot:GetCurrentVisionRange());
+
+    if GetUnitToLocationDistance(npcBot, fountainLocation) >= npcBot:GetAcquisitionRange()
+    then
+        --npcBot:ActionImmediate_Chat("Отступаю.", true);
+        --npcBot:ActionImmediate_Ping(retreatLocation.x, retreatLocation.y, false);
+        npcBot:Action_MoveToLocation(retreatLocation);
+        return;
+    else
+        --npcBot:ActionImmediate_Chat("Отступаю у фонтана.", true);
+        npcBot:Action_MoveToLocation(npcBot:GetLocation() + RandomVector(npcBot:GetBoundingRadius() * 4));
         return;
     end
 end

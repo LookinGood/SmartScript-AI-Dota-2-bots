@@ -143,7 +143,7 @@ function ConsiderParalyzingCask()
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую ParalyzingCask что бы сбить заклинание или убить цель!", true);
-                    return BOT_ACTION_DESIRE_VERYHIGH, enemy;
+                    return BOT_ACTION_DESIRE_ABSOLUTE, enemy;
                 end
             end
         end
@@ -157,7 +157,7 @@ function ConsiderParalyzingCask()
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
                 and not utility.IsDisabled(botTarget)
             then
-                return BOT_MODE_DESIRE_HIGH, botTarget;
+                return BOT_ACTION_DESIRE_HIGH, botTarget;
             end
         end
     end
@@ -317,6 +317,11 @@ function ConsiderVoodooSwitcheroo()
         return BOT_ACTION_DESIRE_NONE;
     end
 
+    if not DeathWard:IsTrained()
+    then
+        return BOT_ACTION_DESIRE_NONE;
+    end
+
     local radiusAbility = DeathWard:GetSpecialValueInt("attack_range_tooltip");
     local incomingSpells = npcBot:GetIncomingTrackingProjectiles();
 
@@ -345,6 +350,24 @@ function ConsiderVoodooSwitcheroo()
         end
     end
 
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
+    then
+        if utility.BotWasRecentlyDamagedByEnemyHero(2.0)
+        then
+            local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
+            if (#enemyAbility > 0)
+            then
+                for _, enemy in pairs(enemyAbility) do
+                    if utility.CanCastSpellOnTarget(ability, enemy)
+                    then
+                        return BOT_ACTION_DESIRE_HIGH;
+                    end
+                end
+            end
+        end
+    end
+
     return BOT_ACTION_DESIRE_NONE;
 end
 
@@ -368,10 +391,28 @@ function ConsiderDeathWard()
             then
                 --npcBot:ActionImmediate_Chat("Использую DeathWard на врага в радиусе каста!", true);
                 return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, botTarget, delayAbility, 0);
-            elseif GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility + bonusRange
+            elseif GetUnitToUnitDistance(npcBot, botTarget) <= (castRangeAbility + bonusRange) / 2
             then
                 --npcBot:ActionImmediate_Chat("Использую DeathWard на врага в радиусе атаки варда!",true);
                 return BOT_ACTION_DESIRE_HIGH, utility.GetMaxRangeCastLocation(npcBot, botTarget, castRangeAbility);
+            end
+        end
+    end
+
+    -- Retreat use
+    if utility.RetreatMode(npcBot)
+    then
+        if utility.BotWasRecentlyDamagedByEnemyHero(2.0)
+        then
+            local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
+            if (#enemyAbility > 0)
+            then
+                for _, enemy in pairs(enemyAbility) do
+                    if utility.CanCastSpellOnTarget(ability, enemy)
+                    then
+                        return BOT_ACTION_DESIRE_HIGH, utility.GetTargetCastPosition(npcBot, enemy, delayAbility, 0);
+                    end
+                end
             end
         end
     end

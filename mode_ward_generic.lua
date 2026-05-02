@@ -363,6 +363,7 @@ function GetDesire()
         end
     end
 
+    -- Расстановка вардов
     if GetGameState() == GAME_STATE_PRE_GAME or GetGameState() ~= GAME_STATE_GAME_IN_PROGRESS or utility.IsBaseUnderAttack()
     then
         return BOT_ACTION_DESIRE_NONE;

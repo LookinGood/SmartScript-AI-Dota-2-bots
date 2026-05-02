@@ -257,9 +257,23 @@ function ConsiderLiquidFrost()
         return;
     end
 
-    if not ability:GetAutoCastState()
+    if ability:GetManaCost() > 0
     then
-        ability:ToggleAutoCast()
+        if utility.IsNeedTurnOnAttackModifier()
+        then
+            if not ability:GetAutoCastState() then
+                ability:ToggleAutoCast()
+            end
+        else
+            if ability:GetAutoCastState() then
+                ability:ToggleAutoCast()
+            end
+        end
+    else
+        if not ability:GetAutoCastState()
+        then
+            ability:ToggleAutoCast()
+        end
     end
 end
 

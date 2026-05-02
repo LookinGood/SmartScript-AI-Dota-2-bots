@@ -418,7 +418,7 @@ end
 local function EventAbilityUsage()
 	local npcBot = GetBot();
 
-	if not utility.IsHero(npcBot) or utility.IsCloneMeepo(npcBot) or utility.IsClone(npcBot) or not utility.CanCast(npcBot) or RollPercentage(50)
+	if not utility.IsHero(npcBot) or utility.IsCloneMeepo(npcBot) or utility.IsClone(npcBot) or not utility.CanCast(npcBot) or RollPercentage(20)
 	then
 		return;
 	end
@@ -1979,9 +1979,10 @@ function ItemUsageThink()
 		end
 	end
 
-	-- item_urn_of_shadows/item_spirit_vessel
+	-- item_urn_of_shadows/item_spirit_vessel/item_essence_distiller
 	local urnOfShadows = IsItemAvailable('item_urn_of_shadows');
 	local spiritVessel = IsItemAvailable('item_spirit_vessel');
+	local essenceDistiller = IsItemAvailable('item_essence_distiller');
 	if urnOfShadows ~= nil
 	then
 		if urnOfShadows:GetCurrentCharges() > 0
@@ -1994,7 +1995,7 @@ function ItemUsageThink()
 				do
 					if utility.IsHero(ally) and (ally:GetHealth() / ally:GetMaxHealth() <= 0.6) and utility.CanBeHeal(ally) and (ally:TimeSinceDamagedByAnyHero() >= 5.0)
 						and not ally:HasModifier("modifier_fountain_aura_buff") and not ally:HasModifier("modifier_item_urn_heal")
-						and not ally:HasModifier("modifier_item_spirit_vessel_heal")
+						and not ally:HasModifier("modifier_item_spirit_vessel_heal") and not ally:HasModifier("modifier_item_essence_distiller_heal")
 					then
 						--npcBot:ActionImmediate_Chat("Использую urn Of Shadows на союзнике!", true);
 						npcBot:Action_UseAbilityOnEntity(urnOfShadows, ally);
@@ -2026,7 +2027,7 @@ function ItemUsageThink()
 				do
 					if utility.IsHero(ally) and (ally:GetHealth() / ally:GetMaxHealth() <= 0.6) and utility.CanBeHeal(ally) and (ally:TimeSinceDamagedByAnyHero() >= 5.0)
 						and not ally:HasModifier("modifier_fountain_aura_buff") and not ally:HasModifier("modifier_item_urn_heal")
-						and not ally:HasModifier("modifier_item_spirit_vessel_heal")
+						and not ally:HasModifier("modifier_item_spirit_vessel_heal") and not ally:HasModifier("modifier_item_essence_distiller_heal")
 					then
 						--npcBot:ActionImmediate_Chat("Использую spiritVessel на союзнике!", true);
 						npcBot:Action_UseAbilityOnEntity(spiritVessel, ally);
@@ -2041,6 +2042,50 @@ function ItemUsageThink()
 				then
 					--npcBot:ActionImmediate_Chat("Использую spiritVessel на враге!", true);
 					npcBot:Action_UseAbilityOnEntity(spiritVessel, botTarget);
+					return;
+				end
+			end
+		end
+	end
+	if essenceDistiller ~= nil
+	then
+		if essenceDistiller:GetCurrentCharges() > 0
+		then
+			local itemRange = essenceDistiller:GetCastRange();
+			local allyHeroes = npcBot:GetNearbyHeroes(itemRange, false, BOT_MODE_NONE);
+			local enemyHeroes = npcBot:GetNearbyHeroes(itemRange, true, BOT_MODE_NONE);
+			if (#allyHeroes > 0)
+			then
+				for _, ally in pairs(allyHeroes)
+				do
+					if utility.IsHero(ally) and (ally:GetHealth() / ally:GetMaxHealth() <= 0.6) and utility.CanBeHeal(ally) and (ally:TimeSinceDamagedByAnyHero() >= 5.0)
+						and not ally:HasModifier("modifier_fountain_aura_buff") and not ally:HasModifier("modifier_item_urn_heal")
+						and not ally:HasModifier("modifier_item_spirit_vessel_heal") and not ally:HasModifier("modifier_item_essence_distiller_heal")
+					then
+						--npcBot:ActionImmediate_Chat("Использую essenceDistiller на союзнике!", true);
+						npcBot:Action_UseAbilityOnEntity(essenceDistiller, ally);
+						return;
+					end
+				end
+			end
+			if (#enemyHeroes > 0)
+			then
+				for _, enemy in pairs(enemyHeroes) do
+					if utility.CanCastOnMagicImmuneTarget(enemy) and enemy:IsInvisible()
+					then
+						--npcBot:ActionImmediate_Chat("Использую essenceDistiller на невидимом враге!", true);
+						npcBot:Action_UseAbilityOnLocation(essenceDistiller, enemy:GetLocation());
+						return;
+					end
+				end
+			end
+			if utility.PvPMode(npcBot)
+			then
+				if utility.IsHero(botTarget) and utility.CanCastOnMagicImmuneTarget(botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= itemRange
+					and not botTarget:HasModifier("modifier_item_spirit_vessel_damage")
+				then
+					--npcBot:ActionImmediate_Chat("Использую essenceDistiller на враге!", true);
+					npcBot:Action_UseAbilityOnLocation(essenceDistiller, botTarget:GetLocation());
 					return;
 				end
 			end
@@ -2619,8 +2664,7 @@ function ItemUsageThink()
 		then
 			local itemRange = handOfMidas:GetCastRange();
 			local enemy = utility.GetStrongestCreep(npcBot, itemRange);
-			if utility.CanCastSpellOnTarget(handOfMidas, enemy) and not enemy:IsAncientCreep() and (enemy:GetLevel() > 1)
-				and (enemy:GetHealth() / enemy:GetMaxHealth() >= 0.8)
+			if utility.CanCastSpellOnTarget(handOfMidas, enemy) and not enemy:IsAncientCreep() and (enemy:GetHealth() / enemy:GetMaxHealth() >= 0.5)
 			then
 				--npcBot:ActionImmediate_Chat("Использую handOfMidas!", true);
 				npcBot:Action_UseAbilityOnEntity(handOfMidas, enemy);

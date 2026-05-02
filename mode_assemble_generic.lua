@@ -251,7 +251,15 @@ function GetDesire()
 		return BOT_MODE_DESIRE_VERYHIGH;
 	end
 
-	return BOT_ACTION_DESIRE_NONE;
+	if npcBot:HasModifier("modifier_miniboss_alleviation_active")
+	then
+		if npcBot:GetHealth() < npcBot:GetMaxHealth()
+		then
+			return BOT_MODE_DESIRE_HIGH;
+		end
+	end
+
+	return BOT_MODE_DESIRE_NONE;
 end
 
 function OnStart()
@@ -303,6 +311,13 @@ function Think()
 				return;
 			end
 		end
+	end
+
+	if npcBot:HasModifier("modifier_miniboss_alleviation_active")
+	then
+		npcBot:ActionImmediate_Chat("Исцеляюсь от ауры Терзателя.", true);
+		npcBot:Action_MoveToLocation(npcBot:GetLocation() + RandomVector(boundRadius * 2));
+		return;
 	end
 end
 

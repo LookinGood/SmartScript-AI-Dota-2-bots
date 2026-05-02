@@ -105,7 +105,8 @@ end
 
 function IsNight()
 	local time = GetTimeOfDay();
-	return time > 0.5;
+	return time < 0.25 or time > 0.75;
+	--return time > 0.5;
 end
 
 function IsBaseUnderAttack()
@@ -345,6 +346,34 @@ function HaveHumanInTeam(npcBot)
 		end
 	end
 	return false;
+end
+
+function GetCountAllDeadHeroes()
+	local countAllyHeroes = 0;
+	local countEnemyHeroes = 0;
+
+	local allyPlayers = GetTeamPlayers(GetTeam());
+	local enemyPlayers = GetTeamPlayers(GetOpposingTeam());
+
+	for _, i in pairs(allyPlayers)
+	do
+		if not IsHeroAlive(i)
+		then
+			countAllyHeroes = countAllyHeroes + 1;
+		end
+	end
+
+	for _, i in pairs(enemyPlayers)
+	do
+		if not IsHeroAlive(i)
+		then
+			countEnemyHeroes = countEnemyHeroes + 1;
+		end
+	end
+
+	--npcBot:ActionImmediate_Chat("" .. countAllyHeroes .. " " .. countEnemyHeroes .. " " .. #allyPlayers .. " " .. #enemyPlayers, true);
+
+	return countAllyHeroes, countEnemyHeroes, #allyPlayers, #enemyPlayers;
 end
 
 function GetClosestToLocationBotHero(vlocation)
@@ -745,7 +774,7 @@ function IsBuilding(npcTarget)
 end
 
 function IsRoshan(npcTarget)
-	return IsValidTarget(npcTarget) and string.find(npcTarget:GetUnitName(), "roshan");
+	return IsValidTarget(npcTarget) and string.find(npcTarget:GetUnitName(), "npc_dota_roshan");
 end
 
 function IsTormentor(npcTarget)
@@ -1033,7 +1062,7 @@ function IsEnemiesAroundStronger()
 		end
 	end
 
-	if enemyPower >= (allyPower * 1.2)
+	if enemyPower > (allyPower * 1.2)
 	then
 		return true;
 	end
@@ -2204,7 +2233,7 @@ end
 function PurchaseInfusedRaindrop(npcBot)
 	local itemName = "item_infused_raindrop";
 	if npcBot:GetGold() < GetItemCost(itemName) * 2 or IsStashSlotsFull() or GetItemStockCount(itemName) < 1
-		or npcBot:GetLevel() > 10 or (npcBot:GetNextItemPurchaseValue() > 0 and npcBot:GetGold() >= npcBot:GetNextItemPurchaseValue()) or not npcBot:IsAlive()
+		or npcBot:GetLevel() < 6 or npcBot:GetLevel() > 10 or (npcBot:GetNextItemPurchaseValue() > 0 and npcBot:GetGold() >= npcBot:GetNextItemPurchaseValue()) or not npcBot:IsAlive()
 	then
 		return;
 	end

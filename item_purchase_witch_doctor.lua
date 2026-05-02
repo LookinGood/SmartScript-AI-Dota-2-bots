@@ -21,7 +21,7 @@ local ItemsToBuy =
 	"item_glimmer_cape",
 
 	"item_urn_of_shadows",
-	"item_spirit_vessel",
+	"item_essence_distiller",
 
 	"item_ultimate_scepter",
 

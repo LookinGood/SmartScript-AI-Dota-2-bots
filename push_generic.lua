@@ -131,7 +131,7 @@ function Think()
                 npcBot:Action_AttackUnit(creepToRedirect, true);
                 return;
             else
-                local escapeLocation = utility.GetEscapeLocation(npcBot, enemyTower:GetAttackRange() + wanderRadius);
+                local escapeLocation = GetLaneFrontLocation(team, lane, -retreatDistance) + RandomVector(wanderRadius);
                 if GetUnitToLocationDistance(npcBot, escapeLocation) > 300
                 then
                     --npcBot:ActionImmediate_Chat("Отхожу от башни!", true);

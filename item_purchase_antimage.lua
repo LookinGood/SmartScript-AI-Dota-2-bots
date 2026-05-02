@@ -18,8 +18,6 @@ local ItemsToBuy =
 	"item_pers",
 	"item_bfury",
 
-	"item_hand_of_midas",
-
 	"item_black_king_bar",
 
 	"item_yasha",

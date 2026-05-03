@@ -17,16 +17,15 @@ local ItemsToBuy =
 
 	"item_armlet",
 
-	"item_vanguard",
 	"item_heavens_halberd",
 
 	"item_black_king_bar",
 
 	"item_blink",
 
-	"item_aghanims_shard",
-
 	"item_ultimate_scepter",
+
+	"item_aghanims_shard",
 
 	"item_satanic",
 

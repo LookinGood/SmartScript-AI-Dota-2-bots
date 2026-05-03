@@ -140,7 +140,7 @@ function ConsiderSpectralDagger()
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
             then
                 --npcBot:ActionImmediate_Chat("Использую SpectralDagger по врагу в радиусе действия!",true);
-                return BOT_MODE_DESIRE_HIGH, botTarget, "target";
+                return BOT_ACTION_DESIRE_HIGH, botTarget, "target";
             end
         end
     end
@@ -181,7 +181,7 @@ function ConsiderDispersion()
     local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
 
     -- General use
-    if (#enemyAbility > 0) and npcBot:WasRecentlyDamagedByAnyHero(2.0)
+    if (#enemyAbility > 0) and utility.BotWasRecentlyDamagedByEnemyHero(2.0)
     then
         for _, enemy in pairs(enemyAbility)
         do
@@ -221,7 +221,7 @@ function ConsiderReality()
                         and GetUnitToUnitDistance(ally, botTarget) < 2000
                     then
                         --npcBot:ActionImmediate_Chat("Использую Reality на свою иллюзию!", true);
-                        return BOT_MODE_DESIRE_ABSOLUTE, ally:GetLocation();
+                        return BOT_ACTION_DESIRE_ABSOLUTE, ally:GetLocation();
                     end
                 end
             end
@@ -237,7 +237,7 @@ function ConsiderReality()
                         then
                             npcBot.idletime = nil
                             --npcBot:ActionImmediate_Chat("Использую Reality на свою иллюзию!", true);
-                            return BOT_MODE_DESIRE_ABSOLUTE, allyAbility[i]:GetLocation();
+                            return BOT_ACTION_DESIRE_ABSOLUTE, allyAbility[i]:GetLocation();
                         end
                     end ]]
 
@@ -246,7 +246,7 @@ function ConsiderReality()
     --[[             for i = 1, #allyAbility do
                 if allyAbility[i]:IsIllusion() and GetUnitToUnitDistance(allyAbility[i], botTarget) <= 1600
                 then
-                    return BOT_MODE_DESIRE_ABSOLUTE, allyAbility[i]:GetLocation();
+                    return BOT_ACTION_DESIRE_ABSOLUTE, allyAbility[i]:GetLocation();
                 end
             end ]]
 
@@ -269,7 +269,7 @@ function ConsiderShadowStep()
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
             then
                 --npcBot:ActionImmediate_Chat("Использую SpectralDagger по врагу в радиусе действия!",true);
-                return BOT_MODE_DESIRE_HIGH, botTarget, "target";
+                return BOT_ACTION_DESIRE_HIGH, botTarget, "target";
             end
         end
     end

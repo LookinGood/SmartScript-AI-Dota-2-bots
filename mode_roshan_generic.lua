@@ -2,10 +2,11 @@
 require(GetScriptDirectory() .. "/utility")
 
 local npcBot = GetBot();
-local minAllyHeroes = 3;
+local minAllyHeroes = 4;
 local minHealthPrecent = 0.3;
 local checkRadius = 5000;
-local updateInterval = 600;
+local updateInterval = 660;
+local lastRoshanKillTime = 0;
 local roshanDayLocation = Vector(-3199.2, 2387.2, 38.9);
 local roshanNightLocation = Vector(2908.1, -2834.1, 40.3);
 
@@ -22,7 +23,7 @@ function GetRoshan()
     then
         for _, creep in pairs(creeps)
         do
-            if string.find(creep:GetUnitName(), "roshan")
+            if utility.IsRoshan(creep)
             then
                 return creep;
             end
@@ -81,7 +82,9 @@ function GetPreparationLocation()
 end
 
 function IsHeroReadyForRoshan(npcTarget)
-    return npcTarget:GetHealth() / npcTarget:GetMaxHealth() > minHealthPrecent and npcTarget:GetLevel() >= 10
+    local enemyHeroes = npcTarget:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
+    return npcTarget:GetHealth() / npcTarget:GetMaxHealth() > minHealthPrecent and npcTarget:GetLevel() >= 10 and
+        (#enemyHeroes <= 0)
 end
 
 function GetCountAllyHeroesAroundPreparationLoc(location, radius)
@@ -122,34 +125,46 @@ function IsAllyHeroAttackRoshan(roshanLocation)
 end
 
 function GetDesire()
-    local enemyHeroes = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
-
-    if not utility.IsHero(npcBot) or not npcBot:IsAlive() or (#enemyHeroes > 0) or utility.IsBaseUnderAttack() or utility.IsEnemyBaseUnderAttack()
+    if not utility.IsHero(npcBot) or not npcBot:IsAlive() or utility.IsBaseUnderAttack() or utility.IsEnemyBaseUnderAttack()
         or not IsHeroReadyForRoshan(npcBot) or GetGameState() == GAME_STATE_PRE_GAME
     then
         return BOT_MODE_DESIRE_NONE;
     end
 
+    --print(GetRoshanKillTime())
+    --print(currentTime - roshanKillTime)
+
     npcRoshan = GetRoshan();
     roshanLocation = GetRoshanLocation();
     preparationLocation = GetPreparationLocation();
 
-    local currentTime = DotaTime();
-    local roshanKillTime = GetRoshanKillTime();
+    local currentKillTime = GetRoshanKillTime();
 
-    --print(GetRoshanKillTime())
-    --print(currentTime - roshanKillTime)
-
-    if roshanKillTime == 0 or (currentTime - roshanKillTime) >= updateInterval
+    if currentKillTime ~= lastRoshanKillTime
     then
+        lastRoshanKillTime = currentKillTime
+        --[[     if currentKillTime ~= 0
+        then
+            print("Рошан убит в ", currentKillTime);
+        end ]]
+    end
+
+    local currentTime = DotaTime();
+    local isRoshanAlive = (lastRoshanKillTime == 0) or (currentTime - lastRoshanKillTime >= updateInterval);
+
+    if isRoshanAlive
+    then
+        --print("Рошан жив.")
         local countAllyHeroesNear = GetCountAllyHeroesAroundPreparationLoc(preparationLocation, checkRadius);
 
         if GetUnitToLocationDistance(npcBot, preparationLocation) <= checkRadius and countAllyHeroesNear >= minAllyHeroes
         then
-            npcBot:ActionImmediate_Ping(roshanLocation.x, roshanLocation.y, false);
+            --npcBot:ActionImmediate_Ping(roshanLocation.x, roshanLocation.y, false);
             --npcBot:ActionImmediate_Chat("Рядом есть доступный Рошан.", true);
             return BOT_MODE_DESIRE_VERYHIGH;
         end
+        --[[    else
+        print("Рошан мёртв.") ]]
     end
 
     return BOT_MODE_DESIRE_NONE;
@@ -182,9 +197,9 @@ function Think()
             if GetUnitToLocationDistance(npcBot, roshanLocation) < 360
             then
                 npcBot:SetTarget(npcRoshan);
-                if npcBot:GetHealth() / npcBot:GetMaxHealth() <= 0.5 and npcRoshan:GetAttackTarget() == npcBot
+                if npcBot:GetHealth() / npcBot:GetMaxHealth() <= 0.6 and npcRoshan:GetAttackTarget() == npcBot
                 then
-                    npcBot:ActionImmediate_Chat(npcBot:GetTarget():GetUnitName() .. " атакует меня, отхожу в зону ожидания.", true);
+                    --npcBot:ActionImmediate_Chat(npcBot:GetTarget():GetUnitName() .. " атакует меня, отхожу в зону ожидания.", true);
                     npcBot:Action_MoveToLocation(preparationLocation);
                     return;
                 else

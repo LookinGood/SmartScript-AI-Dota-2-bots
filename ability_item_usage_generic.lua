@@ -2663,12 +2663,16 @@ function ItemUsageThink()
 		if not npcBot:IsInvisible()
 		then
 			local itemRange = handOfMidas:GetCastRange();
-			local enemy = utility.GetStrongestCreep(npcBot, itemRange);
-			if utility.CanCastSpellOnTarget(handOfMidas, enemy) and not enemy:IsAncientCreep() and (enemy:GetHealth() / enemy:GetMaxHealth() >= 0.5)
+			local enemy = GetStrongestCreep(npcBot, itemRange);
+			if enemy ~= nil
 			then
-				--npcBot:ActionImmediate_Chat("Использую handOfMidas!", true);
-				npcBot:Action_UseAbilityOnEntity(handOfMidas, enemy);
-				return;
+				if utility.CanCastSpellOnTarget(handOfMidas, enemy) and not enemy:IsAncientCreep() and (enemy:GetHealth() / enemy:GetMaxHealth() >= 0.5)
+					and enemy:GetLevel() > 1
+				then
+					--npcBot:ActionImmediate_Chat("Использую handOfMidas на " .. enemy:GetUnitName(), true);
+					npcBot:Action_UseAbilityOnEntity(handOfMidas, enemy);
+					return;
+				end
 			end
 		end
 	end

@@ -324,9 +324,9 @@ function ConsiderLifeDrain()
     local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
 
     -- Attack use
-    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
+    if utility.PvPMode(npcBot)
     then
-        if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
+        if utility.IsHero(botTarget)
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
             then

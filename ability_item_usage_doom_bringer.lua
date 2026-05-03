@@ -48,10 +48,10 @@ function AbilityLevelUpThink()
 end
 
 -- Abilities
-local Devour = AbilitiesReal[1]
-local ScorchedEarth = AbilitiesReal[2]
-local InfernalBlade = AbilitiesReal[3]
-local Doom = AbilitiesReal[6]
+local Devour = npcBot:GetAbilityByName("doom_bringer_devour");
+local ScorchedEarth = npcBot:GetAbilityByName("doom_bringer_scorched_earth");
+local InfernalBlade = npcBot:GetAbilityByName("doom_bringer_infernal_blade");
+local Doom = npcBot:GetAbilityByName("doom_bringer_doom");
 
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
@@ -112,16 +112,26 @@ function ConsiderDevour()
 
     local castRangeAbility = ability:GetCastRange();
     local creepMaxLevel = ability:GetSpecialValueInt("creep_level");
+    local canTargetAncient = ability:GetSpecialValueInt("can_target_ancient");
     local enemyCreeps = npcBot:GetNearbyCreeps(castRangeAbility, true);
 
     if (#enemyCreeps > 0)
     then
         for _, enemy in pairs(enemyCreeps) do
-            if (utility.CanCastSpellOnTarget(ability, enemy) and (enemy:GetHealth() / enemy:GetMaxHealth() >= 0.7))
-                and not enemy:IsAncientCreep() and enemy:GetLevel() <= creepMaxLevel
+            if utility.CanCastSpellOnTarget(ability, enemy) and enemy:GetHealth() / enemy:GetMaxHealth() >= 0.5 and
+                (enemy:GetLevel() > 1 and enemy:GetLevel() <= creepMaxLevel)
             then
-                --npcBot:ActionImmediate_Chat("Использую devour на обычного/древнего крипа!", true);
-                return BOT_ACTION_DESIRE_HIGH, enemy;
+                if canTargetAncient == 1
+                then
+                    --npcBot:ActionImmediate_Chat("Использую devour на древнего крипа!", true);
+                    return BOT_ACTION_DESIRE_HIGH, enemy;
+                else
+                    if not enemy:IsAncientCreep()
+                    then
+                        --npcBot:ActionImmediate_Chat("Использую devour на обычного крипа!", true);
+                        return BOT_ACTION_DESIRE_HIGH, enemy;
+                    end
+                end
             end
         end
     end
@@ -297,15 +307,15 @@ function ConsiderDoom()
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
                 and not botTarget:IsSilenced()
             then
-                return BOT_MODE_DESIRE_HIGH, botTarget;
+                return BOT_ACTION_DESIRE_HIGH, botTarget;
             end
         end
     end
 
-    -- Retreat or help ally use
+    -- Retreat use
     if utility.RetreatMode(npcBot)
     then
-        if (#enemyAbility > 0) and (HealthPercentage <= 0.5)
+        if (#enemyAbility > 0) and (HealthPercentage <= 0.6)
         then
             for _, enemy in pairs(enemyAbility) do
                 if utility.CanCastSpellOnTarget(ability, enemy) and not enemy:IsSilenced()

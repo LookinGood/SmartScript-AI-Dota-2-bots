@@ -3,6 +3,9 @@ _G._savedEnv = getfenv()
 module("teleportation_usage_generic", package.seeall)
 require(GetScriptDirectory() .. "/utility")
 
+local tpDistance = 3500;
+local minTpDistance = 6000;
+
 --[[ function TESTClosestSafeBuilding(unit, distance, enemyRadius, enemyCount)
     local npcBot = GetBot();
     local safeBuilding = nil;
@@ -175,8 +178,6 @@ function ShouldTP()
     local enemyHeroes = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
     local allyHeroes = npcBot:GetNearbyHeroes(1600, false, BOT_MODE_NONE);
     --local allyBuildings = GetUnitList(UNIT_LIST_ALLIED_BUILDINGS);
-    local tpDistance = 4000;
-    local minTpDistance = 6000;
     local ancient = GetAncient(GetTeam());
     local enemyAncient = GetAncient(GetOpposingTeam());
     local topTower1 = GetTower(GetTeam(), TOWER_TOP_1);

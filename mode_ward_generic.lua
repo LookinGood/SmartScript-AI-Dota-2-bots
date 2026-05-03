@@ -489,9 +489,12 @@ function Think()
                     return;
                 end
             end
-            --npcBot:ActionImmediate_Chat("Встречаю курьера!", true);
-            npcBot:Action_MoveToUnit(courier);
-            return;
+            if not utility.IsRoshan(npcBot:GetAttackTarget())
+            then
+                --npcBot:ActionImmediate_Chat("Встречаю курьера!", true);
+                npcBot:Action_MoveToUnit(courier);
+                return;
+            end
         end
     end
 

@@ -260,13 +260,13 @@ function Think()
         return;
     end
 
-    local retreatLocation = utility.GetEscapeLocation(npcBot, npcBot:GetCurrentVisionRange());
+    --local retreatLocation = utility.GetEscapeLocation(npcBot, npcBot:GetCurrentVisionRange());
+    --npcBot:ActionImmediate_Ping(retreatLocation.x, retreatLocation.y, false);
 
     if GetUnitToLocationDistance(npcBot, fountainLocation) >= npcBot:GetAcquisitionRange()
     then
         --npcBot:ActionImmediate_Chat("Отступаю.", true);
-        --npcBot:ActionImmediate_Ping(retreatLocation.x, retreatLocation.y, false);
-        npcBot:Action_MoveToLocation(retreatLocation);
+        npcBot:Action_MoveToLocation(fountainLocation);
         return;
     else
         --npcBot:ActionImmediate_Chat("Отступаю у фонтана.", true);

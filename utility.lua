@@ -706,7 +706,7 @@ function IsItemBreaksInvisibility(sItem)
 end
 
 function IsIllusion(npcTarget)
-	if not IsValidTarget(npcTarget)
+	if not IsValidTarget(npcTarget) or not npcTarget:IsHero()
 	then
 		return false;
 	end
@@ -735,7 +735,7 @@ function IsIllusion(npcTarget)
 		end
 
 		local playerId = npcTarget:GetPlayerID();
-		if (not IsHeroAlive(playerId)) or (GetHeroLevel(playerId) > npcTarget:GetLevel())
+		if playerId ~= nil and (not IsHeroAlive(playerId)) or (GetHeroLevel(playerId) > npcTarget:GetLevel())
 		then
 			--npcBot:ActionImmediate_Chat("Цель иллюзия: " .. npcTarget:GetUnitName(), true);
 			return true;

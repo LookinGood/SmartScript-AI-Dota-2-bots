@@ -47,12 +47,19 @@ function AbilityLevelUpThink()
 end
 
 -- Abilities
-local FatalBonds = AbilitiesReal[1]
-local ShadowWord = AbilitiesReal[2]
-local Upheaval = AbilitiesReal[3]
-local ChaoticOffering = AbilitiesReal[6]
+local FatalBonds = npcBot:GetAbilityByName("warlock_fatal_bonds");
+local ShadowWord = npcBot:GetAbilityByName("warlock_shadow_word");
+local Upheaval = npcBot:GetAbilityByName("warlock_upheaval");
+local ChaoticOffering = npcBot:GetAbilityByName("warlock_rain_of_chaos");
 
 function AbilityUsageThink()
+    if npcBot:GetCurrentActiveAbility() == Upheaval and npcBot:IsChanneling() and (CountEnemyHeroInUpheaval() <= 0 or utility.RetreatMode(npcBot))
+    then
+        --npcBot:ActionImmediate_Chat("Отменяю Upheaval!", true);
+        npcBot:Action_ClearActions(true);
+        return;
+    end
+
     if not utility.CanCast(npcBot) then
         return;
     end
@@ -79,17 +86,34 @@ function AbilityUsageThink()
         return;
     end
 
-    if (castUpheavalDesire > 0)
-    then
-        npcBot:Action_UseAbilityOnLocation(Upheaval, castUpheavalLocation);
-        return;
-    end
-
     if (castChaoticOfferingDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(ChaoticOffering, castChaoticOfferingLocation);
         return;
     end
+
+    if (castUpheavalDesire > 0)
+    then
+        npcBot:Action_UseAbilityOnLocation(Upheaval, castUpheavalLocation);
+        return;
+    end
+end
+
+function CountEnemyHeroInUpheaval()
+    local count = 0;
+    local enemyHeroes = GetUnitList(UNIT_LIST_ENEMY_HEROES);
+
+    if (#enemyHeroes > 0)
+    then
+        for _, enemy in pairs(enemyHeroes) do
+            if enemy:HasModifier("modifier_warlock_upheaval")
+            then
+                count = count + 1;
+            end
+        end
+    end
+
+    return count;
 end
 
 --print(tostring(botTarget:GetName()))

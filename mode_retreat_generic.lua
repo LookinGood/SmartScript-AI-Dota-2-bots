@@ -6,9 +6,10 @@ local fountainLocation = nil;
 
 function GetDesire()
     if not npcBot:IsAlive() or npcBot:GetHealth() <= 0 or utility.IsClone(npcBot) or
-        --npcBot:HasModifier("modifier_skeleton_king_reincarnation_scepter") or
+        npcBot:HasModifier("modifier_troll_warlord_battle_trance") or
         string.find(npcBot:GetUnitName(), "npc_dota_lone_druid_bear") or
-        npcBot:HasModifier('modifier_item_satanic_unholy')
+        (npcBot:GetTarget() ~= nil and (npcBot:HasModifier("modifier_item_satanic_unholy") or
+            npcBot:HasModifier("modifier_item_bloodstone_active")))
     then
         return BOT_MODE_DESIRE_NONE;
     end
@@ -17,10 +18,6 @@ function GetDesire()
     then
         fountainLocation = utility.GetFountainLocation();
     end
-
-    --local allyHeroes = utility.CountAllyHeroAroundUnit(npcBot, 2000);
-    --local enemyHeroes = utility.CountEnemyHeroAroundUnit(npcBot, 2000);
-    -- string.find(npcBot:GetUnitName(), "medusa")
 
     local botMode = npcBot:GetActiveMode();
     local botHPGegen = npcBot:GetHealthRegen();
@@ -73,7 +70,7 @@ function GetDesire()
         end
     end
 
-    if healthPercent <= 0.3
+    --[[     if healthPercent <= 0.3
     then
         --npcBot:ActionImmediate_Chat("Желание отступить высокое: " .. BOT_MODE_DESIRE_VERYHIGH, true);
         return BOT_MODE_DESIRE_VERYHIGH;
@@ -85,7 +82,7 @@ function GetDesire()
     then
         --npcBot:ActionImmediate_Chat("Желание отступить низкое: " .. BOT_MODE_DESIRE_LOW, true);
         return BOT_MODE_DESIRE_LOW;
-    end
+    end ]]
 
     --[[     if (#enemyHeroAround > 0) and utility.IsEnemiesAroundStronger() and npcBot:GetCurrentActionType() ~= BOT_ACTION_TYPE_ATTACK
     then
@@ -97,12 +94,13 @@ function GetDesire()
         end
     end
  ]]
-    --local botDesire = RemapValClamped(healthPercent, 0.2, 0.6, BOT_MODE_DESIRE_VERYHIGH, BOT_MODE_DESIRE_NONE);
+
+    local botDesire = RemapValClamped(healthPercent, 0.3, 0.6, BOT_MODE_DESIRE_VERYHIGH, BOT_MODE_DESIRE_NONE);
     --[[     if botDesire > BOT_MODE_DESIRE_NONE
     then
         npcBot:ActionImmediate_Chat("Желание отступить: " .. botDesire, true);
     end ]]
-    return BOT_MODE_DESIRE_NONE;
+    return botDesire;
 end
 
 function OnStart()
@@ -129,6 +127,7 @@ function Think()
 
     if utility.IsBusy(npcBot)
     then
+        --npcBot:ActionImmediate_Chat("Я занят: " .. npcBot:NumQueuedActions(), true);
         return;
     end
 

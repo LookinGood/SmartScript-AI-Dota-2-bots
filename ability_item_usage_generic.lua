@@ -108,6 +108,12 @@ function CourierUsageThink()
 				then
 					npcBot:ActionImmediate_Courier(courier, COURIER_ACTION_SECRET_SHOP);
 					return;
+				else
+					if (state ~= COURIER_STATE_AT_BASE)
+					then
+						npcBot:ActionImmediate_Courier(courier, COURIER_ACTION_RETURN_STASH_ITEMS);
+						return;
+					end
 				end
 			end
 		end
@@ -2654,6 +2660,24 @@ function ItemUsageThink()
 				return;
 			end
 		end
+		if utility.RetreatMode(npcBot)
+		then
+			local trees = npcBot:GetNearbyTrees(itemRange);
+			local fountain = utility.GetFountain(npcBot);
+			if (#trees > 0)
+			then
+				for _, tree in pairs(trees)
+				do
+					if GetUnitToLocationDistance(npcBot, GetTreeLocation(tree)) > (itemRange / 2 + 100) and
+						GetUnitToLocationDistance(fountain, GetTreeLocation(tree)) < GetUnitToUnitDistance(fountain, npcBot)
+					then
+						--npcBot:ActionImmediate_Chat("Использую предмет harpoon отступая!", true);
+						npcBot:Action_UseAbilityOnTree(harpoon, tree);
+						return;
+					end
+				end
+			end
+		end
 	end
 
 	-- item_hand_of_midas
@@ -3048,6 +3072,7 @@ function ItemUsageThink()
 	local foragersStats = IsItemAvailable("item_foragers_stats");
 	if foragersStats ~= nil
 	then
+		--npcBot:ActionImmediate_Chat("Использую предмет foragersStats!", true);
 		npcBot:Action_UseAbility(foragersStats);
 		return;
 	end
@@ -3062,10 +3087,10 @@ function ItemUsageThink()
 		then
 			for _, ally in pairs(allyHeroes)
 			do
-				if utility.IsHero(ally) and (ally:GetHealth() / ally:GetMaxHealth() <= 0.8) and not HaveHealthRegenBuff(npcBot) and
-					ally:TimeSinceDamagedByAnyHero(5.0) and ally:TimeSinceDamagedByCreep(5.0)
+				if utility.IsHero(ally) and (ally:GetHealth() / ally:GetMaxHealth() <= 0.8) and not HaveHealthRegenBuff(ally) and
+					ally:TimeSinceDamagedByAnyHero(5.0) and ally:TimeSinceDamagedByCreep(5.0) and not ally:HasModifier("modifier_foragers_health_buff")
 				then
-					--npcBot:ActionImmediate_Chat("Использую предмет foragersHealth на союзнике!",true);
+					npcBot:ActionImmediate_Chat("Использую предмет foragersHealth на союзнике!", true);
 					npcBot:Action_UseAbilityOnEntity(foragersHealth, ally);
 					return;
 				end
@@ -3077,9 +3102,20 @@ function ItemUsageThink()
 	local foragersMana = IsItemAvailable("item_foragers_mana");
 	if foragersMana ~= nil
 	then
-		if manaPercent <= 0.8 and not HaveManaRegenBuff(npcBot)
+		local itemRange = foragersMana:GetCastRange();
+		local allyHeroes = npcBot:GetNearbyHeroes(itemRange, false, BOT_MODE_NONE);
+		if (#allyHeroes > 0)
 		then
-			npcBot:Action_UseAbility(foragersMana);
+			for _, ally in pairs(allyHeroes)
+			do
+				if utility.IsHero(ally) and (ally:GetMana() / ally:GetMaxMana() <= 0.8) and
+					ally:TimeSinceDamagedByAnyHero(5.0) and ally:TimeSinceDamagedByCreep(5.0)
+				then
+					npcBot:ActionImmediate_Chat("Использую предмет foragersMana на союзнике!", true);
+					npcBot:Action_UseAbilityOnEntity(foragersMana, ally);
+					return;
+				end
+			end
 		end
 	end
 

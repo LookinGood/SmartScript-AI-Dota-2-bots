@@ -11,7 +11,7 @@ local ItemsToBuy =
 
     "item_magic_wand",
 
-    "item_bracer",
+    "item_soul_ring",
 
     "item_phase_boots",
 
@@ -21,16 +21,18 @@ local ItemsToBuy =
 
     "item_aghanims_shard",
 
+    "item_blink",
+
     "item_shivas_guard",
 
     "item_ultimate_scepter",
 
-    "item_overwhelming_blink",
+    "item_soul_booster",
+    "item_octarine_core",
 
     "item_ultimate_scepter_2",
 
-    "item_soul_booster",
-    "item_octarine_core",
+    "item_overwhelming_blink",
 
     "item_moon_shard",
 

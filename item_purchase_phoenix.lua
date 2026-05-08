@@ -7,7 +7,7 @@ local ItemsToBuy =
 
 	"item_flask",
 
-	"item_enchanted_mango",
+	"item_wind_lace",
 
 	"item_magic_wand",
 
@@ -16,17 +16,13 @@ local ItemsToBuy =
 	"item_tranquil_boots",
 
 	"item_urn_of_shadows",
-
-	"item_ancient_janggo",
-
 	"item_spirit_vessel",
 
+	"item_ancient_janggo",
 	"item_boots_of_bearing",
 
-	"item_veil_of_discord",
 	"item_shivas_guard",
 
-	"item_vanguard",
 	"item_heavens_halberd",
 
 	"item_heart",

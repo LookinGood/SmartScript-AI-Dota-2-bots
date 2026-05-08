@@ -169,7 +169,7 @@ function IsAllyHeroAttackTormentor(tormentorLocation)
 	then
 		for _, unit in pairs(unitsList)
 		do
-			if not unit:IsIllusion() and utility.IsTormentor(unit:GetAttackTarget())
+			if unit ~= npcBot and not unit:IsIllusion() and utility.IsTormentor(unit:GetAttackTarget())
 				and GetUnitToLocationDistance(unit, tormentorLocation) <= 1000
 			then
 				return true;
@@ -187,7 +187,7 @@ function GetDesire()
 	local enemyHeroes = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
 
 	if not utility.IsHero(npcBot) or not npcBot:IsAlive() or (#enemyHeroes > 0) or utility.IsBaseUnderAttack() or utility.IsEnemyBaseUnderAttack()
-		or npcBot:GetHealth() / npcBot:GetMaxHealth() < 0.2 or DotaTime() < 20 * 60
+		or npcBot:GetHealth() / npcBot:GetMaxHealth() < 0.2 or utility.IsAllyTeamHaveItem("item_aegis") or DotaTime() < 20 * 60 
 	then
 		return BOT_MODE_DESIRE_NONE;
 	end

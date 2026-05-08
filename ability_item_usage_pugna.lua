@@ -47,12 +47,22 @@ function AbilityLevelUpThink()
 end
 
 -- Abilities
-local NetherBlast = AbilitiesReal[1]
-local Decrepify = AbilitiesReal[2]
-local NetherWard = AbilitiesReal[3]
-local LifeDrain = AbilitiesReal[6]
+local NetherBlast = npcBot:GetAbilityByName("pugna_nether_blast");
+local Decrepify = npcBot:GetAbilityByName("pugna_decrepify");
+local NetherWard = npcBot:GetAbilityByName("pugna_nether_ward");
+local LifeDrain = npcBot:GetAbilityByName("pugna_life_drain");
+
+local LifeDrainTarget = nil;
 
 function AbilityUsageThink()
+    if npcBot:GetCurrentActiveAbility() == LifeDrain and npcBot:IsChanneling() and utility.IsAlly(npcBot, LifeDrainTarget)
+        and (npcBot:GetHealth() / npcBot:GetMaxHealth() <= 0.3 or LifeDrainTarget:GetHealth() / LifeDrainTarget:GetMaxHealth() >= 0.9)
+    then
+        --npcBot:ActionImmediate_Chat("Отменяю LifeDrain!", true);
+        npcBot:Action_ClearActions(true);
+        return;
+    end
+
     if not utility.CanCastWhenChanneling(npcBot) then
         return;
     end
@@ -107,12 +117,14 @@ function AbilityUsageThink()
             and castLifeDrainTarget ~= nil and not castLifeDrainTarget:IsAttackImmune()
         then
             --npcBot:ActionImmediate_Chat("Использую LifeDrain в связке с Decrepify!", true);
+            LifeDrainTarget = castLifeDrainTarget;
             npcBot:Action_ClearActions(true);
             npcBot:Action_UseAbilityOnEntity(Decrepify, castLifeDrainTarget);
             npcBot:ActionQueue_UseAbilityOnEntity(LifeDrain, castLifeDrainTarget);
             return;
         else
             --npcBot:ActionImmediate_Chat("Использую LifeDrain!", true);
+            LifeDrainTarget = castLifeDrainTarget;
             npcBot:Action_ClearActions(true);
             npcBot:Action_UseAbilityOnEntity(LifeDrain, castLifeDrainTarget);
             return;
@@ -365,6 +377,7 @@ function ConsiderLifeDrain()
                     ally:WasRecentlyDamagedByTower(2.0))
             then
                 --npcBot:ActionImmediate_Chat("Использую LifeDrain на союзного героя со здоровьем ниже 30%!", true);
+                LifeDrainTarget = ally;
                 return BOT_ACTION_DESIRE_ABSOLUTE, ally;
             end
         end

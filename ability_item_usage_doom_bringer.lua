@@ -105,10 +105,10 @@ function ConsiderDevour()
         return BOT_ACTION_DESIRE_NONE, 0;
     end
 
-    if npcBot:HasModifier("modifier_doom_bringer_devour")
+    --[[   if npcBot:HasModifier("modifier_doom_bringer_devour")
     then
         return BOT_ACTION_DESIRE_NONE, 0;
-    end
+    end ]]
 
     local castRangeAbility = ability:GetCastRange();
     local creepMaxLevel = ability:GetSpecialValueInt("creep_level");
@@ -171,6 +171,11 @@ end
 function ConsiderScorchedEarth()
     local ability = ScorchedEarth;
     if not utility.IsAbilityAvailable(ability) then
+        return BOT_ACTION_DESIRE_NONE;
+    end
+
+    if npcBot:HasModifier("modifier_doom_bringer_scorched_earth_effect")
+    then
         return BOT_ACTION_DESIRE_NONE;
     end
 

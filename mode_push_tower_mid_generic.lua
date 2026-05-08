@@ -4,46 +4,52 @@ require(GetScriptDirectory() .. "/push_generic")
 
 local npcBot = GetBot();
 
-function GetDesire()
+--[[ function GetDesire()
     local botLevel = npcBot:GetLevel();
     local botMode = npcBot:GetActiveMode();
-    if utility.NotCurrectHeroBot(npcBot) or not npcBot:IsAlive() or npcBot:HasModifier("modifier_skeleton_king_reincarnation_scepter_active") or botLevel <= 6
+    if utility.NotCurrectHeroBot(npcBot) or not npcBot:IsAlive() or npcBot:HasModifier("modifier_skeleton_king_reincarnation_scepter_active") or botLevel < 10
         or botMode == BOT_MODE_LANING or utility.IsBaseUnderAttack()
 
     then
         return BOT_MODE_DESIRE_NONE;
     end
 
-    --[[     local botModeDesire = npc:GetActiveModeDesire();
+    local lane = LANE_MID;
 
-    if botModeDesire <= BOT_MODE_DESIRE_NONE or npcBot:GetCurrentActionType() == BOT_ACTION_TYPE_NONE
+    if utility.GetOurWeakestLane() == lane
     then
-        npcBot:ActionImmediate_Chat("Решаю пушить мид от безделья.", true);
-        return BOT_MODE_DESIRE_VERYLOW;
-    end ]]
+        local countAllyDeadHeroes, countEnemyDeadHeroes, countAllyPlayers, countEnemyPlayers = utility
+            .GetCountAllDeadHeroes();
 
-    local countAllyDeadHeroes, countEnemyDeadHeroes, countAllyPlayers, countEnemyPlayers = utility.GetCountAllDeadHeroes();
-
-    if utility.IsAllyTeamHaveItem("item_aegis") or (countEnemyDeadHeroes >= math.floor(countEnemyPlayers / 2) + 1)
-    then
-        --npcBot:ActionImmediate_Chat("Решаю пушить мид (враги мертвы/есть аегис).", true);
-        return BOT_MODE_DESIRE_MODERATE;
+        if (countEnemyDeadHeroes >= math.floor(countEnemyPlayers / 2) + 1) and utility.IsAllyTeamHaveItem("item_aegis")
+        then
+            return BOT_MODE_DESIRE_HIGH;
+        elseif (countEnemyDeadHeroes >= math.floor(countEnemyPlayers / 2) + 1)
+        then
+            return BOT_MODE_DESIRE_MODERATE;
+        elseif utility.IsAllyTeamHaveItem("item_aegis")
+        then
+            return BOT_MODE_DESIRE_LOW;
+        else
+            return BOT_MODE_DESIRE_VERYLOW;
+        end
     end
 
-    return BOT_MODE_DESIRE_VERYLOW;
-end
+    --return RandomInt(BOT_MODE_DESIRE_VERYLOW, BOT_MODE_DESIRE_LOW);
 
-function OnStart()
+    return BOT_MODE_DESIRE_NONE;
+end ]]
+
+--[[ function OnStart()
     if RollPercentage(5)
     then
         npcBot:ActionImmediate_Chat("Атакую центральную линию.", false);
     end
-    --npcBot:ActionImmediate_Chat("Решаю пушить мид от безделья.", true);
 end
 
 function OnEnd()
     npcBot:SetTarget(nil);
-end
+end ]]
 
 function Think()
     if utility.IsBusy(npcBot)

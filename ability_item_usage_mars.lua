@@ -67,6 +67,12 @@ function AbilityUsageThink()
     local castBulwarkDesire = ConsiderBulwark();
     local castArenaOfBloodDesire, castArenaOfBloodLocation = ConsiderArenaOfBlood();
 
+    if (castArenaOfBloodDesire > 0)
+    then
+        npcBot:Action_UseAbilityOnLocation(ArenaOfBlood, castArenaOfBloodLocation);
+        return;
+    end
+
     if (castSpearOfMarsDesire > 0)
     then
         npcBot:Action_UseAbilityOnLocation(SpearOfMars, castSpearOfMarsLocation);
@@ -82,12 +88,6 @@ function AbilityUsageThink()
     if (castBulwarkDesire > 0)
     then
         npcBot:Action_UseAbility(Bulwark);
-        return;
-    end
-
-    if (castArenaOfBloodDesire > 0)
-    then
-        npcBot:Action_UseAbilityOnLocation(ArenaOfBlood, castArenaOfBloodLocation);
         return;
     end
 end

@@ -97,10 +97,12 @@ function NotCurrectHeroBot(npcTarget)
 end
 
 function IsClone(npcTarget)
+	local NothlProjectionEnd = npcTarget:GetAbilityByName("dazzle_nothl_projection_end");
 	return IsValidTarget(npcTarget) and
 		(npcTarget:HasModifier("modifier_arc_warden_tempest_double") or
 			npcTarget:HasModifier("modifier_dazzle_nothl_projection_soul_clone") or
-			npcTarget:HasModifier("modifier_dazzle_nothl_projection_soul_debuf"))
+			npcTarget:HasModifier("modifier_dazzle_nothl_projection_soul_debuf") or
+			NothlProjectionEnd ~= nil)
 end
 
 function IsNight()
@@ -220,7 +222,7 @@ function IsEnemyBaseUnderAttack()
 end
 
 function IsUnitNeedToHide(npcTarget)
-	return IsValidTarget(npcTarget) and
+	return IsValidTarget(npcTarget) and IsAlly(GetBot(), npcTarget) and
 		(npcTarget:IsDominated() or
 			npcTarget:HasModifier("modifier_necrolyte_reapers_scythe"))
 end
@@ -448,6 +450,117 @@ function GetRandomBotSupport()
 	end
 
 	return selectedBotHero;
+end
+
+function GetOurWeakestLane()
+	local countAllyTopBuilding = 0;
+	local countAllyMidBuilding = 0;
+	local countAllyBotBuilding = 0;
+
+	local towersTop = {
+		TOWER_TOP_1,
+		TOWER_TOP_2,
+		TOWER_TOP_3
+	}
+
+	local towersMid = {
+		TOWER_MID_1,
+		TOWER_MID_2,
+		TOWER_MID_3
+	}
+
+	local towersBot = {
+		TOWER_BOT_1,
+		TOWER_BOT_2,
+		TOWER_BOT_3
+	}
+
+	local barracksTop = {
+		BARRACKS_TOP_MELEE,
+		BARRACKS_TOP_RANGED
+	}
+
+	local barracksMid = {
+		BARRACKS_MID_MELEE,
+		BARRACKS_MID_RANGED
+	}
+
+	local barracksBot = {
+		BARRACKS_BOT_MELEE,
+		BARRACKS_BOT_RANGED
+	}
+
+	-- LANE TOP
+	for _, t in pairs(towersTop)
+	do
+		local tower = GetTower(GetTeam(), t);
+		if tower ~= nil and tower:GetHealth() > 0
+		then
+			countAllyTopBuilding = countAllyTopBuilding + 1;
+		end
+	end
+
+	for _, b in pairs(barracksTop)
+	do
+		local barrack = GetBarracks(GetTeam(), b);
+		if barrack ~= nil and barrack:GetHealth() > 0
+		then
+			countAllyTopBuilding = countAllyTopBuilding + 1;
+		end
+	end
+
+	-- LANE MID
+	for _, t in pairs(towersMid)
+	do
+		local tower = GetTower(GetTeam(), t);
+		if tower ~= nil and tower:GetHealth() > 0
+		then
+			countAllyMidBuilding = countAllyMidBuilding + 1;
+		end
+	end
+
+	for _, b in pairs(barracksMid)
+	do
+		local barrack = GetBarracks(GetTeam(), b);
+		if barrack ~= nil and barrack:GetHealth() > 0
+		then
+			countAllyMidBuilding = countAllyMidBuilding + 1;
+		end
+	end
+
+	-- LANE BOT
+	for _, t in pairs(towersBot)
+	do
+		local tower = GetTower(GetTeam(), t);
+		if tower ~= nil and tower:GetHealth() > 0
+		then
+			countAllyBotBuilding = countAllyBotBuilding + 1;
+		end
+	end
+
+	for _, b in pairs(barracksBot)
+	do
+		local barrack = GetBarracks(GetTeam(), b);
+		if barrack ~= nil and barrack:GetHealth() > 0
+		then
+			countAllyBotBuilding = countAllyBotBuilding + 1;
+		end
+	end
+
+	local weakestLane = math.min(countAllyTopBuilding, countAllyMidBuilding, countAllyBotBuilding);
+
+	if weakestLane == countAllyTopBuilding
+	then
+		return LANE_TOP;
+	elseif weakestLane == countAllyMidBuilding
+	then
+		return LANE_MID;
+	elseif weakestLane == countAllyBotBuilding
+	then
+		return LANE_BOT;
+	end
+
+	return LANE_NONE;
 end
 
 function GetBiggerAttribute(npcTarget)
@@ -1073,8 +1186,8 @@ end
 function IsBusy(npcTarget)
 	return IsValidTarget(npcTarget) and
 		(npcTarget:IsChanneling() or
-			npcTarget:IsUsingAbility() or
-			npcTarget:IsCastingAbility() or
+			--npcTarget:IsUsingAbility() or
+			--npcTarget:IsCastingAbility() or
 			npcTarget:NumQueuedActions() > 0 or
 			npcTarget:HasModifier("modifier_spirit_breaker_charge_of_darkness"))
 end

@@ -30,6 +30,7 @@ local ignoredAbility = {
     "marci_special_delivery",
     "marci_companion_run",
     "rattletrap_jetpack_toggle",
+    "harpy_scout_take_off",
 }
 
 local interruptAbility = {
@@ -271,6 +272,11 @@ local protectTargetAbility = {
     "wisp_tether",
     "slark_depth_shroud",
     "bloodseeker_bloodrage",
+    "ogre_magi_frost_armor",
+    "big_thunder_lizard_frenzy",
+    "frogmen_water_bubble_small",
+    "frogmen_water_bubble_medium",
+    "frogmen_water_bubble_large",
 }
 
 local safeLifeTargetAbility = {

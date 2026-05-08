@@ -4,13 +4,49 @@ require(GetScriptDirectory() .. "/push_generic")
 
 local npcBot = GetBot();
 
-function OnStart()
+--[[ function GetDesire()
+    local botLevel = npcBot:GetLevel();
+    local botMode = npcBot:GetActiveMode();
+    if utility.NotCurrectHeroBot(npcBot) or not npcBot:IsAlive() or npcBot:HasModifier("modifier_skeleton_king_reincarnation_scepter_active") or botLevel < 10
+        or botMode == BOT_MODE_LANING or utility.IsBaseUnderAttack()
+    then
+        return BOT_MODE_DESIRE_NONE;
+    end
 
+    local lane = LANE_BOT;
+
+    if utility.GetOurWeakestLane() == lane
+    then
+        local countAllyDeadHeroes, countEnemyDeadHeroes, countAllyPlayers, countEnemyPlayers = utility
+            .GetCountAllDeadHeroes();
+
+        if (countEnemyDeadHeroes >= math.floor(countEnemyPlayers / 2) + 1) and utility.IsAllyTeamHaveItem("item_aegis")
+        then
+            return BOT_MODE_DESIRE_HIGH;
+        elseif (countEnemyDeadHeroes >= math.floor(countEnemyPlayers / 2) + 1)
+        then
+            return BOT_MODE_DESIRE_MODERATE;
+        elseif utility.IsAllyTeamHaveItem("item_aegis")
+        then
+            return BOT_MODE_DESIRE_LOW;
+        else
+            return BOT_MODE_DESIRE_VERYLOW;
+        end
+    end
+
+    return BOT_MODE_DESIRE_NONE;
+end ]]
+
+--[[ function OnStart()
+    if RollPercentage(5)
+    then
+        npcBot:ActionImmediate_Chat("Атакую нижнюю линию.", false);
+    end
 end
 
 function OnEnd()
     npcBot:SetTarget(nil);
-end
+end ]]
 
 function Think()
     if utility.IsBusy(npcBot)

@@ -174,20 +174,22 @@ function OnEnd()
 end
 
 function Think()
+	local AbilityCapture = npcBot:GetAbilityByName("ability_capture");
 	local enemyHeroes = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
 
-	if (#enemyHeroes > 0 or npcBot:WasRecentlyDamagedByAnyHero(2.0))
+	if (#enemyHeroes > 0 or utility.BotWasRecentlyDamagedByEnemyHero(2.0))
 	then
-		if npcBot:IsChanneling()
+		if (npcBot:GetCurrentActiveAbility() == AbilityCapture and npcBot:IsChanneling()) or npcBot:GetAttackTarget() == closestOutpost
 		then
-			npcBot:Action_MoveToLocation(npcBot:GetLocation());
+			npcBot:ActionImmediate_Chat("Отменяю AbilityCapture!", true);
+			npcBot:Action_ClearActions(true);
 			return;
 		end
-	else
-		if utility.IsBusy(npcBot)
-		then
-			return;
-		end
+	end
+
+	if utility.IsBusy(npcBot)
+	then
+		return;
 	end
 
 	local captureRange = 300;
@@ -201,7 +203,6 @@ function Think()
 			npcBot:Action_MoveToLocation(closestOutpost:GetLocation());
 			return;
 		else
-			local AbilityCapture = npcBot:GetAbilityByName('ability_capture');
 			if AbilityCapture ~= nil
 			then
 				--npcBot:ActionImmediate_Chat("Захватываю " .. closestOutpost:GetUnitName(), true);

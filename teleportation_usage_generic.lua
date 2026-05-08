@@ -154,9 +154,10 @@ end ]]
 function ShouldTP()
     local npcBot = GetBot();
     local modDesire = npcBot:GetActiveModeDesire();
-    local enemyTower = npcBot:GetNearbyTowers(1000, true);
+    --local enemyTower = npcBot:GetNearbyTowers(1000, true);
 
-    if utility.IsHaveMaxSpeed(npcBot) or (#enemyTower > 0) or utility.IsHaveStunEffect(npcBot) or modDesire <= BOT_MODE_DESIRE_VERYLOW or
+    if utility.IsHaveMaxSpeed(npcBot) or utility.IsHaveStunEffect(npcBot) or modDesire <= BOT_MODE_DESIRE_VERYLOW or
+        (npcBot:WasRecentlyDamagedByTower(2.0) and not utility.TargetCantDie(npcBot)) or
         npcBot:HasModifier("modifier_fountain_fury_swipes_damage_increase") or
         npcBot:HasModifier("modifier_skeleton_king_reincarnation_scepter_active") or
         npcBot:HasModifier("modifier_teleporting") or
@@ -168,34 +169,18 @@ function ShouldTP()
         return false, nil;
     end
 
-    --local tpLocation = nil;
-    local towerLaning = nil;
-    local towerDefend = nil;
-    --local towerPush = nil;
     local botMode = npcBot:GetActiveMode();
     local botLoc = npcBot:GetLocation();
     local botTeam = GetTeam();
     local enemyHeroes = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
     local allyHeroes = npcBot:GetNearbyHeroes(1600, false, BOT_MODE_NONE);
-    --local allyBuildings = GetUnitList(UNIT_LIST_ALLIED_BUILDINGS);
-    local ancient = GetAncient(GetTeam());
-    local enemyAncient = GetAncient(GetOpposingTeam());
-    local topTower1 = GetTower(GetTeam(), TOWER_TOP_1);
-    local topTower2 = GetTower(GetTeam(), TOWER_TOP_2);
-    local topTower3 = GetTower(GetTeam(), TOWER_TOP_3);
-    local midTower1 = GetTower(GetTeam(), TOWER_MID_1);
-    local midTower2 = GetTower(GetTeam(), TOWER_MID_2);
-    local midTower3 = GetTower(GetTeam(), TOWER_MID_3);
-    local botTower1 = GetTower(GetTeam(), TOWER_BOT_1);
-    local botTower2 = GetTower(GetTeam(), TOWER_BOT_2);
-    local botTower3 = GetTower(GetTeam(), TOWER_BOT_3);
 
     if botMode == BOT_MODE_RETREAT
     then
         if npcBot:DistanceFromFountain() > tpDistance
         then
             if (npcBot:GetHealth() / npcBot:GetMaxHealth() <= 0.4) or
-                (npcBot:GetHealth() / npcBot:GetMaxHealth() <= 0.6 and npcBot:WasRecentlyDamagedByAnyHero(2.0)) or
+                (npcBot:GetHealth() / npcBot:GetMaxHealth() <= 0.6 and utility.BotWasRecentlyDamagedByEnemyHero(2.0)) or
                 (not utility.CanMove(npcBot) and (#allyHeroes < 2) and (npcBot:GetHealth() / npcBot:GetMaxHealth() <= 0.6))
             then
                 --npcBot:ActionImmediate_Chat("Использую tpscroll для отступления!", true);
@@ -209,7 +194,7 @@ function ShouldTP()
         local botTarget = npcBot:GetTarget();
         local allyBuildings = GetUnitList(UNIT_LIST_ALLIED_BUILDINGS);
         local allyHeroes = botTarget:GetNearbyHeroes(1600, true, BOT_MODE_DESIRE_NONE);
-        if (utility.IsHero(botTarget) or utility.IsRoshan(botTarget)) and (#allyHeroes >= 1)
+        if (utility.IsHero(botTarget) or utility.IsBoss(botTarget)) and (#allyHeroes >= 1)
         then
             if utility.HaveTravelBoots(npcBot)
             then
@@ -255,6 +240,20 @@ function ShouldTP()
     then
         return false, nil;
     end
+
+    local towerLaning = nil;
+    local towerDefend = nil;
+    local ancient = GetAncient(GetTeam());
+    local enemyAncient = GetAncient(GetOpposingTeam());
+    local topTower1 = GetTower(GetTeam(), TOWER_TOP_1);
+    local topTower2 = GetTower(GetTeam(), TOWER_TOP_2);
+    local topTower3 = GetTower(GetTeam(), TOWER_TOP_3);
+    local midTower1 = GetTower(GetTeam(), TOWER_MID_1);
+    local midTower2 = GetTower(GetTeam(), TOWER_MID_2);
+    local midTower3 = GetTower(GetTeam(), TOWER_MID_3);
+    local botTower1 = GetTower(GetTeam(), TOWER_BOT_1);
+    local botTower2 = GetTower(GetTeam(), TOWER_BOT_2);
+    local botTower3 = GetTower(GetTeam(), TOWER_BOT_3);
 
     if botMode == BOT_MODE_LANING and DotaTime() >= 2 * 60
     then

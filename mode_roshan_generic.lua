@@ -107,14 +107,14 @@ function GetCountAllyHeroesAroundPreparationLoc(location, radius)
     return count;
 end
 
-function IsAllyHeroAttackRoshan(roshanLocation)
+function IsAllyHeroAttackRoshan(npcRoshan)
     local unitsList = GetUnitList(UNIT_LIST_ALLIED_HEROES);
 
     if (#unitsList > 0)
     then
         for _, unit in pairs(unitsList)
         do
-            if not unit:IsIllusion() and utility.IsRoshan(unit:GetAttackTarget()) and GetUnitToLocationDistance(unit, roshanLocation) <= checkRadius
+            if unit ~= npcBot and not unit:IsIllusion() and unit:GetAttackTarget() == npcRoshan
             then
                 return true;
             end
@@ -138,6 +138,12 @@ function GetDesire()
     roshanLocation = GetRoshanLocation();
     preparationLocation = GetPreparationLocation();
 
+    if npcRoshan ~= nil and IsAllyHeroAttackRoshan(npcRoshan)
+    then
+        --npcBot:ActionImmediate_Chat("Союзники атакуют: " .. npcRoshan:GetUnitName(), true);
+        return BOT_MODE_DESIRE_VERYHIGH;
+    end
+
     local currentKillTime = GetRoshanKillTime();
 
     if currentKillTime ~= lastRoshanKillTime
@@ -152,7 +158,7 @@ function GetDesire()
     local currentTime = DotaTime();
     local isRoshanAlive = (lastRoshanKillTime == 0) or (currentTime - lastRoshanKillTime >= updateInterval);
 
-    if isRoshanAlive
+    if isRoshanAlive or npcRoshan ~= nil
     then
         --print("Рошан жив.")
         local countAllyHeroesNear = GetCountAllyHeroesAroundPreparationLoc(preparationLocation, checkRadius);
@@ -194,9 +200,9 @@ function Think()
     then
         if GetUnitToLocationDistance(npcRoshan, roshanLocation) <= 300
         then
+            npcBot:SetTarget(npcRoshan);
             if GetUnitToLocationDistance(npcBot, roshanLocation) < 360
             then
-                npcBot:SetTarget(npcRoshan);
                 if npcBot:GetHealth() / npcBot:GetMaxHealth() <= 0.6 and npcRoshan:GetAttackTarget() == npcBot
                 then
                     --npcBot:ActionImmediate_Chat(npcBot:GetTarget():GetUnitName() .. " атакует меня, отхожу в зону ожидания.", true);

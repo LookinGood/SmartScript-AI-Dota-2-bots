@@ -11,8 +11,6 @@ local ItemsToBuy =
 
     "item_magic_wand",
 
-    "item_bracer",
-
     "item_soul_ring",
 
     "item_ring_of_basilius",
@@ -22,6 +20,8 @@ local ItemsToBuy =
 
     "item_kaya",
     "item_sange",
+
+    "item_ultimate_scepter",
 
     "item_headdress",
     "item_mekansm",
@@ -34,7 +34,6 @@ local ItemsToBuy =
     "item_pers",
     "item_lotus_orb",
 
-    "item_ultimate_scepter",
     "item_ultimate_scepter_2",
 
     "item_soul_booster",
@@ -44,7 +43,7 @@ local ItemsToBuy =
 local realItemsToBuy = {}
 
 function ItemPurchaseThink()
-	purchase.ItemPurchase(ItemsToBuy, realItemsToBuy)
+    purchase.ItemPurchase(ItemsToBuy, realItemsToBuy)
 end
 
 -- Old version

@@ -47,19 +47,19 @@ function AbilityLevelUpThink()
 end
 
 -- Abilities
-local WhirlingDeath = AbilitiesReal[1]
-local TimberChain = AbilitiesReal[2]
-local ReactiveArmor = AbilitiesReal[3]
-local SecondChakram = AbilitiesReal[4]
-local ReturnSecondChakram = npcBot:GetAbilityByName("shredder_return_chakram_2");
-local Flamethrower = AbilitiesReal[5]
-local Chakram = AbilitiesReal[6]
+local WhirlingDeath = npcBot:GetAbilityByName("shredder_whirling_death");
+local TimberChain = npcBot:GetAbilityByName("shredder_timber_chain");
+local ReactiveArmor = npcBot:GetAbilityByName("shredder_reactive_armor");
+local Flamethrower = npcBot:GetAbilityByName("shredder_flamethrower");
+local Chakram = npcBot:GetAbilityByName("shredder_chakram");
 local ReturnChakram = npcBot:GetAbilityByName("shredder_return_chakram");
+local SecondChakram = npcBot:GetAbilityByName("shredder_chakram_2");
+local ReturnSecondChakram = npcBot:GetAbilityByName("shredder_return_chakram_2");
 
 local chakramPosition = nil;
 local chakram2Position = nil;
-local castChakramTimer = 0;
-local castSecondChakramTimer = 0;
+local castReturnChakramTimer = 0;
+local castReturnSecondChakramTimer = 0;
 
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
@@ -75,10 +75,10 @@ function AbilityUsageThink()
     local castTimberChainDesire, castTimberChainLocation = ConsiderTimberChain();
     local castReactiveArmorDesire = ConsiderReactiveArmor();
     local castFlamethrowerDesire = ConsiderFlamethrower();
-    local castSecondChakramDesire, castSecondChakramLocation = ConsiderSecondChakram();
-    local castReturnSecondChakramDesire = ConsiderReturnSecondChakram();
     local castChakramDesire, castChakramLocation = ConsiderChakram();
     local castReturnChakramDesire = ConsiderReturnChakram();
+    local castSecondChakramDesire, castSecondChakramLocation = ConsiderSecondChakram();
+    local castReturnSecondChakramDesire = ConsiderReturnSecondChakram();
 
     if (castWhirlingDeathDesire > 0)
     then
@@ -104,33 +104,73 @@ function AbilityUsageThink()
         return;
     end
 
-    if (castSecondChakramDesire > 0)
-    then
-        chakram2Position = castSecondChakramLocation;
-        castSecondChakramTimer = GameTime();
-        npcBot:Action_UseAbilityOnLocation(SecondChakram, castSecondChakramLocation);
-        return;
-    end
-
-    if (castReturnSecondChakramDesire > 0)
-    then
-        npcBot:Action_UseAbility(ReturnSecondChakram);
-        return;
-    end
-
     if (castChakramDesire > 0)
     then
         chakramPosition = castChakramLocation;
-        castChakramTimer = GameTime();
         npcBot:Action_UseAbilityOnLocation(Chakram, castChakramLocation);
         return;
     end
 
-    if (castReturnChakramDesire > 0)
+    if (castReturnChakramDesire > 0) and (GameTime() >= castReturnChakramTimer + 5.0)
     then
         npcBot:Action_UseAbility(ReturnChakram);
+        castReturnChakramTimer = GameTime();
         return;
     end
+
+    if (castSecondChakramDesire > 0)
+    then
+        chakram2Position = castSecondChakramLocation;
+        npcBot:Action_UseAbilityOnLocation(SecondChakram, castSecondChakramLocation);
+        return;
+    end
+
+    if (castReturnSecondChakramDesire > 0) and (GameTime() >= castReturnSecondChakramTimer + 5.0)
+    then
+        npcBot:Action_UseAbility(ReturnSecondChakram);
+        castReturnSecondChakramTimer = GameTime();
+        return;
+    end
+end
+
+function CountEnemyUnitsInLocation(vector, radius)
+    local count = 0;
+    local enemyHeroes = GetUnitList(UNIT_LIST_ENEMY_HEROES);
+    local enemyCreeps = npcBot:GetNearbyCreeps(1600, true);
+
+    if utility.PvPMode(npcBot)
+    then
+        if (#enemyHeroes > 0)
+        then
+            for _, enemy in pairs(enemyHeroes) do
+                if GetUnitToLocationDistance(enemy, vector) <= radius
+                then
+                    count = count + 1
+                end
+            end
+        end
+    else
+        if (#enemyHeroes > 0)
+        then
+            for _, enemy in pairs(enemyHeroes) do
+                if GetUnitToLocationDistance(enemy, vector) <= radius
+                then
+                    count = count + 1
+                end
+            end
+        end
+        if (#enemyCreeps > 0)
+        then
+            for _, enemy in pairs(enemyCreeps) do
+                if GetUnitToLocationDistance(enemy, vector) <= radius
+                then
+                    count = count + 1
+                end
+            end
+        end
+    end
+
+    return count;
 end
 
 local function CountEnemyNearChakram(radius, projectName, bhero, bcreep)
@@ -224,6 +264,8 @@ local function CountEnemyNearChakram(radius, projectName, bhero, bcreep)
     return 0;
 end
 
+--modifier_shredder_chakram_debuff
+
 function ConsiderWhirlingDeath()
     local ability = WhirlingDeath;
     if not utility.IsAbilityAvailable(ability) then
@@ -236,6 +278,9 @@ function ConsiderWhirlingDeath()
         (#treesAround * ability:GetSpecialValueInt("tree_damage_scale"));
     local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
 
+    --print(damageAbility)
+    --print(#treesAround * ability:GetSpecialValueInt("tree_damage_scale"))
+
     -- Cast if can kill somebody
     if (#enemyAbility > 0)
     then
@@ -244,7 +289,7 @@ function ConsiderWhirlingDeath()
             then
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    npcBot:ActionImmediate_Chat("Использую WhirlingDeath что бы убить цель!", true);
+                    npcBot:ActionImmediate_Chat("Использую WhirlingDeath что бы убить " .. enemy:GetUnitName(), true);
                     return BOT_ACTION_DESIRE_HIGH;
                 end
             end
@@ -316,11 +361,18 @@ function ConsiderTimberChain()
             then
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    local trees = enemy:GetNearbyTrees(radiusAbility);
+                    local trees = npcBot:GetNearbyTrees(castRangeAbility);
                     if (#trees > 0)
                     then
-                        npcBot:ActionImmediate_Chat("Использую TimberChain что бы убить цель!", true);
-                        return BOT_ACTION_DESIRE_HIGH, GetTreeLocation(trees[1]);
+                        for _, tree in pairs(trees)
+                        do
+                            if GetUnitToLocationDistance(enemy, GetTreeLocation(tree)) <= radiusAbility
+                            then
+                                npcBot:ActionImmediate_Chat("Использую TimberChain что бы убить " .. enemy:GetUnitName(),
+                                    true);
+                                return BOT_ACTION_DESIRE_HIGH, GetTreeLocation(tree);
+                            end
+                        end
                     end
                 end
             end
@@ -330,28 +382,25 @@ function ConsiderTimberChain()
     -- Attack use
     if utility.PvPMode(npcBot)
     then
-        if utility.IsHero(botTarget)
+        if utility.IsHero(botTarget) and utility.CanCastSpellOnTarget(ability, botTarget)
         then
-            if utility.CanCastSpellOnTarget(ability, botTarget)
+            if GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
             then
-                if GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
+                local trees = botTarget:GetNearbyTrees(radiusAbility);
+                if (#trees > 0) and IsLocationPassable(GetTreeLocation(trees[1]))
                 then
-                    local trees = botTarget:GetNearbyTrees(radiusAbility);
-                    if (#trees > 0) and IsLocationPassable(GetTreeLocation(trees[1]))
-                    then
-                        --npcBot:ActionImmediate_Chat("Использую TimberChain по цели!", true);
-                        return BOT_ACTION_DESIRE_HIGH, GetTreeLocation(trees[1]);
-                    end
+                    --npcBot:ActionImmediate_Chat("Использую TimberChain по цели!", true);
+                    return BOT_ACTION_DESIRE_HIGH, GetTreeLocation(trees[1]);
                 end
-                if GetUnitToUnitDistance(npcBot, botTarget) <= radiusAbility + chainRadius
+            end
+            if GetUnitToUnitDistance(npcBot, botTarget) <= radiusAbility + chainRadius
+            then
+                local trees = npcBot:GetNearbyTrees(castRangeAbility);
+                if (#trees > 0) and IsLocationPassable(GetTreeLocation(trees[1]))
+                    and GetUnitToLocationDistance(botTarget, GetTreeLocation(trees[1])) <= GetUnitToLocationDistance(npcBot, GetTreeLocation(trees[1]))
                 then
-                    local trees = npcBot:GetNearbyTrees(castRangeAbility);
-                    if (#trees > 0) and IsLocationPassable(GetTreeLocation(trees[1]))
-                        and GetUnitToLocationDistance(botTarget, GetTreeLocation(trees[1])) <= GetUnitToLocationDistance(npcBot, GetTreeLocation(trees[1]))
-                    then
-                        --npcBot:ActionImmediate_Chat("Использую TimberChain по цели которая рядом!", true);
-                        return BOT_ACTION_DESIRE_HIGH, GetTreeLocation(trees[1]);
-                    end
+                    --npcBot:ActionImmediate_Chat("Использую TimberChain по цели которая рядом!", true);
+                    return BOT_ACTION_DESIRE_HIGH, GetTreeLocation(trees[1]);
                 end
             end
         end
@@ -597,10 +646,18 @@ function ConsiderReturnChakram()
         return BOT_ACTION_DESIRE_NONE;
     end
 
-    if GameTime() > (castChakramTimer + 2.0)
+    local radiusAbility = Chakram:GetSpecialValueInt("radius");
+
+    if CountEnemyUnitsInLocation(chakramPosition, radiusAbility) <= 0
     then
+        --npcBot:ActionImmediate_Chat("Возвращаю Chakram т.к враги не в радиусе!", true);
         return BOT_MODE_DESIRE_MODERATE;
     end
+
+    --[[   if GameTime() > (castChakramTimer + 2.0)
+    then
+        return BOT_MODE_DESIRE_MODERATE;
+    end ]]
 
     --[[
     if (npcBot.idletime == nil)
@@ -748,10 +805,18 @@ function ConsiderReturnSecondChakram()
         return BOT_ACTION_DESIRE_NONE;
     end
 
-    if GameTime() > (castSecondChakramTimer + 2.0)
+    local radiusAbility = SecondChakram:GetSpecialValueInt("radius");
+
+    if CountEnemyUnitsInLocation(chakram2Position, radiusAbility) <= 0
     then
+        --npcBot:ActionImmediate_Chat("Возвращаю Chakram2 т.к враги не в радиусе!", true);
         return BOT_MODE_DESIRE_MODERATE;
     end
+
+    --[[     if GameTime() > (castSecondChakramTimer + 2.0)
+    then
+        return BOT_MODE_DESIRE_MODERATE;
+    end ]]
 
     --[[
     if (npcBot.idletime == nil)

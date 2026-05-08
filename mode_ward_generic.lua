@@ -130,7 +130,92 @@ function IsWardAvailable(sWardType)
     return nil;
 end
 
+--rune = 7
+
+-- 21 = Айтем
+-- 19 - уклонения маневры
+-- 16 -- тим роам
+-- 18 -- ?
+
+-- 26 -- Отутпост
+
+-- 28 мод - Смотрители
+-- 29 мод - Поход за святилищем опыта  - начало в 7:30
+-- 30 мод - поход за лотосами
+
+function TestMode()
+    botMode = npcBot:GetActiveMode();
+
+    if botMode == BOT_MODE_SHRINE_WISDOM
+    then
+        npcBot:ActionImmediate_Chat("BOT_MODE_SHRINE_WISDOM: " .. botMode, true);
+    end
+
+    if botMode == BOT_MODE_WATHCER
+    then
+        npcBot:ActionImmediate_Chat("BOT_MODE_WATHCER: " .. botMode, true);
+    end
+
+    if botMode == BOT_MODE_LOTUS
+    then
+        npcBot:ActionImmediate_Chat("BOT_MODE_LOTUS: " .. botMode, true);
+    end
+
+    if botMode == BOT_MODE_LOTUS_PULL
+    then
+        npcBot:ActionImmediate_Chat("BOT_MODE_LOTUS_PULL: " .. botMode, true);
+    end
+
+    if botMode == BOT_MODE_SHRINE
+    then
+        npcBot:ActionImmediate_Chat("BOT_MODE_SHRINE: " .. botMode, true);
+    end
+
+    if botMode == BOT_MODE_ITEM
+    then
+        npcBot:ActionImmediate_Chat("BOT_MODE_ITEM: " .. botMode, true);
+    end
+
+    if botMode == BOT_MODE_ROAM
+    then
+        npcBot:ActionImmediate_Chat("BOT_MODE_ROAM: " .. botMode, true);
+    end
+
+    if botMode == BOT_MODE_DEFEND_ALLY
+    then
+        npcBot:ActionImmediate_Chat("BOT_MODE_DEFEND_ALLY: " .. botMode, true);
+    end
+
+    if botMode ~= nil
+    then
+        if botMode ~= BOT_MODE_ASSEMBLE and
+            botMode ~= BOT_MODE_ATTACK and
+            botMode ~= BOT_MODE_DEFEND_TOWER_BOT and
+            botMode ~= BOT_MODE_DEFEND_TOWER_MID and
+            botMode ~= BOT_MODE_DEFEND_TOWER_TOP and
+            botMode ~= BOT_MODE_FARM and
+            botMode ~= BOT_MODE_LANING and
+            botMode ~= BOT_MODE_PUSH_TOWER_BOT and
+            botMode ~= BOT_MODE_PUSH_TOWER_MID and
+            botMode ~= BOT_MODE_PUSH_TOWER_TOP and
+            botMode ~= BOT_MODE_RETREAT and
+            botMode ~= BOT_MODE_ROSHAN and
+            botMode ~= BOT_MODE_SECRET_SHOP and
+            botMode ~= BOT_MODE_WARD and
+            botMode ~= BOT_MODE_RUNE and
+            botMode ~= BOT_MODE_TEAM_ROAM and
+            botMode ~= BOT_MODE_ROAM and
+            botMode ~= BOT_MODE_ITEM and
+            botMode ~= BOT_MODE_EVASIVE_MANEUVERS and
+            botMode ~= BOT_MODE_OUTPOST
+        then
+            npcBot:ActionImmediate_Chat("Мод: " .. botMode, true);
+        end
+    end
+end
+
 function GetDesire()
+    --TestMode()
     if utility.NotCurrectHeroBot(npcBot) or utility.IsCloneMeepo(npcBot) or not npcBot:IsAlive() or npcBot:HasModifier("modifier_skeleton_king_reincarnation_scepter_active")
     then
         return BOT_ACTION_DESIRE_NONE;
@@ -303,7 +388,8 @@ function GetDesire()
     courier = utility.GetBotCourier(npcBot);
     isCourierNearAndDeliver = false;
 
-    if not utility.IsClone(npcBot) and (GetCourierState(courier) == COURIER_STATE_DELIVERING_ITEMS) and GetUnitToUnitDistance(courier, npcBot) <= 1600
+    if not utility.IsClone(npcBot) and (GetCourierState(courier) == COURIER_STATE_DELIVERING_ITEMS) and GetUnitToUnitDistance(courier, npcBot) <= npcBot:GetAcquisitionRange()
+        and not utility.IsRoshan(npcBot:GetAttackTarget())
     then
         if trashItemSlot ~= nil
         then
@@ -387,7 +473,7 @@ function GetDesire()
                     if not utility.CloseToAvailableWard("npc_dota_observer_wards", s, wardObserverRadius)
                     then
                         wardSpot = s;
-                        return BOT_ACTION_DESIRE_MODERATE;
+                        return BOT_ACTION_DESIRE_HIGH;
                     end
                 elseif wardSentry ~= nil
                 then
@@ -395,7 +481,7 @@ function GetDesire()
                     if not utility.CloseToAvailableWard("npc_dota_sentry_wards", s, wardSentryRadius)
                     then
                         wardSpot = s;
-                        return BOT_ACTION_DESIRE_MODERATE;
+                        return BOT_ACTION_DESIRE_HIGH;
                     end
                 elseif wardDispenser ~= nil
                 then
@@ -405,7 +491,7 @@ function GetDesire()
                         not utility.CloseToAvailableWard("npc_dota_sentry_wards", s, wardSentryRadius)
                     then
                         wardSpot = s;
-                        return BOT_ACTION_DESIRE_MODERATE;
+                        return BOT_ACTION_DESIRE_HIGH;
                     end
                 end
             end
@@ -470,32 +556,24 @@ function Think()
         end
     end
 
-
     if (isCourierNearAndDeliver == true)
     then
-        local boundRadius = npcBot:GetBoundingRadius();
-        if GetUnitToUnitDistance(npcBot, courier) > boundRadius * 2
+        if dropItem ~= nil
         then
-            if dropItem ~= nil
+            if GetItemCost(dropItem:GetName()) > 0 and (npcBot:DistanceFromFountain() <= 500 or npcBot:DistanceFromSecretShop() <= 500)
             then
-                if GetItemCost(dropItem:GetName()) > 0 and (npcBot:DistanceFromFountain() <= 500 or npcBot:DistanceFromSecretShop() <= 500)
-                then
-                    npcBot:ActionImmediate_Chat("Продаю предмет: " .. dropItem:GetName(), true);
-                    npcBot:ActionImmediate_SellItem(dropItem);
-                    return;
-                else
-                    --npcBot:ActionImmediate_Chat("Выкидываю предмет: " .. dropItem:GetName(), true);
-                    npcBot:Action_DropItem(dropItem, npcBot:GetLocation());
-                    return;
-                end
-            end
-            if not utility.IsRoshan(npcBot:GetAttackTarget())
-            then
-                --npcBot:ActionImmediate_Chat("Встречаю курьера!", true);
-                npcBot:Action_MoveToUnit(courier);
+                --npcBot:ActionImmediate_Chat("Продаю предмет: " .. dropItem:GetName(), true);
+                npcBot:ActionImmediate_SellItem(dropItem);
+                return;
+            else
+                --npcBot:ActionImmediate_Chat("Выкидываю предмет: " .. dropItem:GetName(), true);
+                npcBot:Action_DropItem(dropItem, npcBot:GetLocation());
                 return;
             end
         end
+        --npcBot:ActionImmediate_Chat("Встречаю курьера!", true);
+        npcBot:Action_MoveToUnit(courier);
+        return;
     end
 
     if enemyWard ~= nil

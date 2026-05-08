@@ -153,17 +153,9 @@ end
 
 function GetDesire()
     if utility.NotCurrectHeroBot(npcBot) or utility.IsBaseUnderAttack() or utility.IsEnemyBaseUnderAttack() or DotaTime() < 1 * 60
-        or utility.IsBotHaveItem("item_aegis")
+        or utility.IsAllyTeamHaveItem("item_aegis")
     then
         return BOT_MODE_DESIRE_NONE;
-    end
-
-    if hero_role_generic.HaveCarryInTeam(npcBot)
-    then
-        if hero_role_generic.IsHeroSupport(npcBot)
-        then
-            return BOT_MODE_DESIRE_NONE;
-        end
     end
 
     local countAllyDeadHeroes, countEnemyDeadHeroes, countAllyPlayers, countEnemyPlayers = utility.GetCountAllDeadHeroes();
@@ -225,12 +217,17 @@ function GetDesire()
 
     if closestCampLocation ~= nil and campDistance <= 6000
     then
-        --npcBot:ActionImmediate_Chat("Рядом есть доступный лагерь крипов!", true);
-        if botDeaths >= botKills
+        if hero_role_generic.HaveCarryInTeam(npcBot) and hero_role_generic.IsHeroSupport(npcBot)
         then
-            return BOT_MODE_DESIRE_MODERATE;
+            return BOT_MODE_DESIRE_VERYLOW;
         else
-            return BOT_MODE_DESIRE_LOW;
+            --npcBot:ActionImmediate_Chat("Рядом есть доступный лагерь крипов!", true);
+            if botDeaths >= botKills
+            then
+                return BOT_MODE_DESIRE_MODERATE;
+            else
+                return BOT_MODE_DESIRE_LOW;
+            end
         end
     end
 

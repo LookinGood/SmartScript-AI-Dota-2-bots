@@ -7,34 +7,42 @@ local ItemsToBuy =
 
 	"item_flask",
 
-	"item_faerie_fire",
+	"item_clarity",
 
 	"item_magic_wand",
 
-	"item_wraith_band",
+	"item_null_talisman",
 
-	"item_power_treads",
+	"item_ring_of_basilius",
+	"item_arcane_boots",
 
-	"item_diffusal_blade",
+	"item_kaya",
 
 	"item_rod_of_atos",
-	"item_gungir",
+
+	"item_yasha",
+
+	"item_dagon",
 
 	"item_pers",
 	"item_sphere",
 
-	"item_skadi",
+	"item_dagon_2",
+	"item_dagon_3",
+	"item_dagon_4",
+	"item_dagon_5",
+
+	"item_aghanims_shard",
+
+	"item_gungir",
 
 	"item_ultimate_scepter",
 	"item_ultimate_scepter_2",
 
-	"item_disperser",
-
-	"item_aghanims_shard",
-
 	"item_moon_shard",
 
-	"item_butterfly",
+	"item_soul_booster",
+	"item_octarine_core",
 
 	"item_travel_boots",
 	"item_travel_boots_2",

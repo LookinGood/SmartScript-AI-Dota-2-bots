@@ -181,7 +181,7 @@ function Think()
 	then
 		if (npcBot:GetCurrentActiveAbility() == AbilityCapture and npcBot:IsChanneling()) or npcBot:GetAttackTarget() == closestOutpost
 		then
-			npcBot:ActionImmediate_Chat("Отменяю AbilityCapture!", true);
+			--npcBot:ActionImmediate_Chat("Отменяю AbilityCapture!", true);
 			npcBot:Action_ClearActions(true);
 			return;
 		end

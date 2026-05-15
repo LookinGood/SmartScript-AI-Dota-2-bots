@@ -15,8 +15,6 @@ local ItemsToBuy =
 
 	"item_phase_boots",
 
-	"item_radiance",
-
 	"item_basher",
 
 	"item_sange",
@@ -31,6 +29,8 @@ local ItemsToBuy =
 
 	"item_ultimate_scepter",
 	"item_ultimate_scepter_2",
+
+	"item_radiance",
 
 	"item_overwhelming_blink",
 

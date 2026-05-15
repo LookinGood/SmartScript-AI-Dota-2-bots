@@ -314,7 +314,7 @@ function GetDesire()
 
     local enemyHeroes = npcBot:GetNearbyHeroes(1000, true, BOT_MODE_NONE);
 
-    if (#enemyHeroes > 0)
+    if (#enemyHeroes > 0) and utility.IsEnemiesAroundStronger()
     then
         return BOT_ACTION_DESIRE_NONE;
     end

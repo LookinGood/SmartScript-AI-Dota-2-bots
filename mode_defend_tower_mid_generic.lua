@@ -164,6 +164,7 @@ function GetDefenderBotHero()
 end
 
 function GetCurrentAttackTarget()
+    local enemyHeroes = GetUnitList(UNIT_LIST_ENEMY_HEROES);
     local enemyCreeps = GetUnitList(UNIT_LIST_ENEMY_CREEPS);
     local enemyOther = GetUnitList(UNIT_LIST_ENEMY_OTHER);
 
@@ -201,6 +202,25 @@ function GetCurrentAttackTarget()
                     if GetUnitToUnitDistance(enemy, mainBuilding) <= radiusUnit
                     then
                         --npcBot:ActionImmediate_Chat("Юнит рядом со зданием: " .. enemy:GetUnitName(), true);
+                        return enemy;
+                    end
+                end
+            end
+        end
+
+        if (#enemyHeroes > 0)
+        then
+            for _, enemy in pairs(enemyHeroes) do
+                if not utility.IsNotAttackTarget(enemy) and GetUnitToUnitDistance(enemy, mainBuilding) <= radiusUnit
+                then
+                    if enemy:GetAttackTarget() == mainBuilding or enemy:GetAttackTarget() == npcBot
+                    then
+                        --npcBot:ActionImmediate_Chat("Герой атакует меня/здание: " .. enemy:GetUnitName(), true);
+                        return enemy;
+                    end
+                    if GetUnitToUnitDistance(enemy, npcBot) <= npcBot:GetAcquisitionRange()
+                    then
+                        --npcBot:ActionImmediate_Chat("Герой рядом со мной: " .. enemy:GetUnitName(), true);
                         return enemy;
                     end
                 end
@@ -301,6 +321,11 @@ function Think()
     local defendZone = utility.GetEscapeLocation(mainBuilding, wanderRadius);
     local mainCreep = GetCurrentAttackTarget();
 
+    if mainCreep ~= nil
+    then
+        npcBot:SetTarget(mainCreep);
+    end
+
     --local team = npcBot:GetTeam();
     --local enemyCreeps = npcBot:GetNearbyCreeps(1600, true);
     --local allyHeroes = npcBot:GetNearbyHeroes(1000, false, BOT_MODE_NONE);
@@ -308,10 +333,9 @@ function Think()
 
     npcBot:SetTarget(mainBuilding);
 
-    if utility.BotWasRecentlyDamagedByEnemyHero(2.0) and utility.IsEnemiesAroundStronger() or
+    if (utility.BotWasRecentlyDamagedByEnemyHero(2.0) and utility.IsEnemiesAroundStronger()) or
         (healthPercent <= 0.4 and npcBot:WasRecentlyDamagedByCreep(2.0))
     then
-        npcBot:Action_ClearActions(false);
         npcBot:Action_MoveToLocation(fountainLocation);
         return;
     else
@@ -319,21 +343,17 @@ function Think()
         then
             if GetUnitToLocationDistance(npcBot, ancientLocation) > radiusUnit
             then
-                npcBot:Action_ClearActions(false);
                 npcBot:Action_MoveToLocation(ancientLocation);
                 return;
             else
                 if mainCreep ~= nil
                 then
-                    npcBot:SetTarget(mainCreep);
-                    npcBot:Action_ClearActions(false);
                     npcBot:Action_AttackUnit(mainCreep, false);
                     return;
                 else
                     local angle = math.rad(math.fmod(npcBot:GetFacing() + 30, 360));
                     local newLocation = Vector(ancientLocation.x + ancientRadius * math.cos(angle),
                         ancientLocation.y + ancientRadius * math.sin(angle), ancientLocation.z);
-                    npcBot:Action_ClearActions(false);
                     npcBot:Action_MoveToLocation(newLocation);
                     --DebugDrawLine(ancientLocation, newLocation, 255, 0, 0);
                     --npcBot:ActionImmediate_Chat("Охраняю древнего вокруг его радиуса: " .. ancientRadius, true);
@@ -343,24 +363,20 @@ function Think()
         else
             if GetUnitToLocationDistance(npcBot, defendZone) > radiusUnit and mainCreep == nil
             then
-                npcBot:Action_ClearActions(false);
                 npcBot:Action_MoveToLocation(defendZone);
                 return;
             else
                 if mainCreep ~= nil
                 then
-                    npcBot:SetTarget(mainCreep);
                     if utility.IsEnemiesAroundStronger()
                     then
                         if utility.IsMeleeUnit(npcBot)
                         then
                             if GetUnitToUnitDistance(npcBot, mainCreep) <= npcBot:GetAcquisitionRange()
                             then
-                                npcBot:Action_ClearActions(false);
                                 npcBot:Action_AttackUnit(mainCreep, false);
                                 return;
                             else
-                                npcBot:Action_ClearActions(false);
                                 npcBot:Action_MoveToLocation(defendZone + RandomVector(wanderRadius));
                                 return;
                             end
@@ -368,30 +384,25 @@ function Think()
                             if GetUnitToUnitDistance(npcBot, mainCreep) > npcBot:GetAttackRange() and
                                 GetUnitToUnitDistance(npcBot, mainCreep) <= npcBot:GetAttackRange() * 2
                             then
-                                npcBot:Action_ClearActions(false);
                                 npcBot:ActionQueue_AttackUnit(mainCreep, true);
                                 npcBot:ActionQueue_MoveToLocation(defendZone + RandomVector(wanderRadius));
                                 --npcBot:ActionImmediate_Chat("Кайчу " .. mainCreep:GetUnitName(), true);
                                 return;
                             elseif GetUnitToUnitDistance(npcBot, mainCreep) <= npcBot:GetAttackRange()
                             then
-                                npcBot:Action_ClearActions(false);
                                 npcBot:Action_AttackUnit(mainCreep, false);
                                 --npcBot:ActionImmediate_Chat("Атакую как рдд " .. mainCreep:GetUnitName(), true);
                                 return;
                             else
-                                npcBot:Action_ClearActions(false);
                                 npcBot:Action_MoveToLocation(defendZone + RandomVector(wanderRadius));
                                 return;
                             end
                         end
                     else
-                        npcBot:Action_ClearActions(false);
                         npcBot:Action_AttackUnit(mainCreep, false);
                         return;
                     end
                 else
-                    npcBot:Action_ClearActions(false);
                     npcBot:Action_MoveToLocation(defendZone + RandomVector(wanderRadius));
                     return;
                 end

@@ -172,17 +172,13 @@ function ConsiderFrostBlast()
     if utility.PvEMode(npcBot)
     then
         local enemyCreeps = npcBot:GetNearbyCreeps(castRangeAbility, true);
-        if (#enemyCreeps > 0) and (ManaPercentage >= 0.7)
+        if (#enemyCreeps > 2) and (ManaPercentage >= 0.7)
         then
             for _, enemy in pairs(enemyCreeps) do
-                local enemyCreepsAoe = enemy:GetNearbyCreeps(radiusAbility, false);
-                if (#enemyCreepsAoe > 2)
+                if utility.CanCastSpellOnTarget(ability, enemy)
                 then
-                    if utility.CanCastSpellOnTarget(ability, enemy)
-                    then
-                        --npcBot:ActionImmediate_Chat("Использую FrostBlast на крипов!", true);
-                        return BOT_ACTION_DESIRE_VERYLOW, enemy;
-                    end
+                    --npcBot:ActionImmediate_Chat("Использую FrostBlast на крипов!", true);
+                    return BOT_ACTION_DESIRE_VERYLOW, enemy;
                 end
             end
         end

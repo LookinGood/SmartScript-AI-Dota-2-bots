@@ -4,11 +4,115 @@ require(GetScriptDirectory() .. "/utility")
 local npcBot = GetBot();
 local fountainLocation = nil;
 
+function GetDangerProjectileLocation()
+    local allyHeroes = npcBot:GetNearbyHeroes(1600, false, BOT_MODE_NONE);
+    local allyCreeps = npcBot:GetNearbyCreeps(1600, false);
+    local enemyOther = GetUnitList(UNIT_LIST_ENEMY_OTHER);
+    --local incomingSpells = npcBot:GetIncomingTrackingProjectiles();
+
+    --modifier_lich_chainfrost_frostbound
+
+    --[[     if (#incomingSpells > 0)
+    then
+        for _, spell in pairs(incomingSpells)
+        do
+            --npcBot:ActionImmediate_Chat("C: " .. spell.ability:GetName(), true);
+            if spell.ability:GetName() == "lich_chain_frost"
+            then
+                return spell.location;
+            end
+        end
+    end ]]
+
+    if (#allyHeroes > 1)
+    then
+        for _, ally in pairs(allyHeroes)
+        do
+            if utility.IsValidTarget(ally) and ally ~= npcBot
+            then
+                local incomingSpells = ally:GetIncomingTrackingProjectiles();
+                if (#incomingSpells > 0)
+                then
+                    for _, spell in pairs(incomingSpells)
+                    do
+                        --npcBot:ActionImmediate_Chat("C: " .. spell.ability:GetName(), true);
+                        if spell.ability:GetName() == "lich_chain_frost"
+                        then
+                            return spell.location;
+                        end
+                    end
+                end
+                if ally:HasModifier("modifier_lich_chainfrost_frostbound")
+                then
+                    --npcBot:ActionImmediate_Chat("Отхожу от " .. ally:GetUnitName(), true);
+                    return ally:GetLocation();
+                end
+            end
+        end
+    end
+
+    if (#allyCreeps > 0)
+    then
+        for _, ally in pairs(allyCreeps)
+        do
+            if utility.IsValidTarget(ally)
+            then
+                local incomingSpells = ally:GetIncomingTrackingProjectiles();
+                if (#incomingSpells > 0)
+                then
+                    for _, spell in pairs(incomingSpells)
+                    do
+                        if spell.ability:GetName() == "lich_chain_frost"
+                        then
+                            --npcBot:ActionImmediate_Chat("Крип chainGrost: " .. ally:GetUnitName(), true);
+                            return spell.location;
+                        end
+                    end
+                end
+                if ally:HasModifier("modifier_lich_chainfrost_frostbound")
+                then
+                    --npcBot:ActionImmediate_Chat("Отхожу от " .. ally:GetUnitName(), true);
+                    return ally:GetLocation();
+                end
+            end
+        end
+    end
+
+    if (#enemyOther > 0)
+    then
+        for _, enemy in pairs(enemyOther)
+        do
+            if utility.IsValidTarget(enemy) and GetUnitToUnitDistance(npcBot, enemy) <= 1600
+            then
+                local incomingSpells = enemy:GetIncomingTrackingProjectiles();
+                if (#incomingSpells > 0)
+                then
+                    for _, spell in pairs(incomingSpells)
+                    do
+                        if spell.ability:GetName() == "lich_chain_frost"
+                        then
+                            npcBot:ActionImmediate_Chat("Враг-крип chainGrost: " .. enemy:GetUnitName(), true);
+                            return spell.location;
+                        end
+                    end
+                end
+                if enemy:HasModifier("modifier_lich_chainfrost_frostbound")
+                then
+                    npcBot:ActionImmediate_Chat("Отхожу от " .. enemy:GetUnitName(), true);
+                    return enemy:GetLocation();
+                end
+            end
+        end
+    end
+
+    return nil;
+end
+
 function GetDesire()
     if not npcBot:IsAlive() or npcBot:GetHealth() <= 0 or utility.IsClone(npcBot) or
         npcBot:HasModifier("modifier_troll_warlord_battle_trance") or
         string.find(npcBot:GetUnitName(), "npc_dota_lone_druid_bear") or
-        (npcBot:GetTarget() ~= nil and (npcBot:HasModifier("modifier_item_satanic_unholy") or
+        (npcBot:GetAttackTarget() ~= nil and (npcBot:HasModifier("modifier_item_satanic_unholy") or
             npcBot:HasModifier("modifier_item_bloodstone_active")))
     then
         return BOT_MODE_DESIRE_NONE;
@@ -30,6 +134,13 @@ function GetDesire()
         npcBot:HasModifier("modifier_fountain_invulnerability") or
         npcBot:HasModifier("modifier_fountain_fury_swipes_damage_increase") or
         npcBot:HasModifier("modifier_skeleton_king_reincarnation_scepter_active")
+    then
+        return BOT_MODE_DESIRE_ABSOLUTE;
+    end
+
+    dangerProjectileLocation = GetDangerProjectileLocation();
+
+    if dangerProjectileLocation ~= nil and GetUnitToLocationDistance(npcBot, dangerProjectileLocation) <= 1000
     then
         return BOT_MODE_DESIRE_ABSOLUTE;
     end
@@ -69,31 +180,6 @@ function GetDesire()
             return BOT_MODE_DESIRE_MODERATE;
         end
     end
-
-    --[[     if healthPercent <= 0.3
-    then
-        --npcBot:ActionImmediate_Chat("Желание отступить высокое: " .. BOT_MODE_DESIRE_VERYHIGH, true);
-        return BOT_MODE_DESIRE_VERYHIGH;
-    elseif healthPercent <= 0.4
-    then
-        --npcBot:ActionImmediate_Chat("Желание отступить среднее: " .. BOT_MODE_DESIRE_MODERATE, true);
-        return BOT_MODE_DESIRE_MODERATE;
-    elseif healthPercent <= 0.5
-    then
-        --npcBot:ActionImmediate_Chat("Желание отступить низкое: " .. BOT_MODE_DESIRE_LOW, true);
-        return BOT_MODE_DESIRE_LOW;
-    end ]]
-
-    --[[     if (#enemyHeroAround > 0) and utility.IsEnemiesAroundStronger() and npcBot:GetCurrentActionType() ~= BOT_ACTION_TYPE_ATTACK
-    then
-        for _, enemy in pairs(enemyHeroAround) do
-            if utility.IsValidTarget(enemy) and utility.IsHero(enemy:GetAttackTarget())
-            then
-                return BOT_MODE_DESIRE_MODERATE;
-            end
-        end
-    end
- ]]
 
     local botDesire = RemapValClamped(healthPercent, 0.3, 0.6, BOT_MODE_DESIRE_VERYHIGH, BOT_MODE_DESIRE_NONE);
     --[[     if botDesire > BOT_MODE_DESIRE_NONE
@@ -256,6 +342,25 @@ function Think()
             end
         end
         npcBot:Action_AttackMove(npcBot:GetLocation());
+        return;
+    end
+
+    if dangerProjectileLocation ~= nil and GetUnitToLocationDistance(npcBot, dangerProjectileLocation) <= 1000
+    then
+        local myPosition = npcBot:GetLocation();
+        local direction = myPosition - dangerProjectileLocation;
+        local retreatDistance = 700;
+        local retreatVector = direction:Normalized() * retreatDistance;
+        local desiredPosition = myPosition + retreatVector;
+        local playerId = npcBot:GetPlayerID();
+        local angleVariation = math.rad(playerId * 45);
+        local radius = npcBot:GetBoundingRadius();
+        local offsetX = math.cos(angleVariation) * radius;
+        local offsetY = math.sin(angleVariation) * radius;
+        desiredPosition = desiredPosition + Vector(offsetX, offsetY, 0);
+
+        --npcBot:ActionImmediate_Ping(desiredPosition.x, desiredPosition.y, false);
+        npcBot:Action_MoveToLocation(desiredPosition);
         return;
     end
 

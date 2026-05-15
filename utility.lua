@@ -102,13 +102,12 @@ function IsClone(npcTarget)
 		(npcTarget:HasModifier("modifier_arc_warden_tempest_double") or
 			npcTarget:HasModifier("modifier_dazzle_nothl_projection_soul_clone") or
 			npcTarget:HasModifier("modifier_dazzle_nothl_projection_soul_debuf") or
-			NothlProjectionEnd ~= nil)
+			(NothlProjectionEnd ~= nil and not NothlProjectionEnd:IsHidden()))
 end
 
 function IsNight()
 	local time = GetTimeOfDay();
 	return time < 0.25 or time > 0.75;
-	--return time > 0.5;
 end
 
 function IsBaseUnderAttack()

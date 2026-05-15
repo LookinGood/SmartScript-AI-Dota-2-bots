@@ -238,6 +238,7 @@ local selfBuffAbility = {
     "winter_wyvern_arctic_burn",
     "witch_doctor_voodoo_switcheroo",
     "zuus_heavenly_jump",
+    "dark_troll_warlord_raise_dead",
 }
 
 local healingAbility = {

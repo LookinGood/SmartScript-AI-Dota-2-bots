@@ -195,9 +195,10 @@ local function CreepUnderControlCount()
     return count;
 end
 
-local function IsCatapult(npcTarget)
+local function IsNotControlCreep(npcTarget)
     return utility.IsValidTarget(npcTarget) and
-        string.find(npcTarget:GetUnitName(), "siege");
+        (string.find(npcTarget:GetUnitName(), "siege") or
+            npcTarget:HasModifier("modifier_flagbearer_creep_aura_effect"))
 end
 
 function ConsiderHolyPersuasion()
@@ -209,26 +210,43 @@ function ConsiderHolyPersuasion()
     local castRangeAbility = ability:GetCastRange();
     local creepMax = ability:GetSpecialValueInt("max_units");
     local creepMaxLevel = ability:GetSpecialValueInt("level_req");
+    local countAncientCreeps = HandOfGod:GetSpecialValueInt("ancient_creeps_scepter");
 
-    if CreepUnderControlCount() >= creepMax
+    if CreepUnderControlCount() >= creepMax or botMode == BOT_MODE_LANING
     then
         return BOT_ACTION_DESIRE_NONE, 0;
     end
 
-    if utility.PvPMode(npcBot) or utility.RetreatMode(npcBot) or botMode ~= BOT_MODE_LANING
+    if utility.PvPMode(npcBot) or utility.RetreatMode(npcBot)
     then
         local enemyCreeps = npcBot:GetNearbyCreeps(castRangeAbility, true);
         local enemy = utility.GetStrongest(enemyCreeps);
-        if utility.CanCastSpellOnTarget(ability, enemy) and enemy:GetLevel() <= creepMaxLevel and not enemy:IsAncientCreep() and not IsCatapult(enemy)
+        if utility.CanCastSpellOnTarget(ability, enemy) and enemy:GetLevel() <= creepMaxLevel and not IsNotControlCreep(enemy)
         then
-            return BOT_ACTION_DESIRE_HIGH, enemy;
+            if countAncientCreeps > 0
+            then
+                return BOT_ACTION_DESIRE_HIGH, enemy;
+            else
+                if not enemy:IsAncientCreep()
+                then
+                    return BOT_ACTION_DESIRE_HIGH, enemy;
+                end
+            end
         end
     else
         local enemyCreeps = npcBot:GetNearbyNeutralCreeps(1600);
         local enemy = utility.GetStrongest(enemyCreeps);
-        if utility.CanCastSpellOnTarget(ability, enemy) and enemy:GetLevel() <= creepMaxLevel and not enemy:IsAncientCreep() and not IsCatapult(enemy)
+        if utility.CanCastSpellOnTarget(ability, enemy) and enemy:GetLevel() <= creepMaxLevel and not IsNotControlCreep(enemy)
         then
-            return BOT_ACTION_DESIRE_HIGH, enemy;
+            if countAncientCreeps > 0
+            then
+                return BOT_ACTION_DESIRE_HIGH, enemy;
+            else
+                if not enemy:IsAncientCreep()
+                then
+                    return BOT_ACTION_DESIRE_HIGH, enemy;
+                end
+            end
         end
     end
 

@@ -43,6 +43,7 @@ function GetDesire()
         for _, ally in pairs(allyHeroes)
         do
             if ally ~= npcBot and utility.IsHero(ally) and ally:IsSpeciallyDeniable() and ally:WasRecentlyDamagedByAnyHero(2.0)
+                and not ally:HasModifier("modifier_fountain_aura_buff")
             then
                 --npcBot:ActionImmediate_Chat("Хочу задинаить героя " .. ally:GetUnitName(), true);
                 denyAllyHero = ally;

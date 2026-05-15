@@ -279,26 +279,31 @@ function ConsiderInfest()
         return BOT_ACTION_DESIRE_NONE, 0;
     end
 
+    --utility.CheckFlag(ability:GetTargetType(), ABILITY_TARGET_TYPE_HERO)
+
     local castRangeAbility = ability:GetCastRange();
     local radiusAbility = ability:GetSpecialValueInt("radius");
     local damageAbility = ability:GetSpecialValueInt("damage");
     local enemyHeroDuration = ability:GetSpecialValueInt("infest_duration_enemy");
     local canTargetAncient = ability:GetSpecialValueInt("can_target_ancient");
-    local allyCreepsAbility = npcBot:GetNearbyCreeps(castRangeAbility, false);
+    --local allyCreepsAbility = npcBot:GetNearbyCreeps(castRangeAbility, false);
     local enemyCreepsAbility = npcBot:GetNearbyCreeps(castRangeAbility, true);
     local allyHeroesAbility = npcBot:GetNearbyHeroes(castRangeAbility, false, BOT_MODE_NONE);
-    local enemyHeroesAbility = npcBot:GetNearbyHeroes(castRangeAbility, false, BOT_MODE_NONE);
+    local enemyHeroesAbility = npcBot:GetNearbyHeroes(castRangeAbility, true, BOT_MODE_NONE);
     local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
 
     -- Cast if can kill somebody
     if (#enemyAbility > 0)
     then
         for _, enemy in pairs(enemyAbility) do
-            if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType())
+            if utility.CanCastSpellOnTarget(ability, enemy) and utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType())
             then
-                if utility.CanCastSpellOnTarget(ability, enemy)
+                if (enemyHeroDuration > 0)
                 then
-                    if (#enemyCreepsAbility > 0)
+                    --npcBot:ActionImmediate_Chat("Использую Infest что бы убить " .. enemy:GetUnitName(), true);
+                    return BOT_ACTION_DESIRE_VERYHIGH, enemy;
+                end
+                --[[           if (#enemyCreepsAbility > 0)
                     then
                         for _, enemyCreep in pairs(enemyCreepsAbility) do
                             if utility.CanCastSpellOnTarget(ability, enemyCreep) and GetUnitToUnitDistance(enemyCreep, enemy) <= radiusAbility
@@ -314,9 +319,9 @@ function ConsiderInfest()
                                     end
                                 end
                             end
-                        end
-                    end
-                    if (#allyCreepsAbility > 0)
+                        end ]]
+            end
+            --[[          if (#allyCreepsAbility > 0)
                     then
                         for _, allyCreep in pairs(allyCreepsAbility) do
                             if utility.CanCastSpellOnTarget(ability, allyCreep) and GetUnitToUnitDistance(allyCreep, enemy) <= radiusAbility
@@ -333,32 +338,32 @@ function ConsiderInfest()
                                 end
                             end
                         end
-                    end
-                    if utility.CheckFlag(ability:GetTargetType(), ABILITY_TARGET_TYPE_HERO)
-                    then
-                        if (#enemyHeroesAbility > 0)
+                    end ]]
+            --[[       if (enemyHeroDuration > 0)
+            then
+                if (#enemyHeroesAbility > 0)
+                then
+                    for _, enemyHero in pairs(enemyHeroesAbility) do
+                        if utility.CanCastSpellOnTarget(ability, enemyHero) and GetUnitToUnitDistance(enemyHero, enemy) <= radiusAbility
                         then
-                            for _, enemyHero in pairs(enemyHeroesAbility) do
-                                if utility.CanCastSpellOnTarget(ability, enemyHero) and GetUnitToUnitDistance(enemyHero, enemy) <= radiusAbility
-                                then
-                                    --npcBot:ActionImmediate_Chat("Использую Infest на вражеском герое что бы убить цель!",true);
-                                    return BOT_ACTION_DESIRE_VERYHIGH, enemyHero;
-                                end
-                            end
+                            npcBot:ActionImmediate_Chat("Использую Infest на вражеском герое что бы убить цель!",
+                                true);
+                            return BOT_ACTION_DESIRE_VERYHIGH, enemyHero;
                         end
-                        if (#allyHeroesAbility > 1)
+                    end
+                end
+                           if (#allyHeroesAbility > 1)
                         then
                             for _, allyHero in pairs(allyHeroesAbility) do
                                 if allyHero ~= npcBot and utility.CanCastSpellOnTarget(ability, allyHero) and GetUnitToUnitDistance(allyHero, enemy) <= radiusAbility
                                 then
-                                    --npcBot:ActionImmediate_Chat("Использую Infest на союзном герое что бы убить цель!",true);
+                                    npcBot:ActionImmediate_Chat("Использую Infest на союзном герое что бы убить цель!",
+                                        true);
                                     return BOT_ACTION_DESIRE_VERYHIGH, allyHero;
                                 end
                             end
                         end
-                    end
-                end
-            end
+            end ]]
         end
     end
 
@@ -369,7 +374,12 @@ function ConsiderInfest()
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
             then
-                if (#enemyCreepsAbility > 0)
+                if (enemyHeroDuration > 0)
+                then
+                    --npcBot:ActionImmediate_Chat("Использую Infest на вражеском герое для атаки!", true);
+                    return BOT_ACTION_DESIRE_VERYHIGH, botTarget;
+                end
+                --[[                 if (#enemyCreepsAbility > 0)
                 then
                     for _, enemyCreep in pairs(enemyCreepsAbility) do
                         if utility.CanCastSpellOnTarget(ability, enemyCreep) and GetUnitToUnitDistance(enemyCreep, botTarget) <= radiusAbility
@@ -386,8 +396,8 @@ function ConsiderInfest()
                             end
                         end
                     end
-                end
-                if (#allyCreepsAbility > 0)
+                end ]]
+                --[[       if (#allyCreepsAbility > 0)
                 then
                     for _, allyCreep in pairs(allyCreepsAbility) do
                         if GetUnitToUnitDistance(allyCreep, botTarget) <= radiusAbility
@@ -404,31 +414,7 @@ function ConsiderInfest()
                             end
                         end
                     end
-                end
-                if (enemyHeroDuration > 0)
-                --utility.CheckFlag(ability:GetTargetType(), ABILITY_TARGET_TYPE_HERO)
-                then
-                    if (#enemyHeroesAbility > 0)
-                    then
-                        for _, enemyHero in pairs(enemyHeroesAbility) do
-                            if utility.CanCastSpellOnTarget(ability, enemyHero) and GetUnitToUnitDistance(enemyHero, botTarget) <= radiusAbility
-                            then
-                                --npcBot:ActionImmediate_Chat("Использую Infest на вражеском герое для атаки!",true);
-                                return BOT_ACTION_DESIRE_VERYHIGH, enemyHero;
-                            end
-                        end
-                    end
-                    if (#allyHeroesAbility > 1)
-                    then
-                        for _, allyHero in pairs(allyHeroesAbility) do
-                            if allyHero ~= npcBot and GetUnitToUnitDistance(allyHero, botTarget) <= radiusAbility
-                            then
-                                --npcBot:ActionImmediate_Chat("Использую Infest на союзном герое для атаки!",true);
-                                return BOT_ACTION_DESIRE_VERYHIGH, allyHero;
-                            end
-                        end
-                    end
-                end
+                end ]]
             end
         end
     end
@@ -436,26 +422,40 @@ function ConsiderInfest()
     -- Retreat use
     if utility.RetreatMode(npcBot)
     then
-        if (#enemyCreepsAbility > 0)
+        if (HealthPercentage <= 0.4) and utility.BotWasRecentlyDamagedByEnemyHero(2.0)
         then
-            for _, enemyCreep in pairs(enemyCreepsAbility) do
-                if utility.CanCastSpellOnTarget(ability, enemyCreep)
+            if (enemyHeroDuration > 0)
+            then
+                if (#enemyHeroesAbility > 0) and (#allyHeroesAbility <= 1)
                 then
-                    if canTargetAncient == 1
-                    then
-                        --npcBot:ActionImmediate_Chat("Использую Infest на вражеском крипе что бы убить цель!", true);
-                        return BOT_ACTION_DESIRE_VERYHIGH, enemyCreep;
-                    else
-                        if not enemyCreep:IsAncientCreep()
+                    for _, enemyHero in pairs(enemyHeroesAbility) do
+                        if utility.CanCastSpellOnTarget(ability, enemyHero)
                         then
-                            --npcBot:ActionImmediate_Chat("Использую Infest на вражеском крипе для отступления!",true);
-                            return BOT_ACTION_DESIRE_VERYHIGH, enemyCreep;
+                            --npcBot:ActionImmediate_Chat("Использую Infest на вражеском герое что бы сбежать!", true);
+                            return BOT_ACTION_DESIRE_VERYHIGH, enemyHero;
                         end
                     end
                 end
-            end
-        end
-        if (#allyCreepsAbility > 0)
+                if (#enemyCreepsAbility > 0)
+                then
+                    for _, enemyCreep in pairs(enemyCreepsAbility) do
+                        if utility.CanCastSpellOnTarget(ability, enemyCreep)
+                        then
+                            if canTargetAncient == 1
+                            then
+                                --npcBot:ActionImmediate_Chat("Использую Infest на вражеском крипе что бы убить цель!", true);
+                                return BOT_ACTION_DESIRE_VERYHIGH, enemyCreep;
+                            else
+                                if not enemyCreep:IsAncientCreep()
+                                then
+                                    --npcBot:ActionImmediate_Chat("Использую Infest на вражеском крипе для отступления!",true);
+                                    return BOT_ACTION_DESIRE_VERYHIGH, enemyCreep;
+                                end
+                            end
+                        end
+                    end
+                end
+                --[[         if (#allyCreepsAbility > 0)
         then
             for _, allyCreep in pairs(allyCreepsAbility) do
                 if utility.CanCastSpellOnTarget(ability, allyCreep) and GetUnitToUnitDistance(allyCreep, enemy) <= radiusAbility
@@ -472,28 +472,17 @@ function ConsiderInfest()
                     end
                 end
             end
-        end
-        if (enemyHeroDuration > 0)
-        then
-            if (#enemyHeroesAbility > 0) and (#allyHeroesAbility <= 1)
-            then
-                for _, enemyHero in pairs(enemyHeroesAbility) do
-                    if utility.CanCastSpellOnTarget(ability, enemyHero)
-                    then
-                        --npcBot:ActionImmediate_Chat("Использую Infest на вражеском герое что бы сбежать!", true);
-                        return BOT_ACTION_DESIRE_VERYHIGH, enemyHero;
-                    end
-                end
-            end
-            if (#allyHeroesAbility > 1)
+        end ]]
+                --[[    if (#allyHeroesAbility > 1)
             then
                 for _, allyHero in pairs(allyHeroesAbility) do
                     if allyHero ~= npcBot and utility.CanCastSpellOnTarget(ability, allyHero) and GetUnitToUnitDistance(allyHero, enemy) <= radiusAbility
                     then
-                        --npcBot:ActionImmediate_Chat("Использую Infest на союзном герое что бы сбежать!",true);
+                        npcBot:ActionImmediate_Chat("Использую Infest на союзном герое что бы сбежать!", true);
                         return BOT_ACTION_DESIRE_VERYHIGH, allyHero;
                     end
                 end
+            end ]]
             end
         end
     end

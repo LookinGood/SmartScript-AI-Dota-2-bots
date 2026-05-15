@@ -106,7 +106,7 @@ function AbilityUsageThink()
 end
 
 function HealingAlliesWithVoodooRestoration()
-    if utility.PvPMode(npcBot) or utility.RetreatMode(npcBot) or VoodooRestoration:GetToggleState() == false or healingAllyHero == nil or healingAllyHero == npcBot
+    if utility.PvPMode(npcBot) or utility.BossMode(npcBot) or utility.RetreatMode(npcBot) or VoodooRestoration:GetToggleState() == false or healingAllyHero == nil or healingAllyHero == npcBot
     then
         return;
     end

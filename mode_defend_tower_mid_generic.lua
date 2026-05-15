@@ -164,65 +164,82 @@ function GetDefenderBotHero()
 end
 
 function GetCurrentAttackTarget()
+    if mainBuilding == nil
+    then
+        return nil;
+    end
+
     local enemyHeroes = GetUnitList(UNIT_LIST_ENEMY_HEROES);
     local enemyCreeps = GetUnitList(UNIT_LIST_ENEMY_CREEPS);
     local enemyOther = GetUnitList(UNIT_LIST_ENEMY_OTHER);
 
-    if mainBuilding ~= nil
+    if (#enemyCreeps > 0)
     then
-        if (#enemyCreeps > 0)
-        then
-            for _, enemy in pairs(enemyCreeps) do
-                if not utility.IsNotAttackTarget(enemy)
+        for _, enemy in pairs(enemyCreeps) do
+            if not utility.IsNotAttackTarget(enemy)
+            then
+                if enemy:GetAttackTarget() == mainBuilding
                 then
-                    if enemy:GetAttackTarget() == mainBuilding
-                    then
-                        --npcBot:ActionImmediate_Chat("Крип атакует здание: " .. enemy:GetUnitName(), true);
-                        return enemy;
-                    end
-                    if GetUnitToUnitDistance(enemy, mainBuilding) <= radiusUnit
-                    then
-                        --npcBot:ActionImmediate_Chat("Крип рядом со зданием: " .. enemy:GetUnitName(), true);
-                        return enemy;
-                    end
+                    --npcBot:ActionImmediate_Chat("Крип атакует здание: " .. enemy:GetUnitName(), true);
+                    return enemy;
+                end
+                if GetUnitToUnitDistance(enemy, mainBuilding) <= radiusUnit
+                then
+                    --npcBot:ActionImmediate_Chat("Крип рядом со зданием: " .. enemy:GetUnitName(), true);
+                    return enemy;
+                end
+                if GetUnitToUnitDistance(npcBot, mainBuilding) <= radiusUnit and enemy:GetAttackTarget() == npcBot
+                then
+                    --npcBot:ActionImmediate_Chat("Крип атакует меня: " .. enemy:GetUnitName(), true);
+                    return enemy;
                 end
             end
         end
+    end
 
-        if (#enemyOther > 0)
-        then
-            for _, enemy in pairs(enemyOther) do
-                if not utility.IsNotAttackTarget(enemy)
+    if (#enemyOther > 0)
+    then
+        for _, enemy in pairs(enemyOther) do
+            if not utility.IsNotAttackTarget(enemy)
+            then
+                if enemy:GetAttackTarget() == mainBuilding
                 then
-                    if enemy:GetAttackTarget() == mainBuilding
-                    then
-                        --npcBot:ActionImmediate_Chat("Юнит атакует здание: " .. enemy:GetUnitName(), true);
-                        return enemy;
-                    end
-                    if GetUnitToUnitDistance(enemy, mainBuilding) <= radiusUnit
-                    then
-                        --npcBot:ActionImmediate_Chat("Юнит рядом со зданием: " .. enemy:GetUnitName(), true);
-                        return enemy;
-                    end
+                    --npcBot:ActionImmediate_Chat("Юнит атакует здание: " .. enemy:GetUnitName(), true);
+                    return enemy;
+                end
+                if GetUnitToUnitDistance(enemy, mainBuilding) <= radiusUnit
+                then
+                    --npcBot:ActionImmediate_Chat("Юнит рядом со зданием: " .. enemy:GetUnitName(), true);
+                    return enemy;
+                end
+                if GetUnitToUnitDistance(npcBot, mainBuilding) <= radiusUnit and enemy:GetAttackTarget() == npcBot
+                then
+                    --npcBot:ActionImmediate_Chat("Юнит атакует меня: " .. enemy:GetUnitName(), true);
+                    return enemy;
                 end
             end
         end
+    end
 
-        if (#enemyHeroes > 0)
-        then
-            for _, enemy in pairs(enemyHeroes) do
-                if not utility.IsNotAttackTarget(enemy) and GetUnitToUnitDistance(enemy, mainBuilding) <= radiusUnit
+    if (#enemyHeroes > 0)
+    then
+        for _, enemy in pairs(enemyHeroes) do
+            if not utility.IsNotAttackTarget(enemy) and GetUnitToUnitDistance(enemy, mainBuilding) <= radiusUnit
+            then
+                if enemy:GetAttackTarget() == mainBuilding or enemy:GetAttackTarget() == npcBot
                 then
-                    if enemy:GetAttackTarget() == mainBuilding or enemy:GetAttackTarget() == npcBot
-                    then
-                        --npcBot:ActionImmediate_Chat("Герой атакует меня/здание: " .. enemy:GetUnitName(), true);
-                        return enemy;
-                    end
-                    if GetUnitToUnitDistance(enemy, npcBot) <= npcBot:GetAcquisitionRange()
-                    then
-                        --npcBot:ActionImmediate_Chat("Герой рядом со мной: " .. enemy:GetUnitName(), true);
-                        return enemy;
-                    end
+                    --npcBot:ActionImmediate_Chat("Герой атакует меня/здание: " .. enemy:GetUnitName(), true);
+                    return enemy;
+                end
+                if GetUnitToUnitDistance(enemy, npcBot) <= npcBot:GetAcquisitionRange()
+                then
+                    --npcBot:ActionImmediate_Chat("Герой рядом со мной: " .. enemy:GetUnitName(), true);
+                    return enemy;
+                end
+                if GetUnitToUnitDistance(npcBot, mainBuilding) <= radiusUnit and enemy:GetAttackTarget() == npcBot
+                then
+                    npcBot:ActionImmediate_Chat("Герой атакует меня: " .. enemy:GetUnitName(), true);
+                    return enemy;
                 end
             end
         end
@@ -315,7 +332,6 @@ function Think()
     local healthPercent = npcBot:GetHealth() / npcBot:GetMaxHealth();
     local ancient = GetAncient(GetTeam());
     local ancientLocation = ancient:GetLocation();
-    local ancientRadius = ancient:GetBoundingRadius();
     local fountainLocation = utility.GetFountainLocation();
     local wanderRadius = 500;
     local defendZone = utility.GetEscapeLocation(mainBuilding, wanderRadius);
@@ -331,10 +347,7 @@ function Think()
     --local allyHeroes = npcBot:GetNearbyHeroes(1000, false, BOT_MODE_NONE);
     --local enemyHeroes = npcBot:GetNearbyHeroes(1000, true, BOT_MODE_NONE);
 
-    npcBot:SetTarget(mainBuilding);
-
-    if (utility.BotWasRecentlyDamagedByEnemyHero(2.0) and utility.IsEnemiesAroundStronger()) or
-        (healthPercent <= 0.4 and npcBot:WasRecentlyDamagedByCreep(2.0))
+    if (utility.IsEnemiesAroundStronger()) or (healthPercent <= 0.4 and npcBot:WasRecentlyDamagedByCreep(2.0))
     then
         npcBot:Action_MoveToLocation(fountainLocation);
         return;
@@ -351,6 +364,7 @@ function Think()
                     npcBot:Action_AttackUnit(mainCreep, false);
                     return;
                 else
+                    local ancientRadius = ancient:GetBoundingRadius();
                     local angle = math.rad(math.fmod(npcBot:GetFacing() + 30, 360));
                     local newLocation = Vector(ancientLocation.x + ancientRadius * math.cos(angle),
                         ancientLocation.y + ancientRadius * math.sin(angle), ancientLocation.z);

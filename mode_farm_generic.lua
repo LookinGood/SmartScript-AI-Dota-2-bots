@@ -153,7 +153,7 @@ end
 
 function GetDesire()
     if utility.NotCurrectHeroBot(npcBot) or utility.IsBaseUnderAttack() or utility.IsEnemyBaseUnderAttack() or DotaTime() < 1 * 60
-        or utility.IsAllyTeamHaveItem("item_aegis")
+        or utility.IsAllyTeamHaveItem("item_aegis") or utility.IsOurTeamStronger()
     then
         return BOT_MODE_DESIRE_NONE;
     end
@@ -215,7 +215,7 @@ function GetDesire()
         return BOT_MODE_DESIRE_NONE;
     end
 
-    if closestCampLocation ~= nil and campDistance <= 6000
+    if closestCampLocation ~= nil and campDistance <= 10000
     then
         if hero_role_generic.HaveCarryInTeam(npcBot) and hero_role_generic.IsHeroSupport(npcBot)
         then

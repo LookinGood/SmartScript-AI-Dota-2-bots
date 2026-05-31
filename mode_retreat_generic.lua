@@ -42,7 +42,7 @@ function GetDangerProjectileLocation()
                         end
                     end
                 end
-                if ally:HasModifier("modifier_lich_chainfrost_frostbound")
+                if ally:HasModifier("modifier_lich_chainfrost_frostbound") or ally:HasModifier("modifier_winter_wyvern_winters_curse_aura")
                 then
                     --npcBot:ActionImmediate_Chat("Отхожу от " .. ally:GetUnitName(), true);
                     return ally:GetLocation();
@@ -69,7 +69,7 @@ function GetDangerProjectileLocation()
                         end
                     end
                 end
-                if ally:HasModifier("modifier_lich_chainfrost_frostbound")
+                if ally:HasModifier("modifier_lich_chainfrost_frostbound") or ally:HasModifier("modifier_winter_wyvern_winters_curse_aura")
                 then
                     --npcBot:ActionImmediate_Chat("Отхожу от " .. ally:GetUnitName(), true);
                     return ally:GetLocation();
@@ -91,14 +91,14 @@ function GetDangerProjectileLocation()
                     do
                         if spell.ability:GetName() == "lich_chain_frost"
                         then
-                            npcBot:ActionImmediate_Chat("Враг-крип chainGrost: " .. enemy:GetUnitName(), true);
+                            --npcBot:ActionImmediate_Chat("Враг-крип chainGrost: " .. enemy:GetUnitName(), true);
                             return spell.location;
                         end
                     end
                 end
                 if enemy:HasModifier("modifier_lich_chainfrost_frostbound")
                 then
-                    npcBot:ActionImmediate_Chat("Отхожу от " .. enemy:GetUnitName(), true);
+                    --npcBot:ActionImmediate_Chat("Отхожу от " .. enemy:GetUnitName(), true);
                     return enemy:GetLocation();
                 end
             end

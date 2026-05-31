@@ -168,8 +168,11 @@ end
 function IsEnemyBaseUnderAttack()
 	local radiusUnit = 3000;
 	local towers = {
+		TOWER_TOP_2,
 		TOWER_TOP_3,
+		TOWER_MID_2,
 		TOWER_MID_3,
+		TOWER_BOT_2,
 		TOWER_BOT_3,
 		TOWER_BASE_1,
 		TOWER_BASE_2,
@@ -1148,6 +1151,42 @@ function IsAnyUnitsBetweenMeAndTarget(hSource, hTarget, vLoc, nRadius)
 		IsEnemyCreepBetweenMeAndTarget(hSource, hTarget, vLoc, nRadius);
 end
 
+function IsOurTeamStronger()
+	local allyPlayers = GetTeamPlayers(GetTeam());
+	local enemyPlayers = GetTeamPlayers(GetOpposingTeam());
+	local allyKillsCount = 0;
+	local enemyKillsCount = 0;
+
+	if (#allyPlayers > 0)
+	then
+		for _, ally in pairs(allyPlayers)
+		do
+			local heroKills = GetHeroKills(ally);
+			if (heroKills > 0)
+			then
+				allyKillsCount = allyKillsCount + heroKills;
+			end
+		end
+	end
+
+	if (#enemyPlayers > 0)
+	then
+		for _, enemy in pairs(enemyPlayers)
+		do
+			local heroKills = GetHeroKills(enemy);
+			if (heroKills > 0)
+			then
+				enemyKillsCount = enemyKillsCount + heroKills;
+			end
+		end
+	end
+
+	--print(allyKillsCount)
+	--print(enemyKillsCount)
+
+	return allyKillsCount > 0 and allyKillsCount >= (enemyKillsCount * 2);
+end
+
 function IsEnemiesAroundStronger()
 	local npcBot = GetBot();
 	local allyPower = 0;
@@ -1725,7 +1764,8 @@ function CanCastSpellOnTarget(spell, npcTarget)
 					then
 						return true;
 					else
-						return CanCastOnMagicImmuneTarget(npcTarget);
+						local magicResist = npcTarget:GetMagicResist();
+						return magicResist < 0.9 and CanCastOnMagicImmuneTarget(npcTarget);
 					end
 				elseif damageType == DAMAGE_TYPE_PHYSICAL
 				then
@@ -1778,15 +1818,13 @@ function PvPMode(npcBot)
 	local botMode = npcBot:GetActiveMode();
 	return (botMode == BOT_MODE_ATTACK or
 		botMode == BOT_MODE_RETREAT or
-		botMode == BOT_MODE_ROAM or
-		botMode == BOT_MODE_DEFEND_ALLY or
-		botMode == BOT_MODE_EVASIVE_MANEUVERS);
+		botMode == BOT_MODE_DEFEND_ALLY);
 end
 
 function BossMode(npcBot)
 	local botMode = npcBot:GetActiveMode();
 	return (botMode == BOT_MODE_ROSHAN or
-		botMode == BOT_MODE_ASSEMBLE);
+		botMode == BOT_MODE_ROAM);
 end
 
 function PvEMode(npcBot)
@@ -1800,7 +1838,7 @@ function PvEMode(npcBot)
 		botMode == BOT_MODE_FARM or
 		botMode == BOT_MODE_SECRET_SHOP or
 		botMode == BOT_MODE_ITEM or
-		botMode == BOT_MODE_ASSEMBLE or
+		botMode == BOT_MODE_ROAM or
 		botMode == BOT_MODE_SHRINE or
 		botMode == BOT_MODE_OUTPOST or
 		botMode == BOT_MODE_ROSHAN);

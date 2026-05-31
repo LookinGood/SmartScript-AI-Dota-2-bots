@@ -198,6 +198,7 @@ end
 local function IsNotControlCreep(npcTarget)
     return utility.IsValidTarget(npcTarget) and
         (string.find(npcTarget:GetUnitName(), "siege") or
+            string.find(npcTarget:GetUnitName(), "wraith_king_skeleton_warrior") or
             npcTarget:HasModifier("modifier_flagbearer_creep_aura_effect"))
 end
 
@@ -217,7 +218,26 @@ function ConsiderHolyPersuasion()
         return BOT_ACTION_DESIRE_NONE, 0;
     end
 
-    if utility.PvPMode(npcBot) or utility.RetreatMode(npcBot)
+    local enemyCreeps = npcBot:GetNearbyCreeps(castRangeAbility, true);
+    local enemy = utility.GetStrongest(enemyCreeps);
+
+    if (#enemyCreeps > 0) and (enemy ~= nil)
+    then
+        if utility.CanCastSpellOnTarget(ability, enemy) and enemy:GetLevel() <= creepMaxLevel and not IsNotControlCreep(enemy)
+        then
+            if countAncientCreeps > 0
+            then
+                return BOT_ACTION_DESIRE_HIGH, enemy;
+            else
+                if not enemy:IsAncientCreep()
+                then
+                    return BOT_ACTION_DESIRE_HIGH, enemy;
+                end
+            end
+        end
+    end
+
+    --[[     if utility.PvPMode(npcBot) or utility.RetreatMode(npcBot)
     then
         local enemyCreeps = npcBot:GetNearbyCreeps(castRangeAbility, true);
         local enemy = utility.GetStrongest(enemyCreeps);
@@ -248,7 +268,7 @@ function ConsiderHolyPersuasion()
                 end
             end
         end
-    end
+    end ]]
 
     return BOT_ACTION_DESIRE_NONE, 0;
 end
@@ -338,8 +358,10 @@ function ConsiderHandOfGod()
     then
         for _, ally in pairs(allyHeroes)
         do
-            if utility.IsHero(ally) and utility.CanBeHeal(ally) and (ally:GetHealth() / ally:GetMaxHealth() <= 0.5)
-                and (ally:WasRecentlyDamagedByAnyHero(2.0) or ally:WasRecentlyDamagedByTower(2.0) or ally:WasRecentlyDamagedByCreep(2.0))
+            if (utility.IsHero(ally) and utility.CanBeHeal(ally)) and
+                (ally:GetHealth() / ally:GetMaxHealth() <= 0.5 and ally:WasRecentlyDamagedByAnyHero(2.0)) or
+                (ally:GetHealth() / ally:GetMaxHealth() <= 0.3 and ally:WasRecentlyDamagedByTower(2.0)) or
+                (ally:GetHealth() / ally:GetMaxHealth() <= 0.2 and ally:WasRecentlyDamagedByCreep(2.0))
             then
                 --npcBot:ActionImmediate_Chat("Использую HandOfGod для лечения " .. ally:GetUnitName(), true);
                 return BOT_ACTION_DESIRE_HIGH;

@@ -286,6 +286,7 @@ function ConsiderDoom()
     end
 
     local castRangeAbility = ability:GetCastRange();
+    local radiusAbility = ability:GetSpecialValueInt("scepter_aura_radius");
     local damageAbility = ability:GetSpecialValueInt("damage") * ability:GetSpecialValueInt("duration");
     local enemyAbility = npcBot:GetNearbyHeroes(castRangeAbility + 200, true, BOT_MODE_NONE);
 
@@ -313,6 +314,21 @@ function ConsiderDoom()
                 and not botTarget:IsSilenced()
             then
                 return BOT_ACTION_DESIRE_HIGH, botTarget;
+            end
+        end
+        if (radiusAbility > 0)
+        then
+            local enemyAbility = npcBot:GetNearbyHeroes(radiusAbility, true, BOT_MODE_NONE);
+            if (#enemyAbility >= 2)
+            then
+                for _, enemy in pairs(enemyAbility)
+                do
+                    if utility.CanCastSpellOnTarget(ability, enemy)
+                    then
+                        --npcBot:ActionImmediate_Chat("Использую Doom при атаке на себя!", true);
+                        return BOT_ACTION_DESIRE_HIGH, npcBot;
+                    end
+                end
             end
         end
     end

@@ -4,7 +4,7 @@ require(GetScriptDirectory() .. "/push_generic")
 
 local npcBot = GetBot();
 
---[[ function GetDesire()
+function GetDesire()
     local botLevel = npcBot:GetLevel();
     local botMode = npcBot:GetActiveMode();
     if utility.NotCurrectHeroBot(npcBot) or not npcBot:IsAlive() or npcBot:HasModifier("modifier_skeleton_king_reincarnation_scepter_active") or botLevel < 10
@@ -14,33 +14,27 @@ local npcBot = GetBot();
         return BOT_MODE_DESIRE_NONE;
     end
 
-    local lane = LANE_MID;
+    --local lane = LANE_MID;
 
-    if utility.GetOurWeakestLane() == lane
+    local countAllyDeadHeroes, countEnemyDeadHeroes, countAllyPlayers, countEnemyPlayers = utility
+        .GetCountAllDeadHeroes();
+
+    if (countEnemyDeadHeroes >= math.floor(countEnemyPlayers / 2) + 1) and utility.IsAllyTeamHaveItem("item_aegis")
     then
-        local countAllyDeadHeroes, countEnemyDeadHeroes, countAllyPlayers, countEnemyPlayers = utility
-            .GetCountAllDeadHeroes();
-
-        if (countEnemyDeadHeroes >= math.floor(countEnemyPlayers / 2) + 1) and utility.IsAllyTeamHaveItem("item_aegis")
-        then
-            return BOT_MODE_DESIRE_HIGH;
-        elseif (countEnemyDeadHeroes >= math.floor(countEnemyPlayers / 2) + 1)
-        then
-            return BOT_MODE_DESIRE_MODERATE;
-        elseif utility.IsAllyTeamHaveItem("item_aegis")
-        then
-            return BOT_MODE_DESIRE_LOW;
-        else
-            return BOT_MODE_DESIRE_VERYLOW;
-        end
+        return BOT_MODE_DESIRE_HIGH;
+    elseif (countEnemyDeadHeroes >= math.floor(countEnemyPlayers / 2) + 1) or utility.IsOurTeamStronger()
+    then
+        return BOT_MODE_DESIRE_MODERATE;
+    elseif utility.IsAllyTeamHaveItem("item_aegis")
+    then
+        return BOT_MODE_DESIRE_LOW;
     end
-
     --return RandomInt(BOT_MODE_DESIRE_VERYLOW, BOT_MODE_DESIRE_LOW);
 
-    return BOT_MODE_DESIRE_NONE;
-end ]]
+    return BOT_MODE_DESIRE_VERYLOW;
+end
 
---[[ function OnStart()
+function OnStart()
     if RollPercentage(5)
     then
         npcBot:ActionImmediate_Chat("Атакую центральную линию.", false);
@@ -49,7 +43,7 @@ end
 
 function OnEnd()
     npcBot:SetTarget(nil);
-end ]]
+end
 
 function Think()
     if utility.IsBusy(npcBot)

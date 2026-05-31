@@ -89,7 +89,7 @@ function AbilityUsageThink()
         return;
     end
 
-     if (castAdaptiveStrikeStrengthDesire > 0)
+    if (castAdaptiveStrikeStrengthDesire > 0)
     then
         npcBot:Action_UseAbilityOnEntity(AdaptiveStrikeStrength, castAdaptiveStrikeStrengthTarget);
         return;
@@ -244,7 +244,7 @@ function ConsiderAdaptiveStrikeAgility()
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= (castRangeAbility + 200)
             then
                 --npcBot:ActionImmediate_Chat("Использую AdaptiveStrikeAgility на " .. enemy:GetUnitName(), true);
-                return BOT_MODE_DESIRE_HIGH, botTarget;
+                return BOT_ACTION_DESIRE_HIGH, botTarget;
             end
         end
     end
@@ -298,7 +298,7 @@ function ConsiderAdaptiveStrikeStrength()
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
                 and not utility.IsDisabled(botTarget)
             then
-                return BOT_MODE_DESIRE_HIGH, botTarget;
+                return BOT_ACTION_DESIRE_HIGH, botTarget;
             end
         end
     end
@@ -331,7 +331,7 @@ function ConsiderAttributeShiftAgility()
         return BOT_ACTION_DESIRE_NONE;
     end
 
-    local abilityRate = ability:GetSpecialValueInt("morph_rate_tooltip");
+    local abilityRate = ability:GetSpecialValueInt("morph_rate");
 
     if (ManaPercentage <= 0.2) or utility.RetreatMode(npcBot) or botStrenght <= abilityRate * 2
     then
@@ -347,7 +347,7 @@ function ConsiderAttributeShiftAgility()
     then
         if ability:GetToggleState() == false
         then
-            --npcBot:ActionImmediate_Chat("Включаю AttributeShiftAgility (Недостаток ловкости)!", true);
+           --npcBot:ActionImmediate_Chat("Включаю AttributeShiftAgility (Недостаток ловкости)!", true);
             return BOT_ACTION_DESIRE_HIGH;
         end
     else
@@ -372,7 +372,7 @@ function ConsiderAttributeShiftStrength()
         return BOT_ACTION_DESIRE_NONE;
     end
 
-    local abilityRate = ability:GetSpecialValueInt("morph_rate_tooltip");
+    local abilityRate = ability:GetSpecialValueInt("morph_rate");
 
     if (ManaPercentage <= 0.2) or botAgility <= abilityRate / 2
     then

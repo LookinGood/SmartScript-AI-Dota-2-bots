@@ -47,11 +47,11 @@ function AbilityLevelUpThink()
 end
 
 -- Abilities
-local Bloodrage = AbilitiesReal[1]
-local BloodRite = AbilitiesReal[2]
-local Thirst = AbilitiesReal[3]
-local BloodMist = AbilitiesReal[4]
-local Rupture = AbilitiesReal[6]
+local Bloodrage = npcBot:GetAbilityByName("bloodseeker_bloodrage");
+local BloodRite = npcBot:GetAbilityByName("bloodseeker_blood_bath");
+local Thirst = npcBot:GetAbilityByName("bloodseeker_thirst");
+local BloodMist = npcBot:GetAbilityByName("bloodseeker_blood_mist");
+local Rupture = npcBot:GetAbilityByName("bloodseeker_rupture");
 
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
@@ -63,7 +63,7 @@ function AbilityUsageThink()
     HealthPercentage = npcBot:GetHealth() / npcBot:GetMaxHealth();
     ManaPercentage = npcBot:GetMana() / npcBot:GetMaxMana();
 
-    local castBloodrageDesire, castBloodrageTarget = ConsiderBloodrage();
+    local castBloodrageDesire = ConsiderBloodrage();
     local castBloodRiteDesire, castBloodRiteLocation = ConsiderBloodRite();
     local castThirstDesire = ConsiderThirst();
     local castBloodMistDesire = ConsiderBloodMist();
@@ -71,7 +71,7 @@ function AbilityUsageThink()
 
     if (castBloodrageDesire > 0)
     then
-        npcBot:Action_UseAbilityOnEntity(Bloodrage, castBloodrageTarget);
+        npcBot:Action_UseAbility(Bloodrage);
         return;
     end
 
@@ -103,10 +103,32 @@ end
 function ConsiderBloodrage()
     local ability = Bloodrage;
     if not utility.IsAbilityAvailable(ability) then
-        return BOT_ACTION_DESIRE_NONE, 0;
+        return BOT_ACTION_DESIRE_NONE;
     end
 
-    local castRangeAbility = ability:GetCastRange();
+    local attackTarget = npcBot:GetAttackTarget();
+    local attackRange = npcBot:GetAttackRange();
+
+    -- Attack use
+    if utility.PvPMode(npcBot) or utility.BossMode(npcBot)
+    then
+        if utility.IsHero(botTarget) or utility.IsBoss(botTarget)
+        then
+            if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= attackRange * 2
+            then
+                return BOT_ACTION_DESIRE_VERYHIGH;
+            end
+        end
+    end
+
+    -- General use
+    if utility.CanCastSpellOnTarget(ability, attackTarget) and (utility.IsBuilding(attackTarget) or attackTarget:IsAncientCreep())
+    then
+        return BOT_ACTION_DESIRE_HIGH;
+    end
+
+
+    --[[     local castRangeAbility = ability:GetCastRange();
     local allyAbility = npcBot:GetNearbyHeroes(castRangeAbility, false, BOT_MODE_NONE);
 
     -- Cast to buff allies
@@ -123,9 +145,9 @@ function ConsiderBloodrage()
                 end
             end
         end
-    end
+    end ]]
 
-    return BOT_ACTION_DESIRE_NONE, 0;
+    return BOT_ACTION_DESIRE_NONE;
 end
 
 function ConsiderBloodRite()

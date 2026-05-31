@@ -47,11 +47,11 @@ function AbilityLevelUpThink()
 end
 
 -- Abilities
-local FortunesEnd = AbilitiesReal[1]
-local FatesEdict = AbilitiesReal[2]
-local PurifyingFlames = AbilitiesReal[3]
-local RainOfDestiny = AbilitiesReal[4]
-local FalsePromise = AbilitiesReal[6]
+local FortunesEnd = npcBot:GetAbilityByName("oracle_fortunes_end");
+local FatesEdict = npcBot:GetAbilityByName("oracle_fates_edict");
+local PurifyingFlames = npcBot:GetAbilityByName("oracle_purifying_flames");
+local RainOfDestiny = npcBot:GetAbilityByName("oracle_rain_of_destiny");
+local FalsePromise = npcBot:GetAbilityByName("oracle_false_promise");
 
 function AbilityUsageThink()
     if not utility.CanCast(npcBot) then
@@ -65,7 +65,7 @@ function AbilityUsageThink()
 
     local castFortunesEndDesire, castFortunesEndTarget = ConsiderFortunesEnd();
     local castFatesEdictDesire, castFatesEdictTarget = ConsiderFatesEdict();
-    local castPurifyingFlamesDesire, castPurifyingFlamesTarget = ConsiderPurifyingFlames();
+    local castPurifyingFlamesDesire, castPurifyingFlamesTarget, castPurifyingFlamesTargetType = ConsiderPurifyingFlames();
     local castRainOfDestinyDesire, castRainOfDestinyLocation = ConsiderRainOfDestiny();
     local castFalsePromiseDesire, castFalsePromiseTarget = ConsiderFalsePromise();
 
@@ -83,8 +83,16 @@ function AbilityUsageThink()
 
     if (castPurifyingFlamesDesire > 0)
     then
-        npcBot:Action_UseAbilityOnEntity(PurifyingFlames, castPurifyingFlamesTarget);
-        return;
+        if (castPurifyingFlamesTargetType == "combo")
+        then
+            npcBot:Action_ClearActions(true);
+            npcBot:ActionQueue_UseAbilityOnEntity(FatesEdict, castPurifyingFlamesTarget);
+            npcBot:ActionQueue_UseAbilityOnEntity(PurifyingFlames, castPurifyingFlamesTarget);
+            return;
+        else
+            npcBot:Action_UseAbilityOnEntity(PurifyingFlames, castPurifyingFlamesTarget);
+            return;
+        end
     end
 
     if (castRainOfDestinyDesire > 0)
@@ -133,7 +141,7 @@ function ConsiderFortunesEnd()
         then
             if utility.CanCastSpellOnTarget(ability, botTarget) and GetUnitToUnitDistance(npcBot, botTarget) <= castRangeAbility
             then
-                return BOT_MODE_DESIRE_HIGH, botTarget;
+                return BOT_ACTION_DESIRE_HIGH, botTarget;
             end
         end
     end
@@ -184,10 +192,10 @@ function ConsiderFatesEdict()
         do
             if utility.IsHero(ally) and not ally:HasModifier("modifier_oracle_fates_edict")
             then
-                if ally:WasRecentlyDamagedByAnyHero(2.0) and (ally:GetHealth() / ally:GetMaxHealth() <= 0.8)
+                if (ally:GetHealth() / ally:GetMaxHealth() <= 0.8) and ally:WasRecentlyDamagedByAnyHero(2.0)
                 then
                     --npcBot:ActionImmediate_Chat("Использую FatesEdict для защиты союзника!", true);
-                    return BOT_MODE_DESIRE_HIGH, ally;
+                    return BOT_ACTION_DESIRE_HIGH, ally;
                 end
                 local incomingSpells = ally:GetIncomingTrackingProjectiles();
                 if (#incomingSpells > 0)
@@ -197,7 +205,7 @@ function ConsiderFatesEdict()
                         if not utility.IsAlly(ally, spell.caster) and GetUnitToLocationDistance(ally, spell.location) <= 300 and spell.is_attack == false
                         then
                             --npcBot:ActionImmediate_Chat("Использую FatesEdict для защиты от заклинания!", true);
-                            return BOT_MODE_DESIRE_HIGH, ally;
+                            return BOT_ACTION_DESIRE_HIGH, ally;
                         end
                     end
                 end
@@ -213,7 +221,7 @@ function ConsiderFatesEdict()
             local attackTarget = enemy:GetAttackTarget();
             if utility.IsHero(attackTarget) and not enemy:IsDisarmed()
             then
-                return BOT_MODE_DESIRE_HIGH, enemy;
+                return BOT_ACTION_DESIRE_HIGH, enemy;
             end
         end
     end
@@ -224,7 +232,7 @@ end
 function ConsiderPurifyingFlames()
     local ability = PurifyingFlames;
     if not utility.IsAbilityAvailable(ability) then
-        return BOT_ACTION_DESIRE_NONE, 0;
+        return BOT_ACTION_DESIRE_NONE, 0, 0;
     end
 
     local castRangeAbility = ability:GetCastRange();
@@ -242,7 +250,7 @@ function ConsiderPurifyingFlames()
                 if utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую PurifyingFlames что бы убить цель!", true);
-                    return BOT_ACTION_DESIRE_ABSOLUTE, enemy;
+                    return BOT_ACTION_DESIRE_ABSOLUTE, enemy, nil;
                 end
             end
         end
@@ -253,19 +261,26 @@ function ConsiderPurifyingFlames()
     then
         for _, ally in pairs(allyAbility)
         do
-            if utility.IsHero(ally) and utility.CanBeHeal(ally) and (ally:GetHealth() <= ally:GetMaxHealth() - healAbility)
+            if utility.IsHero(ally) and utility.CanBeHeal(ally) and (ally:GetHealth() <= (ally:GetMaxHealth() - healAbility * 2))
                 and not utility.HaveRemovedRegenBuff(ally)
             then
-                local magicResist = ally:GetMagicResist();
-                if utility.TargetCantDie(ally) or magicResist >= 0.5
+                if utility.IsAbilityAvailable(FatesEdict) and npcBot:GetMana() > (ability:GetManaCost() + FatesEdict:GetManaCost())
+                --and ally:GetAttackTarget() == nil
                 then
-                    --npcBot:ActionImmediate_Chat("Использую PurifyingFlames по бессмертному/с высоким резистом союзнику!", true);
-                    return BOT_MODE_DESIRE_HIGH, ally;
+                    --npcBot:ActionImmediate_Chat("Использую PurifyingFlames в комбо по союзнику!", true);
+                    return BOT_ACTION_DESIRE_VERYHIGH, ally, "combo";
                 else
-                    if not utility.CanAbilityKillTarget(ally, damageAbility, ability:GetDamageType()) and ally:TimeSinceDamagedByAnyHero() >= 5.0
+                    local magicResist = ally:GetMagicResist();
+                    if utility.TargetCantDie(ally) or magicResist >= 0.5
                     then
-                        --npcBot:ActionImmediate_Chat("Использую PurifyingFlames по союзнику безопасно!", true);
-                        return BOT_MODE_DESIRE_HIGH, ally;
+                        --npcBot:ActionImmediate_Chat("Использую PurifyingFlames по бессмертному/с высоким резистом союзнику!", true);
+                        return BOT_ACTION_DESIRE_HIGH, ally, nil;
+                    else
+                        if not utility.CanAbilityKillTarget(ally, damageAbility, ability:GetDamageType()) and ally:TimeSinceDamagedByAnyHero() >= 5.0
+                        then
+                            --npcBot:ActionImmediate_Chat("Использую PurifyingFlames по союзнику безопасно!", true);
+                            return BOT_ACTION_DESIRE_HIGH, ally, nil;
+                        end
                     end
                 end
             end
@@ -282,13 +297,13 @@ function ConsiderPurifyingFlames()
                 if utility.CanAbilityKillTarget(enemy, damageAbility, ability:GetDamageType()) and utility.CanCastSpellOnTarget(ability, enemy)
                 then
                     --npcBot:ActionImmediate_Chat("Использую PurifyingFlames что бы добить крипа!", true);
-                    return BOT_ACTION_DESIRE_LOW, enemy;
+                    return BOT_ACTION_DESIRE_LOW, enemy, nil;
                 end
             end
         end
     end
 
-    return BOT_ACTION_DESIRE_NONE, 0;
+    return BOT_ACTION_DESIRE_NONE, 0, 0;
 end
 
 function ConsiderRainOfDestiny()
@@ -350,7 +365,7 @@ function ConsiderFalsePromise()
     then
         for _, ally in pairs(allyAbility)
         do
-            if (utility.IsHero(ally) and not utility.TargetCantDie(ally) and ally:GetHealth() / ally:GetMaxHealth() <= 0.2)
+            if (utility.IsHero(ally) and not utility.TargetCantDie(ally) and ally:GetHealth() / ally:GetMaxHealth() <= 0.3)
                 and (ally:WasRecentlyDamagedByAnyHero(2.0) or
                     ally:WasRecentlyDamagedByCreep(2.0) or
                     ally:WasRecentlyDamagedByTower(2.0))

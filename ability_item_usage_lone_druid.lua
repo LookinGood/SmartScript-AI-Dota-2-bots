@@ -128,8 +128,6 @@ function ConsiderSummonSpiritBear()
         return BOT_ACTION_DESIRE_NONE;
     end
 
-    return BOT_ACTION_DESIRE_HIGH;
-
     --[[     -- Attack use
     if utility.PvPMode(npcBot) or botMode == BOT_MODE_ROSHAN
     then

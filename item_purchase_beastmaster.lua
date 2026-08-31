@@ -13,32 +13,35 @@ local ItemsToBuy =
 
     "item_bracer",
 
-    "item_tranquil_boots",
+    "item_ring_of_basilius",
+    "item_arcane_boots",
 
     "item_helm_of_the_dominator",
 
-    "item_headdress",
-    "item_ancient_janggo",
-    "item_boots_of_bearing",
-
-    "item_helm_of_the_overlord",
-
     "item_ultimate_scepter",
+
+    "item_blink",
 
     "item_black_king_bar",
 
-    "item_sheepstick",
+    "item_yasha",
+    "item_manta",
+
+    "item_ultimate_scepter_2",
+
+    "item_aghanims_shard",
+
+    "item_helm_of_the_overlord",
+
+    "item_swift_blink",
+
+    "item_moon_shard",
 
     "item_buckler",
     "item_assault",
 
-    "item_ultimate_scepter_2",
-
-    "item_moon_shard",
-
-    "item_overwhelming_blink",
-
-    "item_aghanims_shard",
+    "item_travel_boots",
+    "item_travel_boots_2",
 }
 
 local realItemsToBuy = {}
@@ -110,6 +113,46 @@ end
     "item_blink",
     "item_reaver",
 	"item_recipe_overwhelming_blink",
+
+    "item_aghanims_shard",
+} ]]
+
+
+--[[ {
+    "item_tango",
+
+    "item_flask",
+
+    "item_faerie_fire",
+
+    "item_magic_wand",
+
+    "item_bracer",
+
+    "item_tranquil_boots",
+
+    "item_helm_of_the_dominator",
+
+    "item_headdress",
+    "item_ancient_janggo",
+    "item_boots_of_bearing",
+
+    "item_helm_of_the_overlord",
+
+    "item_ultimate_scepter",
+
+    "item_black_king_bar",
+
+    "item_sheepstick",
+
+    "item_buckler",
+    "item_assault",
+
+    "item_ultimate_scepter_2",
+
+    "item_moon_shard",
+
+    "item_overwhelming_blink",
 
     "item_aghanims_shard",
 } ]]

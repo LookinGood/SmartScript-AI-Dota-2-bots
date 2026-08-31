@@ -131,8 +131,8 @@ function GetDesire()
     local enemyHeroAround = npcBot:GetNearbyHeroes(1600, true, BOT_MODE_NONE);
 
     if not utility.CanMove(npcBot) or
+        (npcBot:HasModifier("modifier_fountain_fury_swipes_damage_increase") and not utility.IsBotHaveItem("item_aegis")) or
         npcBot:HasModifier("modifier_fountain_invulnerability") or
-        npcBot:HasModifier("modifier_fountain_fury_swipes_damage_increase") or
         npcBot:HasModifier("modifier_skeleton_king_reincarnation_scepter_active")
     then
         return BOT_MODE_DESIRE_ABSOLUTE;

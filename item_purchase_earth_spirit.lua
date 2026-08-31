@@ -22,7 +22,6 @@ local ItemsToBuy =
     "item_kaya",
     "item_sange",
 
-    "item_veil_of_discord",
     "item_shivas_guard",
 
     "item_pers",

@@ -2397,11 +2397,8 @@ function ItemUsageThink()
 	then
 		if not npcBot:HasModifier("modifier_item_moon_shard_consumed")
 		then
-			if utility.IsItemSlotsFull()
-			then
-				npcBot:Action_UseAbilityOnEntity(moonShard, npcBot);
-				return;
-			end
+			npcBot:Action_UseAbilityOnEntity(moonShard, npcBot);
+			return;
 		else
 			local allyHeroes = npcBot:GetNearbyHeroes(1600, false, BOT_MODE_NONE);
 			if (#allyHeroes > 1)

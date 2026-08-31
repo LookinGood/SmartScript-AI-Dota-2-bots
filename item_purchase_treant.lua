@@ -34,7 +34,6 @@ local ItemsToBuy =
 
 	"item_ultimate_scepter_2",
 
-	"item_veil_of_discord",
 	"item_shivas_guard",
 
 	"item_overwhelming_blink",

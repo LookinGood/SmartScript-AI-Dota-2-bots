@@ -18,6 +18,7 @@ local ItemsToBuy =
 	"item_oblivion_staff",
 	"item_witch_blade",
 
+	"item_headdress",
 	"item_ancient_janggo",
 	"item_boots_of_bearing",
 
@@ -28,7 +29,6 @@ local ItemsToBuy =
 	"item_pers",
 	"item_sphere",
 
-	"item_veil_of_discord",
 	"item_shivas_guard",
 
 	"item_devastator",

@@ -253,6 +253,11 @@ function ConsiderUpheaval()
         return BOT_ACTION_DESIRE_NONE, 0;
     end
 
+    if utility.IsAbilityAvailable(ChaoticOffering)
+    then
+        return BOT_ACTION_DESIRE_NONE, 0;
+    end
+
     local castRangeAbility = ability:GetCastRange();
     local radiusAbility = ability:GetSpecialValueInt("aoe");
 

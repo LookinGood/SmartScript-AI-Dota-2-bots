@@ -28,7 +28,6 @@ local ItemsToBuy =
 
 	"item_sheepstick",
 
-	"item_headdress",
 	"item_pipe",
 
 	"item_ultimate_scepter_2",
